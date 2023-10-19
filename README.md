@@ -1,2 +1,0 @@
-# RevRides
-TAMU bus application
