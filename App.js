@@ -1,9 +1,9 @@
+
 import { StatusBar } from 'expo-status-bar';
 import { Button, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,  } from 'react';
 import * as Location from 'expo-location'; // Import the Location module
-import { Image } from 'react-native';
 
 const CustomNotification = ({ message, onClose }) => {
   return (
@@ -122,7 +122,6 @@ export default function App() {
   const [notificationMessage, setNotificationMessage] = useState('');
   const [closestMarkers, setClosestMarkers] = useState([]);
   const [showCurrentLocation, setShowCurrentLocation] = useState(false);
-  const [draggablePin, setDraggablePin] = useState(null);
 
   const getCurrentLocation = async () => {
     try {
@@ -131,17 +130,11 @@ export default function App() {
         setNotificationMessage('Permission to access location was denied');
         return;
       }
-
+  
       const location = await Location.getCurrentPositionAsync({});
       setCurrentLocation({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-      });
-
-      // Initialize draggable pin at current location
-      setDraggablePin({
-        latitude: 30.612603301354493, //location.coords.latitude + 1, //COME BACK
-        longitude:  -96.34181472982877 //location.coords.longitude + 1,
       });
     } catch (error) {
       console.error('Error getting current location:', error);
@@ -171,25 +164,6 @@ export default function App() {
       setSelectedStartMarker(marker);
     } else if (!selectedDestMarker) {
       setSelectedDestMarker(marker);
-    }
-  };
-
-  const handleDragEnd = (e) => {
-    const { latitude, longitude } = e.nativeEvent.coordinate;
-    setDraggablePin({ latitude, longitude });
-
-    // Find the closest marker to the dragged pin
-    const closestMarkerToDraggedPin = findClosestMarker({ latitude, longitude });
-
-    // Highlight the closest marker to the dragged pin in orange
-    setSelectedStartMarker(closestMarkerToDraggedPin);
-
-    if (currentLocation) {
-      // Find the closest marker to the current location
-      const closestMarkerToCurrentLocation = findClosestMarker(currentLocation);
-
-      // Highlight the closest marker to the current location in orange
-      setSelectedDestMarker(closestMarkerToCurrentLocation);
     }
   };
   
@@ -255,7 +229,7 @@ const showLocationsOfInterest = () => {
             : selectedDestMarker?.title === item.title
             ? 'red'
             : isClosestMarker
-            ? 'black'
+            ? 'orange'
             : 'black'
         }
         onPress={() => selectMarker(item)}
@@ -275,26 +249,9 @@ const findClosestMarkers = (currentLocation) => {
     const bDistance = getDistance(currentLocation, b.location);
     return aDistance - bDistance;
   });
+
   setClosestMarkers(sortedMarkers.slice(0, 2));
 };
-
-
-  const findClosestMarker = (location) => {
-    let closestMarker = null;
-    let closestDistance = Number.MAX_VALUE;
-  
-    locationsOfInterest.forEach((marker) => {
-      const distance = getDistance(location, marker.location);
-      if (distance < closestDistance) {
-        closestMarker = marker;
-        closestDistance = distance;
-      }
-    });
-  
-    return closestMarker;
-  };
-
-  
 
 const getDistance = (location1, location2) => {
   const lat1 = location1.latitude;
@@ -319,79 +276,55 @@ const deg2rad = (deg) => {
   return deg * (Math.PI/180);
 };
 
-return (
-  <View style={styles.container}>
-    <Image
-    source={require('./logo.png')}
-    style={styles.logo}
-  />
-    <MapView
-      style={styles.map}
-      onRegionChange={onRegionChange}
-      initialRegion={{
-        latitude: 30.61446139344223,
-        latitudeDelta: 0.019075511625736397,
-        longitude: -96.34006516326997,
-        longitudeDelta: 0.011273115836317515,
-      }}
-    >
-      {currentLocation && (
-        <Marker
-          coordinate={currentLocation}
-          title="Your Location"
-          description="You are here"
-          pinColor="blue"
-        >
-          <Callout>
-            <Text>Your Location</Text>
-          </Callout>
-        </Marker>
-      )}
+  return (
+    <View style={styles.container}>
+      <MapView
+        style={styles.map}
+        onRegionChange={onRegionChange}
+        initialRegion={{
+          latitude: 30.61446139344223,
+          latitudeDelta: 0.019075511625736397,
+          longitude: -96.34006516326997,
+          longitudeDelta: 0.011273115836317515,
+        }}
+      >
+        {currentLocation && (
+          <Marker
+            coordinate={currentLocation}
+            title="Your Location"
+            description="You are here"
+            pinColor="blue"
+          >
+            <Callout>
+              <Text>Your Location</Text>
+            </Callout>
+          </Marker>
+        )}
 
-      {draggablePin && ( // Display draggable pin if it exists
-        <Marker
-          coordinate={draggablePin}
-          draggable
-          pinColor="blue" // Set the pin color to blue
-          onDragEnd={(e) => handleDragEnd(e)}
+        {showLocationsOfInterest()}
+      </MapView>
+      <TouchableOpacity
+        style={buttonStyles.container}
+        onPress={confirmSelection}
+      >
+        <Text style={{ ...buttonStyles.text, marginBottom: 10 }}>Confirm Selection</Text>
+      </TouchableOpacity>
+      <StatusBar style="auto" />
+      {notificationMessage && (
+        <CustomNotification
+          message={notificationMessage}
+          onClose={() => setNotificationMessage('')}
         />
       )}
-
-      {showLocationsOfInterest()}
-    </MapView>
-
-    <TouchableOpacity
-      style={buttonStyles.container}
-      onPress={confirmSelection}
-    >
-      <Text style={{ ...buttonStyles.text, marginBottom: 10 }}>Confirm Selection</Text>
-    </TouchableOpacity>
-    <StatusBar style="auto" />
-    {notificationMessage && (
-      <CustomNotification
-        message={notificationMessage}
-        onClose={() => setNotificationMessage('')}
-      />
-    )}
-  </View>
-);
+    </View>
+  );
 }
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
   },
-
-  logo: {
-    position: 'absolute',
-    top: 20, // Adjust the top position as needed
-    left: 20, // Adjust the left position as needed
-    width: 40, // Adjust the width as needed
-    height: 40, // Adjust the height as needed
-  },
-  
   map: {
     flex: 1,
     width: '100%',
@@ -451,3 +384,4 @@ const buttonStyles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
