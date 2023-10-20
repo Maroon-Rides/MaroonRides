@@ -13,7 +13,7 @@ const CustomNotification = ({ message, onClose }) => {
           <Text style={notificationStyles.message}>{message}</Text>
           </View>
         <TouchableOpacity style={notificationStyles.closeButton} onPress={onClose}>
-        <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'white' }}>X</Text>
+        <Text style={{ fontSize: 20, fontWeight: 'semibold', color: 'white' }}>X</Text>
         </TouchableOpacity>
       </View>
     </View>
