@@ -6,13 +6,13 @@ import { styled } from "nativewind";
 
 import busRoutes from "../../utils/busroutes";
 
+const StyledBottomSheetView = styled(BottomSheetView);
+
 const index: React.FC = () => {
     const sheetRef = useRef<BottomSheet>(null);
 
-    const snapPoints = ['40%'];
-
-    const StyledBottomSheetView = styled(BottomSheetView);
-
+    const snapPoints = ['35%'];
+    
     return (
         <BottomSheet ref={sheetRef} snapPoints={snapPoints}>
             <StyledBottomSheetView className="flex flex-1 p-4">
@@ -20,7 +20,7 @@ const index: React.FC = () => {
                     data={busRoutes}
                     renderItem={({ item: busRoute }) => {
                         return (
-                            <View className="my-4">
+                            <View className="my-3">
                                 <Text className='text-lg font-bold text-neutral-900'>{busRoute.name}</Text>
                             </View>
                         )
