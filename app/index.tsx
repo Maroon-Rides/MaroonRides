@@ -1,16 +1,7 @@
-import { Stack } from 'expo-router';
-
-import { Welcome } from '@/templates/Welcome';
+import { Text } from 'react-native';
 
 const Home = () => (
-  <>
-    <Stack.Screen
-      options={{
-        title: 'My home',
-      }}
-    />
-    <Welcome />
-  </>
+    <Text>Hello World</Text>
 );
 
 export default Home;
