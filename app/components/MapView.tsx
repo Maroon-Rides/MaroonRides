@@ -3,7 +3,8 @@ import MapView, { AnimatedRegion } from 'react-native-maps';
 import * as Location from 'expo-location';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { styled } from 'nativewind';
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 
 const StyledMapView = styled(MapView);
 
@@ -47,13 +48,17 @@ const Index: React.FC = () => {
             className='w-full h-full'
             ref = {(mapView) => { mapViewRef = mapView; }}
         >
-                <TouchableOpacity style={styles.recenter}>
-                    <Ionicons 
-                        name="navigate" 
-                        size={24} 
-                        color="gray" 
-                        onPress={() => recenterView()} />
-                </TouchableOpacity>
+            <SafeAreaInsetsContext.Consumer>
+                {(insets) => ( 
+                    <TouchableOpacity style={[styles.recenter, {top: 16 + insets.top}]}>
+                        <Ionicons 
+                            name="navigate" 
+                            size={24} 
+                            color="gray" 
+                            onPress={() => recenterView()} />
+                    </TouchableOpacity>
+                )}
+            </SafeAreaInsetsContext.Consumer>
         </StyledMapView>
     )
 }
@@ -61,7 +66,6 @@ const Index: React.FC = () => {
 const styles =  StyleSheet.create({
     recenter: {
         position: "absolute", 
-        top: 16, 
         right: 16,
         width: 50,
         height: 50,
