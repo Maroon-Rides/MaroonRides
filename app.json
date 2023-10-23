@@ -1,43 +1,33 @@
 {
   "expo": {
-    "name": "expo-map-tutorial",
-    "slug": "expo-map-tutorial",
+    "name": "revellierides",
+    "slug": "revellierides",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "scheme": "myapp",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "updates": {
-      "fallbackToCacheTimeout": 0
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.misscoding.expomaptutorial",
-      "config": {
-        "googleMapsApiKey": "AIzaSyCb8afnyXGIF4hFOS8L7WhnzaqVUhupBtw"
-      }
+      "bundleIdentifier": "com.anonymous.reactnativeboilerplate"
     },
     "android": {
-      "package": "com.misscoding.expomaptutorial",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#ffffff"
       },
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyCb8afnyXGIF4hFOS8L7WhnzaqVUhupBtw"
-        }
-      }
+      "package": "com.anonymous.reactnativeboilerplate"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": ["@config-plugins/detox", "expo-router", "expo-location"]
   }
 }
