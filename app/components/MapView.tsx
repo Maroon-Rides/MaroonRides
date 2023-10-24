@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import MapView, { AnimatedRegion } from 'react-native-maps';
+import React, { useEffect } from "react";
+import MapView from 'react-native-maps';
 import * as Location from 'expo-location';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { styled } from 'nativewind';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 
 const StyledMapView = styled(MapView);
@@ -62,19 +62,5 @@ const Index: React.FC = () => {
         </StyledMapView>
     )
 }
-
-// const styles =  StyleSheet.create({
-//     recenter: {
-//         position: "absolute", 
-//         right: 16,
-//         width: 50,
-//         height: 50,
-//         backgroundColor: "white",
-//         borderRadius: 8,
-//         overflow: "hidden",
-//         justifyContent: 'center',
-//         alignItems: 'center'
-//     }
-// })
 
 export default Index;
