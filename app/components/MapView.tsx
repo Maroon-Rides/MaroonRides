@@ -50,12 +50,12 @@ const Index: React.FC = () => {
         >
             <SafeAreaInsetsContext.Consumer>
                 {(insets) => ( 
-                    <TouchableOpacity style={[styles.recenter, {top: 16 + insets.top}]}>
+                    <TouchableOpacity className="content-center justify-center absolute right-4 bg-white p-2.5 overflow-hidden rounded-lg" style={{top: insets!.top + 16}} onPress={() => recenterView()}>
                         <Ionicons 
                             name="navigate" 
                             size={24} 
                             color="gray" 
-                            onPress={() => recenterView()} />
+                        />
                     </TouchableOpacity>
                 )}
             </SafeAreaInsetsContext.Consumer>
@@ -63,18 +63,18 @@ const Index: React.FC = () => {
     )
 }
 
-const styles =  StyleSheet.create({
-    recenter: {
-        position: "absolute", 
-        right: 16,
-        width: 50,
-        height: 50,
-        backgroundColor: "white",
-        borderRadius: 8,
-        overflow: "hidden",
-        justifyContent: 'center',
-        alignItems: 'center'
-    }
-})
+// const styles =  StyleSheet.create({
+//     recenter: {
+//         position: "absolute", 
+//         right: 16,
+//         width: 50,
+//         height: 50,
+//         backgroundColor: "white",
+//         borderRadius: 8,
+//         overflow: "hidden",
+//         justifyContent: 'center',
+//         alignItems: 'center'
+//     }
+// })
 
 export default Index;
