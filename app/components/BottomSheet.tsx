@@ -36,10 +36,17 @@ const index: React.FC = () => {
                     renderItem={({ item: busRoute }) => {
                         return (
                             <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }}>
-                                <View className="w-12 h-12 rounded-lg mr-4 content-center justify-center" style={{backgroundColor: busRoute.color}}>
-                                    <Text className="text-center font-bold text-md text-white">{busRoute.shortName}</Text>
+                                <View className="w-12 h-10 rounded-lg mr-4 content-center justify-center" style={{backgroundColor: busRoute.color}}>
+                                    <Text 
+                                        adjustsFontSizeToFit={true} 
+                                        numberOfLines={1}
+                                        className="text-center font-bold text-white p-1"
+                                        style={{fontSize: 16}} // this must be used, nativewind is broken :(
+                                    >
+                                        {busRoute.shortName}
+                                    </Text>
                                 </View>
-                                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#2c3e50' }}>{busRoute.name}</Text>
+                                <Text className="font-bold text-xl">{busRoute.name}</Text>
                             </View>
                         )
                     }}
