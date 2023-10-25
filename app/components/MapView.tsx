@@ -1,14 +1,14 @@
 import React, { useEffect } from "react";
-import MapView from 'react-native-maps';
+import MapView, {Polyline} from 'react-native-maps';
 import * as Location from 'expo-location';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { styled } from 'nativewind';
-import { TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 
 const StyledMapView = styled(MapView);
 
-function Index({ mapConnection }) {
+function Index({ drawnRoutes }) {
     var mapViewRef: any;
 
     async function recenterView() {
@@ -59,6 +59,29 @@ function Index({ mapConnection }) {
                     </TouchableOpacity>
                 )}
             </SafeAreaInsetsContext.Consumer>
+
+            {drawnRoutes.map(function(drawnRoute) {
+
+                var coords = []
+                
+                drawnRoute.routeInfo.patternPaths.forEach((path) => {
+                    path.patternPoints.forEach((point) => {
+                        coords.push({
+                            latitude: point.latitude,
+                            longitude: point.longitude
+                        })
+                    })
+                })
+
+                return (
+                    <Polyline
+                      key={drawnRoute.key}
+                      coordinates={coords}
+                      strokeColor={"#" + drawnRoute.routeInfo.color} // fallback for when `strokeColors` is not supported by the map-provider
+                      strokeWidth={6}
+                    />
+                )
+            })}
         </StyledMapView>
     )
 }

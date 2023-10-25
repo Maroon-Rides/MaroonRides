@@ -7,10 +7,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 import { styled } from "nativewind";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 const StyledBottomSheetView = styled(BottomSheetView);
   
-function Index({ mapConnection, timetableConnection }) {
+function Index({ setDrawnRoutes }) {
     const sheetRef = useRef<BottomSheet>(null);
 
     const snapPoints = ['35%'];
@@ -43,6 +44,7 @@ function Index({ mapConnection, timetableConnection }) {
 
             setGroups(data)
             setSelectedGroup(data["On Campus"])
+            setDrawnRoutes(data["On Campus"])
         })();
     }, []);
 
@@ -58,6 +60,7 @@ function Index({ mapConnection, timetableConnection }) {
                     selectedIndex={0}
                     onValueChange={(value) => {
                         setSelectedGroup(groups[value])
+                        setDrawnRoutes(groups[value])
                     }}
                 />
                     <FlatList
@@ -65,7 +68,10 @@ function Index({ mapConnection, timetableConnection }) {
                         keyExtractor={busRoute => busRoute.key}
                         renderItem={({ item: busRoute }) => {
                             return (
-                                <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} >
+                                <TouchableOpacity 
+                                    style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} 
+                                    onPress={() => setDrawnRoutes([busRoute])}
+                                >
                                     <View className="w-12 h-10 rounded-lg mr-4 content-center justify-center" style={{backgroundColor: "#" + busRoute.routeInfo.color}}>
                                         <Text 
                                             adjustsFontSizeToFit={true} 
@@ -77,7 +83,7 @@ function Index({ mapConnection, timetableConnection }) {
                                         </Text>
                                     </View>
                                     <Text className="font-bold text-xl">{busRoute.name}</Text>
-                                </View>
+                                </TouchableOpacity>
                             )
                         }}                        
                     />

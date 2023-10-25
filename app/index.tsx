@@ -1,26 +1,19 @@
 import { View } from 'react-native';
-
 import BottomSheet from "./components/BottomSheet";
 import MapView from './components/MapView';
-import { MapConnection, TimetableConnection } from 'aggie-spirit-api'
-import { useEffect } from 'react';
+import {  useState } from 'react';
 
 const Home = () => {
 
-    var mapConnection = new MapConnection();
-    
-    var timetableConnection = new TimetableConnection();
+    var [drawnRoutes, setDrawnRoutes] = useState([]);
 
-    useEffect(() => {
-        mapConnection.connect()
-        timetableConnection.connect()
-    })
+
 
     return (
         <View className='flex flex-1 justify-center items-center'>
-            <MapView mapConnection={mapConnection}/>
+            <MapView drawnRoutes={drawnRoutes} />
 
-            <BottomSheet mapConnection={mapConnection} timetableConnection={timetableConnection}/>
+            <BottomSheet setDrawnRoutes={setDrawnRoutes} />
         </View>
     )
 }
