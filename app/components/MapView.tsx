@@ -8,7 +8,7 @@ import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 
 const StyledMapView = styled(MapView);
 
-const Index: React.FC = () => {
+function Index({ mapConnection }) {
     var mapViewRef: any;
 
     async function recenterView() {
