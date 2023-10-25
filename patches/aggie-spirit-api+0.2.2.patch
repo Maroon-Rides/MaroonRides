@@ -1,0 +1,25 @@
+diff --git a/node_modules/aggie-spirit-api/src/connection.js b/node_modules/aggie-spirit-api/src/connection.js
+index 7bee17e..076a5ad 100644
+--- a/node_modules/aggie-spirit-api/src/connection.js
++++ b/node_modules/aggie-spirit-api/src/connection.js
+@@ -1,4 +1,4 @@
+-import EventSource from "eventsource"
++import EventSource from "react-native-sse"
+ 
+ const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4585.0 Safari/537.36"
+ 
+@@ -20,13 +20,12 @@ class Connection {
+     async connect() {
+         // Get Session ID for Authentication
+         const sessionIdResponse = await fetch('https://transport.tamu.edu/busroutes.web', {
+-            signal: AbortSignal.timeout(10000), // timeout connection after 10 seconds
+             headers: {
+                 'User-Agent': USER_AGENT
+             }
+         })
+ 
+-        this.tsessionID = sessionIdResponse.headers.get("set-cookie").split(";")[0].split("=")[1]
++        // this.tsessionID = sessionIdResponse.headers.get("set-cookie").split(";")[0].split("=")[1]
+ 
+         // Negotiate Connection to Server
+         const negotiate_response = await fetch(
