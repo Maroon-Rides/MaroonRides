@@ -2,159 +2,159 @@ import { IBusRoute } from "./interfaces";
 
 const busRoutes: IBusRoute[] = [
     {
-        id: '1',
-        name: 'Bonfire',
-        color: 'red',
-        onCampus: true,
-        icon: require('../assets/route_icons/1.png')
+      id: '39df824f-5a0b-4b00-8cbf-6a12627b1351',
+      name: 'Bonfire',
+      shortName: '01',
+      onCampus: true,
+      color: '#5D0025'
     },
     {
-        id: '2',
-        name: '(01-04) Nights & Weekends',
-        color: 'green',
-        onCampus: true,
-        icon: require('../assets/route_icons/2.png')
+      id: '418d0717-262d-4fc8-885a-344d5afc292a',
+      name: 'Nights & Weekends',
+      shortName: '01-04',
+      onCampus: true,
+      color: '#000000'
     },
     {
-        id: '3',
-        name: 'Yell Practice',
-        color: 'Yellow',
-        onCampus: true,
-        icon: require('../assets/route_icons/3.png')
+      id: '00a2aebb-d91c-42d7-8592-4bf17dbb5956',
+      name: 'Yell Practice',
+      shortName: '03',
+      onCampus: true,
+      color: '#5D0025'
     },
     {
-        id: '4',
-        name: '(03-05) Nights & Weekends',
-        color: 'green',
-        onCampus: true,
-        icon: require('../assets/route_icons/4.png')
+      id: 'fa80f9cd-5a70-480a-ab81-d688fe4ca012',
+      name: 'Nights & Weekends',
+      shortName: '03-05',
+      onCampus: true,
+      color: '#000000'
     },
     {
-        id: '5',
-        name: 'Gig Em',
-        color: 'purple',
-        onCampus: true,
-        icon: require('../assets/route_icons/5.png')
+      id: 'e5f509d1-3fe1-45e5-97c5-1947400e11c5',
+      name: 'Gig Em',
+      shortName: '04',
+      onCampus: true,
+      color: '#5D0025'
     },
     {
-        id: '6',
-        name: 'Bush School',
-        color: 'pink',
-        onCampus: true,
-        icon: require('../assets/route_icons/6.png')
+      id: 'bc69d99d-ca07-46ff-9b7d-f12b77ab344e',
+      name: 'Bush School',
+      shortName: '05',
+      onCampus: true,
+      color: '#5D0025'
     },
     {
-        id: '7',
-        name: '12th Man',
-        color: 'orange',
-        onCampus: true,
-        icon: require('../assets/route_icons/7.png')
+      id: 'ee64d0db-660b-44c3-9aaa-4452b1ed3a14',
+      name: '12th Man',
+      shortName: '06',
+      onCampus: true,
+      color: '#5D0025'
     },
     {
-        id: '8',
-        name: 'Airport',
-        color: 'lime',
-        onCampus: true,
-        icon: require('../assets/route_icons/8.png')
+      id: 'ba122d74-6811-4b3f-a0c6-6655a94bd306',
+      name: 'Airport',
+      shortName: '07',
+      onCampus: true,
+      color: '#AA0044'
     },
     {
-        id: '9',
-        name: 'Howdy',
-        color: 'blue',
-        onCampus: true,
-        icon: require('../assets/route_icons/9.png')  
+      id: '53eac311-a1d3-4aaf-9873-53a8c31a91b4',
+      name: 'Howdy',
+      shortName: '08',
+      onCampus: true,
+      color: '#5D0025'
     },
     {
-        id: '10',
-        name: 'Revellie',
-        color: 'red',
-        onCampus: false,
-        icon: require('../assets/route_icons/10.png')
+      id: '56f5b4fb-a637-44d3-8c91-617aae0b8a08',
+      name: 'Reveille',
+      shortName: '12',
+      onCampus: false,
+      color: '#BE0404'
     },
     {
-        id: '11',
-        name: 'Old Army',
-        color: 'green',
-        onCampus: false,
-        icon: require('../assets/route_icons/11.png')
+      id: 'ffdbc389-7678-4a66-873d-4b0ef954b81d',
+      name: 'Old Army',
+      shortName: '15',
+      onCampus: false,
+      color: '#BE0404'
     },
     {
-        id: '12',
-        name: 'Excel',
-        color: 'yellow',
-        onCampus: false,
-        icon: require('../assets/route_icons/12.png')
+      id: '857fe6f6-8106-4147-9a3a-553786439f86',
+      name: 'Excel',
+      shortName: '22',
+      onCampus: false,
+      color: '#11587C'
     },
     {
-        id: '13',
-        name: 'Rudder',
-        color: 'green',
-        onCampus: false,
-        icon: require('../assets/route_icons/13.png')
+      id: '75011f50-f500-4436-9e0c-1db1cd001735',
+      name: 'Rudder',
+      shortName: '26',
+      onCampus: false,
+      color: '#11587C'
     },
     {
-        id: '14',
-        name: 'Ring Dance',
-        color: 'purple',
-        onCampus: false,
-        icon: require('../assets/route_icons/14.png')
+      id: 'eede00d0-58e4-4b36-9abf-7fdc4e359eb5',
+      name: 'Ring Dance',
+      shortName: '27',
+      onCampus: false,
+      color: '#11587C'
     },
     {
-        id: '15',
-        name: 'Elephant Walk',
-        color: 'pink',
-        onCampus: false,
-        icon: require('../assets/route_icons/15.png')
+      id: '8dd8ad2a-62a1-40c0-87e7-94ceae1ee6cc',
+      name: 'Elephant Walk',
+      shortName: '31',
+      onCampus: false,
+      color: '#5A2881'
     },
     {
-        id: '16',
-        name: 'Fish Camp',
-        color: 'orange',
-        onCampus: false,
-        icon: require('../assets/route_icons/16.png')
+      id: '1998e453-b1d8-48a6-8c22-6379468903c3',
+      name: 'Fish Camp',
+      shortName: '34',
+      onCampus: false,
+      color: '#5A2881'
     },
     {
-        id: '17',
-        name: 'Hullabaloo',
-        color: 'lime',
-        onCampus: false,
-        icon: require('../assets/route_icons/17.png')
+      id: 'ef2415d0-f7e9-484e-9cb0-5fdd311b0ef8',
+      name: 'Hullabaloo',
+      shortName: '35',
+      onCampus: false,
+      color: '#800044'
     },
     {
-        id: '18',
-        name: 'Matthew Gaines',
-        color: 'blue',
-        onCampus: false,
-        icon: require('../assets/route_icons/18.png')
+      id: 'cec5ac83-4736-4179-a85d-bf61af8350ab',
+      name: 'Matthew Gaines',
+      shortName: '36',
+      onCampus: false,
+      color: '#800044'
     },
     {
-        id: '19',
-        name: 'Century Tree',
-        color: 'amber',
-        onCampus: false,
-        icon: require('../assets/route_icons/19.png')
+      id: 'ef7844c1-b0d9-43ce-a1d7-c749463176ff',
+      name: 'Century Tree',
+      shortName: '40',
+      onCampus: false,
+      color: '#800044'
     },
     {
-        id: '20',
-        name: 'Rellis',
-        color: 'teal',
-        onCampus: false,
-        icon: require('../assets/route_icons/20.png')
+      id: 'bb424c87-7268-4aaf-b06d-c7b2cad3606a',
+      name: 'RELLIS',
+      shortName: '47',
+      onCampus: false,
+      color: '#2C4A3E'
     },
     {
-        id: '21',
-        name: '(47-48) Nights and Weekends',
-        color: 'cyan',
-        onCampus: false,
-        icon: require('../assets/route_icons/21.png')
+      id: '2fdd8673-90f7-45ea-aa59-2505b47d1706',
+      name: 'Nights & Weekends',
+      shortName: '47-48',
+      onCampus: false,
+      color: '#000000'
     },
     {
-        id: '22',
-        name: 'Rellis Circulator',
-        color: 'fuchsia',
-        onCampus: false,
-        icon: require('../assets/route_icons/22.png')
+      id: '31f9f6de-2b90-4838-8e2a-8aee6fc145a1',
+      name: 'RELLIS Circulator',
+      shortName: '48',
+      onCampus: false,
+      color: '#2C4A3E'
     }
-]
+  ]
 
 export default busRoutes;

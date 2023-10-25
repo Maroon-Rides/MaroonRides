@@ -36,10 +36,9 @@ const index: React.FC = () => {
                     renderItem={({ item: busRoute }) => {
                         return (
                             <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }}>
-                                <Image
-                                    source={busRoute.icon as ImageSourcePropType}
-                                    style={{ width: 50, height: 40, marginRight: 10, borderRadius: 10 }}
-                                />
+                                <View className="w-12 h-12 rounded-lg mr-4 content-center justify-center" style={{backgroundColor: busRoute.color}}>
+                                    <Text className="text-center font-bold text-md text-white">{busRoute.shortName}</Text>
+                                </View>
                                 <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#2c3e50' }}>{busRoute.name}</Text>
                             </View>
                         )
