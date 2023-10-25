@@ -2,5 +2,6 @@ export interface IBusRoute {
     id: string,
     name: string,
     color: string,
-    onCampus: boolean
+    onCampus: boolean,
+    icon: Blob
 }
