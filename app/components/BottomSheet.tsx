@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 
-import { View, Text, FlatList, Image, ImageSourcePropType } from "react-native";
+import { View, Text, FlatList } from "react-native";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 
