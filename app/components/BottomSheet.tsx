@@ -3,6 +3,8 @@ import { View, Text, FlatList, ActivityIndicator } from "react-native";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { RouteGroup, getRoutesByGroup } from "aggie-spirit-api"
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 import { styled } from "nativewind";
 
@@ -14,35 +16,33 @@ function Index() {
     const snapPoints = ['35%'];
 
     const [groups, setGroups] = useState()
-    const [groupNames, setGroupNames] = useState();
-    const [selectedGroupIndex, setSelectedGroupIndex] = useState(0);
-
+    const [selectedGroup, setSelectedGroup] = useState()
 
     // download data
     useEffect(() => {
         (async () => {
             console.log("Refresh data")
-            var d = await getRoutesByGroup(RouteGroup.ON_CAMPUS)
-            console.log(d)
+            var data = JSON.parse(await AsyncStorage.getItem("routeCache") || "{}")
 
-            var g = {}
-
-            // OnCampus
-            if (d.OnCampus && d.OnCampus.length > 0) {
-                g["On Campus"] = d.OnCampus
+            if (data == null) {
+                data = await getRoutesByGroup([RouteGroup.ON_CAMPUS, RouteGroup.OFF_CAMPUS])
+                await AsyncStorage.setItem("routeCache", JSON.stringify(data))
             } 
 
-            // OnCampus
-            if (d.OffCampus && d.OffCampus.length > 0) {
-                g["Off Campus"] = d.OffCampus
-            } 
+            // set the correct names to be used with the segmented control
+            data["On Campus"] = data.OnCampus
+            delete data.OnCampus
+
+            data["Off Campus"] = data.OffCampus
+            delete data.OffCampus
+
             // Gameday
-            if (d.Gameday && d.Gameday.length > 0) {
-                g["Gameday"] = d.Gameday
-            } 
+            if (data.Gameday && data.Gameday.length == 0) {
+                delete data.Gameday
+            }
 
-            setGroups(Object.values(g))
-            setGroupNames(Object.keys(g))            
+            setGroups(data)
+            setSelectedGroup(data["On Campus"])
         })();
     }, []);
 
@@ -54,18 +54,19 @@ function Index() {
                 ) : (
                     <View>
                     <SegmentedControl
-                    values={groupNames}
-                    selectedIndex={selectedGroupIndex}
-                    onChange={(event) => {
-                        setSelectedGroupIndex(event.nativeEvent.selectedSegmentIndex)
+                    values={Object.keys(groups)}
+                    selectedIndex={0}
+                    onValueChange={(value) => {
+                        setSelectedGroup(groups[value])
                     }}
                 />
                     <FlatList
-                        data={groups[selectedGroupIndex]}
+                        data={selectedGroup}
+                        keyExtractor={busRoute => busRoute.key}
                         renderItem={({ item: busRoute }) => {
                             return (
-                                <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }}>
-                                    <View className="w-12 h-10 rounded-lg mr-4 content-center justify-center" style={{backgroundColor: busRoute.color}}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} >
+                                    <View className="w-12 h-10 rounded-lg mr-4 content-center justify-center" style={{backgroundColor: "#" + busRoute.routeInfo.color}}>
                                         <Text 
                                             adjustsFontSizeToFit={true} 
                                             numberOfLines={1}
@@ -78,18 +79,10 @@ function Index() {
                                     <Text className="font-bold text-xl">{busRoute.name}</Text>
                                 </View>
                             )
-                        }}
-                        
-                        keyExtractor={busRoute => busRoute.id}
+                        }}                        
                     />
                     </View>
-                )
-
-                }
-
-                
-
-                
+                )}
             </StyledBottomSheetView>
         </BottomSheet>
     );
