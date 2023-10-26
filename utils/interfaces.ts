@@ -3,5 +3,5 @@ export interface IBusRoute {
     name: string,
     color: string,
     onCampus: boolean,
-    icon: Blob
+    shortName: string // text to show in colored icons
 }
