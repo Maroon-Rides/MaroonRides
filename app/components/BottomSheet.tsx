@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 
-import { View, Text, FlatList, Image, ImageSourcePropType } from "react-native";
+import { View, Text, FlatList } from "react-native";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 
@@ -36,11 +36,17 @@ const index: React.FC = () => {
                     renderItem={({ item: busRoute }) => {
                         return (
                             <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }}>
-                                <Image
-                                    source={busRoute.icon as ImageSourcePropType}
-                                    style={{ width: 50, height: 40, marginRight: 10, borderRadius: 10 }}
-                                />
-                                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#2c3e50' }}>{busRoute.name}</Text>
+                                <View className="w-12 h-10 rounded-lg mr-4 content-center justify-center" style={{backgroundColor: busRoute.color}}>
+                                    <Text 
+                                        adjustsFontSizeToFit={true} 
+                                        numberOfLines={1}
+                                        className="text-center font-bold text-white p-1"
+                                        style={{fontSize: 16}} // this must be used, nativewind is broken :(
+                                    >
+                                        {busRoute.shortName}
+                                    </Text>
+                                </View>
+                                <Text className="font-bold text-xl">{busRoute.name}</Text>
                             </View>
                         )
                     }}
