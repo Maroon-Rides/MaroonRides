@@ -38,27 +38,54 @@ function Index({ setDrawnRoutes }) {
         (async () => {
             console.log("Refresh data")
             var data = JSON.parse(await AsyncStorage.getItem("routeCache") || "{}")
-
             if (data == null) {
-                data = await getRoutesByGroup([RouteGroup.ON_CAMPUS, RouteGroup.OFF_CAMPUS])
+                data = await getRoutesByGroup(RouteGroup.ALL)
+                console.log(data)
                 await AsyncStorage.setItem("routeCache", JSON.stringify(data))
             } 
 
-            // set the correct names to be used with the segmented control
+            // set the correct names to be used with the segmented control and descriptions
             data["On Campus"] = data.OnCampus
             delete data.OnCampus
+            data["On Campus"].forEach((route) => {
+                route.category = "On Campus"
+                route.endpointName = route.routeInfo.patternPaths[0].patternPoints[0].name + " | " + route.routeInfo.patternPaths[1].patternPoints[0].name
+            })
 
+            // set the correct names to be used with the segmented control and descriptions
             data["Off Campus"] = data.OffCampus
             delete data.OffCampus
+            data["Off Campus"].forEach((route) => {
+                route.category = "Off Campus"
+                route.endpointName = route.routeInfo.patternPaths[0].patternPoints[0].name + " | " + route.routeInfo.patternPaths[1].patternPoints[0].name
+            })
 
             // Gameday
+            // set the correct names to be used with the segmented control and descriptions
             if (data.Gameday && data.Gameday.length == 0) {
                 delete data.Gameday
-            }
 
+                setSelectedGroup(data["On Campus"])
+                setDrawnRoutes(data["On Campus"])
+
+            } else if (data.Gameday) {
+                data["Gameday"].forEach((route) => {
+                    route.category = "Gameday"
+
+                    route.name = route.name.replace("Gameday ", "")
+                    route.endpointName = route.routeInfo.patternPaths[0].patternPoints[0].name + " | " + route.routeInfo.patternPaths[1].patternPoints[0].name
+                    // delete the duplicate route
+                    route.routeInfo.patternPaths = [route.routeInfo.patternPaths[0]]
+                })
+
+
+                setSelectedGroup(data["Gameday"])
+                setDrawnRoutes(data["Gameday"])
+            }
+            
+            setSelectedIndex(0)
             setGroups(data)
-            setSelectedGroup(data["On Campus"])
-            setDrawnRoutes(data["On Campus"])
+            
         })();
     }, []);
 
@@ -80,7 +107,7 @@ function Index({ setDrawnRoutes }) {
                     </View>
                     <View>
                         <Text className="font-bold text-2xl">{selectedRoute.name}</Text>
-                        <Text>{selectedIndex == 0 ? "On Campus" : selectedIndex == 1 ? "Off Campus" : "Gameday"}</Text>
+                        <Text>{selectedRoute.category}</Text>
                     </View>
                     
                     {/* Spacer */}
@@ -143,7 +170,7 @@ function Index({ setDrawnRoutes }) {
                                     <View>
                                         <Text className="font-bold text-xl">{busRoute.name}</Text>
                                         <Text>
-                                            {busRoute.routeInfo.patternPaths[0].patternPoints[0].name} | {busRoute.routeInfo.patternPaths[1].patternPoints[0].name}
+                                            {busRoute.endpointName}
                                         </Text>
                                     </View>
                                 </TouchableOpacity>

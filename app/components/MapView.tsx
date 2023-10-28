@@ -198,7 +198,7 @@ function Index({ drawnRoutes }) {
             {buses.map((bus) => {
                 console.log(bus.location)
                 return (
-                    <Marker.Animated 
+                    <Marker 
                     flat
                     key={bus.key} 
                     coordinate={{latitude: bus.location.latitude, longitude: bus.location.longitude}}
@@ -210,7 +210,7 @@ function Index({ drawnRoutes }) {
                             color={"red"}
                         />
 
-                    </Marker.Animated>
+                    </Marker>
                 )
             })}
         </StyledMapView>
