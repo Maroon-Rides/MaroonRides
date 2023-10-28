@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import MapView, {Polyline} from 'react-native-maps';
+import MapView, {LatLng, Polyline} from 'react-native-maps';
 import * as Location from 'expo-location';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { styled } from 'nativewind';
@@ -29,18 +29,36 @@ function Index({ drawnRoutes }) {
         mapViewRef.animateToRegion({
             latitude: location.coords.latitude, 
             longitude: location.coords.longitude, 
-            latitudeDelta: 0.019075511625736397, 
-            longitudeDelta: 0.011273115836317515 
+            latitudeDelta: 0.02, 
+            longitudeDelta: 0.02 
         }, 250);
     }
-
-
-    useEffect(() => {
-        (async () => {
-            recenterView()
-        })();
-    }, []);
     
+    useEffect(() => {
+        var coords: LatLng[] = []
+        drawnRoutes.forEach((route) => {
+                
+            route.routeInfo.patternPaths.forEach((path) => {
+                path.patternPoints.forEach((point: {latitude: number, longitude: number}) => {
+                    coords.push({
+                        latitude: point.latitude,
+                        longitude: point.longitude
+                    })
+                })
+            })
+        })
+
+        mapViewRef.fitToCoordinates(coords, {
+            edgePadding: {
+                top: 50,
+                right: 20 ,
+                bottom: 300,
+                left: 20
+            },
+            animated: true
+        })
+    }, [drawnRoutes]);
+
 
     return (
         <StyledMapView 
@@ -62,7 +80,7 @@ function Index({ drawnRoutes }) {
 
             {drawnRoutes.map(function(drawnRoute) {
 
-                var coords = []
+                var coords: LatLng[] = []
                 
                 drawnRoute.routeInfo.patternPaths.forEach((path) => {
                     path.patternPoints.forEach((point) => {
