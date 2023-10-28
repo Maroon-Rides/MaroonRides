@@ -14,7 +14,7 @@ const StyledBottomSheetView = styled(BottomSheetView);
 function Index({ setDrawnRoutes }) {
     const sheetRef = useRef<BottomSheet>(null);
 
-    const snapPoints = [ '35%', '10%', '75%'];
+    const snapPoints = [ '35%', 110, '80%'];
 
     const [groups, setGroups] = useState()
     const [selectedGroup, setSelectedGroup] = useState()
@@ -54,7 +54,7 @@ function Index({ setDrawnRoutes }) {
     return (
         <BottomSheet ref={sheetRef} snapPoints={snapPoints}>
             { selectedRoute ? (
-            <StyledBottomSheetView className="flex flex-1 px-4 pt-2">
+            <StyledBottomSheetView className="flex flex-1 px-4 pt-1">
                 <View className="flex-row align-center" >
 
                     <View className="w-14 h-12 rounded-lg mr-3 content-center justify-center" style={{backgroundColor: "#" + selectedRoute.routeInfo.color}}>
@@ -69,18 +69,20 @@ function Index({ setDrawnRoutes }) {
                     </View>
                     <View>
                         <Text className="font-bold text-2xl">{selectedRoute.name}</Text>
-                        <Text>sdafaf</Text>
+                        <Text>{selectedIndex == 0 ? "On Campus" : selectedIndex == 1 ? "Off Campus" : "Gameday"}</Text>
                     </View>
                     
                     {/* Spacer */}
                     <View className="flex-1" />
-                    <TouchableOpacity onPress={() => { 
+                    <TouchableOpacity 
+                        className="content-center justify-center"
+                    onPress={() => { 
                         setDrawnRoutes(selectedGroup)
                         sheetRef.current?.snapToIndex(0)
                         setSelectedRoute(undefined)
                     }}>
 
-                        <Ionicons name="close" size={24} />
+                        <Ionicons name="close-circle" size={32} color="grey" />
                     </TouchableOpacity>
                 </View>
 
