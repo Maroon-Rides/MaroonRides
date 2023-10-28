@@ -11,6 +11,23 @@ const StyledMapView = styled(MapView);
 function Index({ drawnRoutes }) {
     var mapViewRef: any;
 
+    // given a hex code without the #, return a lighter version of it
+    function getLighterColor(color: string) {
+        var r = parseInt(color.substring(0, 2), 16);
+        var g = parseInt(color.substring(2, 4), 16);
+        var b = parseInt(color.substring(4, 6), 16);
+
+        r = Math.round(r * 1.5);
+        g = Math.round(g * 1.5);
+        b = Math.round(b * 1.5);
+
+        r = Math.min(r, 255);
+        g = Math.min(g, 255);
+        b = Math.min(b, 255);
+
+        return r.toString(16) + g.toString(16) + b.toString(16);
+    }
+
     async function recenterView() {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
@@ -119,9 +136,9 @@ function Index({ drawnRoutes }) {
                                     description={point.description}
                                 >
                                     {point.isTimePoint ? (
-                                        <View className="w-4 h-4 bg-red-900 border-red-500 border-2" />
+                                        <View className="w-4 h-4 border-2" style={{backgroundColor: "#" + drawnRoutes[0].routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0].routeInfo.color)}}/>
                                     ) : (
-                                        <View className="w-4 h-4 rounded-full bg-red-900 border-red-500 border-2" />
+                                        <View className="w-4 h-4 rounded-full border-2" style={{backgroundColor: "#" + drawnRoutes[0].routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0].routeInfo.color)}}/>
                                     )}
                                     <Callout>
                                         <View className="w-20">

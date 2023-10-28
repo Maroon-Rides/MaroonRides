@@ -22,6 +22,7 @@ function Index({ setDrawnRoutes }) {
 
     const [selectedRoute, setSelectedRoute] = useState()
 
+
     // download data
     useEffect(() => {
         (async () => {
@@ -56,7 +57,6 @@ function Index({ setDrawnRoutes }) {
             { selectedRoute ? (
             <StyledBottomSheetView className="flex flex-1 px-4 pt-1">
                 <View className="flex-row align-center" >
-
                     <View className="w-14 h-12 rounded-lg mr-3 content-center justify-center" style={{backgroundColor: "#" + selectedRoute.routeInfo.color}}>
                         <Text 
                             adjustsFontSizeToFit={true} 
@@ -92,7 +92,7 @@ function Index({ setDrawnRoutes }) {
                 { groups == undefined ? (
                     <ActivityIndicator />
                 ) : (
-                    <View>
+                <View>
                     <SegmentedControl
                     values={Object.keys(groups)}
                     selectedIndex={selectedIndex}
