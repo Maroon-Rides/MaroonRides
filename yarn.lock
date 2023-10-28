@@ -2958,10 +2958,10 @@ agent-base@6:
   dependencies:
     debug "4"
 
-aggie-spirit-api@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.npmjs.org/aggie-spirit-api/-/aggie-spirit-api-0.2.2.tgz"
-  integrity sha512-1s3VeLPy7XeGuumeo/+EuSRW1nf9HwnI8eQPoTh9AG/svh4k1M4ErdXciZtAqZr9OCr1RCFsVXwWfWUJsHDFcA==
+aggie-spirit-api@^0.2.4:
+  version "0.2.4"
+  resolved "https://registry.npmjs.org/aggie-spirit-api/-/aggie-spirit-api-0.2.4.tgz"
+  integrity sha512-OY82i3kaAgmZcNjlyubZvaE6+Ew+kGD8RcpRWgiYWReArJDcmh3n/StqquvpX90WvVf6NzsRPKusuqDqgzmyZw==
   dependencies:
     dom-parser "^0.1.6"
     eventsource "^2.0.2"

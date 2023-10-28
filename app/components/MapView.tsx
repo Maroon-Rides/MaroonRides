@@ -31,6 +31,7 @@ function Index({ drawnRoutes }) {
     }
 
     var [buses, setBuses] = useState([])
+    var [busTimetable, setBusTimetable] = useState([])
     var updateBusesInterval = useRef(null);
 
     function updateBuses(routeName: string) {
@@ -100,7 +101,7 @@ function Index({ drawnRoutes }) {
         if (drawnRoutes.length == 1) {
             // update the buses
             updateBuses(drawnRoutes[0].shortName)
-            
+
             updateBusesInterval.current = setInterval(async () => {
                 updateBuses(drawnRoutes[0].shortName)
             }, 5000)

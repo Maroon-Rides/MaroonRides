@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { View, Text, FlatList, ActivityIndicator } from "react-native";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import {RouteGroup, getRoutesByGroup, getRouteBuses, getRouteByName} from "aggie-spirit-api"
+import {RouteGroup, getRoutesByGroup, getTimetable} from "aggie-spirit-api"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -22,6 +22,16 @@ function Index({ setDrawnRoutes }) {
 
     const [selectedRoute, setSelectedRoute] = useState()
 
+    const [busTimetable, setBusTimetable] = useState()
+
+    useEffect(() => {
+        if (selectedRoute) {
+            (async () => {
+                var data = await getTimetable(selectedRoute.shortName)
+                setBusTimetable(data)
+            })()
+        }
+    }, [selectedRoute])
 
     // download data
     useEffect(() => {
@@ -54,6 +64,7 @@ function Index({ setDrawnRoutes }) {
 
     return (
         <BottomSheet ref={sheetRef} snapPoints={snapPoints}>
+            {/* Detail View */}
             { selectedRoute ? (
             <StyledBottomSheetView className="flex flex-1 px-4 pt-1">
                 <View className="flex-row align-center" >
@@ -87,7 +98,10 @@ function Index({ setDrawnRoutes }) {
                 </View>
 
             </StyledBottomSheetView>
-            ) : (
+            ) : 
+            
+            // List View
+            (
             <StyledBottomSheetView className="flex flex-1 px-4">
                 { groups == undefined ? (
                     <ActivityIndicator />

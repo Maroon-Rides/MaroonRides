@@ -23,3 +23,18 @@ index 7bee17e..076a5ad 100644
  
          // Negotiate Connection to Server
          const negotiate_response = await fetch(
+diff --git a/node_modules/aggie-spirit-api/src/timetable_api.js b/node_modules/aggie-spirit-api/src/timetable_api.js
+index 80d6e38..989224d 100644
+--- a/node_modules/aggie-spirit-api/src/timetable_api.js
++++ b/node_modules/aggie-spirit-api/src/timetable_api.js
+@@ -55,8 +55,9 @@ export async function getTimetable(routeName, date = new Date(), connection) {
+ 
+         // get all times for each stop
+         for (var i=1; i < rows.length; i++) {
++            
+             rows[i].getElementsByTagName("time").map((time, i) => {
+-                parsedTable[stops[i]].push(new Date(time.getAttribute("dateTime")))
++                parsedTable[stops[i]].push(moment(time.getAttribute("dateTime"), "MM/DD/YYYY hh:mm:ss a").toDate())
+             })
+         }
+ 
