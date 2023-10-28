@@ -22,9 +22,11 @@ function Index() {
     useEffect(() => {
         (async () => {
             console.log("Refresh data")
-            var data = JSON.parse(await AsyncStorage.getItem("routeCache") || "{}")
+            let data = await AsyncStorage.getItem("routeCache");
 
-            if (data == null) {
+            if (data) {
+                data = JSON.parse(data);
+            } else {
                 data = await getRoutesByGroup([RouteGroup.ON_CAMPUS, RouteGroup.OFF_CAMPUS])
                 await AsyncStorage.setItem("routeCache", JSON.stringify(data))
             } 
