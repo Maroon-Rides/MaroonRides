@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import MapView, {LatLng, Polyline, Marker, Callout} from 'react-native-maps';
 import * as Location from 'expo-location';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { styled } from 'nativewind';
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
@@ -27,6 +28,25 @@ function Index({ drawnRoutes }) {
         b = Math.min(b, 255);
 
         return r.toString(16) + g.toString(16) + b.toString(16);
+    }
+
+    var [buses, setBuses] = useState([])
+    var updateBusesInterval = useRef(null);
+
+    function updateBuses(routeName: string) {
+        (async () => {
+            var data = await getRouteBuses(routeName)
+            // var data = [
+            //     {location: {heading: 49.400001525878906, lastGpsDate: "2023-10-27T21:54:48-05:00", latitude: 30.614744000000005, longitude: -96.33809199999999, speed: 0}}
+            // ]
+            setBuses(data)
+        })();
+    }
+
+    function getRotationProp(bearing: number) {
+        return {transform: 
+            [{rotate: bearing === undefined ? '0deg' : `${Math.round(bearing)}deg`}]
+        }
     }
 
     async function recenterView() {
@@ -75,19 +95,7 @@ function Index({ drawnRoutes }) {
             },
             animated: true
         })
-    }, [drawnRoutes]);
 
-    var [buses, setBuses] = useState([])
-    var updateBusesInterval = useRef(null);
-
-    function updateBuses(routeName: string) {
-        (async () => {
-            var data = await getRouteBuses(routeName)
-            setBuses(data)
-        })();
-    }
-
-    useEffect(() => {
         // if we are only showing 1 bus, update it every 2 seconds
         if (drawnRoutes.length == 1) {
             // update the buses
@@ -105,7 +113,10 @@ function Index({ drawnRoutes }) {
         return () => {
             clearInterval(updateBusesInterval.current)
         }
-    }, [drawnRoutes])
+    }, [drawnRoutes]);
+
+    
+
 
     return (
         <StyledMapView 
@@ -190,15 +201,13 @@ function Index({ drawnRoutes }) {
                     flat
                     key={bus.key} 
                     coordinate={{latitude: bus.location.latitude, longitude: bus.location.longitude}}
-                    style={{ transform: [{
-                        rotate: bus.location.bearing === undefined ? '0deg' : `${bus.location.bearing}deg`
-                    }]}}
+                    style={getRotationProp(bus.location.heading)}
                     >
-                        <View className="w-4 h-4 border-2" 
-                        style={{
-                            backgroundColor: "yellow", 
-                            borderColor: "yellow",
-                        }}/>
+                        <MaterialIcons
+                            name="assistant-navigation"
+                            size={32}
+                            color={"red"}
+                        />
 
                     </Marker.Animated>
                 )
