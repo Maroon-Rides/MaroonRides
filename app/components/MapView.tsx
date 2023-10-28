@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
-import MapView, {LatLng, Polyline} from 'react-native-maps';
+import MapView, {LatLng, Polyline, Marker, Callout} from 'react-native-maps';
 import * as Location from 'expo-location';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { styled } from 'nativewind';
-import { Text, TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 
 const StyledMapView = styled(MapView);
@@ -78,6 +78,7 @@ function Index({ drawnRoutes }) {
                 )}
             </SafeAreaInsetsContext.Consumer>
 
+            {/* Route Polylines */}
             {drawnRoutes.map(function(drawnRoute) {
 
                 var coords: LatLng[] = []
@@ -100,6 +101,41 @@ function Index({ drawnRoutes }) {
                     />
                 )
             })}
+
+            {/* Single Route Stops */}
+            { drawnRoutes.length == 1 ? (
+                drawnRoutes[0].routeInfo.patternPaths.map((path) => {
+                    return path.patternPoints.map((point) => {
+                        if (point.isStop) {
+                            return (
+                                <Marker
+                                    key={point.key}
+                                    coordinate={{
+                                        latitude: point.latitude,
+                                        longitude: point.longitude
+                                    }}
+                                    pinColor={point.isTimePoint ? "green" : "red"}
+                                    title={point.name}
+                                    description={point.description}
+                                >
+                                    {point.isTimePoint ? (
+                                        <View className="w-4 h-4 bg-red-900 border-red-500 border-2" />
+                                    ) : (
+                                        <View className="w-4 h-4 rounded-full bg-red-900 border-red-500 border-2" />
+                                    )}
+                                    <Callout>
+                                        <View className="w-20">
+                                            <Text className="font-bold text-m">{point.name}</Text>
+                                            <Text>{point.description}</Text>
+                                        </View>
+                                    </Callout>
+                                </Marker>
+                            )
+                        }
+                    })
+                })
+            ) : null
+            }
         </StyledMapView>
     )
 }
