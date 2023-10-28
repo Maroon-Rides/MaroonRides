@@ -173,13 +173,16 @@ function Index({ drawnRoutes }) {
                                         latitude: point.latitude,
                                         longitude: point.longitude
                                     }}
-                                    pinColor={point.isTimePoint ? "green" : "red"}
                                 >
                                     {point.isTimePoint ? (
+                                        // Time point icon
                                         <View className="w-4 h-4 border-2" style={{backgroundColor: "#" + drawnRoutes[0].routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0].routeInfo.color)}}/>
                                     ) : (
+                                        // non time point icon
                                         <View className="w-4 h-4 rounded-full border-2" style={{backgroundColor: "#" + drawnRoutes[0].routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0].routeInfo.color)}}/>
                                     )}
+                                        
+                                    {/* Stop Callout */}
                                     <Callout>
                                         <View className="w-20">
                                             <Text className="font-bold text-m">{point.name}</Text>
@@ -196,19 +199,26 @@ function Index({ drawnRoutes }) {
 
             {/* Buses */}
             {buses.map((bus) => {
-                console.log(bus.location)
+                console.log(bus)
                 return (
                     <Marker 
                     flat
                     key={bus.key} 
                     coordinate={{latitude: bus.location.latitude, longitude: bus.location.longitude}}
-                    style={getRotationProp(bus.location.heading)}
                     >
+                        {/* Bus Icon on Map*/}
                         <MaterialIcons
                             name="assistant-navigation"
                             size={32}
                             color={"red"}
+                            style={getRotationProp(bus.location.heading)}
                         />
+                        {/* Buss Icon Callout */}
+                        <Callout>
+                            <View className="w-20">
+                                <Text>Name: {bus.name}</Text>
+                            </View>
+                        </Callout>
 
                     </Marker>
                 )
