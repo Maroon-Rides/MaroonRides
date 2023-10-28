@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import MapView, {LatLng, Polyline, Marker, Callout} from 'react-native-maps';
 import * as Location from 'expo-location';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { styled } from 'nativewind';
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
+import { getRouteBuses } from "aggie-spirit-api";
 
 const StyledMapView = styled(MapView);
 
@@ -76,6 +77,35 @@ function Index({ drawnRoutes }) {
         })
     }, [drawnRoutes]);
 
+    var [buses, setBuses] = useState([])
+    var updateBusesInterval = useRef(null);
+
+    function updateBuses(routeName: string) {
+        (async () => {
+            var data = await getRouteBuses(routeName)
+            setBuses(data)
+        })();
+    }
+
+    useEffect(() => {
+        // if we are only showing 1 bus, update it every 2 seconds
+        if (drawnRoutes.length == 1) {
+            // update the buses
+            updateBuses(drawnRoutes[0].shortName)
+            
+            updateBusesInterval.current = setInterval(async () => {
+                updateBuses(drawnRoutes[0].shortName)
+            }, 5000)
+        } else {
+            clearInterval(updateBusesInterval.current)
+            setBuses([])
+        }
+
+        // Cleanup when view is unloaded (app is closed)
+        return () => {
+            clearInterval(updateBusesInterval.current)
+        }
+    }, [drawnRoutes])
 
     return (
         <StyledMapView 
@@ -132,8 +162,6 @@ function Index({ drawnRoutes }) {
                                         longitude: point.longitude
                                     }}
                                     pinColor={point.isTimePoint ? "green" : "red"}
-                                    title={point.name}
-                                    description={point.description}
                                 >
                                     {point.isTimePoint ? (
                                         <View className="w-4 h-4 border-2" style={{backgroundColor: "#" + drawnRoutes[0].routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0].routeInfo.color)}}/>
@@ -153,6 +181,28 @@ function Index({ drawnRoutes }) {
                 })
             ) : null
             }
+
+            {/* Buses */}
+            {buses.map((bus) => {
+                console.log(bus.location)
+                return (
+                    <Marker.Animated 
+                    flat
+                    key={bus.key} 
+                    coordinate={{latitude: bus.location.latitude, longitude: bus.location.longitude}}
+                    style={{ transform: [{
+                        rotate: bus.location.bearing === undefined ? '0deg' : `${bus.location.bearing}deg`
+                    }]}}
+                    >
+                        <View className="w-4 h-4 border-2" 
+                        style={{
+                            backgroundColor: "yellow", 
+                            borderColor: "yellow",
+                        }}/>
+
+                    </Marker.Animated>
+                )
+            })}
         </StyledMapView>
     )
 }
