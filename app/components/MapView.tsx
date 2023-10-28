@@ -200,7 +200,6 @@ function Index({ drawnRoutes }) {
 
             {/* Buses */}
             {buses.map((bus) => {
-                console.log(bus)
                 return (
                     <Marker 
                     flat
