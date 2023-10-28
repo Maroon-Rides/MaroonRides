@@ -21,15 +21,12 @@ function Index() {
     // download data
     useEffect(() => {
         (async () => {
-            console.log("Refresh data")
-            let data = await AsyncStorage.getItem("routeCache");
-
-            if (data) {
-                data = JSON.parse(data);
-            } else {
+            let data = await AsyncStorage.getItem("routeCache").then((routeCache) => routeCache ? JSON.parse(routeCache) : null);
+            
+            if (data == null) {
                 data = await getRoutesByGroup([RouteGroup.ON_CAMPUS, RouteGroup.OFF_CAMPUS])
-                await AsyncStorage.setItem("routeCache", JSON.stringify(data))
-            } 
+                await AsyncStorage.setItem("routeCache", JSON.stringify(data));
+            }
 
             // set the correct names to be used with the segmented control
             data["On Campus"] = data.OnCampus
