@@ -124,10 +124,11 @@ function Index({ drawnRoutes }) {
             showsUserLocation={true}
             className='w-full h-full'
             ref = {(mapView) => { mapViewRef = mapView; }}
+            compassOffset={{x: -2, y:65}}
         >
             <SafeAreaInsetsContext.Consumer>
                 {(insets) => ( 
-                    <TouchableOpacity className="content-center justify-center absolute right-4 bg-white p-2.5 overflow-hidden rounded-lg" style={{top: insets!.top + 16}} onPress={() => recenterView()}>
+                    <TouchableOpacity className="content-center justify-center absolute right-2 bg-white p-2.5 overflow-hidden rounded-lg" style={{top: insets!.top + 16}} onPress={() => recenterView()}>
                         <Ionicons 
                             name="navigate" 
                             size={24} 

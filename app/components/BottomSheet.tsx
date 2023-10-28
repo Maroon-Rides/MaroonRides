@@ -12,6 +12,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 const StyledBottomSheetView = styled(BottomSheetView);
   
 function Index({ setDrawnRoutes }) {
+
     const sheetRef = useRef<BottomSheet>(null);
 
     const snapPoints = [ '35%', 110, '80%'];
@@ -37,12 +38,12 @@ function Index({ setDrawnRoutes }) {
     useEffect(() => {
         (async () => {
             console.log("Refresh data")
-            var data = JSON.parse(await AsyncStorage.getItem("routeCache") || "{}")
+            let data = await AsyncStorage.getItem("routeCache").then((routeCache) => routeCache ? JSON.parse(routeCache) : null);
+            
             if (data == null) {
-                data = await getRoutesByGroup(RouteGroup.ALL)
-                console.log(data)
-                await AsyncStorage.setItem("routeCache", JSON.stringify(data))
-            } 
+                data = await getRoutesByGroup([RouteGroup.ON_CAMPUS, RouteGroup.OFF_CAMPUS])
+                await AsyncStorage.setItem("routeCache", JSON.stringify(data));
+            }
 
             // set the correct names to be used with the segmented control and descriptions
             data["On Campus"] = data.OnCampus
@@ -85,7 +86,6 @@ function Index({ setDrawnRoutes }) {
             
             setSelectedIndex(0)
             setGroups(data)
-            
         })();
     }, []);
 
@@ -142,7 +142,7 @@ function Index({ setDrawnRoutes }) {
                         setDrawnRoutes(groups[value])
                     }}
                     onChange={(event) => setSelectedIndex(event.nativeEvent.selectedSegmentIndex)}
-                    style={{shadowRadius: 20, shadowOpacity: 0.1, shadowColor: "black", marginBottom: 18}}
+
                 />
                     <FlatList
                         data={selectedGroup}
@@ -174,6 +174,7 @@ function Index({ setDrawnRoutes }) {
                                         </Text>
                                     </View>
                                 </TouchableOpacity>
+
                             )
                         }}                        
                     />
@@ -184,5 +185,5 @@ function Index({ setDrawnRoutes }) {
         </BottomSheet>
     );
 };
-
 export default Index;
+
