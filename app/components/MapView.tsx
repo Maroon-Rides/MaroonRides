@@ -17,9 +17,9 @@ function Index({ drawnRoutes }) {
         var g = parseInt(color.substring(2, 4), 16);
         var b = parseInt(color.substring(4, 6), 16);
 
-        r = Math.round(r * 1.5);
-        g = Math.round(g * 1.5);
-        b = Math.round(b * 1.5);
+        r = Math.round(r + 100);
+        g = Math.round(g + 100);
+        b = Math.round(b + 100);
 
         r = Math.min(r, 255);
         g = Math.min(g, 255);
