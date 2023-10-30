@@ -68,8 +68,7 @@ function Index({ setDrawnRoutes }) {
             if (data.Gameday && data.Gameday.length == 0) {
                 delete data.Gameday
 
-                setSelectedGroup(data["On Campus"])
-                setDrawnRoutes(data["On Campus"])
+                setSelectedIndex(0)
 
             } else if (data.Gameday) {
                 data["Gameday"].forEach((route) => {
@@ -80,13 +79,11 @@ function Index({ setDrawnRoutes }) {
                     // delete the duplicate route
                     route.routeInfo.patternPaths = [route.routeInfo.patternPaths[0]]
                 })
-
-
-                setSelectedGroup(data["Gameday"])
-                setDrawnRoutes(data["Gameday"])
+                setSelectedIndex(1)
             }
-            
-            setSelectedIndex(0)
+
+            setSelectedGroup(data["On Campus"])
+            setDrawnRoutes(data["On Campus"])
             setGroups(data)
         })();
     }, []);
