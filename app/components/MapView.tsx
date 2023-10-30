@@ -31,7 +31,6 @@ function Index({ drawnRoutes }) {
     }
 
     var [buses, setBuses] = useState<any[]>([])
-    var [busTimetable, setBusTimetable] = useState<any>([])
     var updateBusesInterval = useRef<any>(null); // must be a ref to be able to stop the update if the app reloads
 
     function updateBuses(routeName: string) {
@@ -109,10 +108,6 @@ function Index({ drawnRoutes }) {
             clearInterval(updateBusesInterval.current)
             setBuses([])
         }
-
-        getTimetable(drawnRoutes[0].shortName).then((data: any) => {
-            setBusTimetable(data)
-        })
 
         // Cleanup when view is unloaded (app is closed)
         return () => {

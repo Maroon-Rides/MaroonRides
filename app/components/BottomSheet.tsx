@@ -5,9 +5,9 @@ import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import {RouteGroup, getRoutesByGroup, getTimetable} from "aggie-spirit-api"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from '@expo/vector-icons/Ionicons';
-
 import { styled } from "nativewind";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import Timetable from "./Timetable";
 
 const StyledBottomSheetView = styled(BottomSheetView);
   
@@ -23,7 +23,7 @@ function Index({ setDrawnRoutes }) {
 
     const [selectedRoute, setSelectedRoute] = useState()
 
-    const [busTimetable, setBusTimetable] = useState()
+    const [busTimetable, setBusTimetable] = useState<any[]>()
 
     useEffect(() => {
         if (selectedRoute) {
@@ -31,6 +31,8 @@ function Index({ setDrawnRoutes }) {
                 var data = await getTimetable(selectedRoute.shortName)
                 setBusTimetable(data)
             })()
+        } else {
+            setBusTimetable(null) // clear out old data so we show a loading indicator for next selection
         }
     }, [selectedRoute])
 
@@ -122,6 +124,19 @@ function Index({ setDrawnRoutes }) {
 
                         <Ionicons name="close-circle" size={32} color="grey" />
                     </TouchableOpacity>
+                </View>
+
+                {/* Timetable View */}
+                <View className="mt-4">
+                    { busTimetable ? (
+                        ( busTimetable.length != 0 ? (
+                            <Timetable timetable={busTimetable} />
+                        ) : (
+                            <Text className="text-center">No Timetable Available</Text>
+                        ))
+                    ) : (
+                        <ActivityIndicator></ActivityIndicator>
+                    )}
                 </View>
 
             </StyledBottomSheetView>
