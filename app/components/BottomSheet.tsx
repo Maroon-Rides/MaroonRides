@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, ActivityIndicator, Dimensions } from "react-native";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { RouteGroup, getRoutesByGroup } from "aggie-spirit-api"
@@ -13,11 +13,30 @@ const StyledBottomSheetView = styled(BottomSheetView);
 function Index() {
     const sheetRef = useRef<BottomSheet>(null);
 
-    const snapPoints = ['35%'];
+    const snapPoints = ['15%','35%', '80%']; 
 
     const [groups, setGroups] = useState()
     const [selectedGroup, setSelectedGroup] = useState()
 
+    const [currentSnapPointIndex, setCurrentSnapPointIndex] = useState(0);
+    const handleSnapChange = (index: any) => {
+        setCurrentSnapPointIndex(index);
+    };
+
+    const calculateFlatListHeight = () => {
+        const { width, height } = Dimensions.get('window');
+        let currentPercent=snapPoints[currentSnapPointIndex];
+        let snapValue=0;
+        if(currentPercent != undefined){
+            snapValue = parseFloat(currentPercent.replace('%', ''));
+        }
+        else{
+            snapValue=35;
+        }
+        let newHeight=height*(snapValue/100)
+        newHeight-=60;
+        return newHeight;
+    };
     // download data
     useEffect(() => {
         (async () => {
@@ -46,7 +65,7 @@ function Index() {
     }, []);
 
     return (
-        <BottomSheet ref={sheetRef} snapPoints={snapPoints}>
+        <BottomSheet ref={sheetRef} snapPoints={snapPoints} onChange={handleSnapChange}>
             <StyledBottomSheetView className="flex flex-1 px-4">
                 { groups == undefined ? (
                     <ActivityIndicator />
@@ -59,7 +78,7 @@ function Index() {
                         setSelectedGroup(groups[value])
                     }}
                 />
-                    <FlatList
+                    <FlatList style={{ height: calculateFlatListHeight()}}
                         data={selectedGroup}
                         keyExtractor={busRoute => busRoute.key}
                         renderItem={({ item: busRoute }) => {
