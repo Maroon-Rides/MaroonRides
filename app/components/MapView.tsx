@@ -124,7 +124,8 @@ function Index({ drawnRoutes }) {
             showsUserLocation={true}
             className='w-full h-full'
             ref = {(mapView) => { mapViewRef = mapView; }}
-            compassOffset={{x: -2, y:65}}
+            // compassOffset={{x: -2, y:65}}
+            rotateEnabled={false}
         >
             <SafeAreaInsetsContext.Consumer>
                 {(insets) => ( 
@@ -202,7 +203,6 @@ function Index({ drawnRoutes }) {
             {buses.map((bus) => {
                 return (
                     <Marker 
-                    flat
                     key={bus.key} 
                     coordinate={{latitude: bus.location.latitude, longitude: bus.location.longitude}}
                     >
@@ -213,7 +213,7 @@ function Index({ drawnRoutes }) {
                             color={"red"}
                             style={getRotationProp(bus.location.heading)}
                         />
-                        {/* Buss Icon Callout */}
+                        {/* Bus Icon Callout */}
                         <Callout>
                             <View className="w-20">
                                 <Text>Name: {bus.name}</Text>
