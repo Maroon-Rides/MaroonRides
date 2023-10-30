@@ -41,7 +41,13 @@ function Index({ drawnRoutes }) {
             // var data = [
             //     {location: {heading: 49.400001525878906, lastGpsDate: "2023-10-27T21:54:48-05:00", latitude: 30.614744000000005, longitude: -96.33809199999999, speed: 0}}
             // ]
-            setBuses(data)
+            
+            // verify that we have the route still selected
+            
+            // fixes bug where the user exits the route white a request is in flight and completes after the user exits
+            if (drawnRoutes.length == 1) {
+                setBuses(data)
+            }
         })();
     }
 
