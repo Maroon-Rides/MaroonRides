@@ -186,7 +186,6 @@ function Index({ setDrawnRoutes }) {
                                         </Text>
                                     </View>
                                 </TouchableOpacity>
-
                             )
                         }}                        
                     />

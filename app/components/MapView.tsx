@@ -7,6 +7,8 @@ import { styled } from 'nativewind';
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 import { getRouteBuses, getTimetable } from "aggie-spirit-api";
+import StopCallout from "./callouts/StopCallout";
+import BusCallout from "./callouts/BusCallout";
 
 const StyledMapView = styled(MapView);
 
@@ -183,13 +185,7 @@ function Index({ drawnRoutes }) {
                                         <View className="w-4 h-4 rounded-full border-2" style={{backgroundColor: "#" + drawnRoutes[0].routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0].routeInfo.color)}}/>
                                     )}
                                         
-                                    {/* Stop Callout */}
-                                    <Callout>
-                                        <View className="w-20">
-                                            <Text className="font-bold text-m">{point.name}</Text>
-                                            <Text>{point.description}</Text>
-                                        </View>
-                                    </Callout>
+                                    <StopCallout stop={point} />
                                 </Marker>
                             )
                         }
@@ -212,13 +208,7 @@ function Index({ drawnRoutes }) {
                             color={"red"}
                             style={getRotationProp(bus.location.heading)}
                         />
-                        {/* Bus Icon Callout */}
-                        <Callout>
-                            <View className="w-20">
-                                <Text>Name: {bus.name}</Text>
-                            </View>
-                        </Callout>
-
+                        <BusCallout bus={bus} />
                     </Marker>
                 )
             })}
