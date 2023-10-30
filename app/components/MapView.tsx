@@ -6,7 +6,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { styled } from 'nativewind';
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
-import { getRouteBuses } from "aggie-spirit-api";
+import { getRouteBuses, getTimetable } from "aggie-spirit-api";
 
 const StyledMapView = styled(MapView);
 
@@ -30,9 +30,9 @@ function Index({ drawnRoutes }) {
         return r.toString(16) + g.toString(16) + b.toString(16);
     }
 
-    var [buses, setBuses] = useState([])
-    var [busTimetable, setBusTimetable] = useState([])
-    var updateBusesInterval = useRef(null);
+    var [buses, setBuses] = useState<any[]>([])
+    var [busTimetable, setBusTimetable] = useState<any>([])
+    var updateBusesInterval = useRef<any>(null); // must be a ref to be able to stop the update if the app reloads
 
     function updateBuses(routeName: string) {
         (async () => {
@@ -75,9 +75,9 @@ function Index({ drawnRoutes }) {
     
     useEffect(() => {
         var coords: LatLng[] = []
-        drawnRoutes.forEach((route) => {
+        drawnRoutes.forEach((route: any) => {
                 
-            route.routeInfo.patternPaths.forEach((path) => {
+            route.routeInfo.patternPaths.forEach((path: any) => {
                 path.patternPoints.forEach((point: {latitude: number, longitude: number}) => {
                     coords.push({
                         latitude: point.latitude,
@@ -110,6 +110,10 @@ function Index({ drawnRoutes }) {
             setBuses([])
         }
 
+        getTimetable(drawnRoutes[0].shortName).then((data: any) => {
+            setBusTimetable(data)
+        })
+
         // Cleanup when view is unloaded (app is closed)
         return () => {
             clearInterval(updateBusesInterval.current)
@@ -140,12 +144,12 @@ function Index({ drawnRoutes }) {
             </SafeAreaInsetsContext.Consumer>
 
             {/* Route Polylines */}
-            {drawnRoutes.map(function(drawnRoute) {
+            {drawnRoutes.map(function(drawnRoute: any) {
 
                 var coords: LatLng[] = []
                 
-                drawnRoute.routeInfo.patternPaths.forEach((path) => {
-                    path.patternPoints.forEach((point) => {
+                drawnRoute.routeInfo.patternPaths.forEach((path: any) => {
+                    path.patternPoints.forEach((point: any) => {
                         coords.push({
                             latitude: point.latitude,
                             longitude: point.longitude
@@ -165,8 +169,8 @@ function Index({ drawnRoutes }) {
 
             {/* Single Route Stops */}
             { drawnRoutes.length == 1 ? (
-                drawnRoutes[0].routeInfo.patternPaths.map((path) => {
-                    return path.patternPoints.map((point) => {
+                drawnRoutes[0].routeInfo.patternPaths.map((path: any) => {
+                    return path.patternPoints.map((point: any) => {
                         if (point.isStop) {
                             return (
                                 <Marker
