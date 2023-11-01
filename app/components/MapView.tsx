@@ -37,7 +37,13 @@ function Index({ drawnRoutes }) {
 
     function updateBuses(routeName: string) {
         (async () => {
-            var data = await getRouteBuses(routeName)
+            try {
+                var data = await getRouteBuses(routeName)
+            } catch (error) {
+                console.log(error)
+                return
+            }
+            
             // var data = [
             //     {location: {heading: 49.400001525878906, lastGpsDate: "2023-10-27T21:54:48-05:00", latitude: 30.614744000000005, longitude: -96.33809199999999, speed: 0}}
             // ]
