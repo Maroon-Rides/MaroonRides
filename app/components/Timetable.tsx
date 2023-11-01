@@ -1,7 +1,7 @@
 import { ActivityIndicator, Text, View } from 'react-native'
 import React, { useEffect } from 'react'
 
-function Timetable({ timetable }) {
+function Timetable({ timetable, tintColor }) {
     // Uncomment to view the incoming data!
     // useEffect(() => {
     //     console.log(timetable)

@@ -197,7 +197,7 @@ function Index({ drawnRoutes }) {
                                         <View className="w-4 h-4 rounded-full border-2" style={{backgroundColor: "#" + drawnRoutes[0].routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0].routeInfo.color)}}/>
                                     )}
                                         
-                                    <StopCallout stop={point} />
+                                    <StopCallout stop={point} tintColor={"#" + drawnRoutes[0].routeInfo.color}/>
                                 </Marker>
                             )
                         }
@@ -220,7 +220,7 @@ function Index({ drawnRoutes }) {
                             color={"red"}
                             style={getRotationProp(bus.location.heading)}
                         />
-                        <BusCallout bus={bus} />
+                        <BusCallout bus={bus} tintColor={"#" + drawnRoutes[0].routeInfo.color}/>
                     </Marker>
                 )
             })}
