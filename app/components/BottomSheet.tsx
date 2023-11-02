@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, FlatList, ActivityIndicator, Dimensions } from "react-native";
+import { View, Text, FlatList, ActivityIndicator, Dimensions, Image } from "react-native";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import {RouteGroup, getRoutesByGroup, getTimetable} from "aggie-spirit-api"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from '@expo/vector-icons/Ionicons';
+
 import { styled } from "nativewind";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Timetable from "./Timetable";
@@ -16,15 +17,20 @@ function Index({ setDrawnRoutes }) {
     const sheetRef = useRef<BottomSheet>(null);
 
 
-    const snapPoints = [ '35%', 110, '80%'];
+    const snapPoints = ['16%', '35%', '80%'];
 
     const [groups, setGroups] = useState()
     const [selectedGroup, setSelectedGroup] = useState()
     const [selectedIndex, setSelectedIndex] = useState(0)
-
+    
     const [selectedRoute, setSelectedRoute] = useState()
 
     const [busTimetable, setBusTimetable] = useState<any[]>()
+
+
+
+
+                
 
     useEffect(() => {
         if (selectedRoute) {
@@ -56,6 +62,9 @@ function Index({ setDrawnRoutes }) {
         newHeight-=60;
         return newHeight;
     };
+
+      
+      
     // download data
     useEffect(() => {
         (async () => {
@@ -131,6 +140,12 @@ function Index({ setDrawnRoutes }) {
                     
                     {/* Spacer */}
                     <View className="flex-1" />
+                    <TouchableOpacity onPress={() => {
+                        console.log('Share button not implimented yet.');
+                    }}>
+                        <Image source={require('./assets/share.png')} style={{ width: 32, height: 32, marginRight: 10}} />
+                    </TouchableOpacity>
+
                     <TouchableOpacity 
                         className="content-center justify-center"
                     onPress={() => { 
@@ -138,10 +153,12 @@ function Index({ setDrawnRoutes }) {
                         sheetRef.current?.snapToIndex(0)
                         setSelectedRoute(undefined)
                     }}>
-
-                        <Ionicons name="close-circle" size={32} color="grey" />
+                        <Image source={require('./assets/x.png')} style={{ width: 32, height: 32 }} />
                     </TouchableOpacity>
+
                 </View>
+
+
 
                 {/* Timetable View */}
                 <View className="mt-4">
@@ -151,6 +168,7 @@ function Index({ setDrawnRoutes }) {
                         ) : (
                             <Text className="text-center">No Timetable Available</Text>
                         ))
+                        
                     ) : (
                         <ActivityIndicator></ActivityIndicator>
                     )}
