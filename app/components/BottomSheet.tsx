@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, FlatList, ActivityIndicator, Dimensions } from "react-native";
+import { View, Text, FlatList, ActivityIndicator, Dimensions, Image } from "react-native";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import {RouteGroup, getRoutesByGroup, getTimetable} from "aggie-spirit-api"
@@ -16,7 +16,7 @@ function Index({ setDrawnRoutes }) {
     const sheetRef = useRef<BottomSheet>(null);
 
 
-    const snapPoints = [ '35%', 110, '80%'];
+    const snapPoints = [ '16', '35%', '80%'];
 
     const [groups, setGroups] = useState()
     const [selectedGroup, setSelectedGroup] = useState()
@@ -131,6 +131,12 @@ function Index({ setDrawnRoutes }) {
                     
                     {/* Spacer */}
                     <View className="flex-1" />
+                    <TouchableOpacity onPress={() => {
+                        console.log('Share button not implimented yet.');
+                    }}>
+                        <Image source={require('./assets/share.png')} style={{ width: 32, height: 32, marginRight: 10}} />
+                    </TouchableOpacity>
+
                     <TouchableOpacity 
                         className="content-center justify-center"
                     onPress={() => { 
@@ -138,16 +144,16 @@ function Index({ setDrawnRoutes }) {
                         sheetRef.current?.snapToIndex(0)
                         setSelectedRoute(undefined)
                     }}>
-
-                        <Ionicons name="close-circle" size={32} color="grey" />
+                        <Image source={require('./assets/x.png')} style={{ width: 32, height: 32 }} />
                     </TouchableOpacity>
+
                 </View>
 
                 {/* Timetable View */}
                 <View className="mt-4">
                     { busTimetable ? (
                         ( busTimetable.length != 0 ? (
-                            <Timetable timetable={busTimetable} />
+                            <Timetable timetable={busTimetable} flatListHeight={calculateFlatListHeight()} highlightColor={"#"+selectedRoute.routeInfo.color} />
                         ) : (
                             <Text className="text-center">No Timetable Available</Text>
                         ))
