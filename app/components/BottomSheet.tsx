@@ -8,6 +8,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { styled } from "nativewind";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Timetable from "./Timetable";
+import BusIcon from "./BusIcon";
 
 const StyledBottomSheetView = styled(BottomSheetView);
   
@@ -94,16 +95,7 @@ function Index({ setDrawnRoutes }) {
             { selectedRoute ? (
             <StyledBottomSheetView className="flex flex-1 px-4 pt-1">
                 <View className="flex-row align-center" >
-                    <View className="w-14 h-12 rounded-lg mr-3 content-center justify-center" style={{backgroundColor: "#" + selectedRoute.routeInfo.color}}>
-                        <Text 
-                            adjustsFontSizeToFit={true} 
-                            numberOfLines={1}
-                            className="text-center font-bold text-white p-1"
-                            style={{fontSize: 24}} // this must be used, nativewind is broken :(
-                        >
-                            {selectedRoute.shortName}
-                        </Text>
-                    </View>
+                    <BusIcon sizing="w-16 h-12" textSize={24} busRoute={selectedRoute} />
                     <View>
                         <Text className="font-bold text-2xl">{selectedRoute.name}</Text>
                         <Text>{selectedRoute.category}</Text>
@@ -169,16 +161,7 @@ function Index({ setDrawnRoutes }) {
                                         setSelectedRoute(busRoute)
                                     }}
                                 >
-                                    <View className="w-12 h-10 rounded-lg mr-4 content-center justify-center" style={{backgroundColor: "#" + busRoute.routeInfo.color}}>
-                                        <Text 
-                                            adjustsFontSizeToFit={true} 
-                                            numberOfLines={1}
-                                            className="text-center font-bold text-white p-1"
-                                            style={{fontSize: 16}} // this must be used, nativewind is broken :(
-                                        >
-                                            {busRoute.shortName}
-                                        </Text>
-                                    </View>
+                                    <BusIcon sizing="w-12 h-10" busRoute={busRoute} textSize={18} />
                                     <View>
                                         <Text className="font-bold text-xl">{busRoute.name}</Text>
                                         <Text>
