@@ -3,9 +3,9 @@ import React, { useEffect } from 'react'
 
 function Timetable({ timetable, tintColor }) {
     // Uncomment to view the incoming data!
-    // useEffect(() => {
-    //     console.log(timetable)
-    // }, [timetable])
+    useEffect(() => {
+        console.log(timetable)
+    }, [timetable])
 
     return (
         <View>
