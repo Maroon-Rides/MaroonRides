@@ -127,7 +127,7 @@ function Index({ setDrawnRoutes }) {
                 <View className="mt-4">
                     { busTimetable ? (
                         ( busTimetable.length != 0 ? (
-                            <Timetable timetable={busTimetable} />
+                            <Timetable timetable={busTimetable} tintColor={"#" + selectedRoute.routeInfo.color} />
                         ) : (
                             <Text className="text-center">No Timetable Available</Text>
                         ))
