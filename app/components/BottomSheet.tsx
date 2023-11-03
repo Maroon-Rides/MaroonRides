@@ -95,7 +95,13 @@ function Index({ setDrawnRoutes }) {
             { selectedRoute ? (
             <StyledBottomSheetView className="flex flex-1 px-4 pt-1">
                 <View className="flex-row align-center" >
-                    <BusIcon sizing="w-16 h-12" textSize={24} busRoute={selectedRoute} />
+                    <BusIcon 
+                        sizing="w-16 h-12" 
+                        textSize={24} 
+                        busRoute={selectedRoute} 
+                        name={selectedRoute.shortName} 
+                        color={selectedRoute.routeInfo.color}
+                    />
                     <View>
                         <Text className="font-bold text-2xl">{selectedRoute.name}</Text>
                         <Text>{selectedRoute.category}</Text>
@@ -161,7 +167,13 @@ function Index({ setDrawnRoutes }) {
                                         setSelectedRoute(busRoute)
                                     }}
                                 >
-                                    <BusIcon sizing="w-12 h-10" busRoute={busRoute} textSize={18} />
+                                    <BusIcon 
+                                        sizing="w-12 h-10" 
+                                        busRoute={busRoute} 
+                                        textSize={18} 
+                                        name={busRoute.shortName} 
+                                        color={busRoute.routeInfo.color}
+                                    />
                                     <View>
                                         <Text className="font-bold text-xl">{busRoute.name}</Text>
                                         <Text>
