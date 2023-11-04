@@ -16,7 +16,7 @@ function Index({ setDrawnRoutes }) {
     const sheetRef = useRef<BottomSheet>(null);
 
 
-    const snapPoints = [ '16', '35%', '80%'];
+    const snapPoints = [ '16%', '35%', '80%'];
 
     const [groups, setGroups] = useState()
     const [selectedGroup, setSelectedGroup] = useState()
@@ -42,6 +42,7 @@ function Index({ setDrawnRoutes }) {
         setCurrentSnapPointIndex(index);
     };
 
+    
     const calculateFlatListHeight = () => {
         const { width, height } = Dimensions.get('window');
         let currentPercent=snapPoints[currentSnapPointIndex];
@@ -58,6 +59,7 @@ function Index({ setDrawnRoutes }) {
     };
     // download data
     useEffect(() => {
+      
         (async () => {
             console.log("Refresh data")
             let data = await AsyncStorage.getItem("routeCache").then((routeCache) => routeCache ? JSON.parse(routeCache) : null);
@@ -107,9 +109,8 @@ function Index({ setDrawnRoutes }) {
             setGroups(data)
         })();
     }, []);
-
     return (
-        <BottomSheet ref={sheetRef} snapPoints={snapPoints} onChange={handleSnapChange}>
+        <BottomSheet ref={sheetRef} snapPoints={snapPoints} onChange={handleSnapChange} initialSnapIndex={1}>
             {/* Detail View */}
             { selectedRoute ? (
             <StyledBottomSheetView className="flex flex-1 px-4 pt-1">
@@ -141,7 +142,7 @@ function Index({ setDrawnRoutes }) {
                         className="content-center justify-center"
                     onPress={() => { 
                         setDrawnRoutes(selectedGroup)
-                        sheetRef.current?.snapToIndex(0)
+                        sheetRef.current?.snapToIndex(1)
                         setSelectedRoute(undefined)
                     }}>
                         <Image source={require('./assets/x.png')} style={{ width: 32, height: 32 }} />
@@ -191,7 +192,7 @@ function Index({ setDrawnRoutes }) {
                                     style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} 
                                     onPress={() => {
                                         setDrawnRoutes([busRoute])
-                                        sheetRef.current?.snapToIndex(0)
+                                        sheetRef.current?.snapToIndex(1)
                                         setSelectedRoute(busRoute)
                                     }}
                                 >
