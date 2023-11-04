@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-export default function BusIcon({busRoute, sizing, textSize, name, color}) {
+export default function BusIcon({sizing, textSize, name, color}) {
     //
   return (
     <View className={"rounded-lg mr-4 content-center justify-center " + sizing} style={{backgroundColor: "#" + color}}>
