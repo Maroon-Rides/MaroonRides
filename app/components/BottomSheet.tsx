@@ -98,7 +98,6 @@ function Index({ setDrawnRoutes }) {
                     <BusIcon 
                         sizing="w-16 h-12" 
                         textSize={24} 
-                        busRoute={selectedRoute} 
                         name={selectedRoute.shortName} 
                         color={selectedRoute.routeInfo.color}
                     />
@@ -169,7 +168,6 @@ function Index({ setDrawnRoutes }) {
                                 >
                                     <BusIcon 
                                         sizing="w-12 h-10" 
-                                        busRoute={busRoute} 
                                         textSize={18} 
                                         name={busRoute.shortName} 
                                         color={busRoute.routeInfo.color}

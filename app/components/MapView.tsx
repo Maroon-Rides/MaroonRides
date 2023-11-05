@@ -197,7 +197,7 @@ function Index({ drawnRoutes }) {
                                         <View className="w-4 h-4 rounded-full border-2" style={{backgroundColor: "#" + drawnRoutes[0].routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0].routeInfo.color)}}/>
                                     )}
                                         
-                                    <StopCallout stop={point} tintColor={"#" + drawnRoutes[0].routeInfo.color}/>
+                                    <StopCallout stop={point} tintColor={drawnRoutes[0].routeInfo.color} routeName={drawnRoutes[0].shortName}/>
                                 </Marker>
                             )
                         }
