@@ -1,58 +1,62 @@
 import React, { useEffect, useRef, useState } from "react";
-import MapView, {LatLng, Polyline, Marker, Callout} from 'react-native-maps';
+import MapView, {LatLng, Polyline, Marker} from 'react-native-maps';
 import * as Location from 'expo-location';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { styled } from 'nativewind';
-import { Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
-import { getRouteBuses, getTimetable } from "aggie-spirit-api";
+import { getRouteBuses } from "aggie-spirit-api";
 import StopCallout from "./callouts/StopCallout";
 import BusCallout from "./callouts/BusCallout";
 
+import { IBusRoute } from "utils/interfaces";
+
 const StyledMapView = styled(MapView);
 
-function Index({ drawnRoutes }) {
-    var mapViewRef: any;
+interface Props {
+    drawnRoutes: IBusRoute[]
+}
+
+const Index: React.FC<Props> = ({ drawnRoutes }) => {
+    let mapViewRef: any;
 
     // given a hex code without the #, return a lighter version of it
     function getLighterColor(color: string) {
-        var r = parseInt(color.substring(0, 2), 16);
-        var g = parseInt(color.substring(2, 4), 16);
-        var b = parseInt(color.substring(4, 6), 16);
-
-        r = Math.round(r + 100);
-        g = Math.round(g + 100);
-        b = Math.round(b + 100);
-
-        r = Math.min(r, 255);
-        g = Math.min(g, 255);
-        b = Math.min(b, 255);
-
-        return r.toString(16) + g.toString(16) + b.toString(16);
+        // Parse the color components from the input string
+        const r = parseInt(color.substring(0, 2), 16);
+        const g = parseInt(color.substring(2, 4), 16);
+        const b = parseInt(color.substring(4, 6), 16);
+    
+        // Increase the brightness of each color component
+        const lightenedR = Math.min(r + 100, 255);
+        const lightenedG = Math.min(g + 100, 255);
+        const lightenedB = Math.min(b + 100, 255);
+    
+        // Convert the lightened color components back to a hex string
+        const lightenedColor = (
+            lightenedR.toString(16).padStart(2, '0') +
+            lightenedG.toString(16).padStart(2, '0') +
+            lightenedB.toString(16).padStart(2, '0')
+        );
+    
+        return lightenedColor;
     }
 
-    var [buses, setBuses] = useState<any[]>([])
-    var updateBusesInterval = useRef<any>(null); // must be a ref to be able to stop the update if the app reloads
+    const [buses, setBuses] = useState<any[]>([])
+    const updateBusesInterval = useRef<any>(null); // must be a ref to be able to stop the update if the app reloads
 
     function updateBuses(routeName: string) {
         (async () => {
             try {
-                var data = await getRouteBuses(routeName)
+                const data = await getRouteBuses(routeName)
+
+                if (drawnRoutes.length == 1) {
+                    setBuses(data)
+                }
             } catch (error) {
                 console.log(error)
                 return
-            }
-            
-            // var data = [
-            //     {location: {heading: 49.400001525878906, lastGpsDate: "2023-10-27T21:54:48-05:00", latitude: 30.614744000000005, longitude: -96.33809199999999, speed: 0}}
-            // ]
-            
-            // verify that we have the route still selected
-            
-            // fixes bug where the user exits the route white a request is in flight and completes after the user exits
-            if (drawnRoutes.length == 1) {
-                setBuses(data)
             }
         })();
     }
@@ -87,7 +91,7 @@ function Index({ drawnRoutes }) {
     }
     
     useEffect(() => {
-        var coords: LatLng[] = []
+        const coords: LatLng[] = []
         drawnRoutes.forEach((route: any) => {
                 
             route.routeInfo.patternPaths.forEach((path: any) => {
@@ -113,10 +117,10 @@ function Index({ drawnRoutes }) {
         // if we are only showing 1 bus, update it every 2 seconds
         if (drawnRoutes.length == 1) {
             // update the buses
-            updateBuses(drawnRoutes[0].shortName)
+            updateBuses(drawnRoutes[0]!.shortName)
 
             updateBusesInterval.current = setInterval(async () => {
-                updateBuses(drawnRoutes[0].shortName)
+                updateBuses(drawnRoutes[0]!.shortName)
             }, 5000)
         } else {
             clearInterval(updateBusesInterval.current)
@@ -129,14 +133,12 @@ function Index({ drawnRoutes }) {
         }
     }, [drawnRoutes]);
 
-    
-
 
     return (
         <StyledMapView 
             showsUserLocation={true}
             className='w-full h-full'
-            ref = {(mapView) => { mapViewRef = mapView; }}
+            ref={(mapView) => { mapViewRef = mapView; }}
             // compassOffset={{x: -2, y:65}}
             rotateEnabled={false}
         >
@@ -178,8 +180,8 @@ function Index({ drawnRoutes }) {
 
             {/* Single Route Stops */}
             { drawnRoutes.length == 1 ? (
-                drawnRoutes[0].routeInfo.patternPaths.map((path: any) => {
-                    return path.patternPoints.map((point: any) => {
+                drawnRoutes[0]!.routeInfo.patternPaths.map((path) => {
+                    return path.patternPoints.map((point) => {
                         if (point.isStop) {
                             return (
                                 <Marker
@@ -191,13 +193,13 @@ function Index({ drawnRoutes }) {
                                 >
                                     {point.isTimePoint ? (
                                         // Time point icon
-                                        <View className="w-4 h-4 border-2" style={{backgroundColor: "#" + drawnRoutes[0].routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0].routeInfo.color)}}/>
+                                        <View className="w-4 h-4 border-2" style={{backgroundColor: "#" + drawnRoutes[0]!.routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0]!.routeInfo.color)}}/>
                                     ) : (
                                         // non time point icon
-                                        <View className="w-4 h-4 rounded-full border-2" style={{backgroundColor: "#" + drawnRoutes[0].routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0].routeInfo.color)}}/>
+                                        <View className="w-4 h-4 rounded-full border-2" style={{backgroundColor: "#" + drawnRoutes[0]!.routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0]!.routeInfo.color)}}/>
                                     )}
                                         
-                                    <StopCallout stop={point} tintColor={drawnRoutes[0].routeInfo.color} routeName={drawnRoutes[0].shortName}/>
+                                    <StopCallout stop={point} tintColor={drawnRoutes[0]!.routeInfo.color} routeName={drawnRoutes[0]!.shortName}/>
                                 </Marker>
                             )
                         }
@@ -220,7 +222,7 @@ function Index({ drawnRoutes }) {
                             color={"red"}
                             style={getRotationProp(bus.location.heading)}
                         />
-                        <BusCallout bus={bus} tintColor={"#" + drawnRoutes[0].routeInfo.color}/>
+                        <BusCallout bus={bus} tintColor={"#" + drawnRoutes[0]!.routeInfo.color}/>
                     </Marker>
                 )
             })}
