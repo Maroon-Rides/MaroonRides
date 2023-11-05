@@ -74,11 +74,3 @@ export interface IBusRoute {
         }
     ]
 }
-
-export interface ITimeTableData {
-    [location: string]: Date[];
-  }
-  
-export interface ITimeTable {
-    [date: string]: ITimeTableData;
-}

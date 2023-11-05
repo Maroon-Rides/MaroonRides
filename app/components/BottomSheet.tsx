@@ -10,7 +10,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import Timetable from "./Timetable";
 import BusIcon from "./BusIcon";
 
-import { IBusRoute, ITimeTable } from "utils/interfaces";
+import { IBusRoute } from "utils/interfaces";
 
 const StyledBottomSheetView = styled(BottomSheetView);
 
@@ -30,13 +30,15 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
 
     const [selectedRoute, setSelectedRoute] = useState<IBusRoute | null>(null);
 
-    const [busTimetable, setBusTimetable] = useState<ITimeTable[] | null>()
+    const [busTimetable, setBusTimetable] = useState<any[] | null>()
 
     useEffect(() => {
         if (selectedRoute) {
             (async () => {
                 const data = await getTimetable(selectedRoute.shortName)
                 setBusTimetable(data)
+
+                console.log(busTimetable);
             })()
         } else {
             setBusTimetable(null) // clear out old data so we show a loading indicator for next selection
