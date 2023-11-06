@@ -10,27 +10,35 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import Timetable from "./Timetable";
 import BusIcon from "./BusIcon";
 
-const StyledBottomSheetView = styled(BottomSheetView);
-  
-function Index({ setDrawnRoutes }) {
+import { IBusRoute } from "utils/interfaces";
 
+const StyledBottomSheetView = styled(BottomSheetView);
+
+interface Props {
+    setDrawnRoutes: React.Dispatch<React.SetStateAction<IBusRoute[]>>
+}
+
+const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
     const sheetRef = useRef<BottomSheet>(null);
 
     const snapPoints = [ '35%', 110, '80%'];
 
     const [groups, setGroups] = useState()
-    const [selectedGroup, setSelectedGroup] = useState()
+
+    const [selectedGroup, setSelectedGroup] = useState<IBusRoute[] | null>()
     const [selectedIndex, setSelectedIndex] = useState(0)
 
-    const [selectedRoute, setSelectedRoute] = useState()
+    const [selectedRoute, setSelectedRoute] = useState<IBusRoute | null>(null);
 
-    const [busTimetable, setBusTimetable] = useState<any[]>()
+    const [busTimetable, setBusTimetable] = useState<any[] | null>()
 
     useEffect(() => {
         if (selectedRoute) {
             (async () => {
-                var data = await getTimetable(selectedRoute.shortName)
+                const data = await getTimetable(selectedRoute.shortName)
                 setBusTimetable(data)
+
+                console.log(busTimetable);
             })()
         } else {
             setBusTimetable(null) // clear out old data so we show a loading indicator for next selection
@@ -40,7 +48,6 @@ function Index({ setDrawnRoutes }) {
     // download data
     useEffect(() => {
         (async () => {
-            console.log("Refresh data")
             let data = await AsyncStorage.getItem("routeCache").then((routeCache) => routeCache ? JSON.parse(routeCache) : null);
             
             if (data == null) {
@@ -51,17 +58,17 @@ function Index({ setDrawnRoutes }) {
             // set the correct names to be used with the segmented control and descriptions
             data["On Campus"] = data.OnCampus
             delete data.OnCampus
-            data["On Campus"].forEach((route) => {
+            data["On Campus"].forEach((route: IBusRoute) => {
                 route.category = "On Campus"
-                route.endpointName = route.routeInfo.patternPaths[0].patternPoints[0].name + " | " + route.routeInfo.patternPaths[1].patternPoints[0].name
+                route.endpointName = route.routeInfo.patternPaths[0]?.patternPoints[0].name + " | " + route.routeInfo.patternPaths[1]?.patternPoints[0].name
             })
 
             // set the correct names to be used with the segmented control and descriptions
             data["Off Campus"] = data.OffCampus
             delete data.OffCampus
-            data["Off Campus"].forEach((route) => {
+            data["Off Campus"].forEach((route: IBusRoute) => {
                 route.category = "Off Campus"
-                route.endpointName = route.routeInfo.patternPaths[0].patternPoints[0].name + " | " + route.routeInfo.patternPaths[1].patternPoints[0].name
+                route.endpointName = route.routeInfo.patternPaths[0]?.patternPoints[0].name + " | " + route.routeInfo.patternPaths[1]?.patternPoints[0].name
             })
 
             // Gameday
@@ -72,13 +79,13 @@ function Index({ setDrawnRoutes }) {
                 setSelectedIndex(0)
 
             } else if (data.Gameday) {
-                data["Gameday"].forEach((route) => {
+                data["Gameday"].forEach((route: IBusRoute) => {
                     route.category = "Gameday"
 
                     route.name = route.name.replace("Gameday ", "")
-                    route.endpointName = route.routeInfo.patternPaths[0].patternPoints[0].name + " | " + route.routeInfo.patternPaths[1].patternPoints[0].name
+                    route.endpointName = route.routeInfo.patternPaths[0]?.patternPoints[0].name + " | " + route.routeInfo.patternPaths[1]?.patternPoints[0].name
                     // delete the duplicate route
-                    route.routeInfo.patternPaths = [route.routeInfo.patternPaths[0]]
+                    route.routeInfo.patternPaths = [route.routeInfo.patternPaths[0]!]
                 })
                 setSelectedIndex(1)
             }
@@ -111,9 +118,9 @@ function Index({ setDrawnRoutes }) {
                     <TouchableOpacity 
                         className="content-center justify-center"
                     onPress={() => { 
-                        setDrawnRoutes(selectedGroup)
+                        setDrawnRoutes(selectedGroup!)
                         sheetRef.current?.snapToIndex(0)
-                        setSelectedRoute(undefined)
+                        setSelectedRoute(null)
                     }}>
 
                         <Ionicons name="close-circle" size={32} color="grey" />
