@@ -48,15 +48,10 @@ const Index: React.FC<Props> = ({ drawnRoutes }) => {
 
     function updateBuses(routeName: string) {
         (async () => {
-            try {
-                const data = await getRouteBuses(routeName)
-
-                if (drawnRoutes.length == 1) {
-                    setBuses(data)
-                }
-            } catch (error) {
-                console.log(error)
-                return
+            const data = await getRouteBuses(routeName)
+            
+            if (drawnRoutes.length == 1) {
+                setBuses(data)
             }
         })();
     }
