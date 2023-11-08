@@ -217,7 +217,7 @@ const Index: React.FC<Props> = ({ drawnRoutes }) => {
                             color={"red"}
                             style={getRotationProp(bus.location.heading)}
                         />
-                        <BusCallout bus={bus} tintColor={"#" + drawnRoutes[0]!.routeInfo.color}/>
+                        <BusCallout bus={bus} tintColor={drawnRoutes[0]!.routeInfo.color} routeName={drawnRoutes[0]!.shortName}/>
                     </Marker>
                 )
             })}
