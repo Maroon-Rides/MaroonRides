@@ -45,15 +45,42 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
         setCurrentSnapPointIndex(index);
     };
 
+    async function downloadData() {
+        var data = await getRoutesByGroup([RouteGroup.ON_CAMPUS, RouteGroup.OFF_CAMPUS])
+        await AsyncStorage.setItem("routeCache", JSON.stringify(data));
+        await AsyncStorage.setItem("cacheDate", new Date().toLocaleDateString());
+        return data;
+    }
+
     // download data
     useEffect(() => {
         (async () => {
-            let data = await AsyncStorage.getItem("routeCache").then((routeCache) => routeCache ? JSON.parse(routeCache) : null);
+            var data;
+            if (await AsyncStorage.getItem("cacheDate") != new Date().toLocaleDateString()) {
+                try {
+                    data = downloadData()
+                } catch (e) {
+                    console.log("Error downloading data for cache: " + e)
 
-            if (data == null) {
-                data = await getRoutesByGroup([RouteGroup.ON_CAMPUS, RouteGroup.OFF_CAMPUS])
-                await AsyncStorage.setItem("routeCache", JSON.stringify(data));
+                    if (await AsyncStorage.getItem("routeCache")) {
+                        console.log("Using cached data from last successful download")
+                        data = await AsyncStorage.getItem("routeCache").then((routeCache) => routeCache ? JSON.parse(routeCache) : null);
+                    } else {
+                        console.log("No cached data available")
+                    }
+                }
+            } else {
+                console.log("Using cached data")
+                data = await AsyncStorage.getItem("routeCache").then((routeCache) => routeCache ? JSON.parse(routeCache) : null);
+                if (data == null) { // if for some reason the cache is empty but the date is today, redownload
+                    try {
+                        data = downloadData()
+                    } catch (e) {
+                        console.log("Error downloading data for cache: " + e)
+                    }
+                }
             }
+            
 
             // set the correct names to be used with the segmented control and descriptions
             data["On Campus"] = data.OnCampus
