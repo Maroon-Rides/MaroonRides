@@ -46,7 +46,7 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
     };
 
     async function downloadData() {
-        var data = await getRoutesByGroup([RouteGroup.ON_CAMPUS, RouteGroup.OFF_CAMPUS])
+        const data = await getRoutesByGroup([RouteGroup.ON_CAMPUS, RouteGroup.OFF_CAMPUS])
         await AsyncStorage.setItem("routeCache", JSON.stringify(data));
         await AsyncStorage.setItem("cacheDate", new Date().toLocaleDateString());
         return data;
@@ -55,7 +55,7 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
     // download data
     useEffect(() => {
         (async () => {
-            var data;
+            let data;
             if (await AsyncStorage.getItem("cacheDate") != new Date().toLocaleDateString()) {
                 try {
                     data = downloadData()
