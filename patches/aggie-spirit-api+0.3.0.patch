@@ -1,5 +1,5 @@
 diff --git a/node_modules/aggie-spirit-api/src/connection.js b/node_modules/aggie-spirit-api/src/connection.js
-index 7bee17e..076a5ad 100644
+index 7bee17e..3c94a0e 100644
 --- a/node_modules/aggie-spirit-api/src/connection.js
 +++ b/node_modules/aggie-spirit-api/src/connection.js
 @@ -1,4 +1,4 @@
@@ -8,7 +8,7 @@ index 7bee17e..076a5ad 100644
  
  const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4585.0 Safari/537.36"
  
-@@ -20,13 +20,12 @@ class Connection {
+@@ -20,14 +20,11 @@ class Connection {
      async connect() {
          // Get Session ID for Authentication
          const sessionIdResponse = await fetch('https://transport.tamu.edu/busroutes.web', {
@@ -19,22 +19,20 @@ index 7bee17e..076a5ad 100644
          })
  
 -        this.tsessionID = sessionIdResponse.headers.get("set-cookie").split(";")[0].split("=")[1]
-+        // this.tsessionID = sessionIdResponse.headers.get("set-cookie").split(";")[0].split("=")[1]
- 
+-
          // Negotiate Connection to Server
          const negotiate_response = await fetch(
+             this.baseURL + '/negotiate?negotiateVersion=1',
 diff --git a/node_modules/aggie-spirit-api/src/timetable_api.js b/node_modules/aggie-spirit-api/src/timetable_api.js
-index 80d6e38..989224d 100644
+index d072fd4..f9384c4 100644
 --- a/node_modules/aggie-spirit-api/src/timetable_api.js
 +++ b/node_modules/aggie-spirit-api/src/timetable_api.js
-@@ -55,8 +55,9 @@ export async function getTimetable(routeName, date = new Date(), connection) {
- 
-         // get all times for each stop
-         for (var i=1; i < rows.length; i++) {
-+            
-             rows[i].getElementsByTagName("time").map((time, i) => {
--                parsedTable[stops[i]].push(new Date(time.getAttribute("dateTime")))
-+                parsedTable[stops[i]].push(moment(time.getAttribute("dateTime"), "MM/DD/YYYY hh:mm:ss a").toDate())
+@@ -62,7 +62,7 @@ export async function getTimetable(routeName, date = new Date(), connection) {
+                 if(time.length == 0) {
+                     parsedTable[stops[i]].push(null)
+                 } else {
+-                    parsedTable[stops[i]].push(new Date(time[0].getAttribute("dateTime")))
++                    parsedTable[stops[i]].push(moment(time[0].getAttribute("dateTime"), "MM/DD/YYYY hh:mm:ss a").toDate())
+                 }
              })
          }
- 
