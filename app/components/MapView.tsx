@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import MapView, {LatLng, Polyline, Marker} from 'react-native-maps';
 import * as Location from 'expo-location';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { styled } from 'nativewind';
 import { TouchableOpacity, View } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
@@ -11,6 +10,7 @@ import StopCallout from "./callouts/StopCallout";
 import BusCallout from "./callouts/BusCallout";
 
 import { IBusRoute } from "utils/interfaces";
+import BusIcon from "./BusIcon";
 
 const StyledMapView = styled(MapView);
 
@@ -56,11 +56,7 @@ const Index: React.FC<Props> = ({ drawnRoutes }) => {
         })();
     }
 
-    function getRotationProp(bearing: number) {
-        return {transform: 
-            [{rotate: bearing === undefined ? '0deg' : `${Math.round(bearing)}deg`}]
-        }
-    }
+
 
     async function recenterView() {
         let { status } = await Location.requestForegroundPermissionsAsync();
@@ -211,12 +207,7 @@ const Index: React.FC<Props> = ({ drawnRoutes }) => {
                     coordinate={{latitude: bus.location.latitude, longitude: bus.location.longitude}}
                     >
                         {/* Bus Icon on Map*/}
-                        <MaterialIcons
-                            name="assistant-navigation"
-                            size={32}
-                            color={"red"}
-                            style={getRotationProp(bus.location.heading)}
-                        />
+                        <BusIcon color={drawnRoutes[0]!.routeInfo.color} heading={bus.location.heading}/>
                         <BusCallout bus={bus} tintColor={drawnRoutes[0]!.routeInfo.color} routeName={drawnRoutes[0]!.shortName}/>
                     </Marker>
                 )
