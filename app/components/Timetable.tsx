@@ -32,7 +32,7 @@ const Timetable: React.FC<Props> = ({
             for (var j = 0; j < stops.length; j++) {
                 if (
                     timetable[index][stops[j]][i] > currentTime &&
-                    indexToScrollTo === -1
+                    indexToScrollTo === -1 && timetable[index][stops[j]][i] !== null
                 ) {
                     result = i;
                     break outerLoop; // Break out of the outer loop
@@ -122,7 +122,9 @@ const Timetable: React.FC<Props> = ({
                                 style={{
                                     color:
                                         index === indexToScrollTo
-                                            ? highlightColor
+                                            ? (new Date(col) < currentTime 
+                                                ? `${highlightColor}77`
+                                                : highlightColor)
                                             : new Date(col) > currentTime
                                                 ? "black"
                                                 : "#707373",
@@ -133,12 +135,12 @@ const Timetable: React.FC<Props> = ({
                                     opacity: col === undefined ? 0 : 1,
                                 }}
                             >
-                                {col !== undefined
+                                {col !== null
                                     ? new Date(col).toLocaleTimeString([], {
                                         hour: "2-digit",
                                         minute: "2-digit",
                                     })
-                                    : "NO DATA"}
+                                    : ""}
                             </Text>
                         ))}
                     </View>
