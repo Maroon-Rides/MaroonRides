@@ -151,8 +151,8 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
                             <Image source={require('./assets/share.png')} style={{ width: 32, height: 32, marginRight: 10 }} />
                         </TouchableOpacity>
 
-                        <TouchableOpacity
-                            className="content-center justify-center"
+                        <TouchableOpacity 
+                            className="content-center justify-right"
                             onPress={() => {
                                 setDrawnRoutes(selectedGroup!)
                                 sheetRef.current?.snapToIndex(1)
