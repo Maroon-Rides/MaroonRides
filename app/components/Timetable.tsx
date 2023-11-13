@@ -66,7 +66,7 @@ const Timetable: React.FC<Props> = ({
         setIndexToScrollTo(index);
 
         if (index == -1) return
-        listRef.current?.scrollToIndex({index: index, animated: false, viewPosition: 0.10});
+        listRef.current?.scrollToIndex({index: index, animated: false});
     }, [selectedIndex]);
 
     return (
@@ -117,12 +117,12 @@ const Timetable: React.FC<Props> = ({
                 onLayout={() => {
                     // This will only run when the table is first shown to user, this fixes whatever bug is causing the table to not scroll to the highlighted time on first render
                     if (indexToScrollTo == -1) return
-                    listRef.current?.scrollToIndex({index: indexToScrollTo, animated: true, viewPosition: 0.1});
+                    listRef.current?.scrollToIndex({index: indexToScrollTo, animated: true});
                 }}
                 ref={listRef}
                 data={processedTimetable}
                 getItemLayout={(data, index) => (
-                    {length: 40, offset: 40 * index, index}
+                    {length: 37, offset: 37 * index, index}
                 )}
                 stickyHeaderIndices={[0]}
                 renderItem={({item, index}) => {
