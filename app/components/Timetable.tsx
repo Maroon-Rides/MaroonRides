@@ -25,7 +25,7 @@ const Timetable: React.FC<Props> = ({
     function findHighlight(index: number) {
         var stops = Object.keys(timetable[index]!);
         var numTimes = timetable[index][stops[0]].length;
-        let result = 0; // Default value
+        let result = -1; // Default value
 
         // Label for the outer loop
         outerLoop: for (var i = 0; i < numTimes; i++) {
