@@ -81,8 +81,6 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
                 }
             }
             
-            console.log(data)
-
             // set the correct names to be used with the segmented control and descriptions
             data["On Campus"] = data.OnCampus
             delete data.OnCampus
