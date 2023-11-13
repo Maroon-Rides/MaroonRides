@@ -21,6 +21,9 @@ interface Props {
 const Index: React.FC<Props> = ({ drawnRoutes }) => {
     let mapViewRef: any;
 
+    const [buses, setBuses] = useState<any[]>([])
+    const updateBusesInterval = useRef<any>(null); // must be a ref to be able to stop the update if the app reloads
+
     // given a hex code without the #, return a lighter version of it
     function getLighterColor(color: string) {
         // Parse the color components from the input string
@@ -43,20 +46,13 @@ const Index: React.FC<Props> = ({ drawnRoutes }) => {
         return lightenedColor;
     }
 
-    const [buses, setBuses] = useState<any[]>([])
-    const updateBusesInterval = useRef<any>(null); // must be a ref to be able to stop the update if the app reloads
+    const updateBuses = async(routeName: string) => {
+        const data = await getRouteBuses(routeName);
 
-    function updateBuses(routeName: string) {
-        (async () => {
-            const data = await getRouteBuses(routeName)
-            
-            if (drawnRoutes.length == 1) {
-                setBuses(data)
-            }
-        })();
+        if(drawnRoutes.length == 1) {
+            setBuses(data);
+        }
     }
-
-
 
     async function recenterView() {
         let { status } = await Location.requestForegroundPermissionsAsync();

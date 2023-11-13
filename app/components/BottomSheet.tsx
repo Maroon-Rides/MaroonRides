@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, ScrollView, ActivityIndicator, Image, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from "react-native";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { RouteGroup, getRoutesByGroup, getTimetable } from "aggie-spirit-api"
@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { styled } from "nativewind";
 import Timetable from "./Timetable";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { IBusRoute } from "utils/interfaces";
+import { IBusRoute, ITimetable } from "utils/interfaces";
 
 const StyledBottomSheetView = styled(BottomSheetView);
 
@@ -26,7 +26,7 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
 
     const [selectedRoute, setSelectedRoute] = useState<IBusRoute | null>(null);
 
-    const [busTimetable, setBusTimetable] = useState<any[] | null>()
+    const [busTimetable, setBusTimetable] = useState<ITimetable[] | null>()
 
     useEffect(() => {
         if (selectedRoute) {
@@ -40,47 +40,42 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
         }
     }, [selectedRoute])
 
-    const [currentSnapPointIndex, setCurrentSnapPointIndex] = useState(0);
+    const [_, setCurrentSnapPointIndex] = useState(0);
     const handleSnapChange = (index: any) => {
         setCurrentSnapPointIndex(index);
     };
 
-    async function downloadData() {
+    const downloadData = async () => {
         const data = await getRoutesByGroup([RouteGroup.ON_CAMPUS, RouteGroup.OFF_CAMPUS])
         await AsyncStorage.setItem("routeCache", JSON.stringify(data));
         await AsyncStorage.setItem("cacheDate", new Date().toLocaleDateString());
         return data;
     }
 
-    // download data
     useEffect(() => {
         (async () => {
             let data;
-            if (await AsyncStorage.getItem("cacheDate") != new Date().toLocaleDateString()) {
-                try {
-                    data = downloadData()
-                } catch (e) {
-                    console.log("Error downloading data for cache: " + e)
 
-                    if (await AsyncStorage.getItem("routeCache")) {
-                        console.log("Using cached data from last successful download")
-                        data = await AsyncStorage.getItem("routeCache").then((routeCache) => routeCache ? JSON.parse(routeCache) : null);
-                    } else {
-                        console.log("No cached data available")
-                    }
-                }
+            const cacheDate = await AsyncStorage.getItem("cacheDate");
+            const todayDateString = new Date().toLocaleDateString();
+
+            if(cacheDate !== todayDateString) {
+                data = await downloadData().catch(async (downloadError) => {
+                    console.error("Error downloading data for cache: ", downloadError);
+
+                    await AsyncStorage.getItem("routeCache").then((res) => {
+                        if(res) {
+                            data = JSON.parse(res);
+                        }
+                    });
+                });
             } else {
-                console.log("Using cached data")
-                data = await AsyncStorage.getItem("routeCache").then((routeCache) => routeCache ? JSON.parse(routeCache) : null);
-                if (data == null) { // if for some reason the cache is empty but the date is today, redownload
-                    try {
-                        data = downloadData()
-                    } catch (e) {
-                        console.log("Error downloading data for cache: " + e)
-                    }
-                }
+                console.log("Using cached data");
+
+                const routeCache = await AsyncStorage.getItem("routeCache");
+                data = routeCache ? JSON.parse(routeCache) : await downloadData();
             }
-            
+
             // set the correct names to be used with the segmented control and descriptions
             data["On Campus"] = data.OnCampus
             delete data.OnCampus
@@ -119,7 +114,8 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
             setSelectedGroup(data["On Campus"])
             setDrawnRoutes(data["On Campus"])
             setGroups(data)
-        })();
+
+        })()
     }, []);
 
     return (
