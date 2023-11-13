@@ -1,8 +1,8 @@
-import { Text, View, ScrollView } from "react-native";
+import { Text, View } from "react-native";
 import React, { useState, useEffect } from "react";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import { ITimetable } from "utils/interfaces";
-import { FlatList, RotationGestureHandler } from "react-native-gesture-handler";
+import { FlatList } from "react-native-gesture-handler";
 
 interface Props {
     timetable: ITimetable;
