@@ -117,7 +117,7 @@ const Timetable: React.FC<Props> = ({
                 onLayout={() => {
                     // This will only run when the table is first shown to user, this fixes whatever bug is causing the table to not scroll to the highlighted time on first render
                     if (indexToScrollTo == -1) return
-                    listRef.current?.scrollToIndex({index: indexToScrollTo, animated: true});
+                    listRef.current?.scrollToIndex({index: indexToScrollTo, animated: false});
                 }}
                 ref={listRef}
                 data={processedTimetable}
