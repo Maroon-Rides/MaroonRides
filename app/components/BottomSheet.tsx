@@ -6,7 +6,7 @@ import { RouteGroup, getRoutesByGroup, getTimetable } from "aggie-spirit-api"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { styled } from "nativewind";
 import Timetable from "./Timetable";
-
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { IBusRoute } from "utils/interfaces";
 
 const StyledBottomSheetView = styled(BottomSheetView);
@@ -146,10 +146,6 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
 
                         {/* Spacer */}
                         <View className="flex-1" />
-                        <TouchableOpacity onPress={() => {
-                        }}>
-                            <Image source={require('./assets/share.png')} style={{ width: 32, height: 32, marginRight: 10 }} />
-                        </TouchableOpacity>
 
                         <TouchableOpacity 
                             className="content-center justify-right"
@@ -158,7 +154,10 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
                                 sheetRef.current?.snapToIndex(1)
                                 setSelectedRoute(null)
                             }}>
-                            <Image source={require('./assets/x.png')} style={{ width: 32, height: 32 }} />
+                            <Ionicons
+                                name="close-circle"
+                                size={32}
+                                color="grey" />
                         </TouchableOpacity>
 
                     </View>
