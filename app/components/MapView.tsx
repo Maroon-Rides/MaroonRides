@@ -10,7 +10,7 @@ import StopCallout from "./callouts/StopCallout";
 import BusCallout from "./callouts/BusCallout";
 
 import { IBusRoute } from "utils/interfaces";
-import BusIcon from "./BusIcon";
+import BusMapIcon from "./callouts/BusMapIcon";
 
 const StyledMapView = styled(MapView);
 
@@ -190,7 +190,7 @@ const Index: React.FC<Props> = ({ drawnRoutes }) => {
                                         <View className="w-4 h-4 rounded-full border-2" style={{backgroundColor: "#" + drawnRoutes[0]!.routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0]!.routeInfo.color)}}/>
                                     )}
                                         
-                                    <StopCallout stop={point} tintColor={drawnRoutes[0]!.routeInfo.color} routeName={drawnRoutes[0]!.shortName}/>
+                                        <StopCallout stop={point} tintColor={drawnRoutes[0]!.routeInfo.color} routeName={drawnRoutes[0]!.shortName}/>
                                 </Marker>
                             )
                         }
@@ -207,7 +207,7 @@ const Index: React.FC<Props> = ({ drawnRoutes }) => {
                     coordinate={{latitude: bus.location.latitude, longitude: bus.location.longitude}}
                     >
                         {/* Bus Icon on Map*/}
-                        <BusIcon color={drawnRoutes[0]!.routeInfo.color} heading={bus.location.heading}/>
+                        <BusMapIcon color={drawnRoutes[0]!.routeInfo.color} heading={bus.location.heading}/>
                         <BusCallout bus={bus} tintColor={drawnRoutes[0]!.routeInfo.color} routeName={drawnRoutes[0]!.shortName}/>
                     </Marker>
                 )

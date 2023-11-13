@@ -1,26 +1,24 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import { Callout } from 'react-native-maps'
+import BusIcon from '../BusIcon'
 
 export default function StopCallout({stop, tintColor, routeName}) {
+
+    const [contentSize, setContentSizing] = React.useState([0, 15])
+
     return (
-        <Callout>
-            <View className="w-20">
-                <View className={`w-10 h-7 rounded-lg mr-3 content-center justify-center`} style={{ backgroundColor: "#" + tintColor }}>
-                    <Text
-                        adjustsFontSizeToFit={true}
-                        numberOfLines={0}
-                        className="text-center font-bold text-white p-1"
-                        style={{ fontSize: 24 }} // this must be used, nativewind is broken :(
-                    >
-                        {routeName}
-                     </Text>
-                </View>
-                <View className={`content-center justify-center`}>
-                    <Text className="text-center font-bold text-m">{stop.name}</Text>
-                    <Text>{stop.description}</Text>
-                </View>
+        <Callout style={{alignItems: 'center', width: contentSize[0], height: contentSize[1]}} >
+            
+            <View 
+                className="flex-row justify-center items-center" 
+                style={{alignSelf: "flex-start"}} 
+                onLayout={(event) => { setContentSizing([event.nativeEvent.layout.width, event.nativeEvent.layout.height]) }}
+            >
+                <BusIcon name={routeName} color={tintColor} sizing="w-10 h-6" textSize={18}/>
+                <Text maxWidth={200} className="font-bold" numberOfLines={1}>{stop.name} </Text>
             </View>
+
         </Callout>
     )
 }
