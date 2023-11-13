@@ -1,6 +1,7 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface Props {
   heading: number,
@@ -52,7 +53,7 @@ const BusMapIcon: React.FC<Props> = ({ heading, color }) => {
       borderWidth: 2,
       transform: getRotationProp(heading)
     }}>
-      <Ionicons name="bus" size={18} color="white" style={{transform: getRotationProp(-heading-90)}} />
+      <MaterialCommunityIcons name="bus" size={18} color="white" style={{transform: getRotationProp(-heading-90)}} />
     </View>
   )
 }
