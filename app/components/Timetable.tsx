@@ -2,6 +2,7 @@ import { Text, View, ScrollView } from "react-native";
 import React, { useState, useEffect } from "react";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import { ITimetable } from "utils/interfaces";
+import { FlatList, RotationGestureHandler } from "react-native-gesture-handler";
 
 interface Props {
     timetable: ITimetable;
@@ -15,10 +16,10 @@ const Timetable: React.FC<Props> = ({
     const stops = Object.keys(timetable[0]!);
     const [selectedIndex, setSelectedIndex] = useState(0);
 
-    const [processedTimetable, setProcessedTimetable] = useState<string[][]>(
-        processTable(0)
-    ); //to be implimented
-    const [indexToScrollTo, setIndexToScrollTo] = useState(-1); //to be implimented
+    const [processedTimetable, setProcessedTimetable] = useState<string[][]>(processTable(0));
+    const [indexToScrollTo, setIndexToScrollTo] = useState(-1);
+
+    const listRef = React.useRef<FlatList>(null);
 
     const currentTime = new Date();
 
@@ -61,7 +62,11 @@ const Timetable: React.FC<Props> = ({
 
     useEffect(() => {
         setProcessedTimetable(processTable(selectedIndex));
-        setIndexToScrollTo(findHighlight(selectedIndex));
+        var index = findHighlight(selectedIndex);
+        setIndexToScrollTo(index);
+
+        if (index == -1) return
+        listRef.current?.scrollToIndex({index: index, animated: false, viewPosition: 0.10});
     }, [selectedIndex]);
 
     return (
@@ -85,67 +90,87 @@ const Timetable: React.FC<Props> = ({
             />
 
 
-            <ScrollView>
-                <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                    {Object.keys(timetable[selectedIndex]!).map((stop, index) => (
-                        <Text
+            <FlatList 
+                ListHeaderComponent={() => {
+                return (
+                    <View>
+                        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            {Object.keys(timetable[selectedIndex]!).map((stop, index) => (
+                                <Text
+                                    key={index}
+                                    className="flex-1 text-center bg-white py-2 font-bold"
+                                >
+                                    {stop}
+                                </Text>
+                            ))}
+                        </View>
+                        <View
+                            style={{
+                                height: 1,
+                                width: "100%",
+                                backgroundColor: "#F2F2F2",
+                            }}
+                        />
+                    </View>
+                )
+                }}
+                onLayout={() => {
+                    // This will only run when the table is first shown to user, this fixes whatever bug is causing the table to not scroll to the highlighted time on first render
+                    if (indexToScrollTo == -1) return
+                    listRef.current?.scrollToIndex({index: indexToScrollTo, animated: true, viewPosition: 0.1});
+                }}
+                ref={listRef}
+                data={processedTimetable}
+                getItemLayout={(data, index) => (
+                    {length: 40, offset: 40 * index, index}
+                )}
+                stickyHeaderIndices={[0]}
+                renderItem={({item, index}) => {
+                    return (
+                        <View
                             key={index}
                             style={{
-                                flex: 1,
-                                textAlign: "center",
-                                backgroundColor: "white",
-                                paddingVertical: 2,
+                                flexDirection: "row",
+                                backgroundColor:
+                                    index === indexToScrollTo
+                                        ? `${highlightColor}33`
+                                        : index % 2 === 0
+                                            ? "#F2F2F2"
+                                            : "white",
+                                borderRadius: 8,
                             }}
                         >
-                            {stop}
-                        </Text>
-                    ))}
-                </View>
-
-                {processedTimetable.map((row, index) => (
-                    <View
-                        key={index}
-                        style={{
-                            flexDirection: "row",
-                            backgroundColor:
-                                index === indexToScrollTo
-                                    ? `${highlightColor}33`
-                                    : index % 2 === 0
-                                        ? "#F2F2F2"
-                                        : "white",
-                            borderRadius: 8,
-                        }}
-                    >
-                        {row.map((col, innerIndex) => (
-                            <Text
-                                key={innerIndex}
-                                style={{
-                                    color:
-                                        index === indexToScrollTo
-                                            ? (new Date(col) < currentTime 
-                                                ? `${highlightColor}77`
-                                                : highlightColor)
-                                            : new Date(col) > currentTime
-                                                ? "black"
-                                                : "#707373",
-                                    paddingTop: 10,
-                                    paddingBottom: 10,
-                                    textAlign: "center",
-                                    flex: 1,
-                                    opacity: col === undefined ? 0 : 1,
-                                }}
-                            >
-                                {col !== null
-                                    ? new Date(col).toLocaleTimeString([], {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                    })
-                                    : ""}
-                            </Text>
-                        ))}
-                    </View>
-                ))}
-            </ScrollView>
+                            {item.map((col, innerIndex) => (
+                                <Text
+                                    key={innerIndex}
+                                    style={{
+                                        color:
+                                            index === indexToScrollTo
+                                                ? (new Date(col) < currentTime 
+                                                    ? `${highlightColor}77`
+                                                    : highlightColor)
+                                                : new Date(col) > currentTime
+                                                    ? "black"
+                                                    : "#707373",
+                                        paddingTop: 10,
+                                        paddingBottom: 10,
+                                        textAlign: "center",
+                                        flex: 1,
+                                        opacity: col === undefined ? 0 : 1,
+                                    }}
+                                >
+                                    {col !== null
+                                        ? new Date(col).toLocaleTimeString([], {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                        })
+                                        : ""}
+                                </Text>
+                            ))}
+                        </View>
+                    )
+                }}
+            />     
         </View>
     );
 };
