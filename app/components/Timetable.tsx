@@ -1,8 +1,7 @@
-import { Text, View } from "react-native";
+import { Text, View, FlatList } from "react-native";
 import React, { useState, useEffect } from "react";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import { ITimetable } from "utils/interfaces";
-import { FlatList } from "react-native-gesture-handler";
 
 interface Props {
     timetable: ITimetable;
@@ -90,7 +89,8 @@ const Timetable: React.FC<Props> = ({
             />
 
 
-            <FlatList 
+            <FlatList
+                contentContainerStyle={{ paddingBottom: 170 }}
                 ListHeaderComponent={() => {
                 return (
                     <View>
