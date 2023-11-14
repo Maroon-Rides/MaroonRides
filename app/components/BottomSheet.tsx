@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from "react-native";
+import { View, Text, ActivityIndicator, TouchableOpacity, FlatList } from "react-native";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { RouteGroup, getRoutesByGroup, getTimetable } from "aggie-spirit-api"
@@ -8,6 +8,7 @@ import { styled } from "nativewind";
 import Timetable from "./Timetable";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { IBusRoute, ITimetable } from "utils/interfaces";
+import BusIcon from "./BusIcon";
 
 const StyledBottomSheetView = styled(BottomSheetView);
 
@@ -179,7 +180,7 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
                         {groups == undefined ? (
                             <ActivityIndicator />
                         ) : (
-                            <View>
+                            <View style={{ height: "100%" }}>
                                 <SegmentedControl
                                     values={Object.keys(groups)}
                                     selectedIndex={selectedIndex}
@@ -190,38 +191,36 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
                                     onChange={(event) => setSelectedIndex(event.nativeEvent.selectedSegmentIndex)}
 
                                 />
-                                <ScrollView>
-                                    {selectedGroup!.map((busRoute) => (
-                                        <TouchableOpacity
-                                            key={busRoute.key} // Use a unique key for each item
-                                            className="flex flex-row align-center my-2"
-                                            onPress={() => {
-                                                setDrawnRoutes([busRoute]);
-                                                sheetRef.current?.snapToIndex(1);
-                                                setSelectedRoute(busRoute);
-                                            }}
-                                        >
-                                            <View
-                                                className="w-12 h-10 rounded-lg mr-4 content-center justify-center"
-                                                style={{ backgroundColor: "#" + busRoute.routeInfo.color }}
-                                            >
-                                                <Text
-                                                    adjustsFontSizeToFit={true}
-                                                    numberOfLines={1}
-                                                    className="text-center font-bold text-white p-1"
-                                                    style={{ fontSize: 16 }} // this must be used, nativewind is broken :(
-                                                >
-                                                    {busRoute.shortName}
-                                                </Text>
-                                            </View>
-                                            <View>
-                                                <Text className="font-bold text-xl">{busRoute.name}</Text>
-                                                <Text>{busRoute.endpointName}</Text>
-                                            </View>
-                                        </TouchableOpacity>
-                                    ))}
-                                </ScrollView>
-
+                                <FlatList
+                                contentContainerStyle={{ paddingBottom: 30 }}
+                        data={selectedGroup}
+                        keyExtractor={busRoute => busRoute.key}
+                        renderItem={({ item: busRoute }) => {
+                            return (
+                                <TouchableOpacity 
+                                    style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} 
+                                    onPress={() => {
+                                        setDrawnRoutes([busRoute])
+                                        sheetRef.current?.snapToIndex(0)
+                                        setSelectedRoute(busRoute)
+                                    }}
+                                >
+                                    <BusIcon 
+                                        sizing="w-12 h-10" 
+                                        textSize={18} 
+                                        name={busRoute.shortName} 
+                                        color={busRoute.routeInfo.color}
+                                    />
+                                    <View>
+                                        <Text className="font-bold text-xl">{busRoute.name}</Text>
+                                        <Text>
+                                            {busRoute.endpointName}
+                                        </Text>
+                                    </View>
+                                </TouchableOpacity>
+                            )
+                        }}                        
+                    />
                             </View>
                         )}
                     </StyledBottomSheetView>
