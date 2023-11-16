@@ -58,7 +58,7 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
             let data;
             if (await AsyncStorage.getItem("cacheDate") != new Date().toLocaleDateString()) {
                 try {
-                    data = downloadData()
+                    data = await downloadData()
                 } catch (e) {
                     console.log("Error downloading data for cache: " + e)
 
@@ -74,7 +74,7 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
                 data = await AsyncStorage.getItem("routeCache").then((routeCache) => routeCache ? JSON.parse(routeCache) : null);
                 if (data == null) { // if for some reason the cache is empty but the date is today, redownload
                     try {
-                        data = downloadData()
+                        data = await downloadData()
                     } catch (e) {
                         console.log("Error downloading data for cache: " + e)
                     }
