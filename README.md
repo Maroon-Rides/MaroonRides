@@ -13,7 +13,6 @@ Developer experience first:
 - ⚡ [Expo](https://expo.dev) for mobile development
 - ⚛️ [React Native](https://reactnative.dev) for building native apps using React
 - 🔥 Type checking [TypeScript](https://www.typescriptlang.org)
-- 💎 Integrate with [NativeWind](https://www.nativewind.dev), Tailwind CSS for React Native
 - 📁 File-based routing with Expo Router
 - 📏 Linter with [ESLint](https://eslint.org)
 - 💖 Code Formatter with [Prettier](https://prettier.io)

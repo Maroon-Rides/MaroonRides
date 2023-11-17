@@ -2,17 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import MapView, {LatLng, Polyline, Marker} from 'react-native-maps';
 import * as Location from 'expo-location';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { styled } from 'nativewind';
 import { TouchableOpacity, View } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 import { getRouteBuses } from "aggie-spirit-api";
 import StopCallout from "./callouts/StopCallout";
 import BusCallout from "./callouts/BusCallout";
 
-import { IBusRoute } from "utils/interfaces";
+import { IBus, IBusRoute } from "utils/interfaces";
+import { getLighterColor } from "../../utils/utils";
 import BusMapIcon from "./callouts/BusMapIcon";
-
-const StyledMapView = styled(MapView);
 
 interface Props {
     drawnRoutes: IBusRoute[]
@@ -21,30 +19,9 @@ interface Props {
 const Index: React.FC<Props> = ({ drawnRoutes }) => {
     let mapViewRef: any;
 
-    const [buses, setBuses] = useState<any[]>([])
-    const updateBusesInterval = useRef<any>(null); // must be a ref to be able to stop the update if the app reloads
+    const [buses, setBuses] = useState<IBus[]>([])
 
-    // given a hex code without the #, return a lighter version of it
-    function getLighterColor(color: string) {
-        // Parse the color components from the input string
-        const r = parseInt(color.substring(0, 2), 16);
-        const g = parseInt(color.substring(2, 4), 16);
-        const b = parseInt(color.substring(4, 6), 16);
-    
-        // Increase the brightness of each color component
-        const lightenedR = Math.min(r + 100, 255);
-        const lightenedG = Math.min(g + 100, 255);
-        const lightenedB = Math.min(b + 100, 255);
-    
-        // Convert the lightened color components back to a hex string
-        const lightenedColor = (
-            lightenedR.toString(16).padStart(2, '0') +
-            lightenedG.toString(16).padStart(2, '0') +
-            lightenedB.toString(16).padStart(2, '0')
-        );
-    
-        return lightenedColor;
-    }
+    const updateBusesInterval = useRef<any>(null); // must be a ref to be able to stop the update if the app reloads
 
     const updateBuses = async(routeName: string) => {
         const data = await getRouteBuses(routeName);
@@ -122,20 +99,20 @@ const Index: React.FC<Props> = ({ drawnRoutes }) => {
 
 
     return (
-        <StyledMapView 
+        <MapView 
             showsUserLocation={true}
-            className='w-full h-full'
+            style={{ width: "100%", height: "100%" }}
             ref={(mapView) => { mapViewRef = mapView; }}
             // compassOffset={{x: -2, y:65}}
             rotateEnabled={false}
         >
             <SafeAreaInsetsContext.Consumer>
                 {(insets) => ( 
-                    <TouchableOpacity className="content-center justify-center absolute right-2 bg-white p-2.5 overflow-hidden rounded-lg" style={{top: insets!.top + 16}} onPress={() => recenterView()}>
+                    <TouchableOpacity style={{ top: insets!.top + 16, alignContent: 'center', justifyContent: 'center', position: 'absolute', right: 8, overflow: 'hidden', borderRadius: 8 }} onPress={() => recenterView()}>
                         <Ionicons 
-                            name="navigate" 
-                            size={24} 
-                            color="gray" 
+                            name="navigate"
+                            size={24}
+                            color="gray"
                         />
                     </TouchableOpacity>
                 )}
@@ -180,13 +157,13 @@ const Index: React.FC<Props> = ({ drawnRoutes }) => {
                                 >
                                     {point.isTimePoint ? (
                                         // Time point icon
-                                        <View className="w-4 h-4 border-2" style={{backgroundColor: "#" + drawnRoutes[0]!.routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0]!.routeInfo.color)}}/>
+                                        <View style={{ width: 16, height: 16, borderWidth: 2, backgroundColor: "#" + drawnRoutes[0]!.routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0]!.routeInfo.color) }}/>
                                     ) : (
                                         // non time point icon
-                                        <View className="w-4 h-4 rounded-full border-2" style={{backgroundColor: "#" + drawnRoutes[0]!.routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0]!.routeInfo.color)}}/>
+                                        <View style={{ width: 16, height: 16, borderRadius: 9999, backgroundColor: "#" + drawnRoutes[0]!.routeInfo.color, borderColor: "#" + getLighterColor(drawnRoutes[0]!.routeInfo.color) }}/>
                                     )}
                                         
-                                        <StopCallout stop={point} tintColor={drawnRoutes[0]!.routeInfo.color} routeName={drawnRoutes[0]!.shortName}/>
+                                        <StopCallout stopName={point.name} tintColor={drawnRoutes[0]!.routeInfo.color} routeName={drawnRoutes[0]!.shortName}/>
                                 </Marker>
                             )
                         }
@@ -208,7 +185,7 @@ const Index: React.FC<Props> = ({ drawnRoutes }) => {
                     </Marker>
                 )
             })}
-        </StyledMapView>
+        </MapView>
     )
 }
 

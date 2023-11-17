@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, Text, ActivityIndicator, TouchableOpacity, FlatList } from "react-native";
+import { RouteGroup, getRoutesByGroup, getTimetable } from "aggie-spirit-api"
+
+import Ionicons from '@expo/vector-icons/Ionicons';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { RouteGroup, getRoutesByGroup, getTimetable } from "aggie-spirit-api"
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { styled } from "nativewind";
-import Timetable from "./Timetable";
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { IBusRoute, ITimetable } from "utils/interfaces";
-import BusIcon from "./BusIcon";
 
-const StyledBottomSheetView = styled(BottomSheetView);
+import Timetable from "./Timetable";
+import BusIcon from "./BusIcon";
+import { IBusRoute, ITimetable } from "utils/interfaces";
+
 
 interface Props {
     setDrawnRoutes: React.Dispatch<React.SetStateAction<IBusRoute[]>>
@@ -22,12 +22,14 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
     const snapPoints = ['16%', '35%', '80%'];
 
     const [groups, setGroups] = useState()
+    const [isGameday, setIsGameday] = useState(false);
+
     const [selectedGroup, setSelectedGroup] = useState<IBusRoute[] | null>()
     const [selectedIndex, setSelectedIndex] = useState(0)
 
     const [selectedRoute, setSelectedRoute] = useState<IBusRoute | null>(null);
 
-    const [busTimetable, setBusTimetable] = useState<ITimetable[] | null>()
+    const [busTimetable, setBusTimetable] = useState<ITimetable | null>()
 
     useEffect(() => {
         if (selectedRoute) {
@@ -60,12 +62,12 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
             const cacheDate = await AsyncStorage.getItem("cacheDate");
             const todayDateString = new Date().toLocaleDateString();
 
-            if(cacheDate !== todayDateString) {
+            if (cacheDate !== todayDateString) {
                 data = await downloadData().catch(async (downloadError) => {
                     console.error("Error downloading data for cache: ", downloadError);
 
                     await AsyncStorage.getItem("routeCache").then((res) => {
-                        if(res) {
+                        if (res) {
                             data = JSON.parse(res);
                         }
                     });
@@ -95,12 +97,14 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
 
             // Gameday
             // set the correct names to be used with the segmented control and descriptions
-            if (data.Gameday && data.Gameday.length == 0) {
+            if (!data.Gameday) {
                 delete data.Gameday
 
                 setSelectedIndex(0)
 
             } else if (data.Gameday) {
+                setIsGameday(true);
+
                 data["Gameday"].forEach((route: IBusRoute) => {
                     route.category = "Gameday"
 
@@ -115,7 +119,6 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
             setSelectedGroup(data["On Campus"])
             setDrawnRoutes(data["On Campus"])
             setGroups(data)
-
         })()
     }, []);
 
@@ -123,107 +126,82 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
         <BottomSheet ref={sheetRef} snapPoints={snapPoints} onChange={handleSnapChange}>
             {/* Detail View */}
             {selectedRoute ? (
-                <StyledBottomSheetView className="flex flex-1 px-4 pt-1">
-                    <View className="flex-row align-center" >
-                        <View className={`w-14 h-12 rounded-lg mr-3 content-center justify-center`} style={{ backgroundColor: "#" + selectedRoute.routeInfo.color }}>
-                            <Text
-                                adjustsFontSizeToFit={true}
-                                numberOfLines={1}
-                                className="text-center font-bold text-white p-1"
-                                style={{ fontSize: 24 }} // this must be used, nativewind is broken :(
-                            >
+                <BottomSheetView style={{ display: 'flex', flex: 1, paddingHorizontal: 16, paddingTop: 4 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={{ width: 56, height: 48, borderRadius: 8, marginRight: 12, alignContent: 'center', justifyContent: 'center', backgroundColor: "#" + selectedRoute.routeInfo.color }}>
+                            <Text adjustsFontSizeToFit={true} numberOfLines={1} style={{ fontSize: 24, textAlign: 'center', fontWeight: 'bold', color: 'white', padding: 4 }} >
                                 {selectedRoute.shortName}
                             </Text>
                         </View>
                         <View>
-                            <Text className="font-bold text-2xl">{selectedRoute.name}</Text>
+                            <Text style={{ fontWeight: 'bold', fontSize: 24, lineHeight: 32 }} >{selectedRoute.name}</Text>
                             <Text>{selectedRoute.category}</Text>
                         </View>
 
                         {/* Spacer */}
-                        <View className="flex-1" />
+                        <View style={{ flex: 1 }} />
 
-                        <TouchableOpacity 
-                            className="content-center justify-right"
+                        <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }}
                             onPress={() => {
                                 setDrawnRoutes(selectedGroup!)
                                 sheetRef.current?.snapToIndex(1)
                                 setSelectedRoute(null)
                             }}>
-                            <Ionicons
-                                name="close-circle"
-                                size={32}
-                                color="grey" />
+                            <Ionicons name="close-circle" size={32} color="grey" />
                         </TouchableOpacity>
-
                     </View>
 
                     {/* Timetable View */}
-                    <View className="mt-4">
+                    <View style={{ marginTop: 16 }}>
                         {busTimetable ? (
-                            (busTimetable.length != 0 ? (
-                                <Timetable timetable={busTimetable} highlightColor={"#" + selectedRoute.routeInfo.color} />
-                            ) : (
-                                <Text className="text-center">No Timetable Available</Text>
-                            ))
+                            (busTimetable.length != 0 ? (<Timetable timetable={busTimetable} highlightColor={"#" + selectedRoute.routeInfo.color} />) : (<Text style={{ textAlign: 'center' }} >No Timetable Available</Text>))
                         ) : (
                             <ActivityIndicator></ActivityIndicator>
                         )}
                     </View>
 
-                </StyledBottomSheetView>
+                </BottomSheetView>
             ) :
 
                 // List View
                 (
-                    <StyledBottomSheetView className="flex flex-1 px-4">
-                        {groups == undefined ? (
+                    <BottomSheetView style={{ display: 'flex', flex: 1, paddingHorizontal: 16 }} >
+                        {!groups ? (
                             <ActivityIndicator />
                         ) : (
                             <View style={{ height: "100%" }}>
-                                <SegmentedControl
-                                    values={Object.keys(groups)}
-                                    selectedIndex={selectedIndex}
+                                <SegmentedControl values={isGameday ? ["On Campus", "Off Campus", "Gameday"] : ["On Campus", "Off Campus"]} selectedIndex={selectedIndex}
                                     onValueChange={(value) => {
                                         setSelectedGroup(groups[value])
                                         setDrawnRoutes(groups[value])
                                     }}
                                     onChange={(event) => setSelectedIndex(event.nativeEvent.selectedSegmentIndex)}
-
                                 />
                                 <FlatList
-                                contentContainerStyle={{ paddingBottom: 30 }}
-                        data={selectedGroup}
-                        keyExtractor={busRoute => busRoute.key}
-                        renderItem={({ item: busRoute }) => {
-                            return (
-                                <TouchableOpacity 
-                                    style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} 
-                                    onPress={() => {
-                                        setDrawnRoutes([busRoute])
-                                        sheetRef.current?.snapToIndex(0)
-                                        setSelectedRoute(busRoute)
+                                    contentContainerStyle={{ paddingBottom: 30 }}
+                                    data={selectedGroup}
+                                    keyExtractor={busRoute => busRoute.key}
+                                    renderItem={({ item: busRoute }) => {
+                                        return (
+                                            <TouchableOpacity
+                                                style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }}
+                                                onPress={() => {
+                                                    setDrawnRoutes([busRoute])
+                                                    sheetRef.current?.snapToIndex(0)
+                                                    setSelectedRoute(busRoute)
+                                                }}>
+                                                <BusIcon name={busRoute.shortName} color={busRoute.routeInfo.color} />
+                                                <View>
+                                                    <Text style={{ fontWeight: 'bold', fontSize: 20, lineHeight: 28 }}>{busRoute.name}</Text>
+                                                    <Text> {busRoute.endpointName} </Text>
+                                                </View>
+                                            </TouchableOpacity>
+                                        )
                                     }}
-                                >
-                                    <BusIcon 
-                                        sizing="w-12 h-10" 
-                                        textSize={18} 
-                                        name={busRoute.shortName} 
-                                        color={busRoute.routeInfo.color}
-                                    />
-                                    <View>
-                                        <Text className="font-bold text-xl">{busRoute.name}</Text>
-                                        <Text>
-                                            {busRoute.endpointName}
-                                        </Text>
-                                    </View>
-                                </TouchableOpacity>
-                            )
-                        }}                        
-                    />
+                                />
                             </View>
                         )}
-                    </StyledBottomSheetView>
+                    </BottomSheetView>
                 )}
         </BottomSheet>
     );

@@ -77,7 +77,7 @@ export type ITimetable = ILocationData[];
 
 export interface IAmmentity {
     key: string;
-    name: string;
+    name: "Air Conditioning" | "wheelchair-accessibility";
     description: string;
     iconName: string;
     iconCode: string;
@@ -86,7 +86,7 @@ export interface IAmmentity {
 
 export interface IBus {
     key: string;
-    name: string;
+    name: "Millennium" | "Gillig" | "Proterra" | "Proterra" | "El Dorado";
     vehicleType: string;
     location: {
         latitude: number;

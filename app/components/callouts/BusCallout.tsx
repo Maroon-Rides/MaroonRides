@@ -1,39 +1,39 @@
-import { View, Text } from 'react-native'
 import React from 'react'
-import { Callout } from 'react-native-maps'
-import BusIcon from '../BusIcon'
+import { View, Text } from 'react-native'
+
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { IAmmentity } from 'utils/interfaces';
+import { Callout } from 'react-native-maps'
 
-export default function BusCallout({bus, tintColor, routeName}) {
+import BusIcon from '../BusIcon'
+import { IAmmentity, IBus } from 'utils/interfaces';
+interface Props {
+  bus: IBus
+  tintColor: string
+  routeName: string
+}
+
+const BusCallout: React.FC<Props> = ({ bus, tintColor, routeName }) => {
   return (
     <Callout>
-        <View className="w-40">
-          <View className="flex-row justify-center items-center mb-1">
-            <BusIcon name={routeName} color={tintColor} sizing="w-10 h-6" textSize={18}/>
-            <View className="flex-1"/>
-
-            {
-              bus.amenities.map((amenity: IAmmentity) => {
-                switch (amenity.name) {
-                  case "Air Conditioning":
-                    return <Ionicons name="snow" size={18} color="gray" style={{paddingLeft: 4}} key="ac"/>
-                  case "Wheelchair Lift":
-                    return <MaterialCommunityIcons name="wheelchair-accessibility" size={18} color="gray" style={{paddingLeft: 4}} key="wheelchair"/>
-                  default:
-                    return null
-                }
-              })
+        <View style={{ width: 160 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 4 }}>
+            <BusIcon name={routeName} color={tintColor} isCallout={true} />
+            <View style={{ flex: 1 }}/>
+            { bus.amenities.map((amenity: IAmmentity, index) => (
+                amenity.name == "Air Conditioning" ? (<Ionicons key={index} name="snow" size={18} color="gray" style={{ paddingLeft: 4 }} />) : (<MaterialCommunityIcons key={index} name="wheelchair-accessibility" size={18} color="gray" style={{ paddingLeft: 4 }} />)
+              ))
             }
-            { bus.vehicleType == "Proterra" ? <MaterialCommunityIcons name="battery-charging-high" size={18} color="gray" style={{paddingLeft: 4}}/> : null}
+            { bus.vehicleType == "Proterra" ? <MaterialCommunityIcons name="battery-charging-high" size={18} color="gray" style={{ paddingLeft: 4 }}/> : null}
           </View>
-          <Text className='text-m'>
-            <Text className="font-bold">Next Stop:</Text>
-            <Text> {bus.nextStopDeparture.stopName}  </Text>
+          <Text style={{ fontSize: 14 }} >
+            <Text style={{ fontWeight: 'bold' }} >Next Stop:</Text>
+            <Text> {bus.nextStopDeparture?.stopName}  </Text>
           </Text>
-          <Text className="font-bold text-gray-500 text-xs"> {bus.passengerLoad}% full</Text>
+          <Text style={{ fontWeight: 'bold', color: '#6B7280', fontSize: 10, lineHeight: 16 }}> {bus.passengerLoad}% full</Text>
         </View>
     </Callout>
   )
 }
+
+export default BusCallout;

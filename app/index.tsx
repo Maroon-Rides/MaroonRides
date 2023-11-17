@@ -9,7 +9,7 @@ const Home = () => {
     const [drawnRoutes, setDrawnRoutes] = useState<IBusRoute[]>([]);
 
     return (
-        <View className='flex flex-1 justify-center items-center'>
+        <View style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <MapView drawnRoutes={drawnRoutes} />
 
             <BottomSheet setDrawnRoutes={setDrawnRoutes} />

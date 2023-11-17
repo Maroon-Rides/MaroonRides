@@ -70,24 +70,13 @@ const Timetable: React.FC<Props> = ({
 
     return (
         <View>
-            <SegmentedControl
-                values={[stops[stops.length - 1]!, stops[0]!]}
-                selectedIndex={selectedIndex}
+            <SegmentedControl values={[stops[stops.length - 1]!, stops[0]!]} selectedIndex={selectedIndex}
                 onChange={(event) => {
                     setSelectedIndex(event.nativeEvent.selectedSegmentIndex);
                     setIndexToScrollTo(-1);
-                }}
-            />
+                }} />
 
-            <View
-                style={{
-                    height: 1,
-                    width: "100%",
-                    backgroundColor: "#F2F2F2",
-                    marginTop: 8,
-                }}
-            />
-
+            <View style={{ height: 1, width: "100%", backgroundColor: "#F2F2F2", marginTop: 8 }} />
 
             <FlatList
                 contentContainerStyle={{ paddingBottom: 170 }}
@@ -96,21 +85,13 @@ const Timetable: React.FC<Props> = ({
                     <View>
                         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
                             {Object.keys(timetable[selectedIndex]!).map((stop, index) => (
-                                <Text
-                                    key={index}
-                                    className="flex-1 text-center bg-white py-2 font-bold"
-                                >
+                                <Text key={index} style={{ flex: 1, textAlign: 'center', backgroundColor: 'white', paddingVertical: 8, fontWeight: 'bold' }} >
                                     {stop}
                                 </Text>
                             ))}
                         </View>
-                        <View
-                            style={{
-                                height: 1,
-                                width: "100%",
-                                backgroundColor: "#F2F2F2",
-                            }}
-                        />
+
+                        <View style={{ height: 1, width: "100%", backgroundColor: "#F2F2F2" }} />
                     </View>
                 )
                 }}
@@ -121,50 +102,14 @@ const Timetable: React.FC<Props> = ({
                 }}
                 ref={listRef}
                 data={processedTimetable}
-                getItemLayout={(data, index) => (
-                    {length: 37, offset: 37 * index, index}
-                )}
+                getItemLayout={(_, index) => ( {length: 37, offset: 37 * index, index} )}
                 stickyHeaderIndices={[0]}
                 renderItem={({item, index}) => {
                     return (
-                        <View
-                            key={index}
-                            style={{
-                                flexDirection: "row",
-                                backgroundColor:
-                                    index === indexToScrollTo
-                                        ? `${highlightColor}33`
-                                        : index % 2 === 0
-                                            ? "#F2F2F2"
-                                            : "white",
-                                borderRadius: 8,
-                            }}
-                        >
-                            {item.map((col, innerIndex) => (
-                                <Text
-                                    key={innerIndex}
-                                    style={{
-                                        color:
-                                            index === indexToScrollTo
-                                                ? (new Date(col) < currentTime 
-                                                    ? `${highlightColor}77`
-                                                    : highlightColor)
-                                                : new Date(col) > currentTime
-                                                    ? "black"
-                                                    : "#707373",
-                                        paddingTop: 10,
-                                        paddingBottom: 10,
-                                        textAlign: "center",
-                                        flex: 1,
-                                        opacity: col === undefined ? 0 : 1,
-                                    }}
-                                >
-                                    {col !== null
-                                        ? new Date(col).toLocaleTimeString([], {
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                        })
-                                        : ""}
+                        <View key={index} style={{ flexDirection: "row", backgroundColor: index === indexToScrollTo ? `${highlightColor}33` : index % 2 === 0 ? "#F2F2F2" : "white", borderRadius: 8 }} >
+                            {item.map((col: string, innerIndex: number) => (
+                                <Text key={innerIndex} style={{ color: index === indexToScrollTo ? (new Date(col) < currentTime ? `${highlightColor}77` : highlightColor) : new Date(col) > currentTime ? "black" : "#707373", paddingVertical: 10, textAlign: "center", flex: 1, opacity: !col ? 0 : 1, }} >
+                                    {col ? new Date(col).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
                                 </Text>
                             ))}
                         </View>

@@ -1,24 +1,26 @@
+import React, { useState } from 'react'
 import { View, Text } from 'react-native'
-import React from 'react'
 import { Callout } from 'react-native-maps'
+
 import BusIcon from '../BusIcon'
 
-export default function StopCallout({stop, tintColor, routeName}) {
+interface Props {
+    stopName: string
+    tintColor: string
+    routeName: string
+}
 
-    const [contentSize, setContentSizing] = React.useState([0, 15])
+const StopCallout: React.FC<Props> = ({ stopName, tintColor, routeName }) => {
+    const [contentSize, setContentSizing] = useState([0, 15]);
 
     return (
         <Callout style={{alignItems: 'center', width: contentSize[0], height: contentSize[1]}} >
-            
-            <View 
-                className="flex-row justify-center items-center" 
-                style={{alignSelf: "flex-start"}} 
-                onLayout={(event) => { setContentSizing([event.nativeEvent.layout.width, event.nativeEvent.layout.height]) }}
-            >
-                <BusIcon name={routeName} color={tintColor} sizing="w-10 h-6" textSize={18}/>
-                <Text maxWidth={200} className="font-bold" numberOfLines={1}>{stop.name} </Text>
+            <View  style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", alignSelf: "flex-start"}}  onLayout={(event) => { setContentSizing([event.nativeEvent.layout.width, event.nativeEvent.layout.height]) }} >
+                <BusIcon name={routeName} color={tintColor} isCallout={true} />
+                <Text style={{ maxWidth: 200, fontWeight: 'bold' }} numberOfLines={1}>{stopName} </Text>
             </View>
-
         </Callout>
     )
 }
+
+export default StopCallout;
