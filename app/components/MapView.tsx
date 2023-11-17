@@ -147,7 +147,7 @@ const Index: React.FC<Props> = ({ drawnRoutes }) => {
                                         borderColor: `#${getLighterColor(drawnRoutes[0]?.routeInfo.color ?? "0000")}`
                                     }}
                                 />
-                                <StopCallout stopName={point.name} tintColor={drawnRoutes[0]?.routeInfo.color} routeName={drawnRoutes[0]?.shortName} />
+                                <StopCallout stopName={point.name} tintColor={drawnRoutes[0]?.routeInfo.color ?? "0000"} routeName={drawnRoutes[0]?.shortName ?? ""} />
                             </Marker>
                         ))
                 )}
