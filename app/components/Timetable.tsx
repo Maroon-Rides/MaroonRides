@@ -8,12 +8,42 @@ interface Props {
     highlightColor: string;
 }
 
-const Timetable: React.FC<Props> = ({
-    timetable,
-    highlightColor,
-}) => {
+const Timetable: React.FC<Props> = ({ timetable, highlightColor }) => {
     const stops = Object.keys(timetable[0]!);
     const [selectedIndex, setSelectedIndex] = useState(0);
+
+    const processTable = (index: number): string[][] => {
+        const table: string[][] = [];
+        const stops = Object.keys(timetable[index] || {});
+        const numTimes = timetable[index]?.[stops[0]!]?.length || 0;
+    
+        for (let i = 0; i < numTimes; i++) {
+            const row: string[] = stops.map(stop => timetable[index]?.[stop]?.[i] ?? '');
+            table.push(row);
+        }
+    
+        return table;
+    };
+    
+    const findHighlight = (index: number): number => {
+        const stops = Object.keys(timetable[index] || {});
+        const numTimes = timetable[index]?.[stops[0]!]?.length || 0;
+        let result = -1; // Default value
+    
+        // Label for the outer loop
+        outerLoop: for (let i = 0; i < numTimes; i++) {
+            for (let j = 0; j < stops.length; j++) {
+                const currentStopTime = timetable[index]?.[stops[j]!]?.[i];
+    
+                if (currentStopTime && new Date(currentStopTime) > currentTime && indexToScrollTo === -1) {
+                    result = i;
+                    break outerLoop; // Break out of the outer loop
+                }
+            }
+        }
+    
+        return result;
+    };
 
     const [processedTimetable, setProcessedTimetable] = useState<string[][]>(processTable(0));
     const [indexToScrollTo, setIndexToScrollTo] = useState(-1);
@@ -22,50 +52,16 @@ const Timetable: React.FC<Props> = ({
 
     const currentTime = new Date();
 
-    function findHighlight(index: number) {
-        var stops = Object.keys(timetable[index]!);
-        var numTimes = timetable[index][stops[0]].length;
-        let result = -1; // Default value
-
-        // Label for the outer loop
-        outerLoop: for (var i = 0; i < numTimes; i++) {
-            for (var j = 0; j < stops.length; j++) {
-                if (
-                    timetable[index][stops[j]][i] > currentTime &&
-                    indexToScrollTo === -1 && timetable[index][stops[j]][i] !== null
-                ) {
-                    result = i;
-                    break outerLoop; // Break out of the outer loop
-                }
-            }
-        }
-
-        return result;
-    }
-
-    function processTable(index: number) {
-        var table = [];
-
-        var numTimes = timetable[index][Object.keys(timetable[index])[0]].length;
-
-        for (var i = 0; i < numTimes; i++) {
-            var row: string[] = [];
-            Object.keys(timetable[index]).forEach((stop) => {
-                row.push(timetable[index][stop][i]);
-            });
-            table.push(row);
-        }
-
-        return table;
-    }
-
     useEffect(() => {
         setProcessedTimetable(processTable(selectedIndex));
-        var index = findHighlight(selectedIndex);
+        
+        const index = findHighlight(selectedIndex);
         setIndexToScrollTo(index);
 
         if (index == -1) return
+
         listRef.current?.scrollToIndex({index: index, animated: false});
+
     }, [selectedIndex]);
 
     return (
