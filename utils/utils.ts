@@ -1,4 +1,6 @@
 export const getLighterColor = (color: string) => {
+    console.log(color);
+
     // Parse the color components from the input string
     const r = parseInt(color.substring(0, 2), 16);
     const g = parseInt(color.substring(2, 4), 16);

@@ -21,7 +21,7 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
 
     const snapPoints = ['16%', '35%', '80%'];
 
-    const [groups, setGroups] = useState()
+    const [groups, setGroups] = useState(null);
     const [isGameday, setIsGameday] = useState(false);
 
     const [selectedGroup, setSelectedGroup] = useState<IBusRoute[] | null>()
@@ -29,41 +29,63 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
 
     const [selectedRoute, setSelectedRoute] = useState<IBusRoute | null>(null);
 
-    const [busTimetable, setBusTimetable] = useState<ITimetable | null>()
-
-    useEffect(() => {
-        if (selectedRoute) {
-            (async () => {
-                const data = await getTimetable(selectedRoute.shortName);
-                setBusTimetable(data);
-                (busTimetable);
-            })()
-        } else {
-            setBusTimetable(null) // clear out old data so we show a loading indicator for next selection
-        }
-    }, [selectedRoute])
+    const [busTimetable, setBusTimetable] = useState<ITimetable | null>();
 
     const [_, setCurrentSnapPointIndex] = useState(0);
-    const handleSnapChange = (index: any) => {
-        setCurrentSnapPointIndex(index);
+
+    useEffect(() => {
+        // Check if a route is selected
+        if (selectedRoute) {
+            // Fetch timetable data asynchronously
+            (async () => {
+                try {
+                    // Retrieve timetable data for the selected route
+                    const data = await getTimetable(selectedRoute.shortName);
+
+                    // Update the state with the fetched timetable data
+                    setBusTimetable(data);
+                } catch (error) {
+                    // Handle errors, e.g., log or display an error message
+                    console.error("Error fetching timetable:", error);
+                }
+            })();
+        } else {
+            // No route selected, clear out old data to show a loading indicator for the next selection
+            setBusTimetable(null);
+        }
+    }, [selectedRoute]);
+
+    const fetchAndCacheRoutesData = async () => {
+        try {
+            // Fetch routes data for specified groups
+            const data = await getRoutesByGroup([RouteGroup.ON_CAMPUS, RouteGroup.OFF_CAMPUS]);
+
+            // Cache the fetched data in AsyncStorage
+            await AsyncStorage.setItem("routeCache", JSON.stringify(data));
+
+            // Store the current date as the cache date
+            await AsyncStorage.setItem("cacheDate", new Date().toLocaleDateString());
+
+            // Return the fetched data
+            return data;
+        } catch (error) {
+            // Handle errors, e.g., log or display an error message
+            console.error("Error downloading data:", error);
+            // Optionally, you can rethrow the error if needed
+            throw error;
+        }
     };
 
-    const downloadData = async () => {
-        const data = await getRoutesByGroup([RouteGroup.ON_CAMPUS, RouteGroup.OFF_CAMPUS])
-        await AsyncStorage.setItem("routeCache", JSON.stringify(data));
-        await AsyncStorage.setItem("cacheDate", new Date().toLocaleDateString());
-        return data;
-    }
 
     useEffect(() => {
         (async () => {
-            let data;
+            let data: any;
 
             const cacheDate = await AsyncStorage.getItem("cacheDate");
             const todayDateString = new Date().toLocaleDateString();
 
             if (cacheDate !== todayDateString) {
-                data = await downloadData().catch(async (downloadError) => {
+                data = await fetchAndCacheRoutesData().catch(async (downloadError) => {
                     console.error("Error downloading data for cache: ", downloadError);
 
                     await AsyncStorage.getItem("routeCache").then((res) => {
@@ -76,44 +98,54 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
                 console.log("Using cached data");
 
                 const routeCache = await AsyncStorage.getItem("routeCache");
-                data = routeCache ? JSON.parse(routeCache) : await downloadData();
+                data = routeCache ? JSON.parse(routeCache) : await fetchAndCacheRoutesData();
             }
 
-            // set the correct names to be used with the segmented control and descriptions
-            data["On Campus"] = data.OnCampus
-            delete data.OnCampus
-            data["On Campus"].forEach((route: IBusRoute) => {
-                route.category = "On Campus"
-                route.endpointName = route?.routeInfo?.patternPaths[0]?.patternPoints[0]?.name + " | " + route?.routeInfo?.patternPaths[1]?.patternPoints[0]?.name
-            })
+            // Update names for segmented control and descriptions
+            function updateRouteData(categoryKey: "On Campus" | "Off Campus" | "Gameday", originalKey: string) {
+                data[categoryKey] = data[originalKey];
+                delete data[originalKey];
 
-            // set the correct names to be used with the segmented control and descriptions
-            data["Off Campus"] = data.OffCampus
-            delete data.OffCampus
-            data["Off Campus"].forEach((route: IBusRoute) => {
-                route.category = "Off Campus"
-                route.endpointName = route?.routeInfo?.patternPaths[0]?.patternPoints[0]?.name + " | " + route?.routeInfo?.patternPaths[1]?.patternPoints[0]?.name
-            })
+                data[categoryKey].forEach((route: IBusRoute) => {
+                    route.category = categoryKey;
+                    const firstPointName = route?.routeInfo?.patternPaths[0]?.patternPoints[0]?.name;
+                    const secondPointName = route?.routeInfo?.patternPaths[1]?.patternPoints[0]?.name;
+                    route.endpointName = `${firstPointName} | ${secondPointName}`;
+                });
+            }
+
+            // Set correct names for "On Campus" category
+            updateRouteData("On Campus", "OnCampus");
+
+            // Set correct names for "Off Campus" category
+            updateRouteData("Off Campus", "OffCampus");
 
             // Gameday
-            // set the correct names to be used with the segmented control and descriptions
-            if (!data.Gameday) {
-                delete data.Gameday
-
-                setSelectedIndex(0)
-
-            } else if (data.Gameday) {
+            // Set correct names for segmented control and descriptions
+            if (data.Gameday) {
                 setIsGameday(true);
 
-                data["Gameday"].forEach((route: IBusRoute) => {
-                    route.category = "Gameday"
+                data.Gameday.forEach((route: IBusRoute) => {
+                    route.category = "Gameday";
 
-                    route.name = route.name.replace("Gameday ", "")
-                    route.endpointName = route?.routeInfo?.patternPaths[0]?.patternPoints[0]?.name + " | " + route?.routeInfo?.patternPaths[1]?.patternPoints[0]?.name
-                    // delete the duplicate route
-                    route.routeInfo.patternPaths = [route.routeInfo.patternPaths[0]!]
-                })
-                setSelectedIndex(1)
+                    // Remove "Gameday" prefix from route name
+                    route.name = route.name.replace("Gameday ", "");
+
+                    // Construct endpointName using pattern points
+                    const firstPointName = route?.routeInfo?.patternPaths[0]?.patternPoints[0]?.name;
+                    const secondPointName = route?.routeInfo?.patternPaths[1]?.patternPoints[0]?.name;
+                    route.endpointName = `${firstPointName} | ${secondPointName}`;
+
+                    // Delete duplicate route information
+                    route.routeInfo.patternPaths = [route.routeInfo.patternPaths[0]!];
+                });
+
+                setSelectedIndex(1);
+            } else {
+                // If no Gameday data, clean up and set default selected index
+                delete data.Gameday;
+                setSelectedIndex(0);
+                setIsGameday(false);
             }
 
             setSelectedGroup(data["On Campus"])
@@ -123,7 +155,7 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
     }, []);
 
     return (
-        <BottomSheet ref={sheetRef} snapPoints={snapPoints} onChange={handleSnapChange}>
+        <BottomSheet ref={sheetRef} snapPoints={snapPoints} onChange={(index) => setCurrentSnapPointIndex(index)}>
             {/* Detail View */}
             {selectedRoute ? (
                 <BottomSheetView style={{ display: 'flex', flex: 1, paddingHorizontal: 16, paddingTop: 4 }}>
