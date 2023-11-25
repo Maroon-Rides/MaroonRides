@@ -6,7 +6,7 @@ export interface IBusRoute {
     shortName: string; // Text to show in colored icons
     key: string;
     description?: string;
-    category: "On Campus" | "Off Campus" | "Gameday";
+    category: IRouteCategory;
     endpointName: string;
     routeInfo: {
         routeKey: string;
@@ -18,6 +18,8 @@ export interface IBusRoute {
     };
     routePatterns: IRoutePattern[];
 }
+
+export type IRouteCategory = "On Campus" | "Off Campus" | "Gameday"
 
 export interface IPatternPoint {
     key: string;

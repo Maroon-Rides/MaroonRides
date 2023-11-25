@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import MapView, { LatLng, Polyline, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import Fontisto from "@expo/vector-icons/Fontisto";
 import { TouchableOpacity, View } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 import { getRouteBuses } from "aggie-spirit-api";
@@ -12,12 +13,16 @@ import { IBus, IBusRoute } from "utils/interfaces";
 import { getLighterColor } from "../../utils/utils";
 import BusMapIcon from "./callouts/BusMapIcon";
 
-interface Props {
-    drawnRoutes: IBusRoute[]
-}
+import useAppStore from "../stores/useAppStore";
 
-const Index: React.FC<Props> = ({ drawnRoutes }) => {
-    let mapViewRef: any;
+
+const Index: React.FC = () => {
+    let mapViewRef: MapView;
+
+    const routeCategory = useAppStore((state) => state.routeCategory);
+    const drawnRoutes = useAppStore((state) => state.drawnRoutes);
+
+    const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
 
     const [buses, setBuses] = useState<IBus[]>([])
 
@@ -29,20 +34,39 @@ const Index: React.FC<Props> = ({ drawnRoutes }) => {
         if (drawnRoutes.length == 1) { setBuses(data); }
     }
 
-    const recenterView = async () => {
+    const centerViewOnRoutes = () => {
+        let region = {
+            latitude: 30.5993303254,
+            longitude: -96.3518481762,
+            latitudeDelta: 0.04,
+            longitudeDelta: 0.04
+        }
+
+        if(routeCategory === "Off Campus") {
+            region = {
+                latitude: 30.6211005442,
+                longitude: -96.3904876904,
+                latitudeDelta: 0.2,
+                longitudeDelta: 0.2
+            }
+        }
+
+        mapViewRef.animateToRegion(region, 250);
+
+        setIsViewCenteredOnUser(false);
+    }
+
+    const centerViewOnUser = async () => {
         // Request location permissions
         const { status } = await Location.requestForegroundPermissionsAsync();
 
         // Check if permission is granted
         if (status !== 'granted') { return };
 
-        // Get current location
-        const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced, timeInterval: 2 });
+         // Get current location
+         const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced, timeInterval: 2 });
 
-        // Check if mapViewRef is available
-        if (!mapViewRef) { return; }
-
-        // Animate map to the current location
+         // Animate map to the current location
         const region = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
@@ -51,8 +75,19 @@ const Index: React.FC<Props> = ({ drawnRoutes }) => {
         };
 
         mapViewRef.animateToRegion(region, 250);
-    };
 
+        setIsViewCenteredOnUser(true);
+    }
+
+    const recenterView = async () => {
+        if(isViewCenteredOnUser) {
+            centerViewOnRoutes();
+
+            return
+        }
+
+        centerViewOnUser();
+    }
 
     useEffect(() => {
         const coords: LatLng[] = drawnRoutes.flatMap((route: IBusRoute) =>
@@ -97,11 +132,11 @@ const Index: React.FC<Props> = ({ drawnRoutes }) => {
     }, [drawnRoutes]);
 
     return (
-        <MapView showsUserLocation={true} style={{ width: "100%", height: "100%" }} ref={(mapView) => { mapViewRef = mapView; }} rotateEnabled={false} >
+        <MapView showsUserLocation={true} style={{ width: "100%", height: "100%" }} ref={(mapView) => { mapViewRef = mapView!; }} rotateEnabled={false}>
             <SafeAreaInsetsContext.Consumer>
                 {(insets) => (
-                    <TouchableOpacity style={{ top: insets!.top + 16, alignContent: 'center', justifyContent: 'center', position: 'absolute', right: 8, overflow: 'hidden', borderRadius: 8 }} onPress={() => recenterView()}>
-                        <Ionicons name="navigate" size={24} color="gray" />
+                    <TouchableOpacity style={{ top: insets!.top + 16, alignContent: 'center', justifyContent: 'center', position: 'absolute', right: 8, overflow: 'hidden', borderRadius: 8, backgroundColor: 'white', padding: 12 }} onPress={() => recenterView()}>                
+                        { isViewCenteredOnUser ? (<Fontisto name="zoom-minus" size={24} color="gray" />) : (<Ionicons name="navigate" size={24} color="gray" />) }
                     </TouchableOpacity>
                 )}
             </SafeAreaInsetsContext.Consumer>

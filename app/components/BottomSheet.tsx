@@ -9,14 +9,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Timetable from "./Timetable";
 import BusIcon from "./BusIcon";
-import { IBusRoute, ITimetable } from "utils/interfaces";
+import { IBusRoute, ITimetable, IRouteCategory } from "utils/interfaces";
 
+import useAppStore from "../stores/useAppStore";
 
-interface Props {
-    setDrawnRoutes: React.Dispatch<React.SetStateAction<IBusRoute[]>>
-}
-
-const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
+const Index: React.FC = () => {
+    const setRouteCategory = useAppStore((state) => state.setRouteCategory);
+    const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
+    
     const sheetRef = useRef<BottomSheet>(null);
 
     const snapPoints = ['16%', '35%', '80%'];
@@ -102,7 +102,7 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
             }
 
             // Update names for segmented control and descriptions
-            function updateRouteData(categoryKey: "On Campus" | "Off Campus" | "Gameday", originalKey: string) {
+            function updateRouteData(categoryKey: IRouteCategory, originalKey: string) {
                 data[categoryKey] = data[originalKey];
                 delete data[originalKey];
 
@@ -204,6 +204,8 @@ const Index: React.FC<Props> = ({ setDrawnRoutes }) => {
                             <View style={{ height: "100%" }}>
                                 <SegmentedControl values={isGameday ? ["On Campus", "Off Campus", "Gameday"] : ["On Campus", "Off Campus"]} selectedIndex={selectedIndex}
                                     onValueChange={(value) => {
+                                        setRouteCategory(value as unknown as IRouteCategory);
+                                        
                                         setSelectedGroup(groups[value])
                                         setDrawnRoutes(groups[value])
                                     }}

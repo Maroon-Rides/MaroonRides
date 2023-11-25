@@ -60,7 +60,7 @@ const Timetable: React.FC<Props> = ({ timetable, highlightColor }) => {
 
         if (index == -1) return
 
-        listRef.current?.scrollToIndex({index: index, animated: false});
+        listRef.current?.scrollToIndex({index: index - 2, animated: false});
 
     }, [selectedIndex]);
 
@@ -94,7 +94,7 @@ const Timetable: React.FC<Props> = ({ timetable, highlightColor }) => {
                 onLayout={() => {
                     // This will only run when the table is first shown to user, this fixes whatever bug is causing the table to not scroll to the highlighted time on first render
                     if (indexToScrollTo == -1) return
-                    listRef.current?.scrollToIndex({index: indexToScrollTo, animated: false});
+                    // listRef.current?.scrollToIndex({index: indexToScrollTo - 2, animated: false}); Some bug is causing this to error out sometimes
                 }}
                 ref={listRef}
                 data={processedTimetable}
