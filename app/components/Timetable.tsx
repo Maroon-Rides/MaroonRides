@@ -60,8 +60,10 @@ const Timetable: React.FC<Props> = ({ timetable, highlightColor }) => {
 
         if (index == -1) return
 
-        listRef.current?.scrollToIndex({index: index - 2, animated: false});
-
+        if(listRef) {
+            listRef.current?.scrollToIndex({index, animated: false});
+        }
+    
     }, [selectedIndex]);
 
     return (

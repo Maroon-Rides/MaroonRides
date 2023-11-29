@@ -19,7 +19,7 @@ import useAppStore from "../stores/useAppStore";
 const Index: React.FC = () => {
     let mapViewRef: MapView;
 
-    const routeCategory = useAppStore((state) => state.routeCategory);
+    const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
 
     const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
@@ -38,11 +38,11 @@ const Index: React.FC = () => {
         let region = {
             latitude: 30.5993303254,
             longitude: -96.3518481762,
-            latitudeDelta: 0.04,
-            longitudeDelta: 0.04
+            latitudeDelta: 0.03,
+            longitudeDelta: 0.03
         }
 
-        if(routeCategory === "Off Campus") {
+        if(selectedRouteCategory === "Off Campus") {
             region = {
                 latitude: 30.6211005442,
                 longitude: -96.3904876904,
