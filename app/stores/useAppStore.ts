@@ -3,8 +3,21 @@ import { RouteGroup, getRoutesByGroup } from "aggie-spirit-api"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { IBusRoute, IRouteCategory } from "utils/interfaces";
+import { IMapServiceInterruption, IMapRoute, IMapPatternPath } from "utils/updatedInterfaces";
 
 interface AppState {
+    authToken: string | null
+    setAuthToken: (authToken: string) => void;
+
+    mapServiceInterruption: IMapServiceInterruption[]
+    setMapServiceInterruption: (mapServiceInterruption: IMapServiceInterruption[]) => void
+
+    routes: IMapRoute[],
+    setRoutes: (routes: IMapRoute[]) => void
+
+    patternPaths: IMapPatternPath[],
+    setPatternPaths: (patternPaths: IMapPatternPath[]) => void,
+    
     busRoutes: IBusRoute[]
     setBusRoutes: (busRoutes: IBusRoute[]) => void
 
@@ -25,6 +38,18 @@ interface AppState {
 }
 
 const useAppStore = create<AppState>()((set) => ({
+    authToken: null,
+    setAuthToken: (authToken) => set(() => ({ authToken })),
+
+    mapServiceInterruption: [],
+    setMapServiceInterruption: (mapServiceInterruption) => set(() => ({ mapServiceInterruption })),
+
+    routes: [],
+    setRoutes: (routes) => set(() => ({ routes })),
+
+    patternPaths: [],
+    setPatternPaths: (patternPaths) => set(() => ({ patternPaths })),
+
     busRoutes: [],
     setBusRoutes: (busRoutes) => set(() => ({ busRoutes })),
 

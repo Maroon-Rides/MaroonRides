@@ -3,33 +3,61 @@
 import { z } from "zod";
 
 // From Map API
-export const IMapPatternList = z.object({
+export const MapPatternListSchema = z.object({
     key: z.string(),
     isDisplay: z.boolean()
 });
+export type IMapPatternList = z.infer<typeof MapPatternListSchema>
 
-export const IMapDirection = z.object({
+export const MapDirectionSchema = z.object({
     key: z.string(),
     name: z.string()
 });
+export type IMapDirection = z.infer<typeof MapDirectionSchema>
 
-export const IMapDirectionList = z.object({
-    direction: IMapDirection,
-    desination: z.string(),
+export const MapDirectionListSchema = z.object({
+    direction: MapDirectionSchema,
+    destination: z.string(),
     lineColor: z.string(),
     textColor: z.string(),
-    patternList: IMapPatternList,
+    patternList: z.array(MapPatternListSchema),
     serviceInterruptionKeys: z.array(z.number())
 });
+export type IMapDirectionList = z.infer<typeof MapDirectionListSchema>
 
-export const IMapRoute = z.object({
+export const MapStopSchema = z.object({
+    name: z.string(),
+    stopCode: z.string(),
+    stopType: z.number()
+});
+export type IMapStop = z.infer<typeof MapStopSchema>
+
+export const MapPatternPointSchema = z.object({
+    key: z.string(),
+    latitude: z.number(),
+    longitude: z.number(),
+    stop: MapStopSchema.nullable()
+});
+export type IMapPatternPoint = z.infer<typeof MapPatternPointSchema>
+
+export const MapPatternPathSchema = z.object({
+    patternKey: z.string(),
+    directionKey: z.string(),
+    patternPoints: z.array(MapPatternPointSchema),
+    segmentPaths: z.array(z.any())
+});
+export type IMapPatternPath = z.infer<typeof MapPatternPathSchema>
+
+export const MapRouteSchema = z.object({
     key: z.string(),
     name: z.string(),
     shortName: z.string(),
-    directionList: z.array(IMapDirectionList)
+    directionList: z.array(MapDirectionListSchema),
+    patternPaths: z.array(MapPatternPathSchema),
 });
+export type IMapRoute = z.infer<typeof MapRouteSchema>
 
-export const IMapServiceInterruption = z.object({
+export const MapServiceInterruptionSchema = z.object({
     key: z.string(),
     name: z.string(),
     description: z.string(),
@@ -39,36 +67,18 @@ export const IMapServiceInterruption = z.object({
     dailyStartTime: z.string(),
     dailyEndTime: z.string()
 });
-
-export const IMapStop = z.object({
-    name: z.string(),
-    stopCode: z.string(),
-    stopType: z.number()
-});
-
-export const IMapPatternPoint = z.object({
-    key: z.string(),
-    latitude: z.number(),
-    longitude: z.number(),
-    stop: IMapStop.nullable()
-});
-
-export const IMapPatternPath = z.object({
-    patternKey: z.string(),
-    directionKey: z.string(),
-    patternPoints: z.array(IMapPatternPoint),
-    segmentPaths: z.array(z.any())
-});
+export type IMapServiceInterruption = z.infer<typeof MapServiceInterruptionSchema>
 
 // From Bus Times API
-export const ITimetableServiceInterruption = z.object({
+export const TimetableServiceInterruptionSchema = z.object({
     externalServiceInterruptionKey: z.string(),
     serviceInterruptionName: z.string(),
     serviceInterruptionTimeRange: z.string(),
     isStopClosed: z.boolean()
 });
+export type ITimetableServiceInterruption = z.infer<typeof TimetableServiceInterruptionSchema>
 
-export const ITimetableNearbyStops = z.object({
+export const TimetableNearbyStopsSchema = z.object({
     directionKey: z.string(),
     directionName: z.string(),
     distance: z.number(),
@@ -77,51 +87,59 @@ export const ITimetableNearbyStops = z.object({
     isTemporary: z.boolean(),
     nextStopTimes: z.array(z.any()),
     frequencyInfo: z.any(),
-    serviceInterruptions: z.array(ITimetableServiceInterruption),
+    serviceInterruptions: z.array(TimetableServiceInterruptionSchema),
     amenities: z.array(z.any())
 });
+export type ITimetableNearbyStops = z.infer<typeof TimetableNearbyStopsSchema>
 
-export const ITimetableRoute = z.object({
+export const TimetableRouteSchema = z.object({
     routeKey: z.string(),
     routeNumber: z.string(),
     routeName: z.string(),
     distanceString: z.string(),
     distance: z.number(),
-    nearbyStops: z.array(ITimetableNearbyStops)
+    nearbyStops: z.array(TimetableNearbyStopsSchema)
 });
+export type ITimetableRoute = z.infer<typeof TimetableRouteSchema>
 
-export const ITimetableAmenity = z.object({
+export const TimetableAmenitySchema = z.object({
     name: z.string(),
     iconName: z.string(),
-})
+});
+export type ITimtableAmenity = z.infer<typeof TimetableAmenitySchema>
 
 // /RouteMap/GetBaseData
-export const IGetBaseDataResponse = z.object({
-    routes: z.array(IMapRoute),
-    serviceInterruptions: z.array(IMapServiceInterruption)
+export const GetBaseDataResponseSchema = z.object({
+    routes: z.array(MapRouteSchema),
+    serviceInterruptions: z.array(MapServiceInterruptionSchema)
 });
+export type IGetBaseDataResponse = z.infer<typeof GetBaseDataResponseSchema>
 
 // /RouteMap/GetPatternPaths
-export const IGetPatternPathsResponse = z.array(z.object({
+export const GetPatternPathsResponseSchema = z.array(z.object({
     routeKey: z.string(),
-    pattenPaths: z.array(IMapPatternPath),
+    patternPaths: z.array(MapPatternPathSchema),
     vehiclesByDirections: z.null()
 }));
+export type IGetPatternPathsResponse = z.infer<typeof GetPatternPathsResponseSchema>
 
 // /Home/GetActiveRoutes
-export const IGetActiveRoutesResponse = z.array(z.string());
+export const GetActiveRoutesResponseSchema = z.array(z.string());
+export type IGetActiveRoutesResponse = z.infer<typeof GetActiveRoutesResponseSchema>
 
 // /Home/GetNearbyRoutes
-export const IGetNearbyRoutesResponse = z.object({
+export const GetNearbyRoutesResponseSchema = z.object({
     longitude: z.number(),
     latutude: z.number(),
     stopCode: z.any(),
     busStopRouteResults: z.array(z.any()),
-    routeResults: z.array(ITimetableRoute),
+    routeResults: z.array(TimetableRouteSchema),
     nextMinRadius: z.number(),
     nextMaxRadius: z.number(),
     canLoadMore: z.boolean()
 });
+export type IGetNearbyRoutesResponseSchema = z.infer<typeof GetNearbyRoutesResponseSchema>
 
 // /Home/GetNextStopTimes
-export const IGetNextStopTimesResponse = z.array(ITimetableRoute);
+export const GetNextStopTimesResponseSchema = z.array(TimetableRouteSchema);
+export type IGetNextStopTimesResponseSchema = z.infer<typeof GetNextStopTimesResponseSchema>

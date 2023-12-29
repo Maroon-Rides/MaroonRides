@@ -18,6 +18,9 @@ import useAppStore from "../stores/useAppStore";
 
 const Index: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
+    const [mapRenderCount, setMapRenderCount] = useState(0);
+
+    const routes = useAppStore((state) => state.routes);
 
     const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
@@ -42,7 +45,16 @@ const Index: React.FC = () => {
         longitudeDelta: 0.04
     }
 
-    mapViewRef.current?.animateToRegion(defaultOnCampusRegion);
+    // Initially, React-Native-Maps renders the map at a default region. To ensure it starts at the intended location, we adjust the region programmatically.
+    // This useEffect monitors the map's render count to prevent unintentional interference with user-initiated zoom operations.
+    // After the first two renders to set the correct region, subsequent calls to 'centerViewOnRoutes' are disregarded.
+    useEffect(() => {
+        if(mapRenderCount < 2) {
+            centerViewOnRoutes();
+
+            setMapRenderCount(mapRenderCount + 1);
+        }
+    });
 
     const updateBuses = async (routeName: string) => {
         const data = await getRouteBuses(routeName);
@@ -77,8 +89,8 @@ const Index: React.FC = () => {
         const region = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
-            latitudeDelta: 0.0005,
-            longitudeDelta: 0.005,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005
         };
 
         mapViewRef.current?.animateToRegion(region, 250);
@@ -149,10 +161,12 @@ const Index: React.FC = () => {
             </SafeAreaInsetsContext.Consumer>
 
             {/* Route Polylines */}
-            {drawnRoutes.map(function (drawnRoute: any) {
+            {routes.map(function (drawnRoute) {
                 const coords: LatLng[] = [];
+                
+                const lineColor = drawnRoute.directionList[0]?.lineColor;
 
-                drawnRoute.routeInfo.patternPaths.forEach((path: any) => {
+                drawnRoute.patternPaths.forEach((path: any) => {
                     path.patternPoints.forEach((point: any) => {
                         coords.push({
                             latitude: point.latitude,
@@ -162,7 +176,7 @@ const Index: React.FC = () => {
                 })
 
                 return (
-                    <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={"#" + drawnRoute.routeInfo.color} strokeWidth={6} />
+                    <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={lineColor} strokeWidth={6} />
                 )
             })}
 
