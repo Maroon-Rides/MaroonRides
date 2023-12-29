@@ -17,7 +17,7 @@ import useAppStore from "../stores/useAppStore";
 
 
 const Index: React.FC = () => {
-    let mapViewRef: MapView;
+    const mapViewRef = useRef<MapView>(null);
 
     const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
@@ -28,6 +28,22 @@ const Index: React.FC = () => {
 
     const updateBusesInterval = useRef<any>(null);
 
+    const defaultOnCampusRegion = {
+        latitude: 30.615011,
+        longitude: -96.342476,
+        latitudeDelta: 0.03,
+        longitudeDelta: 0.01
+    };
+
+    const defaultOffCampusRegion = {
+        latitude: 30.615011,
+        longitude: -96.342476,
+        latitudeDelta: 0.04,
+        longitudeDelta: 0.04
+    }
+
+    mapViewRef.current?.animateToRegion(defaultOnCampusRegion);
+
     const updateBuses = async (routeName: string) => {
         const data = await getRouteBuses(routeName);
 
@@ -35,30 +51,21 @@ const Index: React.FC = () => {
     }
 
     const centerViewOnRoutes = () => {
-        let region = {
-            latitude: 30.5993303254,
-            longitude: -96.3518481762,
-            latitudeDelta: 0.03,
-            longitudeDelta: 0.03
-        }
-
+        let region;
         if(selectedRouteCategory === "Off Campus") {
-            region = {
-                latitude: 30.6211005442,
-                longitude: -96.3904876904,
-                latitudeDelta: 0.2,
-                longitudeDelta: 0.2
-            }
+            region = defaultOffCampusRegion;
+        } else {
+            region = defaultOnCampusRegion;
         }
 
-        mapViewRef.animateToRegion(region, 250);
+        mapViewRef.current?.animateToRegion(region, 250);
 
         setIsViewCenteredOnUser(false);
     }
 
     const centerViewOnUser = async () => {
         // Request location permissions
-        const { status } = await Location.requestForegroundPermissionsAsync();
+        const { status } = await Location.requestForegroundPermissionsAsync()
 
         // Check if permission is granted
         if (status !== 'granted') { return };
@@ -70,11 +77,11 @@ const Index: React.FC = () => {
         const region = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
-            latitudeDelta: 0.02,
-            longitudeDelta: 0.02
+            latitudeDelta: 0.0005,
+            longitudeDelta: 0.005,
         };
 
-        mapViewRef.animateToRegion(region, 250);
+        mapViewRef.current?.animateToRegion(region, 250);
 
         setIsViewCenteredOnUser(true);
     }
@@ -100,7 +107,7 @@ const Index: React.FC = () => {
         );
 
         // Fit the map to the extracted coordinates
-        mapViewRef.fitToCoordinates(coords, {
+        mapViewRef.current?.fitToCoordinates(coords, {
             edgePadding: {
                 top: 50,
                 right: 20,
@@ -132,7 +139,7 @@ const Index: React.FC = () => {
     }, [drawnRoutes]);
 
     return (
-        <MapView showsUserLocation={true} style={{ width: "100%", height: "100%" }} ref={(mapView) => { mapViewRef = mapView!; }} rotateEnabled={false}>
+        <MapView showsUserLocation={true} style={{ width: "100%", height: "100%" }} ref={mapViewRef} rotateEnabled={false} >
             <SafeAreaInsetsContext.Consumer>
                 {(insets) => (
                     <TouchableOpacity style={{ top: insets!.top + 16, alignContent: 'center', justifyContent: 'center', position: 'absolute', right: 8, overflow: 'hidden', borderRadius: 8, backgroundColor: 'white', padding: 12 }} onPress={() => recenterView()}>                
