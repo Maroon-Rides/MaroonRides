@@ -5,25 +5,33 @@ import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import BusIcon from "./BusIcon";
 
 import { IRouteCategory, IBusRoute } from "utils/interfaces";
-import useAppStore, { fetchBusData } from "../stores/useAppStore";
+import useAppStore from "../stores/useAppStore";
 
 const RoutesList: React.FC = () => {
-    const busRoutes = useAppStore((state) => state.busRoutes);
+    const routes = useAppStore((state) => state.routes);
+    
     const setBusRoutes = useAppStore((state) => state.setBusRoutes);
 
-    const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
-
+    const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
     const setSelectedRouteCategory = useAppStore((state) => state.setSelectedRouteCategory);
 
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
 
-    const selectedGroup = useAppStore((state) => state.selectedGroup);
     const setSelectedGroup = useAppStore((state) => state.setSelectedGroup);
 
     const [selectedIndex, setSelectedIndex] = useState(0);
 
-    const isGameday = useAppStore((state) => state.isGameday);
     const setIsGameday = useAppStore((state) => state.setIsGameday);
+
+    const handleSelectedRouteCategorySwitch = (newRouteCategory: string) => {
+        setSelectedRouteCategory(newRouteCategory as unknown as "On Campus" | "Off Campus");
+
+        if(newRouteCategory === "On Campus") {
+            setDrawnRoutes(routes.filter(route => route.category === "On Campus"));
+        } else if(newRouteCategory === "Off Campus") {
+            setDrawnRoutes(routes.filter(route => route.category === "Off Campus"));
+        }
+    }
 
     useEffect(() => {
         (async () => {
@@ -85,42 +93,34 @@ const RoutesList: React.FC = () => {
 
     return (
         <>
-            {!busRoutes ? (
-                <ActivityIndicator />
-            ) : (
-                <View style={{ height: "100%" }}>
-                    <SegmentedControl values={isGameday ? ["On Campus", "Off Campus", "Gameday"] : ["On Campus", "Off Campus"]} selectedIndex={selectedIndex}
-                        onValueChange={(value) => {
-                            setSelectedRouteCategory(value as unknown as IRouteCategory);
-
-                            setSelectedGroup(busRoutes[value])
-                            setDrawnRoutes(busRoutes[value])
-                        }}
-                        onChange={(event) => setSelectedIndex(event.nativeEvent.selectedSegmentIndex)}
-                    />
-                    <FlatList
+            <View style={{ height: "100%" }}>
+                    <SegmentedControl values={["On Campus", "Off Campus"]} selectedIndex={selectedIndex} onValueChange={handleSelectedRouteCategorySwitch} />
+                    { !routes[0] ? <ActivityIndicator style={{ marginTop: 5 }} /> : (
+                        <FlatList
                         contentContainerStyle={{ paddingBottom: 30 }}
-                        data={selectedGroup}
-                        keyExtractor={busRoute => busRoute.key}
-                        renderItem={({ item: busRoute }) => {
+                        data={routes.filter(route => route.category === selectedRouteCategory)}
+                        keyExtractor={route => route.key}
+                        renderItem={({ item: route }) => {
                             return (
-                                <TouchableOpacity
-                                    style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }}
-                                    onPress={() => {
-                                        setDrawnRoutes([busRoute])
-                                        setSelectedRoute(busRoute)
-                                    }}>
-                                    <BusIcon name={busRoute.shortName} color={busRoute.routeInfo.color} />
+                                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} >
+                                    <BusIcon name={route.shortName} color={route.directionList[0]?.lineColor ?? "#000"} />
                                     <View>
-                                        <Text style={{ fontWeight: 'bold', fontSize: 20, lineHeight: 28 }}>{busRoute.name}</Text>
-                                        <Text> {busRoute.endpointName} </Text>
+                                        <Text style={{ fontWeight: 'bold', fontSize: 20, lineHeight: 28 }}>{route.name}</Text>
+                                        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                            {route.directionList.map((elm, index) => (
+                                                <React.Fragment key={index}>
+                                                    <Text style={{ marginRight: 5 }}>{elm.destination}</Text>
+                                                    {index !== route.directionList.length - 1 && <Text style={{ marginLeft: 1, marginRight: 2 }}>|</Text>}
+                                                </React.Fragment>
+                                            ))}
+                                        </View>
                                     </View>
                                 </TouchableOpacity>
                             )
                         }}
                     />
+                    ) }
                 </View>
-            )}
         </>
     )
 }

@@ -54,6 +54,7 @@ export const MapRouteSchema = z.object({
     shortName: z.string(),
     directionList: z.array(MapDirectionListSchema),
     patternPaths: z.array(MapPatternPathSchema),
+    category: z.union([z.literal('On Campus'), z.literal('Off Campus')])
 });
 export type IMapRoute = z.infer<typeof MapRouteSchema>
 

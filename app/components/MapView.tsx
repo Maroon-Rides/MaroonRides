@@ -9,7 +9,7 @@ import { getRouteBuses } from "aggie-spirit-api";
 
 import StopCallout from "./callouts/StopCallout";
 import BusCallout from "./callouts/BusCallout";
-import { IBus, IBusRoute } from "utils/interfaces";
+import { IBus } from "utils/interfaces";
 import { getLighterColor } from "../../utils/utils";
 import BusMapIcon from "./callouts/BusMapIcon";
 
@@ -19,8 +19,6 @@ import useAppStore from "../stores/useAppStore";
 const Index: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
     const [mapRenderCount, setMapRenderCount] = useState(0);
-
-    const routes = useAppStore((state) => state.routes);
 
     const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
@@ -32,16 +30,16 @@ const Index: React.FC = () => {
     const updateBusesInterval = useRef<any>(null);
 
     const defaultOnCampusRegion = {
-        latitude: 30.615011,
-        longitude: -96.342476,
-        latitudeDelta: 0.03,
+        latitude: 30.6060,
+        longitude: -96.3462,
+        latitudeDelta: 0.08,
         longitudeDelta: 0.01
     };
 
     const defaultOffCampusRegion = {
-        latitude: 30.615011,
-        longitude: -96.342476,
-        latitudeDelta: 0.04,
+        latitude: 30.5987,
+        longitude: -96.3959,
+        latitudeDelta: 0.4,
         longitudeDelta: 0.04
     }
 
@@ -55,6 +53,11 @@ const Index: React.FC = () => {
             setMapRenderCount(mapRenderCount + 1);
         }
     });
+
+    // If the user toggles between on-campus and off-campus routes, adjust the zoom level of the map
+    useEffect(() => {
+        centerViewOnRoutes();
+    }, [drawnRoutes])
 
     const updateBuses = async (routeName: string) => {
         const data = await getRouteBuses(routeName);
@@ -108,47 +111,47 @@ const Index: React.FC = () => {
         centerViewOnUser();
     }
 
-    useEffect(() => {
-        const coords: LatLng[] = drawnRoutes.flatMap((route: IBusRoute) =>
-            route.routeInfo.patternPaths.flatMap((path: any) =>
-                path.patternPoints.map((point: { latitude: number; longitude: number }) => ({
-                    latitude: point.latitude,
-                    longitude: point.longitude
-                }))
-            )
-        );
+    // useEffect(() => {
+    //     const coords: LatLng[] = drawnRoutes.flatMap((route: IBusRoute) =>
+    //         route.routeInfo.patternPaths.flatMap((path: any) =>
+    //             path.patternPoints.map((point: { latitude: number; longitude: number }) => ({
+    //                 latitude: point.latitude,
+    //                 longitude: point.longitude
+    //             }))
+    //         )
+    //     );
 
-        // Fit the map to the extracted coordinates
-        mapViewRef.current?.fitToCoordinates(coords, {
-            edgePadding: {
-                top: 50,
-                right: 20,
-                bottom: 300,
-                left: 20
-            },
-            animated: true
-        });
+    //     // Fit the map to the extracted coordinates
+    //     mapViewRef.current?.fitToCoordinates(coords, {
+    //         edgePadding: {
+    //             top: 50,
+    //             right: 20,
+    //             bottom: 300,
+    //             left: 20
+    //         },
+    //         animated: true
+    //     });
 
-        // Handle updating buses based on the number of drawn routes
-        if (drawnRoutes.length === 1 && drawnRoutes[0]?.shortName) {
-            const shortName = drawnRoutes[0]?.shortName;
+    //     // Handle updating buses based on the number of drawn routes
+    //     if (drawnRoutes.length === 1 && drawnRoutes[0]?.shortName) {
+    //         const shortName = drawnRoutes[0]?.shortName;
 
-            // Update the buses initially
-            updateBuses(shortName);
+    //         // Update the buses initially
+    //         updateBuses(shortName);
 
-            // Set up interval to update buses every 5 seconds
-            updateBusesInterval.current = setInterval(async () => {
-                updateBuses(shortName);
-            }, 5000);
-        } else {
-            // Clear the interval and reset the buses if there are no drawn routes or more than one
-            clearInterval(updateBusesInterval.current);
-            setBuses([]);
-        }
+    //         // Set up interval to update buses every 5 seconds
+    //         updateBusesInterval.current = setInterval(async () => {
+    //             updateBuses(shortName);
+    //         }, 5000);
+    //     } else {
+    //         // Clear the interval and reset the buses if there are no drawn routes or more than one
+    //         clearInterval(updateBusesInterval.current);
+    //         setBuses([]);
+    //     }
 
-        // Cleanup when the component is unmounted
-        return () => { clearInterval(updateBusesInterval.current); };
-    }, [drawnRoutes]);
+    //     // Cleanup when the component is unmounted
+    //     return () => { clearInterval(updateBusesInterval.current); };
+    // }, [drawnRoutes]);
 
     return (
         <MapView showsUserLocation={true} style={{ width: "100%", height: "100%" }} ref={mapViewRef} rotateEnabled={false} >
@@ -161,7 +164,7 @@ const Index: React.FC = () => {
             </SafeAreaInsetsContext.Consumer>
 
             {/* Route Polylines */}
-            {routes.map(function (drawnRoute) {
+            {drawnRoutes.map(function (drawnRoute) {
                 const coords: LatLng[] = [];
                 
                 const lineColor = drawnRoute.directionList[0]?.lineColor;
