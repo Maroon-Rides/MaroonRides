@@ -1,8 +1,8 @@
 export const getLighterColor = (color: string) => {
     // Parse the color components from the input string
-    const r = parseInt(color.substring(0, 2), 16);
-    const g = parseInt(color.substring(2, 4), 16);
-    const b = parseInt(color.substring(4, 6), 16);
+    const r = parseInt(color.substring(1, 3), 16);
+    const g = parseInt(color.substring(3, 5), 16);
+    const b = parseInt(color.substring(5, 7), 16);
 
     // Increase the brightness of each color component
     const lightenedR = Math.min(r + 100, 255);
@@ -16,7 +16,7 @@ export const getLighterColor = (color: string) => {
         lightenedB.toString(16).padStart(2, '0')
     );
 
-    return lightenedColor;
+    return '#' + lightenedColor;
 }
 
 export const onCampusRoutes = [

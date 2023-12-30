@@ -43,11 +43,18 @@ const Index: React.FC = () => {
         longitudeDelta: 0.04
     }
 
+    const routeSelectedRegion = {
+        latitude: drawnRoutes[0]?.patternPaths[0]?.patternPoints[0]?.latitude ?? 30.6060,
+        longitude: drawnRoutes[0]?.patternPaths[0]?.patternPoints[0]?.longitude ?? -96.3462,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.01
+    }
+
     // Initially, React-Native-Maps renders the map at a default region. To ensure it starts at the intended location, we adjust the region programmatically.
     // This useEffect monitors the map's render count to prevent unintentional interference with user-initiated zoom operations.
     // After the first two renders to set the correct region, subsequent calls to 'centerViewOnRoutes' are disregarded.
     useEffect(() => {
-        if(mapRenderCount < 2) {
+        if (mapRenderCount < 2) {
             centerViewOnRoutes();
 
             setMapRenderCount(mapRenderCount + 1);
@@ -65,9 +72,13 @@ const Index: React.FC = () => {
         if (drawnRoutes.length == 1) { setBuses(data); }
     }
 
+    // TODO: When the user clicks on a route, zoom so that the route path is clearly visible
     const centerViewOnRoutes = () => {
         let region;
-        if(selectedRouteCategory === "Off Campus") {
+
+        if(drawnRoutes.length === 1) {
+            region = routeSelectedRegion;
+        } else if (selectedRouteCategory === "Off Campus") {
             region = defaultOffCampusRegion;
         } else {
             region = defaultOnCampusRegion;
@@ -85,10 +96,10 @@ const Index: React.FC = () => {
         // Check if permission is granted
         if (status !== 'granted') { return };
 
-         // Get current location
-         const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced, timeInterval: 2 });
+        // Get current location
+        const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced, timeInterval: 2 });
 
-         // Animate map to the current location
+        // Animate map to the current location
         const region = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
@@ -102,7 +113,7 @@ const Index: React.FC = () => {
     }
 
     const recenterView = async () => {
-        if(isViewCenteredOnUser) {
+        if (isViewCenteredOnUser) {
             centerViewOnRoutes();
 
             return
@@ -157,8 +168,8 @@ const Index: React.FC = () => {
         <MapView showsUserLocation={true} style={{ width: "100%", height: "100%" }} ref={mapViewRef} rotateEnabled={false} >
             <SafeAreaInsetsContext.Consumer>
                 {(insets) => (
-                    <TouchableOpacity style={{ top: insets!.top + 16, alignContent: 'center', justifyContent: 'center', position: 'absolute', right: 8, overflow: 'hidden', borderRadius: 8, backgroundColor: 'white', padding: 12 }} onPress={() => recenterView()}>                
-                        { isViewCenteredOnUser ? (<Fontisto name="zoom-minus" size={24} color="gray" />) : (<Ionicons name="navigate" size={24} color="gray" />) }
+                    <TouchableOpacity style={{ top: insets!.top + 16, alignContent: 'center', justifyContent: 'center', position: 'absolute', right: 8, overflow: 'hidden', borderRadius: 8, backgroundColor: 'white', padding: 12 }} onPress={() => recenterView()}>
+                        {isViewCenteredOnUser ? (<Fontisto name="zoom-minus" size={24} color="gray" />) : (<Ionicons name="navigate" size={24} color="gray" />)}
                     </TouchableOpacity>
                 )}
             </SafeAreaInsetsContext.Consumer>
@@ -166,7 +177,7 @@ const Index: React.FC = () => {
             {/* Route Polylines */}
             {drawnRoutes.map(function (drawnRoute) {
                 const coords: LatLng[] = [];
-                
+
                 const lineColor = drawnRoute.directionList[0]?.lineColor;
 
                 drawnRoute.patternPaths.forEach((path: any) => {
@@ -183,33 +194,43 @@ const Index: React.FC = () => {
                 )
             })}
 
-            {/* Single Route Stops */}
-            {drawnRoutes.length === 1 &&
-                drawnRoutes[0]?.routeInfo.patternPaths.flatMap((path) =>
-                    path.patternPoints
-                        .filter((point) => point.isStop)
-                        .map((point) => (
-                            <Marker
-                                key={point.key}
-                                coordinate={{
-                                    latitude: point.latitude,
-                                    longitude: point.longitude
-                                }}
-                            >
-                                <View
-                                    style={{
-                                        width: 16,
-                                        height: 16,
-                                        borderWidth: 2,
-                                        borderRadius: point.isTimePoint ? 0 : 9999,
-                                        backgroundColor: `#${drawnRoutes[0]?.routeInfo.color}`,
-                                        borderColor: `#${getLighterColor(drawnRoutes[0]?.routeInfo.color ?? "0000")}`
-                                    }}
-                                />
-                                <StopCallout stopName={point.name} tintColor={drawnRoutes[0]?.routeInfo.color ?? "0000"} routeName={drawnRoutes[0]?.shortName ?? ""} />
-                            </Marker>
-                        ))
-                )}
+{ drawnRoutes.length === 1 && drawnRoutes[0]?.patternPaths.flatMap((patternPath, index1) => (
+    patternPath.patternPoints.map((patternPoint, index2) => {
+        if (patternPoint.stop) {
+            const lineColor = drawnRoutes[0]?.directionList[0]?.lineColor ?? "#FFFF";
+            const lighterColor = getLighterColor(lineColor);
+            
+            return (
+                <Marker
+                    key={`${index1}-${index2}`}
+                    coordinate={{
+                        latitude: patternPoint.latitude,
+                        longitude: patternPoint.longitude
+                    }}
+                >
+                    <View
+                        style={{
+                            width: 16,
+                            height: 16,
+                            borderWidth: 2,
+                            borderRadius: 9999,
+                            backgroundColor: lineColor,
+                            borderColor: lighterColor
+                        }}
+                    />
+                    <StopCallout 
+                        stopName={patternPoint.stop.name} 
+                        tintColor={lineColor} 
+                        routeName={drawnRoutes[0]?.shortName ?? ""} 
+                    />
+                </Marker>
+            );
+        }
+
+        return null;
+    })
+)) }
+
 
             {/* Buses */}
             {buses.map((bus) => {

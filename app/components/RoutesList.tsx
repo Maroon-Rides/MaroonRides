@@ -6,6 +6,7 @@ import BusIcon from "./BusIcon";
 
 import { IRouteCategory, IBusRoute } from "utils/interfaces";
 import useAppStore from "../stores/useAppStore";
+import { IMapRoute } from "utils/updatedInterfaces";
 
 const RoutesList: React.FC = () => {
     const routes = useAppStore((state) => state.routes);
@@ -33,63 +34,9 @@ const RoutesList: React.FC = () => {
         }
     }
 
-    useEffect(() => {
-        (async () => {
-            const data = await fetchBusData();
-
-            // Update names for segmented control and descriptions
-            function updateRouteData(categoryKey: IRouteCategory, originalKey: string) {
-                data[categoryKey] = data[originalKey];
-                delete data[originalKey];
-
-                data[categoryKey].forEach((route: IBusRoute) => {
-                    route.category = categoryKey;
-                    const firstPointName = route?.routeInfo?.patternPaths[0]?.patternPoints[0]?.name;
-                    const secondPointName = route?.routeInfo?.patternPaths[1]?.patternPoints[0]?.name;
-                    route.endpointName = `${firstPointName} | ${secondPointName}`;
-                });
-            }
-
-            // Set correct names for "On Campus" category
-            updateRouteData("On Campus", "OnCampus");
-
-            // Set correct names for "Off Campus" category
-            updateRouteData("Off Campus", "OffCampus");
-
-
-            // Gameday
-            // Set correct names for segmented control and descriptions
-            if (data.Gameday) {
-                setIsGameday(true);
-
-                data.Gameday.forEach((route: IBusRoute) => {
-                    route.category = "Gameday";
-
-                    // Remove "Gameday" prefix from route name
-                    route.name = route.name.replace("Gameday ", "");
-
-                    // Construct endpointName using pattern points
-                    const firstPointName = route?.routeInfo?.patternPaths[0]?.patternPoints[0]?.name;
-                    const secondPointName = route?.routeInfo?.patternPaths[1]?.patternPoints[0]?.name;
-                    route.endpointName = `${firstPointName} | ${secondPointName}`;
-
-                    // Delete duplicate route information
-                    route.routeInfo.patternPaths = [route.routeInfo.patternPaths[0]!];
-                });
-
-                setSelectedIndex(1);
-            } else {
-                // If no Gameday data, clean up and set default selected index
-                delete data.Gameday;
-                setSelectedIndex(0);
-                setIsGameday(false);
-            }
-
-            setSelectedGroup(data["On Campus"])
-            setDrawnRoutes(data["On Campus"])
-            setBusRoutes(data)
-        })()
-    }, []);
+    const handleRouteSelected = (selectedRoute: IMapRoute) => {
+        setDrawnRoutes([selectedRoute]);
+    }
 
     return (
         <>
@@ -102,15 +49,15 @@ const RoutesList: React.FC = () => {
                         keyExtractor={route => route.key}
                         renderItem={({ item: route }) => {
                             return (
-                                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} >
+                                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} onPress={() => handleRouteSelected(route)}>
                                     <BusIcon name={route.shortName} color={route.directionList[0]?.lineColor ?? "#000"} />
                                     <View>
                                         <Text style={{ fontWeight: 'bold', fontSize: 20, lineHeight: 28 }}>{route.name}</Text>
                                         <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                                             {route.directionList.map((elm, index) => (
                                                 <React.Fragment key={index}>
-                                                    <Text style={{ marginRight: 5 }}>{elm.destination}</Text>
-                                                    {index !== route.directionList.length - 1 && <Text style={{ marginLeft: 1, marginRight: 2 }}>|</Text>}
+                                                    <Text>{elm.destination}</Text>
+                                                    {index !== route.directionList.length - 1 && <Text style={{ marginHorizontal: 2 }}>|</Text>}
                                                 </React.Fragment>
                                             ))}
                                         </View>
