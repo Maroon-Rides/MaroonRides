@@ -2741,7 +2741,7 @@ agent-base@6:
 
 "aggie-spirit-api@github:bwees/aggie-spirit-api#beta-api":
   version "0.3.0"
-  resolved "git+ssh://git@github.com/bwees/aggie-spirit-api.git#91fc1fa156bbbd2c0996c7f43b782031eb05102c"
+  resolved "git+ssh://git@github.com/bwees/aggie-spirit-api.git#e91a4bfd6f73328b1a3cd658831d853b7c2fd0cb"
   dependencies:
     moment "^2.29.4"
 
