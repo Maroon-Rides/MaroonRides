@@ -9,7 +9,7 @@ import useAppStore from "../stores/useAppStore";
 
 const Index: React.FC = () => {
     const selectedRoute = useAppStore((state) => state.selectedRoute);
-    
+
     const sheetRef = useRef<BottomSheet>(null);
 
     const snapPoints = ['16%', '35%', '80%'];

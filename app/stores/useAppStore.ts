@@ -1,6 +1,5 @@
 import { create } from "zustand";
 
-import { IBusRoute } from "utils/interfaces";
 import { IMapServiceInterruption, IMapRoute } from "utils/updatedInterfaces";
 
 interface AppState {
@@ -15,18 +14,14 @@ interface AppState {
 
     drawnRoutes: IMapRoute[],
     setDrawnRoutes: (routes: IMapRoute[]) => void
-    
-    busRoutes: IBusRoute[]
-    setBusRoutes: (busRoutes: IBusRoute[]) => void
+    resetDrawnRoutes: () => void,
 
+    selectedRoute: IMapRoute | null,
+    setSelectedRoute: (selectedRoute: IMapRoute) => void,
+    clearSelectedRoute: () => void,
+     
     selectedRouteCategory: "On Campus" | "Off Campus"
     setSelectedRouteCategory: (routeCategory: "On Campus" | "Off Campus") => void
-
-    selectedRoute: IBusRoute | null
-    setSelectedRoute: (selectedRoute: IBusRoute | null) => void
-
-    selectedGroup: IBusRoute[] | null,
-    setSelectedGroup: (selectedGroup: IBusRoute[] | null) => void
 
     isGameday: boolean
     setIsGameday: (isGameday: boolean) => void
@@ -44,18 +39,32 @@ const useAppStore = create<AppState>()((set) => ({
 
     drawnRoutes: [],
     setDrawnRoutes: (routes) => set(() => ({ drawnRoutes: routes })),
+    resetDrawnRoutes: () => set(state => {
+        if(state.selectedRouteCategory === "Off Campus") {
+            return {
+                drawnRoutes: state.routes.filter(route => route.category === "On Campus")
+            }
+        }
 
-    busRoutes: [],
-    setBusRoutes: (busRoutes) => set(() => ({ busRoutes })),
+        return {
+            drawnRoutes: state.routes.filter(route => route.category === "On Campus")
+        }
+    }),
 
     selectedRouteCategory: "On Campus",
     setSelectedRouteCategory: (routeCategory) => set(() => ({ selectedRouteCategory: routeCategory })),
 
     selectedRoute: null,
     setSelectedRoute: (selectedRoute) => set(() => ({ selectedRoute })),
+    clearSelectedRoute: () => set(state => {
+        if(state.selectedRouteCategory === "Off Campus") {
+            state.setDrawnRoutes(state.routes.filter(route => route.category === "Off Campus"));
+        } else {
+            state.setDrawnRoutes(state.routes.filter(route => route.category === "On Campus"));
+        }
 
-    selectedGroup: null,
-    setSelectedGroup: (selectedGroup) => set(() => ({ selectedGroup })),
+        return { selectedRoute: null };
+    }),
 
     isGameday: false,
     setIsGameday: (isGameday) => set(() => ({ isGameday }))

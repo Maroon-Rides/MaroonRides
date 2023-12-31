@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { View, Alert } from 'react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { getAuthentication, getBaseData, getPatternPaths } from "aggie-spirit-api";
 
 import useAppStore from './stores/useAppStore';
@@ -10,8 +9,6 @@ import BottomSheet from "./components/BottomSheet";
 import MapView from './components/MapView';
 
 const Home = () => {
-    const queryClient = new QueryClient();
-
     const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
 
     const setAuthToken = useAppStore((state) => state.setAuthToken);
@@ -109,13 +106,11 @@ const Home = () => {
     }, []);
 
     return (
-        <QueryClientProvider client={queryClient}>
-            <View style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <MapView />
+        <View style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <MapView />
 
-                <BottomSheet />
-            </View>
-        </QueryClientProvider>
+            <BottomSheet />
+        </View>
     )
 }
 
