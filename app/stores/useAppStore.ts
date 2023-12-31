@@ -42,7 +42,7 @@ const useAppStore = create<AppState>()((set) => ({
     resetDrawnRoutes: () => set(state => {
         if(state.selectedRouteCategory === "Off Campus") {
             return {
-                drawnRoutes: state.routes.filter(route => route.category === "On Campus")
+                drawnRoutes: state.routes.filter(route => route.category === "Off Campus")
             }
         }
 
