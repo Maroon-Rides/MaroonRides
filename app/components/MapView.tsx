@@ -28,7 +28,7 @@ const Index: React.FC = () => {
 
     const defaultOnCampusRegion = {
         latitude: 30.6060,
-        longitude: -96.3462,
+        longitude: -96.351,
         latitudeDelta: 0.08,
         longitudeDelta: 0.01
     };
