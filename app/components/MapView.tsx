@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import MapView, { LatLng, Polyline, Marker } from 'react-native-maps';
+import MapView, { LatLng, Polyline, Marker, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { TouchableOpacity, View } from "react-native";
@@ -20,9 +20,9 @@ const Index: React.FC = () => {
 
     const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
 
-    const [buses, _] = useState<any[]>([])
+    const [buses, _] = useState<any[]>([]);
 
-    const defaultMapRegion = {
+    const defaultMapRegion: Region = {
         latitude: 30.598,
         longitude: -96.351,
         latitudeDelta: 0.08,
@@ -32,8 +32,12 @@ const Index: React.FC = () => {
     // If the user toggles between on-campus and off-campus routes, adjust the zoom level of the map
     useEffect(() => {
         centerViewOnRoutes();
-    }, [drawnRoutes])
+    }, [drawnRoutes]);
 
+    // handle weird edge case where map does not pick up on the initial region
+    useEffect(() => {
+        mapViewRef.current?.animateToRegion(defaultMapRegion);
+    }, []);
 
     // TODO: When the user clicks on a route, zoom so that the route path is clearly visible
     const centerViewOnRoutes = () => {
@@ -46,8 +50,8 @@ const Index: React.FC = () => {
                         latitude: point.latitude,
                         longitude: point.longitude
                     });
-                })
-            })
+                });
+            });
         }
 
         drawnRoutes.forEach((route) => {
@@ -59,7 +63,7 @@ const Index: React.FC = () => {
                     });
                 })
             })
-        })
+        });
 
         mapViewRef.current?.fitToCoordinates(coords, {
             edgePadding: {
@@ -69,8 +73,7 @@ const Index: React.FC = () => {
                 left: 20
             },
             animated: true
-        })
-
+        });
 
         setIsViewCenteredOnUser(false);
     }
@@ -99,7 +102,7 @@ const Index: React.FC = () => {
     }
 
     const recenterView = async () => {
-        isViewCenteredOnUser ? centerViewOnRoutes() : centerViewOnUser();
+        centerViewOnUser();
     }
 
     return (
