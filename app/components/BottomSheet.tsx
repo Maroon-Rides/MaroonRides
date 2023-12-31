@@ -12,7 +12,7 @@ const Index: React.FC = () => {
 
     const sheetRef = useRef<BottomSheet>(null);
 
-    const snapPoints = ['16%', '35%', '80%'];
+    const snapPoints = ['35%', '16%', '80%'];
     
     useEffect(() => {
         if(selectedRoute) {
@@ -22,10 +22,15 @@ const Index: React.FC = () => {
         }
     }, [selectedRoute]);
 
+
     return (
         <BottomSheet ref={sheetRef} snapPoints={snapPoints}>
             <BottomSheetView style={{ display: 'flex', flex: 1, paddingHorizontal: 16 }} >
-                { selectedRoute ? (<RouteDetails />) : (<RoutesList />) }
+                { selectedRoute ? 
+                    <RouteDetails />
+                : 
+                    <RoutesList />
+                }
             </BottomSheetView>
         </BottomSheet>
     );
