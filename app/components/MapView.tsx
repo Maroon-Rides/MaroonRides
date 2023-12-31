@@ -27,7 +27,7 @@ const Index: React.FC = () => {
     const [buses, _] = useState<any[]>([])
 
     const defaultOnCampusRegion = {
-        latitude: 30.6060,
+        latitude: 30.598,
         longitude: -96.351,
         latitudeDelta: 0.08,
         longitudeDelta: 0.01
