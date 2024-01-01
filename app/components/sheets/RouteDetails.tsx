@@ -71,7 +71,7 @@ const RouteDetails: React.FC = () => {
                 renderItem={({item}) => {
                     return (
                         <View style={{marginTop: 4}}>
-                            <Text style={{fontSize: 22, fontWeight: "bold"}}>{item.name}</Text>
+                            <Text style={{fontSize: 20, fontWeight: "bold"}}>{item.name}</Text>
                             <Text style={{marginBottom: 8}}>Running 10 minutes late</Text>
                             <TimeBubble time="12:50" color={selectedRoute!.directionList[0]!.lineColor} />
                             
