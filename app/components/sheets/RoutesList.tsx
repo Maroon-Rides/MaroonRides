@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View, TouchableOpacity, FlatList, Text } from "react-native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import BusIcon from "./BusIcon";
-import useAppStore from "../stores/useAppStore";
+import BusIcon from "../ui/BusIcon";
+import useAppStore from "../../stores/useAppStore";
 import { IMapRoute } from "utils/updatedInterfaces";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import SheetHeader from "../ui/SheetHeader";
 
 
 
@@ -34,17 +35,20 @@ const RoutesList: React.FC = () => {
 
     return (
         <View style={{ height: "100%" }}>
-            <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8}}>
-                <Text style={{ fontWeight: 'bold', fontSize: 32}}>Routes</Text>
-                <View style={{ flex: 1 }} />
-                <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => setSheetView("alerts")}>
-                    <MaterialCommunityIcons name={alertIcon} size={28} color="black" />
-                </TouchableOpacity>
-            </View>
+
+            <SheetHeader 
+                title="Routes" 
+                icon={
+                    <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => setSheetView("alerts")}>
+                        <MaterialCommunityIcons name={alertIcon} size={28} color="black" />
+                    </TouchableOpacity>
+                }
+            />
 
             <SegmentedControl
                 values={['All Routes', 'Favorites']}
                 selectedIndex={0}
+                style={{ marginHorizontal: 8 }}
                 onChange={(event) => {
                     setSelectedRouteCategory(event.nativeEvent.selectedSegmentIndex === 0 ? "all" : "favorites");
                 }}
@@ -55,6 +59,7 @@ const RoutesList: React.FC = () => {
                     contentContainerStyle={{ paddingBottom: 30 }}
                     data={routes}
                     keyExtractor={route => route.key}
+                    style={{ marginLeft: 8 }}
                     renderItem={({ item: route }) => {
                         return (
                             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} onPress={() => handleRouteSelected(route)}>
