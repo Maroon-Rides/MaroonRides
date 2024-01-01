@@ -51,6 +51,8 @@ const RoutesList: React.FC = () => {
     useEffect(() => {
         if (alerts.length > 0) {
             setAlertIcon("bell-badge");
+        } else {
+            setAlertIcon("bell-outline");
         }
     }, [alerts]);
 
