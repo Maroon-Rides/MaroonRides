@@ -4,7 +4,6 @@ import { getAuthentication, getBaseData, getPatternPaths } from "aggie-spirit-ap
 
 import useAppStore from './stores/useAppStore';
 import { GetBaseDataResponseSchema, IGetBaseDataResponse, GetPatternPathsResponseSchema, IGetPatternPathsResponse, IMapRoute } from "../utils/updatedInterfaces";
-import { offCampusRoutes, onCampusRoutes } from '../utils/utils';
 import BottomSheet from "./components/BottomSheet";
 import MapView from './components/MapView';
 

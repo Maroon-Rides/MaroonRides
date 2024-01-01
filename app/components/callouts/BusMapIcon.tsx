@@ -3,8 +3,6 @@ import { View } from 'react-native'
 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-import { getLighterColor } from '../../../utils/utils';
-
 interface Props {
   heading: number,
   color: string
@@ -25,7 +23,7 @@ const BusMapIcon: React.FC<Props> = ({ heading, color }) => {
       borderTopRightRadius: 15,
       borderBottomLeftRadius: 15,
       backgroundColor: "#" + color,
-      borderColor: "#" + getLighterColor(color),
+      borderColor: "#" + color,
       borderWidth: 2,
       transform: getRotationProp(heading)
     }}>

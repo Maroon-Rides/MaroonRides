@@ -66,7 +66,7 @@ const Index: React.FC = () => {
 
     // TODO: When the user clicks on a route, zoom so that the route path is clearly visible
     const centerViewOnRoutes = () => {
-        var coords: LatLng[] = [];
+        let coords: LatLng[] = [];
 
         if (selectedRoute) {
             selectedRoute.patternPaths.forEach((path: any) => {
