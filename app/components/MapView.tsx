@@ -11,22 +11,22 @@ import BusMapIcon from "./callouts/BusMapIcon";
 
 import useAppStore from "../stores/useAppStore";
 
-
 const Index: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
 
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
+    const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
 
     const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
 
     const [buses, _] = useState<any[]>([]);
 
     const defaultMapRegion: Region = {
-        latitude: 30.598,
-        longitude: -96.351,
-        latitudeDelta: 0.08,
-        longitudeDelta: 0.01
+        latitude: selectedRouteCategory === "Off Campus" ? 30.5987 : 30.6060,
+        longitude: selectedRouteCategory === "Off Campus" ? -96.3959 : -96.3462,
+        latitudeDelta: selectedRouteCategory === "Off Campus" ? 0.4 : 0.08,
+        longitudeDelta: selectedRouteCategory === "Off Campus" ? 0.4 : 0.01
     };
 
     // If the user toggles between on-campus and off-campus routes, adjust the zoom level of the map
@@ -127,6 +127,13 @@ const Index: React.FC = () => {
     }
 
     const recenterView = async () => {
+        if(isViewCenteredOnUser) {
+            mapViewRef.current?.animateToRegion(defaultMapRegion, 250);
+
+            setIsViewCenteredOnUser(false);
+        }
+
+        setIsViewCenteredOnUser(true);
         centerViewOnUser();
     }
 
