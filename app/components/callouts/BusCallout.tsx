@@ -5,7 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Callout } from 'react-native-maps'
 
-import BusIcon from '../BusIcon'
+import BusIcon from '../ui/BusIcon'
 import { IAmmentity, IBus } from 'utils/interfaces';
 interface Props {
   bus: IBus
@@ -18,7 +18,7 @@ const BusCallout: React.FC<Props> = ({ bus, tintColor, routeName }) => {
     <Callout>
         <View style={{ width: 160 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 4 }}>
-            <BusIcon name={routeName} color={tintColor} isCallout={true} />
+            <BusIcon name={routeName} color={tintColor} isCallout={true} style={{ marginRight: 8 }}/>
             <View style={{ flex: 1 }}/>
             { bus.amenities.map((amenity: IAmmentity, index) => (
                 amenity.name == "Air Conditioning" ? (<Ionicons key={index} name="snow" size={18} color="gray" style={{ paddingLeft: 4 }} />) : (<MaterialCommunityIcons key={index} name="wheelchair-accessibility" size={18} color="gray" style={{ paddingLeft: 4 }} />)

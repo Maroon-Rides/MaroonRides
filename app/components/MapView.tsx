@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import MapView, { LatLng, Polyline, Marker } from 'react-native-maps';
+import MapView, { LatLng, Polyline, Marker, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import Fontisto from "@expo/vector-icons/Fontisto";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { TouchableOpacity, View } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 
@@ -15,68 +14,91 @@ import useAppStore from "../stores/useAppStore";
 
 const Index: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
-    const [mapRenderCount, setMapRenderCount] = useState(0);
 
     const selectedRoute = useAppStore((state) => state.selectedRoute);
-    
-    const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
 
     const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
 
-    const [buses, _] = useState<any[]>([])
+    const [buses, _] = useState<any[]>([]);
 
-    const defaultOnCampusRegion = {
-        latitude: 30.6060,
-        longitude: -96.3462,
+    const defaultMapRegion: Region = {
+        latitude: 30.598,
+        longitude: -96.351,
         latitudeDelta: 0.08,
         longitudeDelta: 0.01
     };
 
-    const defaultOffCampusRegion = {
-        latitude: 30.5987,
-        longitude: -96.3959,
-        latitudeDelta: 0.4,
-        longitudeDelta: 0.04
-    }
-
-    const routeSelectedRegion = {
-        latitude: selectedRoute?.patternPaths[0]?.patternPoints[0]?.latitude ?? 30.6060,
-        longitude: selectedRoute?.patternPaths[0]?.patternPoints[0]?.longitude ?? -96.3462,
-        latitudeDelta: 0.08,
-        longitudeDelta: 0.01
-    }
-
-    // Initially, React-Native-Maps renders the map at a default region. To ensure it starts at the intended location, we adjust the region programmatically.
-    // This useEffect monitors the map's render count to prevent unintentional interference with user-initiated zoom operations.
-    // After the first two renders to set the correct region, subsequent calls to 'centerViewOnRoutes' are disregarded.
-    useEffect(() => {
-        if (mapRenderCount < 2) {
-            centerViewOnRoutes();
-
-            setMapRenderCount(mapRenderCount + 1);
-        }
-    });
-
     // If the user toggles between on-campus and off-campus routes, adjust the zoom level of the map
     useEffect(() => {
         centerViewOnRoutes();
-    }, [drawnRoutes])
+    }, [drawnRoutes]);
 
+    // handle weird edge case where map does not pick up on the initial region
+    useEffect(() => {
+        mapViewRef.current?.animateToRegion(defaultMapRegion);
+    }, []);
+
+    // given a hex code without the #, return a lighter version of it
+    function getLighterColor(color: string) {
+        // remove the # from the beginning of the color
+        color = color.substring(1);
+
+        // Parse the color components from the input string
+        const r = parseInt(color.substring(0, 2), 16);
+        const g = parseInt(color.substring(2, 4), 16);
+        const b = parseInt(color.substring(4, 6), 16);
+    
+        // Increase the brightness of each color component
+        const lightenedR = Math.min(r + 100, 255);
+        const lightenedG = Math.min(g + 100, 255);
+        const lightenedB = Math.min(b + 100, 255);
+    
+        // Convert the lightened color components back to a hex string
+        const lightenedColor = (
+            lightenedR.toString(16).padStart(2, '0') +
+            lightenedG.toString(16).padStart(2, '0') +
+            lightenedB.toString(16).padStart(2, '0')
+        );
+    
+        return "#" + lightenedColor;
+    }
 
     // TODO: When the user clicks on a route, zoom so that the route path is clearly visible
     const centerViewOnRoutes = () => {
-        let region;
+        var coords: LatLng[] = [];
 
         if (selectedRoute) {
-            region = routeSelectedRegion;
-        } else if (selectedRouteCategory === "Off Campus") {
-            region = defaultOffCampusRegion;
-        } else {
-            region = defaultOnCampusRegion;
+            selectedRoute.patternPaths.forEach((path: any) => {
+                path.patternPoints.forEach((point: any) => {
+                    coords.push({
+                        latitude: point.latitude,
+                        longitude: point.longitude
+                    });
+                });
+            });
         }
 
-        mapViewRef.current?.animateToRegion(region, 250);
+        drawnRoutes.forEach((route) => {
+            route.patternPaths.forEach((path: any) => {
+                path.patternPoints.forEach((point: any) => {
+                    coords.push({
+                        latitude: point.latitude,
+                        longitude: point.longitude
+                    });
+                })
+            })
+        });
+
+        mapViewRef.current?.fitToCoordinates(coords, {
+            edgePadding: {
+                top: 50,
+                right: 20 ,
+                bottom: 300,
+                left: 20
+            },
+            animated: true
+        });
 
         setIsViewCenteredOnUser(false);
     }
@@ -105,21 +127,19 @@ const Index: React.FC = () => {
     }
 
     const recenterView = async () => {
-        if (isViewCenteredOnUser) {
-            centerViewOnRoutes();
-
-            return
-        }
-
         centerViewOnUser();
     }
 
     return (
-        <MapView showsUserLocation={true} style={{ width: "100%", height: "100%" }} ref={mapViewRef} rotateEnabled={false} >
+        <MapView showsUserLocation={true} style={{ width: "100%", height: "100%" }} ref={mapViewRef} rotateEnabled={false} initialRegion={defaultMapRegion} onPanDrag={() => setIsViewCenteredOnUser(false)}>
             <SafeAreaInsetsContext.Consumer>
                 {(insets) => (
                     <TouchableOpacity style={{ top: insets!.top + 16, alignContent: 'center', justifyContent: 'center', position: 'absolute', right: 8, overflow: 'hidden', borderRadius: 8, backgroundColor: 'white', padding: 12 }} onPress={() => recenterView()}>
-                        {isViewCenteredOnUser ? (<Fontisto name="zoom-minus" size={24} color="gray" />) : (<Ionicons name="navigate" size={24} color="gray" />)}
+                        {isViewCenteredOnUser ? 
+                            <MaterialIcons name="my-location" size={24} color="gray" /> 
+                        : 
+                            <MaterialIcons name="location-searching" size={24} color="gray" />
+                        }
                     </TouchableOpacity>
                 )}
             </SafeAreaInsetsContext.Consumer>
@@ -163,8 +183,8 @@ const Index: React.FC = () => {
                                         height: 16,
                                         borderWidth: 2,
                                         borderRadius: 9999,
-                                        backgroundColor: "#fff",
-                                        borderColor: lineColor
+                                        backgroundColor: lineColor,
+                                        borderColor: getLighterColor(lineColor),
                                     }}
                                 />
                                 <StopCallout

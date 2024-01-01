@@ -19,6 +19,9 @@ interface AppState {
     selectedRoute: IMapRoute | null,
     setSelectedRoute: (selectedRoute: IMapRoute) => void,
     clearSelectedRoute: () => void,
+
+    sheetView: "routeList" | "routeDetails" | "alerts",
+    setSheetView: (sheetView: "routeList" | "routeDetails" | "alerts") => void,
      
     selectedRouteCategory: "On Campus" | "Off Campus"
     setSelectedRouteCategory: (routeCategory: "On Campus" | "Off Campus") => void
@@ -65,6 +68,9 @@ const useAppStore = create<AppState>()((set) => ({
 
         return { selectedRoute: null };
     }),
+
+    sheetView: "routeList",
+    setSheetView: (sheetView) => set(() => ({ sheetView })),
 
     isGameday: false,
     setIsGameday: (isGameday) => set(() => ({ isGameday }))

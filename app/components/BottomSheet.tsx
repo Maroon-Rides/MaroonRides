@@ -2,30 +2,27 @@ import React, { useEffect, useRef } from "react";
 
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
-import RouteDetails from "./RouteDetails";
-import RoutesList from "./RoutesList";
+import RouteDetails from "./sheets/RouteDetails";
+import RoutesList from "./sheets/RoutesList";
 
 import useAppStore from "../stores/useAppStore";
+import AlertList from "./sheets/AlertList";
 
 const Index: React.FC = () => {
-    const selectedRoute = useAppStore((state) => state.selectedRoute);
-
     const sheetRef = useRef<BottomSheet>(null);
+    const sheetView = useAppStore((state) => state.sheetView);
+    const snapPoints = ['35%', '16%', '80%'];
 
-    const snapPoints = ['16%', '35%', '80%'];
-    
     useEffect(() => {
-        if(selectedRoute) {
-            sheetRef.current?.snapToIndex(1);
-        } else {
-            sheetRef.current?.snapToIndex(0);
-        }
-    }, [selectedRoute]);
+        if (sheetView !== "alerts") sheetRef.current?.snapToIndex(0);
+    }, [sheetView]);
 
     return (
         <BottomSheet ref={sheetRef} snapPoints={snapPoints}>
-            <BottomSheetView style={{ display: 'flex', flex: 1, paddingHorizontal: 16 }} >
-                { selectedRoute ? (<RouteDetails />) : (<RoutesList />) }
+            <BottomSheetView style={{ display: 'flex', flex: 1 }} >
+                {sheetView === "routeList" && <RoutesList />}
+                {sheetView === "routeDetails" && <RouteDetails />}
+                {sheetView === "alerts" && <AlertList />}
             </BottomSheetView>
         </BottomSheet>
     );
