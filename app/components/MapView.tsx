@@ -90,15 +90,17 @@ const Index: React.FC = () => {
             })
         });
 
-        mapViewRef.current?.fitToCoordinates(coords, {
-            edgePadding: {
-                top: 50,
-                right: 20 ,
-                bottom: 300,
-                left: 20
-            },
-            animated: true
-        });
+        if (coords.length > 0) {
+                mapViewRef.current?.fitToCoordinates(coords, {
+                edgePadding: {
+                    top: 50,
+                    right: 20 ,
+                    bottom: 300,
+                    left: 20
+                },
+                animated: true
+            });
+        }
 
         setIsViewCenteredOnUser(false);
     }

@@ -6,6 +6,7 @@ import useAppStore from "../../stores/useAppStore";
 import { IMapRoute } from "utils/updatedInterfaces";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import SheetHeader from "../ui/SheetHeader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 
@@ -16,6 +17,7 @@ const RoutesList: React.FC = () => {
     const setSheetView = useAppStore((state) => state.setSheetView);
 
     const [selectedRouteCategory, setSelectedRouteCategory] = useState<"favorites" | "all">("all");
+    const [shownRoutes, setShownRoutes] = useState<IMapRoute[]>([]);
     const [alertIcon, setAlertIcon] = useState<"bell-outline" | "bell-badge">("bell-outline");
 
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
@@ -26,6 +28,25 @@ const RoutesList: React.FC = () => {
         setDrawnRoutes([selectedRoute]);
         setSheetView("routeDetails");
     }
+
+    async function getFavorites(): Promise<string[]> {
+        const favorites = await AsyncStorage.getItem('favorites');
+        if (!favorites) return [];
+        return JSON.parse(favorites);
+    }
+
+    useEffect(() => {
+        if (selectedRouteCategory === "all") {
+            setShownRoutes(routes);
+            setDrawnRoutes(routes);
+        } else {
+            getFavorites().then(favorites => {
+                const filtered = routes.filter(route => favorites.includes(route.key));
+                setShownRoutes(filtered);
+                setDrawnRoutes(filtered);
+            })
+        }
+    }, [selectedRouteCategory, routes]);
 
     useEffect(() => {
         if (alerts.length > 0) {
@@ -48,18 +69,24 @@ const RoutesList: React.FC = () => {
             <SegmentedControl
                 values={['All Routes', 'Favorites']}
                 selectedIndex={0}
-                style={{ marginHorizontal: 8 }}
+                style={{ marginHorizontal: 16 }}
                 onChange={(event) => {
                     setSelectedRouteCategory(event.nativeEvent.selectedSegmentIndex === 0 ? "all" : "favorites");
                 }}
             />
+
+            {selectedRouteCategory === "favorites" && shownRoutes.length === 0 && (
+                <View style={{ alignItems: 'center', marginTop: 16 }}>
+                    <Text>You have no favorited routes.</Text>
+                </View>
+            )}
             
             {!routes[0] ? <ActivityIndicator style={{ marginTop: 8 }} /> : (
                 <FlatList
                     contentContainerStyle={{ paddingBottom: 30 }}
-                    data={routes}
+                    data={shownRoutes}
                     keyExtractor={route => route.key}
-                    style={{ marginLeft: 8 }}
+                    style={{ marginLeft: 16 }}
                     renderItem={({ item: route }) => {
                         return (
                             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} onPress={() => handleRouteSelected(route)}>

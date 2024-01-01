@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import Ionicons from '@expo/vector-icons/Ionicons';
+import {Ionicons, FontAwesome} from '@expo/vector-icons';
 import useAppStore from "../../stores/useAppStore";
 import BusIcon from "../ui/BusIcon";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
-import { FlatList, ScrollView } from "react-native-gesture-handler";
+import { FlatList } from "react-native-gesture-handler";
 import TimeBubble from "../ui/TimeBubble";
+import FavoritePill from "../ui/FavoritePill";
 
 // TODO: Fill in route details with new UI
 const RouteDetails: React.FC = () => {
@@ -53,6 +54,11 @@ const RouteDetails: React.FC = () => {
                 </TouchableOpacity>
             </View>
 
+            <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginLeft: 16 }}>
+                <FavoritePill routeId={selectedRoute!.key} />
+            </View>
+
+
             <SegmentedControl
                 style={{ marginHorizontal: 16 }}
                 values={selectedRoute?.directionList.map(direction => direction.destination) ?? []}
@@ -65,13 +71,12 @@ const RouteDetails: React.FC = () => {
 
             <FlatList
                 data={processedStops}
-                keyExtractor={item => item.key}
                 style={{paddingTop: 8, height: "100%", marginLeft: 16}}
                 contentContainerStyle={{ paddingBottom: 120 }}
-                renderItem={({item}) => {
+                renderItem={({item: stop}) => {
                     return (
                         <View style={{marginTop: 4}}>
-                            <Text style={{fontSize: 22, fontWeight: "bold"}}>{item.name}</Text>
+                            <Text style={{fontSize: 22, fontWeight: "bold"}}>{stop.name}</Text>
                             <Text style={{marginBottom: 8}}>Running 10 minutes late</Text>
                             <TimeBubble time="12:50" color={selectedRoute!.directionList[0]!.lineColor} />
                             
