@@ -27,7 +27,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                     }
                 />
 
-                { alerts.length === 0 ??
+                { alerts.length === 0 &&
                     <View style={{alignItems: 'center'}}>
                         <Text>There are no active alerts at this time.</Text>
                     </View>

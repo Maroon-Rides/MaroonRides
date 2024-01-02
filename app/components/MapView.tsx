@@ -68,8 +68,8 @@ const Index: React.FC = () => {
         let coords: LatLng[] = [];
 
         if (selectedRoute) {
-            selectedRoute.patternPaths.forEach((path: any) => {
-                path.patternPoints.forEach((point: any) => {
+            selectedRoute.patternPaths.forEach((path) => {
+                path.patternPoints.forEach((point) => {
                     coords.push({
                         latitude: point.latitude,
                         longitude: point.longitude
@@ -79,8 +79,8 @@ const Index: React.FC = () => {
         }
 
         drawnRoutes.forEach((route) => {
-            route.patternPaths.forEach((path: any) => {
-                path.patternPoints.forEach((point: any) => {
+            route.patternPaths.forEach((path) => {
+                path.patternPoints.forEach((point) => {
                     coords.push({
                         latitude: point.latitude,
                         longitude: point.longitude
@@ -104,7 +104,7 @@ const Index: React.FC = () => {
         setIsViewCenteredOnUser(false);
     }
 
-    const centerViewOnUser = async () => {
+    const recenterView = async () => {
         // Request location permissions
         const { status } = await Location.requestForegroundPermissionsAsync()
 
@@ -118,18 +118,13 @@ const Index: React.FC = () => {
         const region = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01
         };
 
         mapViewRef.current?.animateToRegion(region, 250);
 
         setIsViewCenteredOnUser(true);
-    }
-
-    const recenterView = async () => {
-        setIsViewCenteredOnUser(true);
-        centerViewOnUser();
     }
 
     return (
@@ -152,8 +147,8 @@ const Index: React.FC = () => {
 
                 const lineColor = drawnRoute.directionList[0]?.lineColor;
 
-                drawnRoute.patternPaths.forEach((path: any) => {
-                    path.patternPoints.forEach((point: any) => {
+                drawnRoute.patternPaths.forEach((path) => {
+                    path.patternPoints.forEach((point) => {
                         coords.push({
                             latitude: point.latitude,
                             longitude: point.longitude
