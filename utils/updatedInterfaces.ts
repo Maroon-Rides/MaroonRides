@@ -69,6 +69,14 @@ export const MapServiceInterruptionSchema = z.object({
 });
 export type IMapServiceInterruption = z.infer<typeof MapServiceInterruptionSchema>
 
+export const MapRouteDirectionTimeSchema = z.object({
+    routeKey: z.string(),
+    directionKey: z.string(),
+    nextDeparts: z.array(z.any()),
+    frequencyInfo: z.any().nullable()
+});
+export type IMapRouteDirectionTime = z.infer<typeof MapRouteDirectionTimeSchema>
+
 // From Bus Times API
 export const TimetableServiceInterruptionSchema = z.object({
     externalServiceInterruptionKey: z.string(),
@@ -122,6 +130,13 @@ export const GetPatternPathsResponseSchema = z.array(z.object({
     vehiclesByDirections: z.null()
 }));
 export type IGetPatternPathsResponse = z.infer<typeof GetPatternPathsResponseSchema>
+
+export const GetNextDepartTimesResponseSchema = z.object({
+    stopCode: z.string(),
+    routeDirectionTimes: z.array(MapRouteDirectionTimeSchema),
+    amenities: z.array(TimetableAmenitySchema)
+})
+export type IGetNextDepartTimesResponse = z.infer<typeof GetNextDepartTimesResponseSchema>
 
 // /Home/GetActiveRoutes
 export const GetActiveRoutesResponseSchema = z.array(z.string());
