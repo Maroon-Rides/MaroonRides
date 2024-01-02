@@ -3,7 +3,6 @@ import { View, Alert } from 'react-native';
 import { getAuthentication, getBaseData, getPatternPaths } from "aggie-spirit-api";
 import useAppStore from './stores/useAppStore';
 import { GetBaseDataResponseSchema, IGetBaseDataResponse, GetPatternPathsResponseSchema, IGetPatternPathsResponse, IMapRoute } from "../utils/updatedInterfaces";
-import { offCampusRoutes, onCampusRoutes } from '../utils/utils';
 import MapView from './components/MapView';
 import RoutesList from './components/sheets/RoutesList';
 import AlertList from './components/sheets/AlertList';
@@ -64,32 +63,20 @@ const Home = () => {
                 return baseDataRoutes;
             }
 
-            function addOnCampusOffCampusLabelToRoutes(routes: IMapRoute[]) {
-                for(let route of routes) {
-                    if(offCampusRoutes.includes(route.shortName)) {
-                        route.category = "Off Campus";
-                    } else if(onCampusRoutes.includes(route.shortName)) {
-                        route.category = "On Campus"
-                    }
-                }
-
-                return routes
-            }
-
             async function loadData() {
                 try {
                     const baseData: IGetBaseDataResponse = await fetchBaseData(authToken);
                     const patternPathsResponse = await fetchPatternPaths(baseData.routes.map(route => route.key), authToken);
 
                     // Add patternPaths to routes
-                    const routes = addOnCampusOffCampusLabelToRoutes(addPatternPathsToRoutes([...baseData.routes], patternPathsResponse));
+                    const routes = addPatternPathsToRoutes([...baseData.routes], patternPathsResponse);
 
                     // Validate the data against schemas
                     GetBaseDataResponseSchema.parse(baseData);
                     GetPatternPathsResponseSchema.parse(patternPathsResponse);
 
                     setRoutes(routes);
-                    setDrawnRoutes(routes.filter(route => route.category === selectedRouteCategory));
+                    setDrawnRoutes(routes);
                     setMapServiceInterruption(baseData.serviceInterruptions);
 
                 } catch (error) {

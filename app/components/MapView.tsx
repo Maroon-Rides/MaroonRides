@@ -11,25 +11,26 @@ import BusMapIcon from "./callouts/BusMapIcon";
 
 import useAppStore from "../stores/useAppStore";
 
-
 const Index: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
 
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
+    const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
 
     const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
 
     const [buses, _] = useState<any[]>([]);
 
     const defaultMapRegion: Region = {
-        latitude: 30.598,
-        longitude: -96.351,
-        latitudeDelta: 0.08,
+        latitude: 30.6060,
+        longitude: -96.3462,
+        latitudeDelta: 0.10,
         longitudeDelta: 0.01
     };
 
     // If the user toggles between on-campus and off-campus routes, adjust the zoom level of the map
+    // Ignore if the mapRenderCount is less than 2 since it takes two renders to show the initial region
     useEffect(() => {
         centerViewOnRoutes();
     }, [drawnRoutes]);
@@ -37,7 +38,7 @@ const Index: React.FC = () => {
     // handle weird edge case where map does not pick up on the initial region
     useEffect(() => {
         mapViewRef.current?.animateToRegion(defaultMapRegion);
-    }, []);
+    });
 
     // given a hex code without the #, return a lighter version of it
     function getLighterColor(color: string) {
@@ -66,7 +67,7 @@ const Index: React.FC = () => {
 
     // TODO: When the user clicks on a route, zoom so that the route path is clearly visible
     const centerViewOnRoutes = () => {
-        var coords: LatLng[] = [];
+        let coords: LatLng[] = [];
 
         if (selectedRoute) {
             selectedRoute.patternPaths.forEach((path: any) => {
@@ -129,6 +130,15 @@ const Index: React.FC = () => {
     }
 
     const recenterView = async () => {
+        if(isViewCenteredOnUser) {
+            mapViewRef.current?.animateToRegion(defaultMapRegion, 250);
+
+            setIsViewCenteredOnUser(false);
+          
+            return;
+        }
+
+        setIsViewCenteredOnUser(true);
         centerViewOnUser();
     }
 
@@ -137,7 +147,7 @@ const Index: React.FC = () => {
             <SafeAreaInsetsContext.Consumer>
                 {(insets) => (
                     <TouchableOpacity style={{ top: insets!.top + 16, alignContent: 'center', justifyContent: 'center', position: 'absolute', right: 8, overflow: 'hidden', borderRadius: 8, backgroundColor: 'white', padding: 12 }} onPress={() => recenterView()}>
-                        {isViewCenteredOnUser ? 
+                        {!isViewCenteredOnUser ? 
                             <MaterialIcons name="my-location" size={24} color="gray" /> 
                         : 
                             <MaterialIcons name="location-searching" size={24} color="gray" />
