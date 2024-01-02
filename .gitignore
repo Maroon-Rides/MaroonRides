@@ -63,6 +63,7 @@ xcuserdata
 ReactAndroid-temp.aar
 /android/prebuiltHermes
 /android/versioned-abis/**/*.aar
+/android
 
 # Tools
 jarjar-rules.txt
@@ -149,6 +150,7 @@ docs/pages/versions/*/react-native/*.diff
 !crsqlite.xcframework
 
 # iOS
+/ios
 /ios/Pods
 /ios/build
 **/ios/.xcode.env.local
