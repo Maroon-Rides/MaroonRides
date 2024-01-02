@@ -16,8 +16,6 @@ const Index: React.FC = () => {
 
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
-    const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
-
     const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
 
     const [buses, _] = useState<any[]>([]);
