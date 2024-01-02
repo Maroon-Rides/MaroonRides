@@ -69,7 +69,7 @@ const Home = () => {
 
                     // Add patternPaths to routes
                     const routes = addPatternPathsToRoutes([...baseData.routes], patternPathsResponse);
-
+ 
                     // Validate the data against schemas
                     GetBaseDataResponseSchema.parse(baseData);
                     GetPatternPathsResponseSchema.parse(patternPathsResponse);
