@@ -2,9 +2,9 @@ import React from 'react'
 import { View, Text } from 'react-native'
 
 interface Props {
-  time: string
-  color: string,
-  textColor?: string
+    time: string
+    color: string,
+    textColor?: string
 }
 
 const TimeBubble: React.FC<Props> = ({time, color, textColor}) => {

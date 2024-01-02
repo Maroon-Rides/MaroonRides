@@ -1,21 +1,23 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { View, Alert } from 'react-native';
 import { getAuthentication, getBaseData, getPatternPaths } from "aggie-spirit-api";
-
 import useAppStore from './stores/useAppStore';
 import { GetBaseDataResponseSchema, IGetBaseDataResponse, GetPatternPathsResponseSchema, IGetPatternPathsResponse, IMapRoute } from "../utils/updatedInterfaces";
-import BottomSheet from "./components/BottomSheet";
 import MapView from './components/MapView';
+import RoutesList from './components/sheets/RoutesList';
+import AlertList from './components/sheets/AlertList';
+import RouteDetails from './components/sheets/RouteDetails';
+import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+
 
 const Home = () => {
+    const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
     const setAuthToken = useAppStore((state) => state.setAuthToken);
-
     const setRoutes = useAppStore((state) => state.setRoutes);
-
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
-
     const setMapServiceInterruption = useAppStore((state) => state.setMapServiceInterruption);
-
+    const setPresentSheet = useAppStore((state) => state.setPresentSheet);
+    
     useEffect(() => {
         const getInitialData = async () => {
             // Get and store the auth token
@@ -90,12 +92,45 @@ const Home = () => {
         getInitialData();
     }, []);
 
-    return (
-        <View style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <MapView />
 
-            <BottomSheet />
-        </View>
+    /////// Sheet Config /////////
+
+    const routesListSheetRef = useRef<BottomSheetModal>(null);
+    const alertListSheetRef = useRef<BottomSheetModal>(null);
+    const routeDetailSheetRef = useRef<BottomSheetModal>(null);
+
+    const snapPoints = ['15%', '45%', '80%'];
+
+
+    setPresentSheet((sheet) => {
+        switch (sheet) {
+            case "alerts":
+                alertListSheetRef.current?.present();
+                break;
+            case "routeDetails":
+                routeDetailSheetRef.current?.present();
+                break;
+            default:
+                break;
+        }
+    })
+
+    useEffect(() => {
+        routesListSheetRef.current?.present();
+    }, [])
+
+
+    return (
+        <BottomSheetModalProvider>
+            <View style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <MapView />
+
+
+                <RouteDetails sheetRef={routeDetailSheetRef} />
+                <RoutesList sheetRef={routesListSheetRef} />
+                <AlertList sheetRef={alertListSheetRef} />
+            </View>
+        </BottomSheetModalProvider>
     )
 }
 

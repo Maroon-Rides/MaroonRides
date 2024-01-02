@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import MapView, { LatLng, Polyline, Marker, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { TouchableOpacity, View } from "react-native";
+import { Dimensions, TouchableOpacity, View } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 
 import StopCallout from "./callouts/StopCallout";
@@ -16,8 +16,6 @@ const Index: React.FC = () => {
 
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
-    const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
-
     const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
 
     const [buses, _] = useState<any[]>([]);
@@ -38,7 +36,7 @@ const Index: React.FC = () => {
     // handle weird edge case where map does not pick up on the initial region
     useEffect(() => {
         mapViewRef.current?.animateToRegion(defaultMapRegion);
-    });
+    }, []);
 
     // given a hex code without the #, return a lighter version of it
     function getLighterColor(color: string) {
@@ -91,15 +89,17 @@ const Index: React.FC = () => {
             })
         });
 
-        mapViewRef.current?.fitToCoordinates(coords, {
-            edgePadding: {
-                top: 50,
-                right: 20 ,
-                bottom: 300,
-                left: 20
-            },
-            animated: true
-        });
+        if (coords.length > 0) {  
+            mapViewRef.current?.fitToCoordinates(coords, {
+                edgePadding: {
+                    top: Dimensions.get("window").height * 0.05,
+                    right: 20 ,
+                    bottom: Dimensions.get("window").height * 0.45 + 8,
+                    left: 20
+                },
+                animated: true
+            });
+        }
 
         setIsViewCenteredOnUser(false);
     }
@@ -128,14 +128,6 @@ const Index: React.FC = () => {
     }
 
     const recenterView = async () => {
-        if(isViewCenteredOnUser) {
-            mapViewRef.current?.animateToRegion(defaultMapRegion, 250);
-
-            setIsViewCenteredOnUser(false);
-          
-            return;
-        }
-
         setIsViewCenteredOnUser(true);
         centerViewOnUser();
     }
@@ -145,7 +137,7 @@ const Index: React.FC = () => {
             <SafeAreaInsetsContext.Consumer>
                 {(insets) => (
                     <TouchableOpacity style={{ top: insets!.top + 16, alignContent: 'center', justifyContent: 'center', position: 'absolute', right: 8, overflow: 'hidden', borderRadius: 8, backgroundColor: 'white', padding: 12 }} onPress={() => recenterView()}>
-                        {!isViewCenteredOnUser ? 
+                        {isViewCenteredOnUser ? 
                             <MaterialIcons name="my-location" size={24} color="gray" /> 
                         : 
                             <MaterialIcons name="location-searching" size={24} color="gray" />
