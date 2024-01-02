@@ -54,7 +54,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             setShownRoutes(filtered);
             setDrawnRoutes(filtered);
         }
-    }, [selectedRouteCategory, routes]);
+    }, [selectedRouteCategory, routes, favorites]);
 
     // Update the alert icon when the alerts change
     useEffect(() => {
