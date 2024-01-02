@@ -31,8 +31,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         setDrawnRoutes([selectedRoute]);
         presentSheet("routeDetails");
     }
-
-
     
     function loadFavorites() {
         AsyncStorage.getItem('favorites').then((favorites: string | null) => {
@@ -71,6 +69,16 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     function onAnimate(from: number, to: number) {
         if (from === -1 && to === 1) {
             loadFavorites();
+
+            // match the selectedRouteCategory on the map
+            if (selectedRouteCategory === "all") {
+                setDrawnRoutes(routes);
+            } else {
+                const filtered = routes.filter(route => favorites.includes(route.key));
+                setDrawnRoutes(filtered);
+            }
+
+            //TODO: write global fucntion to recenter map on drawn routes, right now it just goes back to default
         }
     }
 
