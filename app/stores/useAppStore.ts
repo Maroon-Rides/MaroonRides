@@ -19,15 +19,15 @@ interface AppState {
     selectedRoute: IMapRoute | null,
     setSelectedRoute: (selectedRoute: IMapRoute) => void,
     clearSelectedRoute: () => void,
-
-    sheetView: "routeList" | "routeDetails" | "alerts",
-    setSheetView: (sheetView: "routeList" | "routeDetails" | "alerts") => void,
      
     selectedRouteCategory: "On Campus" | "Off Campus"
     setSelectedRouteCategory: (routeCategory: "On Campus" | "Off Campus") => void
 
     isGameday: boolean
     setIsGameday: (isGameday: boolean) => void
+
+    presentSheet: (sheet: "routeDetails" | "alerts") => void
+    setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts") => void) => void
 }
 
 const useAppStore = create<AppState>()((set) => ({
@@ -69,11 +69,11 @@ const useAppStore = create<AppState>()((set) => ({
         return { selectedRoute: null };
     }),
 
-    sheetView: "routeList",
-    setSheetView: (sheetView) => set(() => ({ sheetView })),
-
     isGameday: false,
-    setIsGameday: (isGameday) => set(() => ({ isGameday }))
+    setIsGameday: (isGameday) => set(() => ({ isGameday })),
+
+    presentSheet: (sheet) => {console.log(sheet)},
+    setPresentSheet: (presentSheet) => set(() => ({ presentSheet }))
 }));
 
 export default useAppStore;

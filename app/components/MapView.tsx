@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import MapView, { LatLng, Polyline, Marker, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { TouchableOpacity, View } from "react-native";
+import { Dimensions, TouchableOpacity, View } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 
 import StopCallout from "./callouts/StopCallout";
@@ -90,12 +90,12 @@ const Index: React.FC = () => {
             })
         });
 
-        if (coords.length > 0) {
-                mapViewRef.current?.fitToCoordinates(coords, {
+        if (coords.length > 0) {            
+            mapViewRef.current?.fitToCoordinates(coords, {
                 edgePadding: {
-                    top: 50,
+                    top: Dimensions.get("window").height * 0.05,
                     right: 20 ,
-                    bottom: 300,
+                    bottom: Dimensions.get("window").height * 0.45 + 8,
                     left: 20
                 },
                 animated: true
