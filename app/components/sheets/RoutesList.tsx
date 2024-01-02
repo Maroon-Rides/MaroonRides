@@ -16,13 +16,13 @@ interface SheetProps {
 const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const routes = useAppStore((state) => state.routes);
     const alerts = useAppStore((state) => state.mapServiceInterruption);
-    
+    const drawnRoutes = useAppStore((state) => state.drawnRoutes);
+
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     const presentSheet = useAppStore((state) => state.presentSheet);
 
     const [selectedRouteCategory, setSelectedRouteCategory] = useState<"favorites" | "all">("all");
-    const [shownRoutes, setShownRoutes] = useState<IMapRoute[]>([]);
     const [favorites, setFavorites] = useState<string[]>([]);
     const [alertIcon, setAlertIcon] = useState<"bell-outline" | "bell-badge">("bell-outline");
 
@@ -31,7 +31,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         setDrawnRoutes([selectedRoute]);
         presentSheet("routeDetails");
     }
-    
+
     function loadFavorites() {
         AsyncStorage.getItem('favorites').then((favorites: string | null) => {
             if (!favorites) return;
@@ -47,11 +47,9 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     // Update the shown routes when the selectedRouteCategory changes
     useEffect(() => {
         if (selectedRouteCategory === "all") {
-            setShownRoutes(routes);
             setDrawnRoutes(routes);
         } else {
             const filtered = routes.filter(route => favorites.includes(route.key));
-            setShownRoutes(filtered);
             setDrawnRoutes(filtered);
         }
     }, [selectedRouteCategory, routes, favorites]);
@@ -112,7 +110,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     }}
                 />
 
-                { selectedRouteCategory === "favorites" && shownRoutes.length === 0 && (
+                { selectedRouteCategory === "favorites" && drawnRoutes.length === 0 && (
                     <View style={{ alignItems: 'center', marginTop: 16 }}>
                         <Text>You have no favorited routes.</Text>
                     </View>
@@ -124,7 +122,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
             <BottomSheetFlatList
                 contentContainerStyle={{ paddingBottom: 30 }}
-                data={shownRoutes}
+                data={drawnRoutes}
                 keyExtractor={route => route.key}
                 style={{ marginLeft: 16 }}
                 renderItem={({ item: route }) => {

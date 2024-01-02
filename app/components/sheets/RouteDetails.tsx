@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent } from "react-native";
 import {Ionicons } from '@expo/vector-icons';
 import useAppStore from "../../stores/useAppStore";
 import BusIcon from "../ui/BusIcon";
-import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import TimeBubble from "../ui/TimeBubble";
 import FavoritePill from "../ui/FavoritePill";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { IMapRoute } from "utils/updatedInterfaces";
+import { IMapRoute, IMapStop } from "utils/updatedInterfaces";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -19,7 +19,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
 
     const [selectedDirection, setSelectedDirection] = useState(0);
-    const [processedStops, setProcessedStops] = useState<any[]>([]);
+    const [processedStops, setProcessedStops] = useState<IMapStop[]>([]);
     const [selectedRoute, setSelectedRoute] = useState<IMapRoute | null>(null);
 
     const handleClearSelectedRoute = () => {
@@ -30,7 +30,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     useEffect(() => {
         if (!selectedRoute) return;
 
-        const processedStops: any[] = [];
+        const processedStops: IMapStop[] = [];
 
         const directionPath = selectedRoute.patternPaths[selectedDirection]?.patternPoints ?? [];
 
@@ -54,6 +54,9 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         setSelectedRoute(currentSelectedRoute);
     }, [currentSelectedRoute])
 
+    const handleSetSelectedDirection = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
+        setSelectedDirection(evt.nativeEvent.selectedSegmentIndex);
+    }
 
     const snapPoints = ['25%', '45%', '85%'];
 
@@ -61,14 +64,13 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         <BottomSheetModal 
             ref={sheetRef} 
             snapPoints={snapPoints} 
-            index={1} 
-            onDismiss={() => setSelectedDirection(0)} // Reset the selected direction when the sheet is dismissed
+            index={1}
         >
         { selectedRoute &&
             <BottomSheetView>
                 <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginHorizontal: 16 }}>
-                    <BusIcon name={selectedRoute!.shortName! } color={selectedRoute!.directionList[0]!.lineColor! } style={{marginRight: 16}}/>
-                    <Text style={{ fontWeight: 'bold', fontSize: 28, flex: 1}}>{selectedRoute!.name}</Text>
+                    <BusIcon name={selectedRoute?.shortName ?? "Something went wrong" } color={selectedRoute?.directionList[0]?.lineColor ?? "#500000" } style={{marginRight: 16}}/>
+                    <Text style={{ fontWeight: 'bold', fontSize: 28, flex: 1}}>{selectedRoute?.name ?? "Something went wrong"}</Text>
 
                     <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }} onPress={handleClearSelectedRoute}>
                         <Ionicons name="close-circle" size={32} color="grey" />
@@ -84,9 +86,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                     style={{ marginHorizontal: 16 }}
                     values={selectedRoute?.directionList.map(direction => "to " + direction.destination) ?? []}
                     selectedIndex={selectedDirection}
-                    onChange={(event) => {
-                        setSelectedDirection(event.nativeEvent.selectedSegmentIndex);
-                    }}
+                    onChange={handleSetSelectedDirection}
                 />
 
                 <View style={{height: 1, backgroundColor: "#eaeaea", marginTop: 8}} />
@@ -112,6 +112,12 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                     }}
                 />
             }
+
+            { !selectedRoute && (
+                <View style={{ alignItems: 'center', marginTop: 16 }}>
+                    <Text>Something went wrong.</Text>
+                </View>
+            ) }
     </BottomSheetModal>
 )}
 

@@ -11,7 +11,6 @@ import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet
 
 
 const Home = () => {
-    const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
     const setAuthToken = useAppStore((state) => state.setAuthToken);
     const setRoutes = useAppStore((state) => state.setRoutes);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
@@ -92,15 +91,9 @@ const Home = () => {
         getInitialData();
     }, []);
 
-
-    /////// Sheet Config /////////
-
     const routesListSheetRef = useRef<BottomSheetModal>(null);
     const alertListSheetRef = useRef<BottomSheetModal>(null);
     const routeDetailSheetRef = useRef<BottomSheetModal>(null);
-
-    const snapPoints = ['15%', '45%', '80%'];
-
 
     setPresentSheet((sheet) => {
         switch (sheet) {
@@ -118,7 +111,6 @@ const Home = () => {
     useEffect(() => {
         routesListSheetRef.current?.present();
     }, [])
-
 
     return (
         <BottomSheetModalProvider>
