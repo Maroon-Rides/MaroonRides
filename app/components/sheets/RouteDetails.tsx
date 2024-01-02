@@ -7,7 +7,7 @@ import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-n
 import TimeBubble from "../ui/TimeBubble";
 import FavoritePill from "../ui/FavoritePill";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { IMapRoute, IMapStop } from "utils/updatedInterfaces";
+import { IMapRoute, IStop } from "utils/updatedInterfaces";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -19,7 +19,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
 
     const [selectedDirection, setSelectedDirection] = useState(0);
-    const [processedStops, setProcessedStops] = useState<IMapStop[]>([]);
+    const [processedStops, setProcessedStops] = useState<IStop[]>([]);
     const [selectedRoute, setSelectedRoute] = useState<IMapRoute | null>(null);
 
     const handleClearSelectedRoute = () => {
@@ -30,7 +30,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     useEffect(() => {
         if (!selectedRoute) return;
 
-        const processedStops: IMapStop[] = [];
+        const processedStops: IStop[] = [];
 
         const directionPath = selectedRoute.patternPaths[selectedDirection]?.patternPoints ?? [];
 
