@@ -20,9 +20,6 @@ interface AppState {
     setSelectedRoute: (selectedRoute: IMapRoute) => void,
     clearSelectedRoute: () => void,
      
-    selectedRouteCategory: "On Campus" | "Off Campus"
-    setSelectedRouteCategory: (routeCategory: "On Campus" | "Off Campus") => void
-
     isGameday: boolean
     setIsGameday: (isGameday: boolean) => void
 
@@ -42,29 +39,12 @@ const useAppStore = create<AppState>()((set) => ({
 
     drawnRoutes: [],
     setDrawnRoutes: (routes) => set(() => ({ drawnRoutes: routes })),
-    resetDrawnRoutes: () => set(state => {
-        if(state.selectedRouteCategory === "Off Campus") {
-            return {
-                drawnRoutes: state.routes.filter(route => route.category === "Off Campus")
-            }
-        }
-
-        return {
-            drawnRoutes: state.routes.filter(route => route.category === "On Campus")
-        }
-    }),
-
-    selectedRouteCategory: "On Campus",
-    setSelectedRouteCategory: (routeCategory) => set(() => ({ selectedRouteCategory: routeCategory })),
-
+    resetDrawnRoutes: () => set(state => ({ drawnRoutes: state.routes })),
+    
     selectedRoute: null,
     setSelectedRoute: (selectedRoute) => set(() => ({ selectedRoute })),
     clearSelectedRoute: () => set(state => {
-        if(state.selectedRouteCategory === "Off Campus") {
-            state.setDrawnRoutes(state.routes.filter(route => route.category === "Off Campus"));
-        } else {
-            state.setDrawnRoutes(state.routes.filter(route => route.category === "On Campus"));
-        }
+        state.resetDrawnRoutes();
 
         return { selectedRoute: null };
     }),
