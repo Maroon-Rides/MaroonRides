@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, View, TouchableOpacity, Text } from "react-native";
+import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent } from "react-native";
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import BusIcon from "../ui/BusIcon";
 import useAppStore from "../../stores/useAppStore";
 import { IMapRoute } from "utils/updatedInterfaces";
-import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import SheetHeader from "../ui/SheetHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
@@ -80,6 +80,10 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         }
     }
 
+    const handleSetSelectedRouteCategory = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
+        setSelectedRouteCategory(evt.nativeEvent.selectedSegmentIndex === 0 ? "all" : "favorites");
+    }
+
     const snapPoints = ['25%', '45%', '85%'];
 
     return (
@@ -103,11 +107,9 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
                 <SegmentedControl
                     values={['All Routes', 'Favorites']}
-                    selectedIndex={0}
+                    selectedIndex={selectedRouteCategory === 'all' ? 0 : 1}
                     style={{ marginHorizontal: 16 }}
-                    onChange={(event) => {
-                        setSelectedRouteCategory(event.nativeEvent.selectedSegmentIndex === 0 ? "all" : "favorites");
-                    }}
+                    onChange={handleSetSelectedRouteCategory}
                 />
 
                 { selectedRouteCategory === "favorites" && drawnRoutes.length === 0 && (

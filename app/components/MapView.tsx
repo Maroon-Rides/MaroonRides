@@ -47,19 +47,19 @@ const Index: React.FC = () => {
         const r = parseInt(color.substring(0, 2), 16);
         const g = parseInt(color.substring(2, 4), 16);
         const b = parseInt(color.substring(4, 6), 16);
-    
+
         // Increase the brightness of each color component
         const lightenedR = Math.min(r + 100, 255);
         const lightenedG = Math.min(g + 100, 255);
         const lightenedB = Math.min(b + 100, 255);
-    
+
         // Convert the lightened color components back to a hex string
         const lightenedColor = (
             lightenedR.toString(16).padStart(2, '0') +
             lightenedG.toString(16).padStart(2, '0') +
             lightenedB.toString(16).padStart(2, '0')
         );
-    
+
         return "#" + lightenedColor;
     }
 
@@ -89,11 +89,11 @@ const Index: React.FC = () => {
             })
         });
 
-        if (coords.length > 0) {  
+        if (coords.length > 0) {
             mapViewRef.current?.fitToCoordinates(coords, {
                 edgePadding: {
                     top: Dimensions.get("window").height * 0.05,
-                    right: 20 ,
+                    right: 20,
                     bottom: Dimensions.get("window").height * 0.45 + 8,
                     left: 20
                 },
@@ -128,89 +128,87 @@ const Index: React.FC = () => {
     }
 
     return (
-        <MapView showsUserLocation={true} style={{ width: "100%", height: "100%" }} ref={mapViewRef} rotateEnabled={false} initialRegion={defaultMapRegion} onPanDrag={() => setIsViewCenteredOnUser(false)}>
-            <SafeAreaInsetsContext.Consumer>
-                {(insets) => (
-                    <TouchableOpacity style={{ top: insets!.top + 16, alignContent: 'center', justifyContent: 'center', position: 'absolute', right: 8, overflow: 'hidden', borderRadius: 8, backgroundColor: 'white', padding: 12 }} onPress={() => recenterView()}>
-                        {isViewCenteredOnUser ? 
-                            <MaterialIcons name="my-location" size={24} color="gray" /> 
-                        : 
-                            <MaterialIcons name="location-searching" size={24} color="gray" />
-                        }
-                    </TouchableOpacity>
-                )}
-            </SafeAreaInsetsContext.Consumer>
+        <>
+            <MapView showsUserLocation={true} style={{ width: "100%", height: "100%" }} ref={mapViewRef} rotateEnabled={false} initialRegion={defaultMapRegion} onPanDrag={() => setIsViewCenteredOnUser(false)}>
+                {/* Route Polylines */}
+                {drawnRoutes.map(function (drawnRoute) {
+                    const coords: LatLng[] = [];
 
-            {/* Route Polylines */}
-            {drawnRoutes.map(function (drawnRoute) {
-                const coords: LatLng[] = [];
+                    const lineColor = drawnRoute.directionList[0]?.lineColor;
 
-                const lineColor = drawnRoute.directionList[0]?.lineColor;
-
-                drawnRoute.patternPaths.forEach((path) => {
-                    path.patternPoints.forEach((point) => {
-                        coords.push({
-                            latitude: point.latitude,
-                            longitude: point.longitude
+                    drawnRoute.patternPaths.forEach((path) => {
+                        path.patternPoints.forEach((point) => {
+                            coords.push({
+                                latitude: point.latitude,
+                                longitude: point.longitude
+                            })
                         })
                     })
-                })
 
-                return (
-                    <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={lineColor} strokeWidth={6} />
-                )
-            })}
+                    return (
+                        <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={lineColor} strokeWidth={6} />
+                    )
+                })}
 
-            {selectedRoute && selectedRoute?.patternPaths.flatMap((patternPath, index1) => (
-                patternPath.patternPoints.map((patternPoint, index2) => {
-                    if (patternPoint.stop) {
-                        const lineColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
+                {selectedRoute && selectedRoute?.patternPaths.flatMap((patternPath, index1) => (
+                    patternPath.patternPoints.map((patternPoint, index2) => {
+                        if (patternPoint.stop) {
+                            const lineColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
 
-                        return (
-                            <Marker
-                                key={`${index1}-${index2}`}
-                                coordinate={{
-                                    latitude: patternPoint.latitude,
-                                    longitude: patternPoint.longitude
-                                }}
-                            >
-                                <View
-                                    style={{
-                                        width: 16,
-                                        height: 16,
-                                        borderWidth: 2,
-                                        borderRadius: 9999,
-                                        backgroundColor: lineColor,
-                                        borderColor: getLighterColor(lineColor),
+                            return (
+                                <Marker
+                                    key={`${index1}-${index2}`}
+                                    coordinate={{
+                                        latitude: patternPoint.latitude,
+                                        longitude: patternPoint.longitude
                                     }}
-                                />
-                                <StopCallout
-                                    stopName={patternPoint.stop.name}
-                                    tintColor={lineColor}
-                                    routeName={selectedRoute?.shortName ?? ""}
-                                />
-                            </Marker>
-                        );
-                    }
+                                >
+                                    <View
+                                        style={{
+                                            width: 16,
+                                            height: 16,
+                                            borderWidth: 2,
+                                            borderRadius: 9999,
+                                            backgroundColor: lineColor,
+                                            borderColor: getLighterColor(lineColor),
+                                        }}
+                                    />
+                                    <StopCallout
+                                        stopName={patternPoint.stop.name}
+                                        tintColor={lineColor}
+                                        routeName={selectedRoute?.shortName ?? ""}
+                                    />
+                                </Marker>
+                            );
+                        }
 
-                    return null;
-                })
-            ))}
+                        return null;
+                    })
+                ))}
 
-            {/* Buses */}
-            {buses.map((bus) => {
-                return (
-                    <Marker
-                        key={bus.key}
-                        coordinate={{ latitude: bus.location.latitude, longitude: bus.location.longitude }}
-                    >
-                        {/* Bus Icon on Map*/}
-                        <BusMapIcon color={selectedRoute!.directionList[0]?.lineColor ?? "#000"} heading={bus.location.heading} />
-                        <BusCallout bus={bus} tintColor={selectedRoute!.directionList[0]?.lineColor ?? "#000"} routeName={selectedRoute!.shortName} />
-                    </Marker>
-                )
-            })}
-        </MapView>
+                {/* Buses */}
+                {buses.map((bus) => {
+                    return (
+                        <Marker
+                            key={bus.key}
+                            coordinate={{ latitude: bus.location.latitude, longitude: bus.location.longitude }}
+                        >
+                            {/* Bus Icon on Map*/}
+                            <BusMapIcon color={selectedRoute!.directionList[0]?.lineColor ?? "#000"} heading={bus.location.heading} />
+                            <BusCallout bus={bus} tintColor={selectedRoute!.directionList[0]?.lineColor ?? "#000"} routeName={selectedRoute!.shortName} />
+                        </Marker>
+                    )
+                })}
+            </MapView>
+
+            <TouchableOpacity style={{ top: 60, alignContent: 'center', justifyContent: 'center', position: 'absolute', right: 8, overflow: 'hidden', borderRadius: 8, backgroundColor: 'white', padding: 12 }} onPress={() => recenterView()}>
+                {isViewCenteredOnUser ?
+                    <MaterialIcons name="my-location" size={24} color="gray" />
+                    :
+                    <MaterialIcons name="location-searching" size={24} color="gray" />
+                }
+            </TouchableOpacity>
+        </>
     )
 }
 
