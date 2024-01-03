@@ -4,7 +4,9 @@ import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
 import { MapPatternPath, MapRoute, MapStop, RouteDirectionTime, getNextDepartureTimes } from "aggie-spirit-api";
+
 import useAppStore from "../../stores/useAppStore";
+import RouteEstimates from "../ui/RouteEstimates";
 import BusIcon from "../ui/BusIcon";
 import TimeBubble from "../ui/TimeBubble";
 import FavoritePill from "../ui/FavoritePill";
@@ -19,15 +21,15 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
-    
+
     const stopEstimates = useAppStore((state) => state.stopEstimates);
     const clearStopEstimates = useAppStore((state) => state.clearStopEstimates);
     const updateStopEstimate = useAppStore((state) => state.updateStopEstimate);
-    
+
     const [selectedDirection, setSelectedDirection] = useState(0);
     const [processedStops, setProcessedStops] = useState<MapStop[]>([]);
     const [selectedRoute, setSelectedRoute] = useState<MapRoute | null>(null);
-    
+
     // cleanup this view when the sheet is closed
     const closeModal = () => {
         sheetRef.current?.dismiss();
@@ -42,10 +44,10 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         if (!selectedRoute) return undefined;
         return selectedRoute.patternPaths.find(direction => direction.patternKey === selectedRoute.directionList[selectedDirection]?.patternList[0]?.key)
     }
-    
+
     useEffect(() => {
         if (!selectedRoute) return;
-        
+
         const processedStops: MapStop[] = [];
         const directionPath = getPatternPathForSelectedRoute()?.patternPoints ?? [];
 
@@ -67,8 +69,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     }, [currentSelectedRoute])
 
     function loadStopEstimates() {
-        
-        if (!currentSelectedRoute || !authToken) return;   
+
+        if (!currentSelectedRoute || !authToken) return;
         let allStops: MapStop[] = [];
 
         for (const path of currentSelectedRoute.patternPaths) {
@@ -78,7 +80,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             }
         }
 
-        var directionKeys = currentSelectedRoute.patternPaths.map(direction => direction.directionKey);
+        const directionKeys = currentSelectedRoute.patternPaths.map(direction => direction.directionKey);
 
         // load stop estimates
         for (const stop of allStops) {
@@ -99,131 +101,77 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const snapPoints = ['25%', '45%', '85%'];
 
-    return ( 
-        <BottomSheetModal 
-            ref={sheetRef} 
-            snapPoints={snapPoints} 
+    return (
+        <BottomSheetModal
+            ref={sheetRef}
+            snapPoints={snapPoints}
             index={1}
             enablePanDownToClose={false}
         >
-        { selectedRoute &&
-            <BottomSheetView>
-                <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginHorizontal: 16 }}>
-                    <BusIcon name={selectedRoute?.shortName ?? "Something went wrong" } color={selectedRoute?.directionList[0]?.lineColor ?? "#500000" } style={{marginRight: 16}}/>
-                    <Text style={{ fontWeight: 'bold', fontSize: 28, flex: 1}}>{selectedRoute?.name ?? "Something went wrong"}</Text>
+            {selectedRoute &&
+                <BottomSheetView>
+                    <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginHorizontal: 16 }}>
+                        <BusIcon name={selectedRoute?.shortName ?? "Something went wrong"} color={selectedRoute?.directionList[0]?.lineColor ?? "#500000"} style={{ marginRight: 16 }} />
+                        <Text style={{ fontWeight: 'bold', fontSize: 28, flex: 1 }}>{selectedRoute?.name ?? "Something went wrong"}</Text>
 
-                    <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }} onPress={closeModal}>
-                        <Ionicons name="close-circle" size={32} color="grey" />
-                    </TouchableOpacity>
-                </View>
+                        <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }} onPress={closeModal}>
+                            <Ionicons name="close-circle" size={32} color="grey" />
+                        </TouchableOpacity>
+                    </View>
 
-                <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginLeft: 16 }}>
-                    <FavoritePill routeId={selectedRoute!.key} />
-                </View>
+                    <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginLeft: 16 }}>
+                        <FavoritePill routeId={selectedRoute!.key} />
+                    </View>
 
 
-                <SegmentedControl
-                    style={{ marginHorizontal: 16 }}
-                    values={selectedRoute?.directionList.map(direction => "to " + direction.destination) ?? []}
-                    selectedIndex={selectedDirection}
-                    onChange={handleSetSelectedDirection}
-                />
+                    <SegmentedControl
+                        style={{ marginHorizontal: 16 }}
+                        values={selectedRoute?.directionList.map(direction => "to " + direction.destination) ?? []}
+                        selectedIndex={selectedDirection}
+                        onChange={handleSetSelectedDirection}
+                    />
 
-                <View style={{height: 1, backgroundColor: "#eaeaea", marginTop: 8}} />
-            </BottomSheetView>
-        }   
+                    <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
+                </BottomSheetView>
+            }
 
-            { selectedRoute &&
+            {selectedRoute &&
                 <BottomSheetFlatList
                     data={processedStops}
-                    style={{paddingTop: 8, height: "100%", marginLeft: 16}}
+                    style={{ paddingTop: 8, height: "100%", marginLeft: 16 }}
                     contentContainerStyle={{ paddingBottom: 30 }}
-                    renderItem={({item: stop}) => {
-                        const departureTimes = stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode)
-                        var directionTimes: RouteDirectionTime | undefined;
-                        
+                    renderItem={({ item: stop }) => {
+                        const departureTimes = stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode);
+                        let directionTimes: RouteDirectionTime = { nextDeparts: [], directionKey: "", routeKey: "" };
+
                         if (departureTimes) {
-                            const routePatternPath = getPatternPathForSelectedRoute()
-                            directionTimes = departureTimes?.departureTimes.routeDirectionTimes.find((directionTime) => directionTime.directionKey === routePatternPath?.directionKey ?? "")
+                            const routePatternPath = getPatternPathForSelectedRoute()?.directionKey;
+                            const tempDirectionTimes = departureTimes?.departureTimes.routeDirectionTimes.find((directionTime) => directionTime.directionKey === routePatternPath);
+
+                            if (tempDirectionTimes) {
+                                directionTimes = tempDirectionTimes;
+                            }
                         }
-                        
-                        if (!directionTimes) directionTimes = { nextDeparts: [], directionKey: "",  routeKey: ""};
-
-                        var lateAverage = 0;
-                        for (const departTime of directionTimes.nextDeparts) {
-                            var estimated = new Date(departTime.estimatedDepartTimeUtc ?? "");
-                            var scheduled = new Date(departTime.scheduledDepartTimeUtc ?? "");
-                            const delay = estimated.getTime() - scheduled.getTime()
-                            if (isNaN(delay)) continue;
-                            if (estimated && scheduled) lateAverage += delay;
-                        }
-
-                        lateAverage /= directionTimes.nextDeparts.length;
-                        lateAverage /= 1000 * 60; // convert to minutes
-                        lateAverage = Math.round(lateAverage);
-
-                        var lateString: string;
-                        if (directionTimes.directionKey === "") lateString = "Loading";
-                        else if (directionTimes.nextDeparts.length == 0) lateString = "No Times to Show";
-                        else if (lateAverage > 0) lateString = `${lateAverage} ${lateAverage > 1 ? "minutes" : "minute"} late`;
-                        else if (lateAverage < 0) lateString = `${Math.abs(lateAverage)} ${Math.abs(lateAverage) > 1 ? "minutes" : "minute"} early`;
-                        else lateString = "On time";
-                        
 
                         return (
-                            <View style={{marginTop: 4}}>
-                                <Text style={{fontSize: 22, fontWeight: "bold", marginRight: 32}}>{stop.name}</Text>
-                                
-                                {lateString == "Loading" ?
-                                    <View style={{flexDirection: "row", alignItems: "center", marginTop: 2}}>
-                                        <ActivityIndicator style={{ justifyContent: "flex-start" }} /> 
-                                        <View style={{flex: 1}} />
-                                    </View>
-                                : 
-                                    <Text style={{marginBottom: 8}}>{lateString}</Text>
-                                }
-
-                                <FlatList
-                                    horizontal
-                                    data={directionTimes.nextDeparts}
-                                    keyExtractor={(_, index) => String(index)}
-                                    renderItem={({item: departureTime, index}) => {
-                                        var date;
-                                        var live = false;
-                                        
-
-                                        if (departureTime.estimatedDepartTimeUtc !== null) {
-                                            date = new Date(departureTime.estimatedDepartTimeUtc ?? "")
-                                            live = true;
-                                        } else {
-                                            date = new Date(departureTime.scheduledDepartTimeUtc ?? "")
-                                        }
-
-                                        const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'America/Chicago' })
-                                        
-                                        // cut off the AM/PM
-                                        var stringTime = time.substring(0, time.length - 3);
-                                        return (
-                                            <TimeBubble time={stringTime} color={index==0 ? selectedRoute!.directionList[0]!.lineColor : "#909090"} live={live}/>
-                                        )
-                                    }}
-                                />
-                                
-                                {/* Line seperator */}
-                                <View style={{height: 1, backgroundColor: "#eaeaea", marginTop: 8}} />
-                            </View>
-                        )
+                            <RouteEstimates
+                                stop={stop}
+                                directionTimes={directionTimes}
+                                color={selectedRoute?.directionList[0]?.lineColor ?? "#909090"}
+                            />
+                        );
                     }}
                 />
             }
 
-            { !selectedRoute && (
+            {!selectedRoute && (
                 <View style={{ alignItems: 'center', marginTop: 16 }}>
                     <Text>Something went wrong.</Text>
                 </View>
-            ) }
-    </BottomSheetModal>
-)}
+            )}
+        </BottomSheetModal>
+    )
+}
 
 
 export default RouteDetails;
