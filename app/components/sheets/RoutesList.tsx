@@ -132,7 +132,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                 data={drawnRoutes}
                 keyExtractor={(route: MapRoute) => route.key}
                 style={{ marginLeft: 16 }}
-                renderItem={(route: MapRoute) => {
+                renderItem={({item: route}) => {
                     return (
                         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} onPress={() => handleRouteSelected(route)}>
                             <BusIcon name={route.shortName} color={route.directionList[0]?.lineColor ?? "#000"} style={{ marginRight: 12 }} />
@@ -144,7 +144,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                                     }
                                 </View>
                                 <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                    {route.directionList.map((elm: MapDirectionList, index) => (
+                                    {route.directionList.map((elm: MapDirectionList, index: number) => (
                                         <React.Fragment key={index}>
                                             <Text>{elm.destination}</Text>
                                             {index !== route.directionList.length - 1 && <Text style={{ marginHorizontal: 2 }}>|</Text>}
