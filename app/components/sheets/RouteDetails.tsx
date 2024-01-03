@@ -196,7 +196,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                                         const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'America/Chicago' })
                                         
                                         // cut off the AM/PM
-                                        const stringTime = time.split(" ")[0] ?? ""; // yes it is a " " not a " ", stupid JS
+                                        var stringTime = time.substring(0, time.length - 3);
                                         return (
                                             <TimeBubble time={stringTime} color={index==0 ? selectedRoute!.directionList[0]!.lineColor : "#909090"} live={live}/>
                                         )
