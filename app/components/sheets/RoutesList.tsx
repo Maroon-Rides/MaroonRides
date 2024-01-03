@@ -114,6 +114,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     style={{ marginHorizontal: 16 }}
                     onChange={handleSetSelectedRouteCategory}
                 />
+                <View style={{height: 1, backgroundColor: "#eaeaea", marginTop: 8}} />
+
 
                 { selectedRouteCategory === "favorites" && drawnRoutes.length === 0 && (
                     <View style={{ alignItems: 'center', marginTop: 16 }}>

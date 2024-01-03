@@ -15,7 +15,7 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.reactnativeboilerplate"
+      "bundleIdentifier": "com.bwees.reveille-rides"
     },
     "android": {
       "adaptiveIcon": {
