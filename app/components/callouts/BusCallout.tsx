@@ -16,7 +16,7 @@ interface Props {
 
 const BusCallout: React.FC<Props> = ({ bus, tintColor, routeName }) => {
   const calcFullPercentage = (passengersOnboard: number, passengerCapacity: number) => {
-    return passengersOnboard / passengerCapacity
+    return Math.round(passengersOnboard / passengerCapacity)
   }
 
   return (

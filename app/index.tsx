@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { View, Alert } from 'react-native';
 import { BaseDataResponse, MapRoute, PatternPathsResponse, getAuthentication, getBaseData, getPatternPaths } from "aggie-spirit-api";
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-
 import useAppStore from './stores/useAppStore';
 import { GetBaseDataResponseSchema, GetPatternPathsResponseSchema } from "../utils/updatedInterfaces";
 import MapView from './components/MapView';
