@@ -1,14 +1,14 @@
 import React from 'react'
 import { View } from 'react-native'
-
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface Props {
   heading: number,
-  color: string
+  color: string,
+  borderColor: string
 }
 
-const BusMapIcon: React.FC<Props> = ({ heading, color }) => {
+const BusMapIcon: React.FC<Props> = ({ heading, color, borderColor }) => {
   const getRotationProp = (bearing: number | undefined) => {
     return [{ rotate: bearing !== undefined ? `${Math.round(bearing) - 135}deg` : '0deg' }]
   };
@@ -22,8 +22,8 @@ const BusMapIcon: React.FC<Props> = ({ heading, color }) => {
       borderTopLeftRadius: 15,
       borderTopRightRadius: 15,
       borderBottomLeftRadius: 15,
-      backgroundColor: "#" + color,
-      borderColor: "#" + color,
+      backgroundColor: color,
+      borderColor: borderColor,
       borderWidth: 2,
       transform: getRotationProp(heading)
     }}>

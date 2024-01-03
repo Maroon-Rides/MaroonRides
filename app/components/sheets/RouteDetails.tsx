@@ -7,7 +7,7 @@ import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-n
 import TimeBubble from "../ui/TimeBubble";
 import FavoritePill from "../ui/FavoritePill";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { IMapRoute, IStop } from "utils/updatedInterfaces";
+import { MapRoute, MapStop, getStopEstimates } from "aggie-spirit-api";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -17,42 +17,52 @@ interface SheetProps {
 const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
+    const clearStopEstimates = useAppStore((state) => state.clearStopEstimates);
+    const updateStopEstimate = useAppStore((state) => state.updateStopEstimate);
+    const stopEstimates = useAppStore((state) => state.stopEstimates);
+    const authToken = useAppStore((state) => state.authToken);
 
     const [selectedDirection, setSelectedDirection] = useState(0);
-    const [processedStops, setProcessedStops] = useState<IStop[]>([]);
-    const [selectedRoute, setSelectedRoute] = useState<IMapRoute | null>(null);
-
+    const [processedStops, setProcessedStops] = useState<MapStop[]>([]);
+    const [selectedRoute, setSelectedRoute] = useState<MapRoute | null>(null);
+    
     const handleClearSelectedRoute = () => {
         sheetRef.current?.dismiss();
         clearSelectedRoute();
+        clearStopEstimates();
     }
-
+    
     useEffect(() => {
         if (!selectedRoute) return;
-
-        const processedStops: IStop[] = [];
-
+        
+        const processedStops: MapStop[] = [];
         const directionPath = selectedRoute.patternPaths[selectedDirection]?.patternPoints ?? [];
 
         for (const point of directionPath) {
             if (!point.stop) continue;
-
             processedStops.push(point.stop);
         }
 
         // TODO: process active buses and insert into proper locations
-
-
         setProcessedStops(processedStops);
     }, [selectedRoute, selectedDirection])
-
 
     // Update the selected route when the currentSelectedRoute changes but only if it is not null
     // Prevents visual glitch when the sheet is closed and the selected route is null
     useEffect(() => {
         if (!currentSelectedRoute) return;
         setSelectedRoute(currentSelectedRoute);
+
     }, [currentSelectedRoute])
+
+    useEffect(() => {
+        // load stop estimates
+        for (const stop of processedStops) {
+            getStopEstimates(stop.stopCode, new Date(), authToken!).then((response) => {
+                updateStopEstimate(response, stop.stopCode);
+            })
+        }
+    }, [processedStops])
 
     const handleSetSelectedDirection = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
         setSelectedDirection(evt.nativeEvent.selectedSegmentIndex);
