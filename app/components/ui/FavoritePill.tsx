@@ -1,11 +1,11 @@
 
 
 import React, { useEffect, useState } from 'react'
-import { Alert } from 'react-native';
-import IconPill from './IconPill'
-import {FontAwesome} from '@expo/vector-icons';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Alert, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {FontAwesome} from '@expo/vector-icons';
+
+import IconPill from './IconPill'
 
 interface Props {
     routeId: string

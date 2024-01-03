@@ -1,9 +1,10 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
+import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
+
 import useAppStore from "../../stores/useAppStore";
 import SheetHeader from "../ui/SheetHeader";
-import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -11,8 +12,9 @@ interface SheetProps {
 
 // TODO: Fill in route details with new UI
 const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
-    const alerts = useAppStore((state) => state.mapServiceInterruption);
     const snapPoints = ['25%', '45%', '85%'];
+    
+    const alerts = useAppStore((state) => state.mapServiceInterruption);
 
     return (
         <BottomSheetModal ref={sheetRef} snapPoints={snapPoints} >

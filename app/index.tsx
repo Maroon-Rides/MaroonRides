@@ -1,13 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { View, Alert } from 'react-native';
 import { BaseDataResponse, MapRoute, PatternPathsResponse, getAuthentication, getBaseData, getPatternPaths } from "aggie-spirit-api";
+import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+
 import useAppStore from './stores/useAppStore';
 import { GetBaseDataResponseSchema, GetPatternPathsResponseSchema } from "../utils/updatedInterfaces";
 import MapView from './components/MapView';
 import RoutesList from './components/sheets/RoutesList';
 import AlertList from './components/sheets/AlertList';
 import RouteDetails from './components/sheets/RouteDetails';
-import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+
 
 
 const Home = () => {
@@ -64,8 +66,12 @@ const Home = () => {
 
             async function loadData() {
                 try {
-                    const baseData: BaseDataResponse = await fetchBaseData(authToken!);
-                    const patternPathsResponse = await fetchPatternPaths(baseData.routes.map(route => route.key), authToken!);
+                    if(!authToken) {
+                        return;
+                    }
+
+                    const baseData: BaseDataResponse = await fetchBaseData(authToken);
+                    const patternPathsResponse = await fetchPatternPaths(baseData.routes.map(route => route.key), authToken);
 
                     // Add patternPaths to routes
                     const routes = addPatternPathsToRoutes([...baseData.routes], patternPathsResponse);

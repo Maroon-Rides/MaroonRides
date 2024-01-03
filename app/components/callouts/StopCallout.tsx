@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { View, Text } from 'react-native'
 import { Callout } from 'react-native-maps'
 import { MapStop, StopEstimatesResponse } from 'aggie-spirit-api'
+
 import BusIcon from '../ui/BusIcon'
 import useAppStore from '../../stores/useAppStore'
-import { CachedStopEstimate } from 'types/app'
 
 interface Props {
     stop: MapStop
@@ -14,6 +14,7 @@ interface Props {
 
 const StopCallout: React.FC<Props> = ({ stop, tintColor, routeName }) => {
     const [contentSize, setContentSizing] = useState([0, 15]);
+    
     const [estimate, setEstimate] = useState<StopEstimatesResponse | undefined>(undefined);
     const stopEstimates = useAppStore((state) => state.stopEstimates);
 
