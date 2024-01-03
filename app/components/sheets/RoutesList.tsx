@@ -130,9 +130,9 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             <BottomSheetFlatList
                 contentContainerStyle={{ paddingBottom: 30 }}
                 data={drawnRoutes}
-                keyExtractor={route => route.key}
+                keyExtractor={(route: MapRoute) => route.key}
                 style={{ marginLeft: 16 }}
-                renderItem={({ item: route }) => {
+                renderItem={(route: MapRoute) => {
                     return (
                         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} onPress={() => handleRouteSelected(route)}>
                             <BusIcon name={route.shortName} color={route.directionList[0]?.lineColor ?? "#000"} style={{ marginRight: 12 }} />

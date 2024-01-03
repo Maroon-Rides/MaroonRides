@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, NativeSyntheticEvent, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent, ActivityIndicator, FlatList } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
-import {Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { MapRoute, MapStop, RouteDirectionTime, getNextDepartureTimes } from "aggie-spirit-api";
 import useAppStore from "../../stores/useAppStore";
 import BusIcon from "../ui/BusIcon";
 import TimeBubble from "../ui/TimeBubble";
 import FavoritePill from "../ui/FavoritePill";
-import { FlatList } from "react-native-gesture-handler";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
