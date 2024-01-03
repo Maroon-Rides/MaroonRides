@@ -1,6 +1,6 @@
-import { StopEstimatesResponse } from "aggie-spirit-api";
+import { NextDepartureTimesResponse } from "aggie-spirit-api";
 
 export interface CachedStopEstimate {
     stopCode: string,
-    stopEstimate: StopEstimatesResponse
+    departureTimes: NextDepartureTimesResponse
 }

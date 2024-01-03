@@ -3,12 +3,13 @@ import { View, Text, TouchableOpacity, NativeSyntheticEvent, Alert } from "react
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import {Ionicons } from '@expo/vector-icons';
-import { MapRoute, MapStop, getStopEstimates } from "aggie-spirit-api";
-
+import { MapRoute, MapStop, RouteDirectionTime, getNextDepartureTimes } from "aggie-spirit-api";
 import useAppStore from "../../stores/useAppStore";
 import BusIcon from "../ui/BusIcon";
 import TimeBubble from "../ui/TimeBubble";
 import FavoritePill from "../ui/FavoritePill";
+import { FlatList } from "react-native-gesture-handler";
+import { late } from "zod";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -32,7 +33,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const handleClearSelectedRoute = () => {
         sheetRef.current?.dismiss();
         clearSelectedRoute();
-        clearStopEstimates();
+        // clearStopEstimates();
     }
     
     useEffect(() => {
@@ -55,9 +56,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     useEffect(() => {
         if (!currentSelectedRoute) return;
         setSelectedRoute(currentSelectedRoute);
-
-        // TODO: update stop estimates every minute
-
+        loadStopEstimates();
     }, [currentSelectedRoute])
 
     function loadStopEstimates() {
@@ -71,25 +70,21 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             }
         }
 
+        var directionKeys = selectedRoute.patternPaths.map(direction => direction.directionKey);
+
         // load stop estimates
         for (const stop of allStops) {
             try {
-                getStopEstimates(stop.stopCode, new Date(), authToken).then((response) => {
+                getNextDepartureTimes(selectedRoute.key, directionKeys, stop.stopCode, authToken).then((response) => {
+                    console.log(response)
                     updateStopEstimate(response, stop.stopCode);
                 })
             } catch (error) {
                 console.error(error);
-
-                Alert.alert("Error while loading stop estimates");
-
                 continue;
             }
         }
     }
-
-    useEffect(() => {
-        loadStopEstimates();
-    }, [selectedRoute])
 
     const handleSetSelectedDirection = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
         setSelectedDirection(evt.nativeEvent.selectedSegmentIndex);
@@ -121,7 +116,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
                 <SegmentedControl
                     style={{ marginHorizontal: 16 }}
-                    values={selectedRoute?.directionList.map(direction => "to " + direction.destination) ?? []}
+                    values={selectedRoute?.directionList.map(direction => direction.destination) ?? []}
                     selectedIndex={selectedDirection}
                     onChange={handleSetSelectedDirection}
                 />
@@ -136,15 +131,66 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                     style={{paddingTop: 8, height: "100%", marginLeft: 16}}
                     contentContainerStyle={{ paddingBottom: 30 }}
                     renderItem={({item: stop}) => {
+                        const departureTimes = stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode)
+                        var directionTimes: RouteDirectionTime | undefined;
+                        
+                        if (departureTimes) {
+                            directionTimes = departureTimes?.departureTimes.routeDirectionTimes.find((directionTime) => directionTime.directionKey === selectedRoute?.patternPaths[selectedDirection]?.directionKey ?? "")
+                        }
+                        
+                        if (!directionTimes) directionTimes = { nextDeparts: [], directionKey: "",  routeKey: ""};
 
-                        const upcomingEstimates = stopEstimates.filter((estimate) => estimate.stopCode === stop.stopCode)[0]?.stopEstimate?.routeStopScheduleEstimates ?? [];
-                        // TODO: render upcoming estimates
+                        var lateAverage = 0;
+                        for (const departTime of directionTimes.nextDeparts) {
+                            var estimated = new Date(departTime.estimatedDepartTimeUtc ?? "");
+                            var scheduled = new Date(departTime.scheduledDepartTimeUtc ?? "");
+                            const delay = estimated.getTime() - scheduled.getTime()
+                            if (isNaN(delay)) continue;
+                            if (estimated && scheduled) lateAverage += delay;
+                        }
+
+                        lateAverage /= directionTimes.nextDeparts.length;
+                        lateAverage /= 1000 * 60; // convert to minutes
+                        lateAverage = Math.round(lateAverage);
+
+                        var lateString = "No Times Available";
+                        if (!isNaN(lateAverage)) {
+                            if (lateAverage > 0) lateString = `${lateAverage} ${lateAverage > 1 ? "minutes" : "minute"} late`;
+                            else if (lateAverage < 0) lateString = `${Math.abs(lateAverage)} ${Math.abs(lateAverage) > 1 ? "minutes" : "minute"} early`;
+                            else lateString = "On time";
+                        } 
 
                         return (
                             <View style={{marginTop: 4}}>
                                 <Text style={{fontSize: 22, fontWeight: "bold"}}>{stop.name}</Text>
-                                <Text style={{marginBottom: 8}}>Running 10 minutes late</Text>
-                                <TimeBubble time="12:50" color={selectedRoute!.directionList[0]!.lineColor} />
+                                <Text style={{marginBottom: 8}}>{lateString}</Text>
+                                
+
+                                <FlatList
+                                    horizontal
+                                    data={directionTimes.nextDeparts}
+                                    keyExtractor={(_, index) => String(index)}
+                                    renderItem={({item: departureTime, index}) => {
+                                        var date;
+                                        var live = false;
+                                        
+
+                                        if (departureTime.estimatedDepartTimeUtc !== null) {
+                                            date = new Date(departureTime.estimatedDepartTimeUtc ?? "")
+                                            live = true;
+                                        } else {
+                                            date = new Date(departureTime.scheduledDepartTimeUtc ?? "")
+                                        }
+
+                                        const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'America/Chicago' })
+                                        
+                                        // cut off the AM/PM
+                                        const stringTime = time.split(" ")[0] ?? ""; // yes it is a " " not a " ", stupid JS
+                                        return (
+                                            <TimeBubble time={stringTime} color={index==0 ? selectedRoute!.directionList[0]!.lineColor : "#909090"} live={live}/>
+                                        )
+                                    }}
+                                />
                                 
                                 {/* Line seperator */}
                                 <View style={{height: 1, backgroundColor: "#eaeaea", marginTop: 8}} />

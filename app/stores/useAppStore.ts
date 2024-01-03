@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { MapRoute, MapServiceInterruption, StopEstimatesResponse, Vehicle } from "aggie-spirit-api";
-import { CachedStopEstimate } from "types/app";
+import { MapRoute, MapServiceInterruption, NextDepartureTimesResponse, Vehicle } from "aggie-spirit-api";
+import { CachedStopEstimate as CachedStopDepartureTimes } from "types/app";
 
 interface AppState {
     authToken: string | null
@@ -16,8 +16,8 @@ interface AppState {
     setDrawnRoutes: (routes: MapRoute[]) => void
     resetDrawnRoutes: () => void,
 
-    stopEstimates: CachedStopEstimate[],
-    updateStopEstimate: (stopEstimate: StopEstimatesResponse, stopCode: string) => void,
+    stopEstimates: CachedStopDepartureTimes[],
+    updateStopEstimate: (stopEstimate: NextDepartureTimesResponse, stopCode: string) => void,
     clearStopEstimates: () => void,
 
     selectedRoute: MapRoute | null,
@@ -49,16 +49,17 @@ const useAppStore = create<AppState>()((set) => ({
     resetDrawnRoutes: () => set(state => ({ drawnRoutes: state.routes })),
 
     stopEstimates: [],
-    updateStopEstimate: (stopEstimate, stopCode) => set(state => {
-        const newStopEstimate: CachedStopEstimate = {
+    updateStopEstimate: (departureTimes, stopCode) => set(state => {
+        const newStopDepartureTime: CachedStopDepartureTimes = {
             stopCode,
-            stopEstimate
+            departureTimes
         };
 
-        const newStopEstimates = state.stopEstimates.filter(stopEstimate => stopEstimate.stopCode !== stopCode);
-        newStopEstimates.push(newStopEstimate);
+        const newStopDepartureTimes = state.stopEstimates.filter(stopEstimate => stopEstimate.stopCode !== stopCode);
+        newStopDepartureTimes.push(newStopDepartureTime);
+        console.log(newStopDepartureTimes.length)
 
-        return { stopEstimates: newStopEstimates };
+        return { stopEstimates: newStopDepartureTimes };
     }),
     clearStopEstimates: () => set(() => ({ stopEstimates: [] })),
     
