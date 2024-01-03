@@ -1,24 +1,31 @@
 import { create } from "zustand";
-
-import { IMapServiceInterruption, IMapRoute } from "utils/updatedInterfaces";
+import { MapRoute, MapServiceInterruption, MapStop, StopEstimatesResponse, Vehicle } from "aggie-spirit-api";
+import { CachedStopEstimate } from "types/app";
 
 interface AppState {
     authToken: string | null
     setAuthToken: (authToken: string) => void;
 
-    mapServiceInterruption: IMapServiceInterruption[]
-    setMapServiceInterruption: (mapServiceInterruption: IMapServiceInterruption[]) => void
+    mapServiceInterruption: MapServiceInterruption[]
+    setMapServiceInterruption: (mapServiceInterruption: MapServiceInterruption[]) => void
 
-    routes: IMapRoute[],
-    setRoutes: (routes: IMapRoute[]) => void
+    routes: MapRoute[],
+    setRoutes: (routes: MapRoute[]) => void
 
-    drawnRoutes: IMapRoute[],
-    setDrawnRoutes: (routes: IMapRoute[]) => void
+    drawnRoutes: MapRoute[],
+    setDrawnRoutes: (routes: MapRoute[]) => void
     resetDrawnRoutes: () => void,
 
-    selectedRoute: IMapRoute | null,
-    setSelectedRoute: (selectedRoute: IMapRoute) => void,
+    stopEstimates: CachedStopEstimate[],
+    updateStopEstimate: (stopEstimate: StopEstimatesResponse, stopCode: string) => void,
+    clearStopEstimates: () => void,
+
+    selectedRoute: MapRoute | null,
+    setSelectedRoute: (selectedRoute: MapRoute) => void,
     clearSelectedRoute: () => void,
+
+    drawnBuses: Vehicle[],
+    setDrawnBuses: (buses: Vehicle[]) => void,
      
     isGameday: boolean
     setIsGameday: (isGameday: boolean) => void
@@ -40,6 +47,20 @@ const useAppStore = create<AppState>()((set) => ({
     drawnRoutes: [],
     setDrawnRoutes: (routes) => set(() => ({ drawnRoutes: routes })),
     resetDrawnRoutes: () => set(state => ({ drawnRoutes: state.routes })),
+
+    stopEstimates: [],
+    updateStopEstimate: (stopEstimate, stopCode) => set(state => {
+        const newStopEstimate: CachedStopEstimate = {
+            stopCode,
+            stopEstimate
+        };
+
+        const newStopEstimates = state.stopEstimates.filter(stopEstimate => stopEstimate.stopCode !== stopCode);
+        newStopEstimates.push(newStopEstimate);
+
+        return { stopEstimates: newStopEstimates };
+    }),
+    clearStopEstimates: () => set(() => ({ stopEstimates: [] })),
     
     selectedRoute: null,
     setSelectedRoute: (selectedRoute) => set(() => ({ selectedRoute })),
@@ -48,6 +69,9 @@ const useAppStore = create<AppState>()((set) => ({
 
         return { selectedRoute: null };
     }),
+
+    drawnBuses: [],
+    setDrawnBuses: (buses) => set(() => ({ drawnBuses: buses })),
 
     isGameday: false,
     setIsGameday: (isGameday) => set(() => ({ isGameday })),

@@ -3,11 +3,11 @@ import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent }
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import BusIcon from "../ui/BusIcon";
 import useAppStore from "../../stores/useAppStore";
-import { IMapRoute } from "utils/updatedInterfaces";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import SheetHeader from "../ui/SheetHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { MapDirectionList, MapRoute } from "aggie-spirit-api";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -26,7 +26,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const [favorites, setFavorites] = useState<string[]>([]);
     const [alertIcon, setAlertIcon] = useState<"bell-outline" | "bell-badge">("bell-outline");
 
-    const handleRouteSelected = (selectedRoute: IMapRoute) => {
+    const handleRouteSelected = (selectedRoute: MapRoute) => {
         setSelectedRoute(selectedRoute);
         setDrawnRoutes([selectedRoute]);
         presentSheet("routeDetails");
@@ -139,7 +139,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                                     }
                                 </View>
                                 <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                    {route.directionList.map((elm, index) => (
+                                    {route.directionList.map((elm: MapDirectionList, index) => (
                                         <React.Fragment key={index}>
                                             <Text>{elm.destination}</Text>
                                             {index !== route.directionList.length - 1 && <Text style={{ marginHorizontal: 2 }}>|</Text>}
