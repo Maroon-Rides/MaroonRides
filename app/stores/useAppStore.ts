@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { MapRoute, MapServiceInterruption, MapStop, StopEstimatesResponse, Vehicle } from "aggie-spirit-api";
+import { MapRoute, MapServiceInterruption, StopEstimatesResponse, Vehicle } from "aggie-spirit-api";
 import { CachedStopEstimate } from "types/app";
 
 interface AppState {

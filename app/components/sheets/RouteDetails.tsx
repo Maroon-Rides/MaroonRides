@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, NativeSyntheticEvent } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent, Alert } from "react-native";
+import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import {Ionicons } from '@expo/vector-icons';
+import { MapRoute, MapStop, getStopEstimates } from "aggie-spirit-api";
+
 import useAppStore from "../../stores/useAppStore";
 import BusIcon from "../ui/BusIcon";
-import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import TimeBubble from "../ui/TimeBubble";
 import FavoritePill from "../ui/FavoritePill";
-import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { MapRoute, MapStop, getStopEstimates } from "aggie-spirit-api";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -15,13 +16,15 @@ interface SheetProps {
 
 // TODO: Fill in route details with new UI
 const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
-    const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
-    const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
-    const clearStopEstimates = useAppStore((state) => state.clearStopEstimates);
-    const updateStopEstimate = useAppStore((state) => state.updateStopEstimate);
-    const stopEstimates = useAppStore((state) => state.stopEstimates);
     const authToken = useAppStore((state) => state.authToken);
 
+    const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
+    const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
+    
+    const stopEstimates = useAppStore((state) => state.stopEstimates);
+    const clearStopEstimates = useAppStore((state) => state.clearStopEstimates);
+    const updateStopEstimate = useAppStore((state) => state.updateStopEstimate);
+    
     const [selectedDirection, setSelectedDirection] = useState(0);
     const [processedStops, setProcessedStops] = useState<MapStop[]>([]);
     const [selectedRoute, setSelectedRoute] = useState<MapRoute | null>(null);
@@ -58,8 +61,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     }, [currentSelectedRoute])
 
     function loadStopEstimates() {
-        if (!selectedRoute) return;
-        var allStops: MapStop[] = [];
+        if (!selectedRoute || !authToken) return;
+        let allStops: MapStop[] = [];
 
         for (const path of selectedRoute.patternPaths) {
             for (const point of path.patternPoints) {
@@ -70,9 +73,17 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
         // load stop estimates
         for (const stop of allStops) {
-            getStopEstimates(stop.stopCode, new Date(), authToken!).then((response) => {
-                updateStopEstimate(response, stop.stopCode);
-            })
+            try {
+                getStopEstimates(stop.stopCode, new Date(), authToken).then((response) => {
+                    updateStopEstimate(response, stop.stopCode);
+                })
+            } catch (error) {
+                console.error(error);
+
+                Alert.alert("Error while loading stop estimates");
+
+                continue;
+            }
         }
     }
 

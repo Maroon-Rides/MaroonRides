@@ -1,25 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent } from "react-native";
-import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
-import BusIcon from "../ui/BusIcon";
-import useAppStore from "../../stores/useAppStore";
-import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
-import SheetHeader from "../ui/SheetHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import { MapDirectionList, MapRoute } from "aggie-spirit-api";
+
+import useAppStore from "../../stores/useAppStore";
+import BusIcon from "../ui/BusIcon";
+import SheetHeader from "../ui/SheetHeader";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
 }
 
 const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
-    const routes = useAppStore((state) => state.routes);
     const alerts = useAppStore((state) => state.mapServiceInterruption);
-    const drawnRoutes = useAppStore((state) => state.drawnRoutes);
 
-    const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
+    const routes = useAppStore((state) => state.routes);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
+    
+    const drawnRoutes = useAppStore((state) => state.drawnRoutes);
+    const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
+    
     const presentSheet = useAppStore((state) => state.presentSheet);
 
     const [selectedRouteCategory, setSelectedRouteCategory] = useState<"favorites" | "all">("all");

@@ -1,10 +1,12 @@
 import React from 'react'
 import { View, Text } from 'react-native'
+import { Callout } from 'react-native-maps'
+import { Amenity, Vehicle } from 'aggie-spirit-api'
+
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { Callout } from 'react-native-maps'
+
 import BusIcon from '../ui/BusIcon'
-import { Amenity, Vehicle } from 'aggie-spirit-api';
 
 interface Props {
   bus: Vehicle
@@ -13,6 +15,10 @@ interface Props {
 }
 
 const BusCallout: React.FC<Props> = ({ bus, tintColor, routeName }) => {
+  const calcFullPercentage = (passengersOnboard: number, passengerCapacity: number) => {
+    return passengersOnboard / passengerCapacity
+  }
+
   return (
     <Callout>
         <View style={{ width: 160 }}>
@@ -28,7 +34,7 @@ const BusCallout: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             <Text style={{ fontWeight: 'bold' }} >Direction: </Text>
             <Text>to {bus.directionName}  </Text>
           </Text>
-          <Text style={{ fontWeight: 'bold', color: '#6B7280', fontSize: 10, lineHeight: 16 }}>{Math.round(bus.passengersOnboard/bus.passengerCapacity)}% full</Text>
+          <Text style={{ fontWeight: 'bold', color: '#6B7280', fontSize: 10, lineHeight: 16 }}>{calcFullPercentage(bus.passengersOnboard, bus.passengerCapacity)}% full</Text>
         </View>
     </Callout>
   )

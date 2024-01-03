@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Alert, Dimensions, TouchableOpacity, View } from "react-native";
 import MapView, { LatLng, Polyline, Marker, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Dimensions, TouchableOpacity, View } from "react-native";
-import { Vehicle, getVehicles } from "aggie-spirit-api";
+import { Vehicle, VehicleResponse, getVehicles } from "aggie-spirit-api";
+
 import StopCallout from "./callouts/StopCallout";
 import BusCallout from "./callouts/BusCallout";
 import BusMapIcon from "./callouts/BusMapIcon";
@@ -12,15 +13,15 @@ import useAppStore from "../stores/useAppStore";
 const Index: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
 
+    const authToken = useAppStore((state) => state.authToken);
+
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
-    const authToken = useAppStore((state) => state.authToken);
+
     const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
 
-
-    const [buses, setBuses] = useState<any[]>([]);
-    const updateBusesInterval = useRef<any>(null);
-
+    const [buses, setBuses] = useState<Vehicle[]>([]);
+    const updateBusesInterval = useRef<NodeJS.Timeout | null>(null);
 
     const defaultMapRegion: Region = {
         latitude: 30.6060,
@@ -29,19 +30,28 @@ const Index: React.FC = () => {
         longitudeDelta: 0.01
     };
 
-    async function updateBuses() {
-        if (!selectedRoute) return
+    const updateBuses = async () => {
+        if (!selectedRoute || !authToken) return
 
-        var buses = (await getVehicles([selectedRoute.key], authToken!))
-        
-        if (buses.length == 0 || !buses[0]!.vehiclesByDirections) {
+        let busesResponse: VehicleResponse[]
+        try {
+            busesResponse = await getVehicles([selectedRoute.key], authToken)
+        } catch (error) {
+            console.error(error);
+            
+            Alert.alert("Error while updating buses");
+
+            return;
+        }
+
+        if (busesResponse.length == 0 || !busesResponse[0]?.vehiclesByDirections) {
             setBuses([])
             return
         }
 
-        var extracted: Vehicle[] = []
-        for (var direction of buses[0]!.vehiclesByDirections) {
-            for (var bus of direction.vehicles) {
+        let extracted: Vehicle[] = []
+        for (let direction of busesResponse[0]?.vehiclesByDirections) {
+            for (let bus of direction.vehicles) {
                 extracted.push(bus)
             }
         }
@@ -66,7 +76,7 @@ const Index: React.FC = () => {
             }, 5000);
         } else {
             // Clear the interval and reset the buses if there are no drawn routes or more than one
-            clearInterval(updateBusesInterval.current);
+            clearInterval(updateBusesInterval.current!);
             setBuses([]);
         }
     }, [drawnRoutes]);
@@ -226,7 +236,7 @@ const Index: React.FC = () => {
 
                 {/* Buses */}
                 {selectedRoute && buses.map((bus) => {
-                    const color = selectedRoute.directionList[0]?.lineColor!
+                    const color = selectedRoute.directionList[0]?.lineColor ?? "#500000"
                     return (
                         <Marker
                             key={bus.key}
@@ -234,7 +244,7 @@ const Index: React.FC = () => {
                         >
                             {/* Bus Icon on Map*/}
                             <BusMapIcon color={color} borderColor={getLighterColor(color)} heading={bus.location.heading} />
-                            <BusCallout bus={bus} tintColor={selectedRoute!.directionList[0]?.lineColor ?? "#000"} routeName={selectedRoute!.shortName} />
+                            <BusCallout bus={bus} tintColor={selectedRoute!.directionList[0]?.lineColor ?? "#500000"} routeName={selectedRoute!.shortName} />
                         </Marker>
                     )
                 })}
