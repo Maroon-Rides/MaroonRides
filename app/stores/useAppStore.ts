@@ -57,7 +57,6 @@ const useAppStore = create<AppState>()((set) => ({
 
         const newStopDepartureTimes = state.stopEstimates.filter(stopEstimate => stopEstimate.stopCode !== stopCode);
         newStopDepartureTimes.push(newStopDepartureTime);
-        console.log(newStopDepartureTimes.length)
 
         return { stopEstimates: newStopDepartureTimes };
     }),

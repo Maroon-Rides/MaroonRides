@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, NativeSyntheticEvent, Alert } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent, ActivityIndicator } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import {Ionicons } from '@expo/vector-icons';
@@ -9,7 +9,6 @@ import BusIcon from "../ui/BusIcon";
 import TimeBubble from "../ui/TimeBubble";
 import FavoritePill from "../ui/FavoritePill";
 import { FlatList } from "react-native-gesture-handler";
-import { late } from "zod";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -30,10 +29,14 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const [processedStops, setProcessedStops] = useState<MapStop[]>([]);
     const [selectedRoute, setSelectedRoute] = useState<MapRoute | null>(null);
     
-    const handleClearSelectedRoute = () => {
+    // cleanup this view when the sheet is closed
+    const closeModal = () => {
         sheetRef.current?.dismiss();
         clearSelectedRoute();
-        // clearStopEstimates();
+        clearStopEstimates();
+
+        // reset direction selector
+        setSelectedDirection(0);
     }
     
     useEffect(() => {
@@ -60,23 +63,23 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     }, [currentSelectedRoute])
 
     function loadStopEstimates() {
-        if (!selectedRoute || !authToken) return;
+        
+        if (!currentSelectedRoute || !authToken) return;   
         let allStops: MapStop[] = [];
 
-        for (const path of selectedRoute.patternPaths) {
+        for (const path of currentSelectedRoute.patternPaths) {
             for (const point of path.patternPoints) {
                 if (!point.stop) continue;
                 allStops.push(point.stop);
             }
         }
 
-        var directionKeys = selectedRoute.patternPaths.map(direction => direction.directionKey);
+        var directionKeys = currentSelectedRoute.patternPaths.map(direction => direction.directionKey);
 
         // load stop estimates
         for (const stop of allStops) {
             try {
-                getNextDepartureTimes(selectedRoute.key, directionKeys, stop.stopCode, authToken).then((response) => {
-                    console.log(response)
+                getNextDepartureTimes(currentSelectedRoute.key, directionKeys, stop.stopCode, authToken).then((response) => {
                     updateStopEstimate(response, stop.stopCode);
                 })
             } catch (error) {
@@ -104,7 +107,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                     <BusIcon name={selectedRoute?.shortName ?? "Something went wrong" } color={selectedRoute?.directionList[0]?.lineColor ?? "#500000" } style={{marginRight: 16}}/>
                     <Text style={{ fontWeight: 'bold', fontSize: 28, flex: 1}}>{selectedRoute?.name ?? "Something went wrong"}</Text>
 
-                    <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }} onPress={handleClearSelectedRoute}>
+                    <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }} onPress={closeModal}>
                         <Ionicons name="close-circle" size={32} color="grey" />
                     </TouchableOpacity>
                 </View>
@@ -153,18 +156,26 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         lateAverage /= 1000 * 60; // convert to minutes
                         lateAverage = Math.round(lateAverage);
 
-                        var lateString = "No Times Available";
-                        if (!isNaN(lateAverage)) {
-                            if (lateAverage > 0) lateString = `${lateAverage} ${lateAverage > 1 ? "minutes" : "minute"} late`;
-                            else if (lateAverage < 0) lateString = `${Math.abs(lateAverage)} ${Math.abs(lateAverage) > 1 ? "minutes" : "minute"} early`;
-                            else lateString = "On time";
-                        } 
+                        var lateString: string;
+                        if (directionTimes.directionKey === "") lateString = "Loading";
+                        else if (directionTimes.nextDeparts.length == 0) lateString = "No Times to Show";
+                        else if (lateAverage > 0) lateString = `${lateAverage} ${lateAverage > 1 ? "minutes" : "minute"} late`;
+                        else if (lateAverage < 0) lateString = `${Math.abs(lateAverage)} ${Math.abs(lateAverage) > 1 ? "minutes" : "minute"} early`;
+                        else lateString = "On time";
+                        
 
                         return (
                             <View style={{marginTop: 4}}>
                                 <Text style={{fontSize: 22, fontWeight: "bold"}}>{stop.name}</Text>
-                                <Text style={{marginBottom: 8}}>{lateString}</Text>
                                 
+                                {lateString == "Loading" ?
+                                    <View style={{flexDirection: "row", alignItems: "center", marginTop: 2}}>
+                                        <ActivityIndicator style={{ justifyContent: "flex-start" }} /> 
+                                        <View style={{flex: 1}} />
+                                    </View>
+                                : 
+                                    <Text style={{marginBottom: 8}}>{lateString}</Text>
+                                }
 
                                 <FlatList
                                     horizontal
