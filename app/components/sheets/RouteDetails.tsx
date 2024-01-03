@@ -53,16 +53,32 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         if (!currentSelectedRoute) return;
         setSelectedRoute(currentSelectedRoute);
 
+        // TODO: update stop estimates every minute
+
     }, [currentSelectedRoute])
 
-    useEffect(() => {
+    function loadStopEstimates() {
+        if (!selectedRoute) return;
+        var allStops: MapStop[] = [];
+
+        for (const path of selectedRoute.patternPaths) {
+            for (const point of path.patternPoints) {
+                if (!point.stop) continue;
+                allStops.push(point.stop);
+            }
+        }
+
         // load stop estimates
-        for (const stop of processedStops) {
+        for (const stop of allStops) {
             getStopEstimates(stop.stopCode, new Date(), authToken!).then((response) => {
                 updateStopEstimate(response, stop.stopCode);
             })
         }
-    }, [processedStops])
+    }
+
+    useEffect(() => {
+        loadStopEstimates();
+    }, [selectedRoute])
 
     const handleSetSelectedDirection = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
         setSelectedDirection(evt.nativeEvent.selectedSegmentIndex);
@@ -109,6 +125,10 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                     style={{paddingTop: 8, height: "100%", marginLeft: 16}}
                     contentContainerStyle={{ paddingBottom: 30 }}
                     renderItem={({item: stop}) => {
+
+                        const upcomingEstimates = stopEstimates.filter((estimate) => estimate.stopCode === stop.stopCode)[0]?.stopEstimate?.routeStopScheduleEstimates ?? [];
+                        // TODO: render upcoming estimates
+
                         return (
                             <View style={{marginTop: 4}}>
                                 <Text style={{fontSize: 22, fontWeight: "bold"}}>{stop.name}</Text>
