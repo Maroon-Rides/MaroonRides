@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, NativeSyntheticEvent, ActivityIndicator, 
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
-import { MapRoute, MapStop, RouteDirectionTime, getNextDepartureTimes } from "aggie-spirit-api";
+import { MapPatternPath, MapRoute, MapStop, RouteDirectionTime, getNextDepartureTimes } from "aggie-spirit-api";
 import useAppStore from "../../stores/useAppStore";
 import BusIcon from "../ui/BusIcon";
 import TimeBubble from "../ui/TimeBubble";
@@ -37,12 +37,17 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         // reset direction selector
         setSelectedDirection(0);
     }
+
+    function getPatternPathForSelectedRoute(): MapPatternPath | undefined {
+        if (!selectedRoute) return undefined;
+        return selectedRoute.patternPaths.find(direction => direction.patternKey === selectedRoute.directionList[selectedDirection]?.patternList[0]?.key)
+    }
     
     useEffect(() => {
         if (!selectedRoute) return;
         
         const processedStops: MapStop[] = [];
-        const directionPath = selectedRoute.patternPaths[selectedDirection]?.patternPoints ?? [];
+        const directionPath = getPatternPathForSelectedRoute()?.patternPoints ?? [];
 
         for (const point of directionPath) {
             if (!point.stop) continue;
@@ -99,6 +104,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             ref={sheetRef} 
             snapPoints={snapPoints} 
             index={1}
+            enablePanDownToClose={false}
         >
         { selectedRoute &&
             <BottomSheetView>
@@ -118,7 +124,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
                 <SegmentedControl
                     style={{ marginHorizontal: 16 }}
-                    values={selectedRoute?.directionList.map(direction => direction.destination) ?? []}
+                    values={selectedRoute?.directionList.map(direction => "to " + direction.destination) ?? []}
                     selectedIndex={selectedDirection}
                     onChange={handleSetSelectedDirection}
                 />
@@ -137,7 +143,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         var directionTimes: RouteDirectionTime | undefined;
                         
                         if (departureTimes) {
-                            directionTimes = departureTimes?.departureTimes.routeDirectionTimes.find((directionTime) => directionTime.directionKey === selectedRoute?.patternPaths[selectedDirection]?.directionKey ?? "")
+                            const routePatternPath = getPatternPathForSelectedRoute()
+                            directionTimes = departureTimes?.departureTimes.routeDirectionTimes.find((directionTime) => directionTime.directionKey === routePatternPath?.directionKey ?? "")
                         }
                         
                         if (!directionTimes) directionTimes = { nextDeparts: [], directionKey: "",  routeKey: ""};
@@ -165,7 +172,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
                         return (
                             <View style={{marginTop: 4}}>
-                                <Text style={{fontSize: 22, fontWeight: "bold"}}>{stop.name}</Text>
+                                <Text style={{fontSize: 22, fontWeight: "bold", marginRight: 32}}>{stop.name}</Text>
                                 
                                 {lateString == "Loading" ?
                                     <View style={{flexDirection: "row", alignItems: "center", marginTop: 2}}>
