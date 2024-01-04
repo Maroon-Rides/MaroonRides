@@ -1,11 +1,10 @@
 import React from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, ViewProps } from 'react-native'
 
-interface Props {
+interface Props extends ViewProps {
     name: string
     color: string
     isCallout?: boolean,
-    style?: any
 }
 
 const BusIcon: React.FC<Props> = ({name, color, isCallout=false, style={}}) => {

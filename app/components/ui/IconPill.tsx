@@ -1,13 +1,12 @@
 import React from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, ViewProps } from 'react-native'
 
-interface Props {
+interface Props extends ViewProps {
     text?: string
     color: string,
     borderColor?: string,
     textColor?: string,
-    icon: any,
-    style?: any
+    icon: any
 }
 
 const IconPill: React.FC<Props> = ({text, color, textColor, borderColor, icon, style}) => {

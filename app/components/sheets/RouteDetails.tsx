@@ -164,6 +164,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                             <StopCell
                                 stop={stop}
                                 directionTimes={directionTimes}
+                                amenities={stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode)?.departureTimes.amenities ?? []}
                                 color={selectedRoute?.directionList[0]?.lineColor ?? "#909090"}
                                 disabled={index === processedStops.length - 1}
                             />
