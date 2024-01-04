@@ -20,16 +20,18 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const routes = useAppStore((state) => state.routes);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     
+    const favoriteRoutes = useAppStore(state => state.favoriteRoutes);
+    const setFavoriteRoutes = useAppStore(state => state.setFavoriteRoutes);
+
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     
     const presentSheet = useAppStore((state) => state.presentSheet);
-
+    
     const [selectedRouteCategory, setSelectedRouteCategory] = useState<"favorites" | "all">("all");
-    const [favorites, setFavorites] = useState<string[]>([]);
     const [alertIcon, setAlertIcon] = useState<"bell-outline" | "bell-badge">("bell-outline");
 
-    const handleRouteSelected = (selectedRoute: MapRoute) => {
+    const handleRouteSelected = (selectedRoute: MapRoute) => {        
         setSelectedRoute(selectedRoute);
         setDrawnRoutes([selectedRoute]);
         presentSheet("routeDetails");
@@ -40,7 +42,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             if (!favorites) return;
 
             const favoritesArray = JSON.parse(favorites);
-            setFavorites(favoritesArray);
+
+            setFavoriteRoutes(routes.filter(route => favoritesArray.includes(route.key)));
         })
     }
 
@@ -52,10 +55,9 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         if (selectedRouteCategory === "all") {
             setDrawnRoutes(routes);
         } else {
-            const filtered = routes.filter(route => favorites.includes(route.key));
-            setDrawnRoutes(filtered);
+            setDrawnRoutes(favoriteRoutes);
         }
-    }, [selectedRouteCategory, routes, favorites]);
+    }, [selectedRouteCategory, routes, favoriteRoutes]);
 
     // Update the alert icon when the alerts change
     useEffect(() => {
@@ -75,8 +77,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             if (selectedRouteCategory === "all") {
                 setDrawnRoutes(routes);
             } else {
-                const filtered = routes.filter(route => favorites.includes(route.key));
-                setDrawnRoutes(filtered);
+                setDrawnRoutes(favoriteRoutes);
             }
 
             //TODO: write global fucntion to recenter map on drawn routes, right now it just goes back to default
@@ -139,7 +140,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                             <View>                                
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                     <Text style={{ fontWeight: 'bold', fontSize: 20, lineHeight: 28 }}>{route.name}</Text>
-                                    {favorites.includes(route.key) && 
+                                    {favoriteRoutes.includes(route) && 
                                         <FontAwesome name="star" size={16} color="#ffcc01" style={{marginLeft: 4}} />
                                     }
                                 </View>

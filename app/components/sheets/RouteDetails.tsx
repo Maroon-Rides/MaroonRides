@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, NativeSyntheticEvent, ActivityIndicator, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
@@ -8,7 +8,6 @@ import { MapPatternPath, MapRoute, MapStop, RouteDirectionTime, getNextDeparture
 import useAppStore from "../../stores/useAppStore";
 import RouteEstimates from "../ui/RouteEstimates";
 import BusIcon from "../ui/BusIcon";
-import TimeBubble from "../ui/TimeBubble";
 import FavoritePill from "../ui/FavoritePill";
 
 interface SheetProps {
@@ -21,6 +20,10 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
+
+    const favoriteRoutes = useAppStore(state => state.favoriteRoutes);
+
+    const setDrawnRoutes = useAppStore(state => state.setDrawnRoutes);
 
     const stopEstimates = useAppStore((state) => state.stopEstimates);
     const clearStopEstimates = useAppStore((state) => state.clearStopEstimates);
@@ -35,6 +38,9 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         sheetRef.current?.dismiss();
         clearSelectedRoute();
         clearStopEstimates();
+
+        // Fixes Android bug when switching from Favorites -> RouteDetails to RouteList, the FlatList does not render the favoriteRoutes and instead renders all routes
+        setDrawnRoutes(favoriteRoutes);
 
         // reset direction selector
         setSelectedDirection(0);

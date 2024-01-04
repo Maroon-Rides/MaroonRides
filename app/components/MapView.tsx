@@ -210,6 +210,7 @@ const Index: React.FC = () => {
                                         latitude: patternPoint.latitude,
                                         longitude: patternPoint.longitude
                                     }}
+                                    tracksViewChanges={false}
                                 >
                                     <View
                                         style={{
