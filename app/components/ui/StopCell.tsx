@@ -57,10 +57,10 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
 
     return (
         <TouchableOpacity style={{ marginTop: 8 }} onPress={onPress} disabled={disabled}>
-            <View style={{ flexDirection: "row", alignItems: "center"}}>
-                <Text style={{ fontSize: 22, fontWeight: "bold", marginRight: 32 }}>{stop.name}</Text>
-                <View style={{ flex: 1 }} /> 
-                <AmenityRow amenities={amenities} size={24} color={"gray"} style={{paddingRight: 16}}/>
+            <View style={{ flexDirection: "row", alignContent: "flex-start"}}>
+                <Text style={{ fontSize: 22, fontWeight: "bold", width: "75%"}}>{stop.name}</Text>
+                <View style={{ flex: 1 }}/>
+                <AmenityRow amenities={amenities} size={24} color={"gray"} style={{paddingRight: 8, alignSelf:"flex-start"}}/>
             </View>
 
             {status == "Loading" ?

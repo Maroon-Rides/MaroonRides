@@ -18,8 +18,6 @@ const BusCallout: React.FC<Props> = ({ bus, tintColor, routeName }) => {
     return Math.round(passengersOnboard / passengerCapacity)
   }
 
-  console.log(bus.amenities)
-
   return (
     <Callout>
         <View style={{ width: 160 }}>
