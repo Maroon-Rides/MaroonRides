@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, ViewProps } from 'react-native'
 import { IAmenity } from 'utils/interfaces'
-import {Ionicons, MaterialCommunityIcons} from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface Props extends ViewProps {
     amenities: IAmenity[]

@@ -8,7 +8,6 @@ import { Ionicons } from "@expo/vector-icons";
 import useAppStore from "../../stores/useAppStore";
 import { IRouteStopSchedule, IStop } from "../../../utils/interfaces";
 import Timetable from "../ui/Timetable";
-import AmenityRow from "../ui/AmenityRow";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>

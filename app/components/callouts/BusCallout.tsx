@@ -1,10 +1,7 @@
 import React from 'react'
 import { View, Text } from 'react-native'
 import { Callout } from 'react-native-maps'
-import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-
-import { IAmenity, IVehicle } from '../../../utils/interfaces';
+import { IVehicle } from '../../../utils/interfaces';
 import BusIcon from '../ui/BusIcon'
 import AmenityRow from '../ui/AmenityRow';
 interface Props {
