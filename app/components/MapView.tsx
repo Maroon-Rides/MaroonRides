@@ -76,7 +76,6 @@ const Index: React.FC = () => {
     // If the user toggles between on-campus and off-campus routes, adjust the zoom level of the map
     // Ignore if the mapRenderCount is less than 2 since it takes two renders to show the initial region
     useEffect(() => {
-        console.log(drawnRoutes[0]?.shortName)
         centerViewOnRoutes();
 
         // Handle updating buses based on the number of drawn routes
