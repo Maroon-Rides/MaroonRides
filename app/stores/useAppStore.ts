@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { MapRoute, MapServiceInterruption, NextDepartureTimesResponse, Vehicle } from "aggie-spirit-api";
+import { MapRoute, MapServiceInterruption, MapStop, NextDepartureTimesResponse, Vehicle } from "aggie-spirit-api";
 import { CachedStopEstimate as CachedStopDepartureTimes } from "types/app";
 
 interface AppState {
@@ -27,14 +27,20 @@ interface AppState {
     setSelectedRoute: (selectedRoute: MapRoute) => void,
     clearSelectedRoute: () => void,
 
+    selectedStop: MapStop | null,
+    setSelectedStop: (selectedStop: MapStop | null) => void,
+
+    selectedDirection: string | null,
+    setSelectedDirection: (selectedDirection: string | null) => void,
+
     drawnBuses: Vehicle[],
     setDrawnBuses: (buses: Vehicle[]) => void,
      
     isGameday: boolean
     setIsGameday: (isGameday: boolean) => void
 
-    presentSheet: (sheet: "routeDetails" | "alerts") => void
-    setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts") => void) => void
+    presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable") => void
+    setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable") => void) => void
 }
 
 const useAppStore = create<AppState>()((set) => ({
@@ -75,6 +81,12 @@ const useAppStore = create<AppState>()((set) => ({
 
         return { selectedRoute: null };
     }),
+
+    selectedStop: null,
+    setSelectedStop: (selectedStop) => set(() => ({ selectedStop })),
+
+    selectedDirection: null,
+    setSelectedDirection: (selectedDirection) => set(() => ({ selectedDirection })),
 
     drawnBuses: [],
     setDrawnBuses: (buses) => set(() => ({ drawnBuses: buses })),

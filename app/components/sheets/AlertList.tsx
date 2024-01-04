@@ -41,7 +41,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                 data={alerts}
                 keyExtractor={alert => alert.name}
                 style={{ height: "100%", marginLeft: 16 }}
-                contentContainerStyle={{ paddingBottom: 30, paddingRight: 16 }}
+                contentContainerStyle={{ paddingBottom: 35, paddingRight: 16 }}
                 renderItem={({ item: alert }) => {
                     return (
                         <View style={{ 
