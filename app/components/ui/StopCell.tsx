@@ -53,8 +53,6 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled }) =>
         presentSheet("stopTimetable")
     }
 
-
-
     return (
         <TouchableOpacity style={{ marginTop: 8 }} onPress={onPress} disabled={disabled}>
             <Text style={{ fontSize: 22, fontWeight: "bold", marginRight: 32 }}>{stop.name}</Text>

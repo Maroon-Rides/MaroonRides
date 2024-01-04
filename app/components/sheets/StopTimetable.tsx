@@ -1,15 +1,11 @@
-import { ActivityIndicator, Button, Text, TouchableOpacity, View } from "react-native";
-import { BottomSheetModal, BottomSheetView, BottomSheetFlatList, BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import BusIcon from "../ui/BusIcon";
-import { useDebugValue, useEffect, useState } from "react";
-import { MapStop, RouteStopSchedule, StopSchedulesResponse, getStopSchedules } from "aggie-spirit-api";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { useEffect, useState } from "react";
+import { MapStop, RouteStopSchedule, getStopSchedules } from "aggie-spirit-api";
 import useAppStore from "../../stores/useAppStore";
 import { Ionicons } from "@expo/vector-icons";
-import TimeBubble from "../ui/TimeBubble";
 import Timetable from "../ui/Timetable";
 import { FlatList } from "react-native-gesture-handler";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
-
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -17,31 +13,33 @@ interface SheetProps {
 
 // TODO: Fill in route details with new UI
 const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
-    const currentSelectedStop = useAppStore((state) => state.selectedStop);
-    const setCurrentSelectedStop = useAppStore((state) => state.setSelectedStop);
-    const selectedRoute = useAppStore((state) => state.selectedRoute);
     const authToken = useAppStore((state) => state.authToken);
     const routes = useAppStore((state) => state.routes);
 
-    const [ selectedStop, setSelectedStop ] = useState<MapStop | null>(null);
+    const selectedStop = useAppStore((state) => state.selectedStop);
+    const setSelectedStop = useAppStore((state) => state.setSelectedStop);
+
+    const selectedRoute = useAppStore((state) => state.selectedRoute);
+
+    const [ tempSelectedStop, setTempSelectedStop ] = useState<MapStop | null>(null);
     const [ showNonRouteSchedules, setShowNonRouteSchedules ] = useState<boolean>(false);
     const [ nonRouteSchedules, setNonRouteSchedules ] = useState<RouteStopSchedule[] | null>(null);
     const [ routeSchedules, setRouteSchedules ] = useState<RouteStopSchedule[] | null>(null);
 
     function loadSchedule(newSelectedStop: MapStop | null = null) {
-        if (!newSelectedStop) return;
+        if (!newSelectedStop || !authToken) return;
 
-        getStopSchedules(newSelectedStop?.stopCode, new Date(), authToken!)
+        getStopSchedules(newSelectedStop?.stopCode, new Date(), authToken)
             .then((response) => {
                 // find the schedules for the selected route
-                var routeStops = response.routeStopSchedules.filter((schedule) => schedule.routeName === selectedRoute?.name)
+                let routeStops = response.routeStopSchedules.filter((schedule) => schedule.routeName === selectedRoute?.name)
 
                 // filter anything that is end of route
                 routeStops = routeStops.filter((schedule) => !schedule.isEndOfRoute);
                 setRouteSchedules(routeStops);
 
                 // filter out non route schedules
-                var nonRouteStops = response.routeStopSchedules.filter((schedule) => schedule.routeName !== selectedRoute?.name)
+                let nonRouteStops = response.routeStopSchedules.filter((schedule) => schedule.routeName !== selectedRoute?.name)
 
                 // filter anything that doesnt have stop times
                 nonRouteStops = nonRouteStops.filter((schedule) => schedule.stopTimes.length > 0);
@@ -57,14 +55,13 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         return route?.directionList[0]?.lineColor ?? "#500000";
     }
 
-
     // prevent data from disappearing when the sheet is closed
     useEffect(() => {
-        if (!currentSelectedStop) return;
+        if (!selectedStop) return;
 
-        setSelectedStop(currentSelectedStop);
-        loadSchedule(currentSelectedStop);
-    }, [currentSelectedStop])
+        setTempSelectedStop(selectedStop);
+        loadSchedule(selectedStop);
+    }, [selectedStop])
 
 
     const snapPoints = ['25%', '45%', '85%'];
@@ -73,7 +70,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         sheetRef.current?.dismiss();
         setRouteSchedules(null);
         setNonRouteSchedules(null);
-        setCurrentSelectedStop(null);
+        setSelectedStop(null);
         setShowNonRouteSchedules(false);
     }
 
@@ -86,7 +83,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         >
             <BottomSheetView>
                 <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginHorizontal: 16 }}>
-                    <Text style={{ fontWeight: 'bold', fontSize: 28, flex: 1 }}>{selectedStop?.name ?? "Something went wrong"}</Text>
+                    <Text style={{ fontWeight: 'bold', fontSize: 28, flex: 1 }}>{tempSelectedStop?.name ?? "Something went wrong"}</Text>
 
                     <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }} onPress={closeModal}>
                         <Ionicons name="close-circle" size={32} color="grey" />
@@ -101,11 +98,11 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                     <FlatList
                         data={routeSchedules}
                         scrollEnabled={false}
-                        keyExtractor={(item, index) => index.toString()}
+                        keyExtractor={(_, index) => index.toString()}
                         ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />}
                         renderItem={({ item, index }) => {
                             return (
-                                <View>
+                                <View key={index}>
                                     <Timetable item={item} tintColor={getLineColor(item.routeNumber)} />
                                 </View>
                             )
@@ -120,7 +117,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                         <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />
                         <FlatList
                             data={nonRouteSchedules}
-                            keyExtractor={(item, index) => index.toString()}
+                            keyExtractor={(_, index) => index.toString()}
                             scrollEnabled={false}
                             ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />}
                             renderItem={({ item }) => {

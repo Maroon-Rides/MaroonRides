@@ -35,10 +35,7 @@ interface AppState {
 
     drawnBuses: Vehicle[],
     setDrawnBuses: (buses: Vehicle[]) => void,
-     
-    isGameday: boolean
-    setIsGameday: (isGameday: boolean) => void
-
+    
     presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable") => void
     setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable") => void) => void
 }
@@ -90,9 +87,6 @@ const useAppStore = create<AppState>()((set) => ({
 
     drawnBuses: [],
     setDrawnBuses: (buses) => set(() => ({ drawnBuses: buses })),
-
-    isGameday: false,
-    setIsGameday: (isGameday) => set(() => ({ isGameday })),
 
     presentSheet: (sheet) => {console.log(sheet)},
     setPresentSheet: (presentSheet) => set(() => ({ presentSheet }))

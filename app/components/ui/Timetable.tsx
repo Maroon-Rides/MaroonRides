@@ -9,10 +9,10 @@ interface Props {
     tintColor: string
 }
 
-const Timetable: React.FC<Props> = ({item, tintColor}) => {
+const Timetable: React.FC<Props> = ({ item, tintColor }) => {
 
     return (
-        <View style={{marginLeft: 16, paddingTop: 8 }}>
+        <View style={{ marginLeft: 16, paddingTop: 8 }}>
             <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
                 <BusIcon name={item.routeNumber} color={tintColor} style={{ marginRight: 8 }} />
                 <View>
@@ -20,7 +20,7 @@ const Timetable: React.FC<Props> = ({item, tintColor}) => {
                     <Text>{item.directionName}</Text>
                 </View>
             </View>
-            
+
             <View style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -30,18 +30,18 @@ const Timetable: React.FC<Props> = ({item, tintColor}) => {
                 flexWrap: "wrap"
             }}>
 
-                { item.stopTimes.length > 0 && item.stopTimes.map((time) => {
+                {item.stopTimes.length > 0 && item.stopTimes.map((time) => {
 
                     const dt = new Date(time.scheduledDepartTimeUtc)
-                    var ds = dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'America/Chicago' })
+                    let ds = dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'America/Chicago' })
 
                     // cut off the AM/PM
                     ds = ds.substring(0, ds.length - 3);
 
-                    var color;
+                    let color;
                     if (dt < new Date()) {
                         color = "grey";
-                    } 
+                    }
                     else if (time.isRealtime) {
                         color = "green";
                     }
@@ -49,13 +49,13 @@ const Timetable: React.FC<Props> = ({item, tintColor}) => {
                         color = "black";
                     }
                     return (
-                        <View style={{marginBottom: 8, flexBasis: "20%"}} key={time.scheduledDepartTimeUtc}>
+                        <View style={{ marginBottom: 8, flexBasis: "20%" }} key={time.scheduledDepartTimeUtc}>
                             <TimeBubble key={time.scheduledDepartTimeUtc} time={ds} color={color} live={time.isRealtime} />
                         </View>
                     )
                 })}
 
-                { item.stopTimes.length == 0 && !item.isEndOfRoute && <Text style={{ color: "grey" }}>Bus is not scheduled today.</Text> }
+                {item.stopTimes.length == 0 && !item.isEndOfRoute && <Text style={{ color: "grey" }}>Bus is not scheduled today.</Text>}
             </View>
         </View>
     );
