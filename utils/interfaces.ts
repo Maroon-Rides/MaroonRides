@@ -252,3 +252,8 @@ export const GetStopEstimatesResponseSchema = z.object({
     amenities: z.array(AmenitySchema)
 });
 export type IGetStopEstimatesResponse = z.infer<typeof GetStopEstimatesResponseSchema>
+
+export interface ICachedStopEstimate {
+    stopCode: string,
+    departureTimes: IGetNextDepartTimesResponse
+};

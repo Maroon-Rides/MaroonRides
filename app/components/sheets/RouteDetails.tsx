@@ -26,6 +26,10 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const clearStopEstimates = useAppStore((state) => state.clearStopEstimates);
     const updateStopEstimate = useAppStore((state) => state.updateStopEstimate);
 
+    const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
+    const favoriteRoutes = useAppStore(state => state.favoriteRoutes);
+    const setDrawnRoutes = useAppStore(state => state.setDrawnRoutes);
+
     const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
     const [processedStops, setProcessedStops] = useState<IStop[]>([]);
     const [selectedRoute, setSelectedRoute] = useState<IMapRoute | null>(null);
@@ -35,6 +39,10 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         sheetRef.current?.dismiss();
         clearSelectedRoute();
         clearStopEstimates();
+
+        if(selectedRouteCategory === 'favorites') {
+            setDrawnRoutes(favoriteRoutes);
+        }
 
         // reset direction selector
         setSelectedDirectionIndex(0);
@@ -161,7 +169,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         }
 
                         return (
-                            <StopCell
+                        <StopCell
                                 stop={stop}
                                 directionTimes={directionTimes}
                                 amenities={stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode)?.departureTimes.amenities ?? []}
