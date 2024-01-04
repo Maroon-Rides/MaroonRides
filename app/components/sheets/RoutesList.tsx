@@ -23,12 +23,14 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const favoriteRoutes = useAppStore(state => state.favoriteRoutes);
     const setFavoriteRoutes = useAppStore(state => state.setFavoriteRoutes);
 
+    const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
+    const setSelectedRouteCategory = useAppStore(state => state.setSelectedRouteCategory);
+
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     
     const presentSheet = useAppStore((state) => state.presentSheet);
     
-    const [selectedRouteCategory, setSelectedRouteCategory] = useState<"favorites" | "all">("all");
     const [alertIcon, setAlertIcon] = useState<"bell-outline" | "bell-badge">("bell-outline");
 
     const handleRouteSelected = (selectedRoute: IMapRoute) => {        
