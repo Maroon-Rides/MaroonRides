@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { MapRoute, MapServiceInterruption, MapStop, NextDepartureTimesResponse, Vehicle } from "aggie-spirit-api";
 import { CachedStopEstimate as CachedStopDepartureTimes } from "types/app";
+import { IRouteDirectionTime } from "utils/interfaces";
 
 interface AppState {
     authToken: string | null
@@ -29,6 +30,9 @@ interface AppState {
 
     selectedStop: MapStop | null,
     setSelectedStop: (selectedStop: MapStop | null) => void,
+
+    selectedStopEstimate: IRouteDirectionTime | null,
+    setSelectedStopEstimate: (selectedStopEstimate: IRouteDirectionTime | null) => void,
 
     selectedDirection: string | null,
     setSelectedDirection: (selectedDirection: string | null) => void,
@@ -85,6 +89,9 @@ const useAppStore = create<AppState>()((set) => ({
 
     selectedStop: null,
     setSelectedStop: (selectedStop) => set(() => ({ selectedStop })),
+
+    selectedStopEstimate: null,
+    setSelectedStopEstimate: (selectedStopEstimate) => set(() => ({ selectedStopEstimate })),
 
     selectedDirection: null,
     setSelectedDirection: (selectedDirection) => set(() => ({ selectedDirection })),

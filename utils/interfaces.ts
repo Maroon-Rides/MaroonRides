@@ -176,7 +176,7 @@ export const RouteStopScheduleSchema = z.object({
     routeName: z.string(),
     routeNumber: z.string(),
     directionName: z.string(),
-    stopTimes: z.array(z.any()),
+    stopTimes: z.array(StopTimeSchema),
     frequencyInfo: z.any(),
     hasTrips: z.boolean(),
     hasSchedule: z.boolean(),

@@ -4,14 +4,16 @@ import { Text, View } from 'react-native';
 import { IRouteStopSchedule } from '../../../utils/interfaces';
 import BusIcon from './BusIcon';
 import TimeBubble from './TimeBubble';
+import { CachedStopEstimate } from 'types/app';
 
 interface Props {
     item: IRouteStopSchedule
     tintColor: string
+    estimates?: CachedStopEstimate
 }
 
-const Timetable: React.FC<Props> = ({ item, tintColor }) => {
-
+const Timetable: React.FC<Props> = ({ item, tintColor, estimates }) => {
+    console.log(estimates)
     return (
         <View style={{ marginLeft: 16, paddingTop: 8 }}>
             <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Text, TouchableOpacity, View } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { FlatList } from "react-native-gesture-handler";
-import { getStopSchedules } from "aggie-spirit-api";
+import { getStopEstimates, getStopSchedules } from "aggie-spirit-api";
 import { Ionicons } from "@expo/vector-icons";
 
 import useAppStore from "../../stores/useAppStore";
@@ -21,12 +21,16 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     const selectedStop = useAppStore((state) => state.selectedStop);
     const setSelectedStop = useAppStore((state) => state.setSelectedStop);
 
+    const selectedStopEstimate = useAppStore((state) => state.selectedStopEstimate);
+    const setSelectedStopEstimate = useAppStore((state) => state.setSelectedStopEstimate);
+
     const selectedRoute = useAppStore((state) => state.selectedRoute);
 
     const [tempSelectedStop, setTempSelectedStop] = useState<IStop | null>(null);
     const [showNonRouteSchedules, setShowNonRouteSchedules] = useState<boolean>(false);
     const [nonRouteSchedules, setNonRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
     const [routeSchedules, setRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
+
 
     function loadSchedule(newSelectedStop: IStop | null = null) {
         if (!newSelectedStop || !authToken) return;
@@ -109,7 +113,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                         renderItem={({ item, index }) => {
                             return (
                                 <View key={index}>
-                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} />
+                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} estimates={selectedStopEstimate ?? undefined}/>
                                 </View>
                             )
                         }}
@@ -127,6 +131,8 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                             scrollEnabled={false}
                             ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />}
                             renderItem={({ item }) => {
+
+                                
                                 return (
                                     <Timetable item={item} tintColor={getLineColor(item.routeNumber)} />
                                 )
