@@ -6,10 +6,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { MapPatternPath, MapRoute, MapStop, RouteDirectionTime, getNextDepartureTimes } from "aggie-spirit-api";
 
 import useAppStore from "../../stores/useAppStore";
-import RouteEstimates from "../ui/RouteEstimates";
+import StopCell from "../ui/StopCell";
 import BusIcon from "../ui/BusIcon";
-import TimeBubble from "../ui/TimeBubble";
 import FavoritePill from "../ui/FavoritePill";
+import { set } from "zod";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -26,7 +26,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const clearStopEstimates = useAppStore((state) => state.clearStopEstimates);
     const updateStopEstimate = useAppStore((state) => state.updateStopEstimate);
 
-    const [selectedDirection, setSelectedDirection] = useState(0);
+    const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
     const [processedStops, setProcessedStops] = useState<MapStop[]>([]);
     const [selectedRoute, setSelectedRoute] = useState<MapRoute | null>(null);
 
@@ -37,12 +37,12 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         clearStopEstimates();
 
         // reset direction selector
-        setSelectedDirection(0);
+        setSelectedDirectionIndex(0);
     }
 
     function getPatternPathForSelectedRoute(): MapPatternPath | undefined {
         if (!selectedRoute) return undefined;
-        return selectedRoute.patternPaths.find(direction => direction.patternKey === selectedRoute.directionList[selectedDirection]?.patternList[0]?.key)
+        return selectedRoute.patternPaths.find(direction => direction.patternKey === selectedRoute.directionList[selectedDirectionIndex]?.patternList[0]?.key)
     }
 
     useEffect(() => {
@@ -58,7 +58,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
         // TODO: process active buses and insert into proper locations
         setProcessedStops(processedStops);
-    }, [selectedRoute, selectedDirection])
+    }, [selectedRoute, selectedDirectionIndex])
 
     // Update the selected route when the currentSelectedRoute changes but only if it is not null
     // Prevents visual glitch when the sheet is closed and the selected route is null
@@ -96,7 +96,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     }
 
     const handleSetSelectedDirection = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
-        setSelectedDirection(evt.nativeEvent.selectedSegmentIndex);
+        setSelectedDirectionIndex(evt.nativeEvent.selectedSegmentIndex);
     }
 
     const snapPoints = ['25%', '45%', '85%'];
@@ -127,7 +127,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                     <SegmentedControl
                         style={{ marginHorizontal: 16 }}
                         values={selectedRoute?.directionList.map(direction => "to " + direction.destination) ?? []}
-                        selectedIndex={selectedDirection}
+                        selectedIndex={selectedDirectionIndex}
                         onChange={handleSetSelectedDirection}
                     />
 
@@ -138,9 +138,10 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             {selectedRoute &&
                 <BottomSheetFlatList
                     data={processedStops}
-                    style={{ paddingTop: 8, height: "100%", marginLeft: 16 }}
-                    contentContainerStyle={{ paddingBottom: 30 }}
-                    renderItem={({ item: stop }) => {
+                    style={{ height: "100%", marginLeft: 16 }}
+                    contentContainerStyle={{ paddingBottom: 35 }}
+                    ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 4 }} />}
+                    renderItem={({ item: stop, index }) => {
                         const departureTimes = stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode);
                         let directionTimes: RouteDirectionTime = { nextDeparts: [], directionKey: "", routeKey: "" };
 
@@ -154,10 +155,11 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         }
 
                         return (
-                            <RouteEstimates
+                            <StopCell
                                 stop={stop}
                                 directionTimes={directionTimes}
                                 color={selectedRoute?.directionList[0]?.lineColor ?? "#909090"}
+                                disabled={index === processedStops.length - 1}
                             />
                         );
                     }}

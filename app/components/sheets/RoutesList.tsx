@@ -124,11 +124,11 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                 )}
 
                 {/* Loading indicatior */}
-                { routes.length == 0 && <ActivityIndicator style={{ marginTop: 8 }} /> }
+                { routes.length == 0 && <ActivityIndicator style={{ marginTop: 12 }} /> }
             </BottomSheetView>
 
             <BottomSheetFlatList
-                contentContainerStyle={{ paddingBottom: 30 }}
+                contentContainerStyle={{ paddingBottom: 35 }}
                 data={drawnRoutes}
                 keyExtractor={(route: MapRoute) => route.key}
                 style={{ marginLeft: 16 }}
