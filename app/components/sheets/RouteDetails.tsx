@@ -142,8 +142,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             {selectedRoute &&
                 <BottomSheetFlatList
                     data={processedStops}
-                    style={{ height: "100%", marginLeft: 16 }}
-                    contentContainerStyle={{ paddingBottom: 35 }}
+                    style={{ height: "100%" }}
+                    contentContainerStyle={{ paddingBottom: 35, paddingLeft: 16 }}
                     onRefresh={() => loadStopEstimates()}
                     refreshing={false}
                     ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 4 }} />}

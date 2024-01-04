@@ -46,10 +46,9 @@ const Index: React.FC = () => {
             GetVehiclesResponseSchema.parse(busesResponse);
         } catch (error) {
             console.error(error);
-            
-            Alert.alert("Error while updating buses");
-
-            return;
+            // prevent alert loop from filling screen with alerts.
+            clearBusRefreshInterval()
+            throw new Error("Error while updating buses");
         }
 
         if (busesResponse.length == 0 || !busesResponse[0]?.vehiclesByDirections) {
