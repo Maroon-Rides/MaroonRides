@@ -5,7 +5,7 @@ import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { getVehicles } from "aggie-spirit-api";
 
-import { GetVehiclesResponseSchema, IGetVehiclesResponse, IVehicle } from "../../utils/interfaces";
+import { GetVehiclesResponseSchema, IGetVehiclesResponse, IMapRoute, IVehicle } from "../../utils/interfaces";
 import StopCallout from "./callouts/StopCallout";
 import BusCallout from "./callouts/BusCallout";
 import BusMapIcon from "./callouts/BusMapIcon";
@@ -17,6 +17,9 @@ const Index: React.FC = () => {
     const authToken = useAppStore((state) => state.authToken);
 
     const selectedRoute = useAppStore((state) => state.selectedRoute);
+    const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
+    const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
+    const presentSheet = useAppStore((state) => state.presentSheet);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
 
     const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
@@ -61,10 +64,19 @@ const Index: React.FC = () => {
 
         setBuses(extracted)
     }
+    
+    function selectRoute(route: IMapRoute) {
+        if (selectedRoute?.key === route.key) return;
+
+        setSelectedRoute(route);
+        setDrawnRoutes([route]);
+        presentSheet("routeDetails");
+    }
 
     // If the user toggles between on-campus and off-campus routes, adjust the zoom level of the map
     // Ignore if the mapRenderCount is less than 2 since it takes two renders to show the initial region
     useEffect(() => {
+        console.log(drawnRoutes[0]?.shortName)
         centerViewOnRoutes();
 
         // Handle updating buses based on the number of drawn routes
@@ -197,7 +209,7 @@ const Index: React.FC = () => {
                     })
 
                     return (
-                        <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={lineColor} strokeWidth={6} />
+                        <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={lineColor} strokeWidth={6} onPress={() => selectRoute(drawnRoute)}/>
                     )
                 })}
 

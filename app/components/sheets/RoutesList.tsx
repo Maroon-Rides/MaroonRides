@@ -69,8 +69,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     }, [alerts]);
 
     // Update the favorites when the view is focused
-    function onAnimate(from: number, to: number) {
-        if (from === -1 && to === 1) {
+    function onAnimate(from: number, _: number) {
+        if (from === -1) {
             loadFavorites();
 
             // match the selectedRouteCategory on the map
@@ -79,8 +79,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             } else {
                 setDrawnRoutes(favoriteRoutes);
             }
-
-            //TODO: write global fucntion to recenter map on drawn routes, right now it just goes back to default
         }
     }
 

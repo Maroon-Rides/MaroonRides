@@ -22,10 +22,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
 
-    const favoriteRoutes = useAppStore(state => state.favoriteRoutes);
-
-    const setDrawnRoutes = useAppStore(state => state.setDrawnRoutes);
-
     const stopEstimates = useAppStore((state) => state.stopEstimates);
     const clearStopEstimates = useAppStore((state) => state.clearStopEstimates);
     const updateStopEstimate = useAppStore((state) => state.updateStopEstimate);
@@ -39,9 +35,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         sheetRef.current?.dismiss();
         clearSelectedRoute();
         clearStopEstimates();
-
-        // Fixes Android bug when switching from Favorites -> RouteDetails to RouteList, the FlatList does not render the favoriteRoutes and instead renders all routes
-        setDrawnRoutes(favoriteRoutes);
 
         // reset direction selector
         setSelectedDirectionIndex(0);
