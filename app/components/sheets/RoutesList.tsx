@@ -48,7 +48,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     }
 
     // Load favorites on first render
-    useEffect(() => loadFavorites(), []);
+    useEffect(() => loadFavorites(), [routes]);
 
     // Update the shown routes when the selectedRouteCategory changes
     useEffect(() => {

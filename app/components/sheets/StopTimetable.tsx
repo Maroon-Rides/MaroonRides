@@ -8,6 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import useAppStore from "../../stores/useAppStore";
 import { IRouteStopSchedule, IStop } from "../../../utils/interfaces";
 import Timetable from "../ui/Timetable";
+import AmenityRow from "../ui/AmenityRow";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -98,6 +99,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
                 {!routeSchedules && <ActivityIndicator style={{ marginTop: 16 }} />}
             </BottomSheetView>
+
             <BottomSheetScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 35, paddingTop: 4 }}>
                 {routeSchedules &&
                     <FlatList

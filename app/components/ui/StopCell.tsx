@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
 
-import { IRouteDirectionTime, IStop } from "../../../utils/interfaces";
+import { IAmenity, IRouteDirectionTime, IStop } from "../../../utils/interfaces";
 import TimeBubble from "./TimeBubble";
 import useAppStore from "../../stores/useAppStore";
+import AmenityRow from "./AmenityRow";
 
 interface Props {
     stop: IStop
     directionTimes: IRouteDirectionTime
     color: string
     disabled: boolean
+    amenities: IAmenity[]
 }
 
-const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled }) => {
+const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amenities }) => {
     const [status, setStatus] = useState('On Time');
     const presentSheet = useAppStore((state) => state.presentSheet);
     const setSelectedStop = useAppStore((state) => state.setSelectedStop);
@@ -55,7 +57,11 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled }) =>
 
     return (
         <TouchableOpacity style={{ marginTop: 8 }} onPress={onPress} disabled={disabled}>
-            <Text style={{ fontSize: 22, fontWeight: "bold", marginRight: 32 }}>{stop.name}</Text>
+            <View style={{ flexDirection: "row", alignContent: "flex-start"}}>
+                <Text style={{ fontSize: 22, fontWeight: "bold", width: "75%"}}>{stop.name}</Text>
+                <View style={{ flex: 1 }}/>
+                <AmenityRow amenities={amenities} size={24} color={"gray"} style={{paddingRight: 8, alignSelf:"flex-start"}}/>
+            </View>
 
             {status == "Loading" ?
                 <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 2 }}>
@@ -63,13 +69,14 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled }) =>
                     <View style={{ flex: 1 }} />
                 </View>
                 :
-                <Text style={{ marginBottom: 8, marginTop: 2 }}>{status}</Text>
+                <Text style={{ marginBottom: 12 }}>{status}</Text>
             }
 
             <FlatList
                 horizontal
                 scrollEnabled={false}
                 data={directionTimes.nextDeparts}
+                style={{ marginBottom: 8, marginTop: -4 }}
                 keyExtractor={(_, index) => index.toString()}
                 renderItem={({ item: departureTime, index }) => {
                     let date;

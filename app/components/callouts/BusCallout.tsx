@@ -6,6 +6,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 import { IAmenity, IVehicle } from '../../../utils/interfaces';
 import BusIcon from '../ui/BusIcon'
+import AmenityRow from '../ui/AmenityRow';
 interface Props {
   bus: IVehicle
   tintColor: string
@@ -21,12 +22,9 @@ const BusCallout: React.FC<Props> = ({ bus, tintColor, routeName }) => {
     <Callout>
         <View style={{ width: 160 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 4 }}>
-            <BusIcon name={routeName} color={tintColor} isCallout={true} style={{ marginRight: 8 }}/>
+            <BusIcon name={routeName} color={tintColor} isCallout={true} />
             <View style={{ flex: 1 }}/>
-            { bus.amenities.map((amenity: IAmenity, index) => (
-                amenity.name == "Air Conditioning" ? (<Ionicons key={index} name="snow" size={18} color="gray" style={{ paddingLeft: 4 }} />) : (<MaterialCommunityIcons key={index} name="wheelchair-accessibility" size={18} color="gray" style={{ paddingLeft: 4 }} />)
-              ))
-            }
+            <AmenityRow amenities={bus.amenities} color={"gray"} size={20} />
           </View>
           <Text style={{ fontSize: 14 }} >
             <Text style={{ fontWeight: 'bold' }} >Direction: </Text>
