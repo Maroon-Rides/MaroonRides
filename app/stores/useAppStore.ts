@@ -38,6 +38,10 @@ interface AppState {
     
     presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable") => void
     setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable") => void) => void
+
+    busLocationRefreshInterval: NodeJS.Timeout | null,
+    setBusRefreshInterval: (busLocationRefreshInterval: NodeJS.Timeout) => void
+    clearBusRefreshInterval: () => void
 }
 
 const useAppStore = create<AppState>()((set) => ({
@@ -89,7 +93,18 @@ const useAppStore = create<AppState>()((set) => ({
     setDrawnBuses: (buses) => set(() => ({ drawnBuses: buses })),
 
     presentSheet: (sheet) => {console.log(sheet)},
-    setPresentSheet: (presentSheet) => set(() => ({ presentSheet }))
+    setPresentSheet: (presentSheet) => set(() => ({ presentSheet })),
+
+    // Timeouts
+    busLocationRefreshInterval: null,
+    setBusRefreshInterval: (busLocationRefreshInterval) => set(() => ({ busLocationRefreshInterval })),
+    clearBusRefreshInterval: () => set(state => {
+        if (state.busLocationRefreshInterval) {
+            clearInterval(state.busLocationRefreshInterval);
+        }
+
+        return { busLocationRefreshInterval: null };
+    })
 }));
 
 export default useAppStore;
