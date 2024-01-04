@@ -22,10 +22,12 @@ const Index: React.FC = () => {
     const presentSheet = useAppStore((state) => state.presentSheet);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
 
+    const setBusRefreshInterval = useAppStore((state) => state.setBusRefreshInterval);
+    const clearBusRefreshInterval = useAppStore((state) => state.clearBusRefreshInterval);
+
     const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
 
     const [buses, setBuses] = useState<IVehicle[]>([]);
-    const updateBusesInterval = useRef<NodeJS.Timeout | null>(null);
 
     const defaultMapRegion: Region = {
         latitude: 30.6060,
@@ -80,17 +82,22 @@ const Index: React.FC = () => {
 
         // Handle updating buses based on the number of drawn routes
         if (drawnRoutes.length === 1 && drawnRoutes[0]?.shortName) {
-
             // Update the buses initially
             updateBuses();
 
             // Set up interval to update buses every 5 seconds
-            updateBusesInterval.current = setInterval(async () => {
+            setBusRefreshInterval(setInterval(async () => {
                 await updateBuses();
-            }, 5000);
+            }, 5000));
         } else {
             // Clear the interval and reset the buses if there are no drawn routes or more than one
-            clearInterval(updateBusesInterval.current!);
+            clearBusRefreshInterval();
+            setBuses([]);
+        }
+
+        // Clear the interval and reset the buses if the component unmounts
+        return () => {
+            clearBusRefreshInterval();
             setBuses([]);
         }
     }, [drawnRoutes]);

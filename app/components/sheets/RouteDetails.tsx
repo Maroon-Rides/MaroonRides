@@ -65,10 +65,12 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     useEffect(() => {
         if (!currentSelectedRoute) return;
         setSelectedRoute(currentSelectedRoute);
+
         loadStopEstimates();
     }, [currentSelectedRoute])
 
     async function loadStopEstimates() {
+        clearStopEstimates();
 
         if (!currentSelectedRoute || !authToken) return;
         let allStops: IStop[] = [];
@@ -142,6 +144,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                     data={processedStops}
                     style={{ height: "100%", marginLeft: 16 }}
                     contentContainerStyle={{ paddingBottom: 35 }}
+                    onRefresh={() => loadStopEstimates()}
+                    refreshing={false}
                     ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 4 }} />}
                     renderItem={({ item: stop, index }) => {
                         const departureTimes = stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode);
