@@ -3,8 +3,9 @@ import { Alert, Dimensions, TouchableOpacity, View } from "react-native";
 import MapView, { LatLng, Polyline, Marker, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Vehicle, VehicleResponse, getVehicles } from "aggie-spirit-api";
+import { getVehicles } from "aggie-spirit-api";
 
+import { GetVehiclesResponseSchema, IGetVehiclesResponse, IVehicle } from "../../utils/interfaces";
 import StopCallout from "./callouts/StopCallout";
 import BusCallout from "./callouts/BusCallout";
 import BusMapIcon from "./callouts/BusMapIcon";
@@ -20,7 +21,7 @@ const Index: React.FC = () => {
 
     const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
 
-    const [buses, setBuses] = useState<Vehicle[]>([]);
+    const [buses, setBuses] = useState<IVehicle[]>([]);
     const updateBusesInterval = useRef<NodeJS.Timeout | null>(null);
 
     const defaultMapRegion: Region = {
@@ -33,9 +34,11 @@ const Index: React.FC = () => {
     const updateBuses = async () => {
         if (!selectedRoute || !authToken) return
 
-        let busesResponse: VehicleResponse[]
+        let busesResponse: IGetVehiclesResponse
         try {
-            busesResponse = await getVehicles([selectedRoute.key], authToken)
+            busesResponse = await getVehicles([selectedRoute.key], authToken) as IGetVehiclesResponse;
+
+            GetVehiclesResponseSchema.parse(busesResponse);
         } catch (error) {
             console.error(error);
             
@@ -49,7 +52,7 @@ const Index: React.FC = () => {
             return
         }
 
-        let extracted: Vehicle[] = []
+        let extracted: IVehicle[] = []
         for (let direction of busesResponse[0]?.vehiclesByDirections) {
             for (let bus of direction.vehicles) {
                 extracted.push(bus)

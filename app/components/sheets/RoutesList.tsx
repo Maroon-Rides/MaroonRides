@@ -4,8 +4,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
-import { MapDirectionList, MapRoute } from "aggie-spirit-api";
 
+import { IDirectionList, IMapRoute } from "../../../utils/interfaces";
 import useAppStore from "../../stores/useAppStore";
 import BusIcon from "../ui/BusIcon";
 import SheetHeader from "../ui/SheetHeader";
@@ -31,7 +31,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const [selectedRouteCategory, setSelectedRouteCategory] = useState<"favorites" | "all">("all");
     const [alertIcon, setAlertIcon] = useState<"bell-outline" | "bell-badge">("bell-outline");
 
-    const handleRouteSelected = (selectedRoute: MapRoute) => {        
+    const handleRouteSelected = (selectedRoute: IMapRoute) => {        
         setSelectedRoute(selectedRoute);
         setDrawnRoutes([selectedRoute]);
         presentSheet("routeDetails");
@@ -131,7 +131,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             <BottomSheetFlatList
                 contentContainerStyle={{ paddingBottom: 35 }}
                 data={drawnRoutes}
-                keyExtractor={(route: MapRoute) => route.key}
+                keyExtractor={(route: IMapRoute) => route.key}
                 style={{ marginLeft: 16 }}
                 renderItem={({item: route}) => {
                     return (
@@ -145,7 +145,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                                     }
                                 </View>
                                 <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                    {route.directionList.map((elm: MapDirectionList, index: number) => (
+                                    {route.directionList.map((elm: IDirectionList, index: number) => (
                                         <React.Fragment key={index}>
                                             <Text>{elm.destination}</Text>
                                             {index !== route.directionList.length - 1 && <Text style={{ marginHorizontal: 2 }}>|</Text>}

@@ -1,5 +1,4 @@
 // TODO: Fix all of the 'any' types once the API has live data
-
 import { z } from "zod";
 
 // From Map API
@@ -162,6 +161,32 @@ export const TimetableRouteSchema = z.object({
 });
 export type ITimetableRoute = z.infer<typeof TimetableRouteSchema>
 
+export const StopTimeSchema = z.object({
+    scheduledDepartTimeUtc: z.string(),
+    estimatedDepartTimeUtc: z.string(),
+    isRealtime: z.boolean(),
+    tripPointId: z.string(),
+    isLastPoint: z.boolean().nullable(),
+    isCancelled: z.boolean(),
+    isOffRoute: z.boolean()
+});
+export type IStopTime = z.infer<typeof StopTimeSchema>
+
+export const RouteStopScheduleSchema = z.object({
+    routeName: z.string(),
+    routeNumber: z.string(),
+    directionName: z.string(),
+    stopTimes: z.array(z.any()),
+    frequencyInfo: z.any(),
+    hasTrips: z.boolean(),
+    hasSchedule: z.boolean(),
+    isEndOfRoute: z.boolean(),
+    isTemporaryStopOnly: z.boolean(),
+    isClosedRegularStop: z.boolean(),
+    serviceInterruptions: z.array(z.any())
+});
+export type IRouteStopSchedule = z.infer<typeof RouteStopScheduleSchema>
+
 // /RouteMap/GetBaseData
 export const GetBaseDataResponseSchema = z.object({
     routes: z.array(MapRouteSchema),
@@ -188,7 +213,6 @@ export type IGetNextDepartTimesResponse = z.infer<typeof GetNextDepartTimesRespo
 // /RouteMap/GetVehicles
 export const GetVehiclesResponseSchema = z.array(z.object({
     routeKey: z.string(),
-    patternPaths: z.array(PatternPathSchema),
     vehiclesByDirections: z.array(VehicleByDirection).nullable()
 }).nullable());
 export type IGetVehiclesResponse = z.infer<typeof GetVehiclesResponseSchema>
@@ -213,3 +237,18 @@ export type IGetNearbyRoutesResponse = z.infer<typeof GetNearbyRoutesResponseSch
 // /Home/GetNextStopTimes
 export const GetNextStopTimesResponseSchema = z.array(TimetableRouteSchema);
 export type IGetNextStopTimesResponse = z.infer<typeof GetNextStopTimesResponseSchema>
+
+// /Schedule/GetStopSchedules
+export const GetStopSchedulesResponseSchema = z.object({
+    routeStopSchedules: z.array(RouteStopScheduleSchema),
+    date: z.string(),
+    amenities: z.array(AmenitySchema)
+});
+export type IGetStopSchedulesResponse = z.infer<typeof GetStopSchedulesResponseSchema>
+
+export const GetStopEstimatesResponseSchema = z.object({
+    routeStopSchedules: z.array(z.any()),
+    date: z.string(),
+    amenities: z.array(AmenitySchema)
+});
+export type IGetStopEstimatesResponse = z.infer<typeof GetStopEstimatesResponseSchema>

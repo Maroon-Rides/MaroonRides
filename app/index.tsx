@@ -1,16 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { View, Alert } from 'react-native';
-import { BaseDataResponse, MapRoute, PatternPathsResponse, getAuthentication, getBaseData, getPatternPaths } from "aggie-spirit-api";
+import { getAuthentication, getBaseData, getPatternPaths } from "aggie-spirit-api";
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import useAppStore from './stores/useAppStore';
-import { GetBaseDataResponseSchema, GetPatternPathsResponseSchema } from "../utils/updatedInterfaces";
+import { GetBaseDataResponseSchema, GetPatternPathsResponseSchema, IGetBaseDataResponse, IGetPatternPathsResponse, IMapRoute } from "../utils/interfaces";
 import MapView from './components/MapView';
 import RoutesList from './components/sheets/RoutesList';
 import AlertList from './components/sheets/AlertList';
 import RouteDetails from './components/sheets/RouteDetails';
 import StopTimetable from './components/sheets/StopTimetable';
-
-
 
 const Home = () => {
     const setAuthToken = useAppStore((state) => state.setAuthToken);
@@ -54,7 +52,7 @@ const Home = () => {
             }
 
             // Add each pattern path to the corresponding route
-            function addPatternPathsToRoutes(baseDataRoutes: MapRoute[], patternPathsResponse: PatternPathsResponse[]) {
+            function addPatternPathsToRoutes(baseDataRoutes: IMapRoute[], patternPathsResponse: IGetPatternPathsResponse) {
                 for (let elm of patternPathsResponse) {
                     const foundObject = baseDataRoutes.find(route => route.key === elm.routeKey);
                     if (foundObject) {
@@ -70,7 +68,7 @@ const Home = () => {
                         return;
                     }
 
-                    const baseData: BaseDataResponse = await fetchBaseData(authToken);
+                    const baseData: IGetBaseDataResponse = await fetchBaseData(authToken);
                     const patternPathsResponse = await fetchPatternPaths(baseData.routes.map(route => route.key), authToken);
 
                     // Add patternPaths to routes

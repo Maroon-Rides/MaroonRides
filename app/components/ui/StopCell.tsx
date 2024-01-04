@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
-import { MapStop, RouteDirectionTime } from "aggie-spirit-api";
 
+import { IRouteDirectionTime, IStop } from "../../../utils/interfaces";
 import TimeBubble from "./TimeBubble";
 import useAppStore from "../../stores/useAppStore";
 
 interface Props {
-    stop: MapStop
-    directionTimes: RouteDirectionTime
+    stop: IStop
+    directionTimes: IRouteDirectionTime
     color: string
     disabled: boolean
 }

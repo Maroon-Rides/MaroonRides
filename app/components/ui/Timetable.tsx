@@ -1,11 +1,12 @@
 import React from 'react';
 import { Text, View } from 'react-native';
+
+import { IRouteStopSchedule } from '../../../utils/interfaces';
 import BusIcon from './BusIcon';
 import TimeBubble from './TimeBubble';
-import { RouteStopSchedule } from 'aggie-spirit-api';
 
 interface Props {
-    item: RouteStopSchedule
+    item: IRouteStopSchedule
     tintColor: string
 }
 

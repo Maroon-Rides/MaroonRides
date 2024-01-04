@@ -1,11 +1,13 @@
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
-import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { useEffect, useState } from "react";
-import { MapStop, RouteStopSchedule, getStopSchedules } from "aggie-spirit-api";
-import useAppStore from "../../stores/useAppStore";
-import { Ionicons } from "@expo/vector-icons";
-import Timetable from "../ui/Timetable";
+import { ActivityIndicator, Alert, Text, TouchableOpacity, View } from "react-native";
+import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { FlatList } from "react-native-gesture-handler";
+import { getStopSchedules } from "aggie-spirit-api";
+import { Ionicons } from "@expo/vector-icons";
+
+import useAppStore from "../../stores/useAppStore";
+import { IRouteStopSchedule, IStop } from "../../../utils/interfaces";
+import Timetable from "../ui/Timetable";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -21,33 +23,36 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const selectedRoute = useAppStore((state) => state.selectedRoute);
 
-    const [ tempSelectedStop, setTempSelectedStop ] = useState<MapStop | null>(null);
-    const [ showNonRouteSchedules, setShowNonRouteSchedules ] = useState<boolean>(false);
-    const [ nonRouteSchedules, setNonRouteSchedules ] = useState<RouteStopSchedule[] | null>(null);
-    const [ routeSchedules, setRouteSchedules ] = useState<RouteStopSchedule[] | null>(null);
+    const [tempSelectedStop, setTempSelectedStop] = useState<IStop | null>(null);
+    const [showNonRouteSchedules, setShowNonRouteSchedules] = useState<boolean>(false);
+    const [nonRouteSchedules, setNonRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
+    const [routeSchedules, setRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
 
-    function loadSchedule(newSelectedStop: MapStop | null = null) {
+    function loadSchedule(newSelectedStop: IStop | null = null) {
         if (!newSelectedStop || !authToken) return;
 
-        getStopSchedules(newSelectedStop?.stopCode, new Date(), authToken)
-            .then((response) => {
-                // find the schedules for the selected route
-                let routeStops = response.routeStopSchedules.filter((schedule) => schedule.routeName === selectedRoute?.name)
+        try {
+            getStopSchedules(newSelectedStop?.stopCode, new Date(), authToken)
+                .then((response) => {
+                    // find the schedules for the selected route
+                    let routeStops = response.routeStopSchedules.filter((schedule) => schedule.routeName === selectedRoute?.name)
 
-                // filter anything that is end of route
-                routeStops = routeStops.filter((schedule) => !schedule.isEndOfRoute);
-                setRouteSchedules(routeStops);
+                    // filter anything that is end of route
+                    routeStops = routeStops.filter((schedule) => !schedule.isEndOfRoute);
+                    setRouteSchedules(routeStops);
 
-                // filter out non route schedules
-                let nonRouteStops = response.routeStopSchedules.filter((schedule) => schedule.routeName !== selectedRoute?.name)
+                    // filter out non route schedules
+                    let nonRouteStops = response.routeStopSchedules.filter((schedule) => schedule.routeName !== selectedRoute?.name)
 
-                // filter anything that doesnt have stop times
-                nonRouteStops = nonRouteStops.filter((schedule) => schedule.stopTimes.length > 0);
-                setNonRouteSchedules(nonRouteStops)  
-            })
-            .catch((error) => {
-                console.error(error);
-            })
+                    // filter anything that doesnt have stop times
+                    nonRouteStops = nonRouteStops.filter((schedule) => schedule.stopTimes.length > 0);
+                    setNonRouteSchedules(nonRouteStops)
+                })
+        } catch (error) {
+            console.error(error);
+
+            Alert.alert("Error while fetching stop schedules");
+        }
     }
 
     function getLineColor(shortName: string) {
@@ -91,10 +96,10 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                 </View>
                 <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
 
-                { !routeSchedules && <ActivityIndicator style={{ marginTop: 16 }} /> }
+                {!routeSchedules && <ActivityIndicator style={{ marginTop: 16 }} />}
             </BottomSheetView>
             <BottomSheetScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 35, paddingTop: 4 }}>
-                { routeSchedules &&
+                {routeSchedules &&
                     <FlatList
                         data={routeSchedules}
                         scrollEnabled={false}
@@ -110,9 +115,9 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                     />
                 }
 
-                
 
-                { showNonRouteSchedules &&
+
+                {showNonRouteSchedules &&
                     <View>
                         <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />
                         <FlatList
@@ -129,9 +134,9 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                     </View>
                 }
 
-                { nonRouteSchedules && nonRouteSchedules.length > 0 && 
+                {nonRouteSchedules && nonRouteSchedules.length > 0 &&
                     // show other routes button
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={{
                             padding: 8,
                             paddingHorizontal: 16,
@@ -143,14 +148,11 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                         }}
                         onPress={() => setShowNonRouteSchedules(!showNonRouteSchedules)}
                     >
-                        <Text style={{color: "white"}}>{showNonRouteSchedules ? "Hide": "Show"} Other Routes</Text>
+                        <Text style={{ color: "white" }}>{showNonRouteSchedules ? "Hide" : "Show"} Other Routes</Text>
                     </TouchableOpacity>
                 }
 
             </BottomSheetScrollView>
-            
-
-            
         </BottomSheetModal>
     )
 }
