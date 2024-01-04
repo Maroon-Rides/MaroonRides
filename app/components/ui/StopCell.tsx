@@ -95,7 +95,7 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
                     const stringTime = time.substring(0, time.length - 3);
 
                     return (
-                        <TimeBubble key={index} time={stringTime} color={color} live={live} />
+                        <TimeBubble key={index} time={stringTime} color={index == 0 ? color : "grey"} live={live} />
                     )
                 }}
             />
