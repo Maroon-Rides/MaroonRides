@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Text, TouchableOpacity, View } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { FlatList } from "react-native-gesture-handler";
-import { getStopEstimates, getStopSchedules } from "aggie-spirit-api";
+import { getStopSchedules } from "aggie-spirit-api";
 import { Ionicons } from "@expo/vector-icons";
 
 import useAppStore from "../../stores/useAppStore";
@@ -20,9 +20,6 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const selectedStop = useAppStore((state) => state.selectedStop);
     const setSelectedStop = useAppStore((state) => state.setSelectedStop);
-
-    const selectedStopEstimate = useAppStore((state) => state.selectedStopEstimate);
-    const setSelectedStopEstimate = useAppStore((state) => state.setSelectedStopEstimate);
 
     const selectedRoute = useAppStore((state) => state.selectedRoute);
 
@@ -113,7 +110,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                         renderItem={({ item, index }) => {
                             return (
                                 <View key={index}>
-                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} estimates={selectedStopEstimate ?? undefined}/>
+                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""}/>
                                 </View>
                             )
                         }}
@@ -134,7 +131,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
                                 
                                 return (
-                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} />
+                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""}/>
                                 )
                             }}
                         />

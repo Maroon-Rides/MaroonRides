@@ -18,7 +18,6 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
     const [status, setStatus] = useState('On Time');
     const presentSheet = useAppStore((state) => state.presentSheet);
     const setSelectedStop = useAppStore((state) => state.setSelectedStop);
-    const setSelectedStopEstimate = useAppStore((state) => state.setSelectedStopEstimate);
 
     useEffect(() => {
         let totalDeviation = 0;
@@ -53,7 +52,6 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
     // when cell is tapped, open the stop timetable
     function onPress() {
         setSelectedStop(stop);
-        setSelectedStopEstimate(directionTimes);
         presentSheet("stopTimetable")
     }
 
