@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { MapRoute, MapServiceInterruption, NextDepartureTimesResponse, Vehicle } from "aggie-spirit-api";
+import { MapRoute, MapServiceInterruption, MapStop, NextDepartureTimesResponse, Vehicle } from "aggie-spirit-api";
 import { CachedStopEstimate as CachedStopDepartureTimes } from "types/app";
 
 interface AppState {
@@ -16,6 +16,9 @@ interface AppState {
     setDrawnRoutes: (routes: MapRoute[]) => void
     resetDrawnRoutes: () => void,
 
+    favoriteRoutes: MapRoute[],
+    setFavoriteRoutes: (favoriteRoutes: MapRoute[]) => void,
+
     stopEstimates: CachedStopDepartureTimes[],
     updateStopEstimate: (stopEstimate: NextDepartureTimesResponse, stopCode: string) => void,
     clearStopEstimates: () => void,
@@ -24,14 +27,17 @@ interface AppState {
     setSelectedRoute: (selectedRoute: MapRoute) => void,
     clearSelectedRoute: () => void,
 
+    selectedStop: MapStop | null,
+    setSelectedStop: (selectedStop: MapStop | null) => void,
+
+    selectedDirection: string | null,
+    setSelectedDirection: (selectedDirection: string | null) => void,
+
     drawnBuses: Vehicle[],
     setDrawnBuses: (buses: Vehicle[]) => void,
-     
-    isGameday: boolean
-    setIsGameday: (isGameday: boolean) => void
-
-    presentSheet: (sheet: "routeDetails" | "alerts") => void
-    setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts") => void) => void
+    
+    presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable") => void
+    setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable") => void) => void
 }
 
 const useAppStore = create<AppState>()((set) => ({
@@ -47,6 +53,9 @@ const useAppStore = create<AppState>()((set) => ({
     drawnRoutes: [],
     setDrawnRoutes: (routes) => set(() => ({ drawnRoutes: routes })),
     resetDrawnRoutes: () => set(state => ({ drawnRoutes: state.routes })),
+
+    favoriteRoutes: [],
+    setFavoriteRoutes: (favoriteRoutes) => set(() => ({ favoriteRoutes })),
 
     stopEstimates: [],
     updateStopEstimate: (departureTimes, stopCode) => set(state => {
@@ -70,11 +79,14 @@ const useAppStore = create<AppState>()((set) => ({
         return { selectedRoute: null };
     }),
 
+    selectedStop: null,
+    setSelectedStop: (selectedStop) => set(() => ({ selectedStop })),
+
+    selectedDirection: null,
+    setSelectedDirection: (selectedDirection) => set(() => ({ selectedDirection })),
+
     drawnBuses: [],
     setDrawnBuses: (buses) => set(() => ({ drawnBuses: buses })),
-
-    isGameday: false,
-    setIsGameday: (isGameday) => set(() => ({ isGameday })),
 
     presentSheet: (sheet) => {console.log(sheet)},
     setPresentSheet: (presentSheet) => set(() => ({ presentSheet }))

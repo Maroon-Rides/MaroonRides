@@ -4,8 +4,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
-import { MapDirectionList, MapRoute } from "aggie-spirit-api";
 
+import { IDirectionList, IMapRoute } from "../../../utils/interfaces";
 import useAppStore from "../../stores/useAppStore";
 import BusIcon from "../ui/BusIcon";
 import SheetHeader from "../ui/SheetHeader";
@@ -20,16 +20,18 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const routes = useAppStore((state) => state.routes);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     
+    const favoriteRoutes = useAppStore(state => state.favoriteRoutes);
+    const setFavoriteRoutes = useAppStore(state => state.setFavoriteRoutes);
+
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     
     const presentSheet = useAppStore((state) => state.presentSheet);
-
+    
     const [selectedRouteCategory, setSelectedRouteCategory] = useState<"favorites" | "all">("all");
-    const [favorites, setFavorites] = useState<string[]>([]);
     const [alertIcon, setAlertIcon] = useState<"bell-outline" | "bell-badge">("bell-outline");
 
-    const handleRouteSelected = (selectedRoute: MapRoute) => {
+    const handleRouteSelected = (selectedRoute: IMapRoute) => {        
         setSelectedRoute(selectedRoute);
         setDrawnRoutes([selectedRoute]);
         presentSheet("routeDetails");
@@ -40,7 +42,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             if (!favorites) return;
 
             const favoritesArray = JSON.parse(favorites);
-            setFavorites(favoritesArray);
+
+            setFavoriteRoutes(routes.filter(route => favoritesArray.includes(route.key)));
         })
     }
 
@@ -52,10 +55,9 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         if (selectedRouteCategory === "all") {
             setDrawnRoutes(routes);
         } else {
-            const filtered = routes.filter(route => favorites.includes(route.key));
-            setDrawnRoutes(filtered);
+            setDrawnRoutes(favoriteRoutes);
         }
-    }, [selectedRouteCategory, routes, favorites]);
+    }, [selectedRouteCategory, routes, favoriteRoutes]);
 
     // Update the alert icon when the alerts change
     useEffect(() => {
@@ -75,8 +77,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             if (selectedRouteCategory === "all") {
                 setDrawnRoutes(routes);
             } else {
-                const filtered = routes.filter(route => favorites.includes(route.key));
-                setDrawnRoutes(filtered);
+                setDrawnRoutes(favoriteRoutes);
             }
 
             //TODO: write global fucntion to recenter map on drawn routes, right now it just goes back to default
@@ -124,13 +125,13 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                 )}
 
                 {/* Loading indicatior */}
-                { routes.length == 0 && <ActivityIndicator style={{ marginTop: 8 }} /> }
+                { routes.length == 0 && <ActivityIndicator style={{ marginTop: 12 }} /> }
             </BottomSheetView>
 
             <BottomSheetFlatList
-                contentContainerStyle={{ paddingBottom: 30 }}
+                contentContainerStyle={{ paddingBottom: 35 }}
                 data={drawnRoutes}
-                keyExtractor={(route: MapRoute) => route.key}
+                keyExtractor={(route: IMapRoute) => route.key}
                 style={{ marginLeft: 16 }}
                 renderItem={({item: route}) => {
                     return (
@@ -139,12 +140,12 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                             <View>                                
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                     <Text style={{ fontWeight: 'bold', fontSize: 20, lineHeight: 28 }}>{route.name}</Text>
-                                    {favorites.includes(route.key) && 
+                                    {favoriteRoutes.includes(route) && 
                                         <FontAwesome name="star" size={16} color="#ffcc01" style={{marginLeft: 4}} />
                                     }
                                 </View>
                                 <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                    {route.directionList.map((elm: MapDirectionList, index: number) => (
+                                    {route.directionList.map((elm: IDirectionList, index: number) => (
                                         <React.Fragment key={index}>
                                             <Text>{elm.destination}</Text>
                                             {index !== route.directionList.length - 1 && <Text style={{ marginHorizontal: 2 }}>|</Text>}

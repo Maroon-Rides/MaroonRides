@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ActivityIndicator, FlatList } from 'react-native';
-import { MapStop, RouteDirectionTime } from "aggie-spirit-api";
+import { View, Text, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
 
+import { IRouteDirectionTime, IStop } from "../../../utils/interfaces";
 import TimeBubble from "./TimeBubble";
+import useAppStore from "../../stores/useAppStore";
 
 interface Props {
-    stop: MapStop
-    directionTimes: RouteDirectionTime
+    stop: IStop
+    directionTimes: IRouteDirectionTime
     color: string
+    disabled: boolean
 }
 
-const RouteEstimates: React.FC<Props> = ({ stop, directionTimes, color }) => {
+const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled }) => {
     const [status, setStatus] = useState('On Time');
+    const presentSheet = useAppStore((state) => state.presentSheet);
+    const setSelectedStop = useAppStore((state) => state.setSelectedStop);
 
     useEffect(() => {
         let totalDeviation = 0;
@@ -43,24 +47,30 @@ const RouteEstimates: React.FC<Props> = ({ stop, directionTimes, color }) => {
         }
     }, [directionTimes]);
 
+    // when cell is tapped, open the stop timetable
+    function onPress() {
+        setSelectedStop(stop);
+        presentSheet("stopTimetable")
+    }
+
     return (
-        <View style={{ marginTop: 4 }}>
+        <TouchableOpacity style={{ marginTop: 8 }} onPress={onPress} disabled={disabled}>
             <Text style={{ fontSize: 22, fontWeight: "bold", marginRight: 32 }}>{stop.name}</Text>
 
             {status == "Loading" ?
-                <View style={{ flexDirection: "row", alignItems: "center", marginTop: 2 }}>
+                <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 2 }}>
                     <ActivityIndicator style={{ justifyContent: "flex-start" }} />
                     <View style={{ flex: 1 }} />
                 </View>
                 :
-                <Text style={{ marginBottom: 8 }}>{status}</Text>
+                <Text style={{ marginBottom: 8, marginTop: 2 }}>{status}</Text>
             }
 
             <FlatList
                 horizontal
                 scrollEnabled={false}
                 data={directionTimes.nextDeparts}
-                keyExtractor={(_, index) => String(index)}
+                keyExtractor={(_, index) => index.toString()}
                 renderItem={({ item: departureTime, index }) => {
                     let date;
                     let live = false;
@@ -82,11 +92,8 @@ const RouteEstimates: React.FC<Props> = ({ stop, directionTimes, color }) => {
                     )
                 }}
             />
-
-            {/* Line seperator */}
-            <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
-        </View>
+        </TouchableOpacity>
     )
 }
 
-export default RouteEstimates;
+export default StopCell;

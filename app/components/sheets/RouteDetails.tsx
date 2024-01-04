@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, NativeSyntheticEvent, ActivityIndicator, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
-import { MapPatternPath, MapRoute, MapStop, RouteDirectionTime, getNextDepartureTimes } from "aggie-spirit-api";
+import { getNextDepartureTimes } from "aggie-spirit-api";
 
+import { GetNextDepartTimesResponseSchema, IMapRoute, IPatternPath, IRouteDirectionTime, IStop } from "../../../utils/interfaces";
 import useAppStore from "../../stores/useAppStore";
-import RouteEstimates from "../ui/RouteEstimates";
+import StopCell from "../ui/StopCell";
 import BusIcon from "../ui/BusIcon";
-import TimeBubble from "../ui/TimeBubble";
 import FavoritePill from "../ui/FavoritePill";
 
 interface SheetProps {
@@ -22,13 +22,17 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
 
+    const favoriteRoutes = useAppStore(state => state.favoriteRoutes);
+
+    const setDrawnRoutes = useAppStore(state => state.setDrawnRoutes);
+
     const stopEstimates = useAppStore((state) => state.stopEstimates);
     const clearStopEstimates = useAppStore((state) => state.clearStopEstimates);
     const updateStopEstimate = useAppStore((state) => state.updateStopEstimate);
 
-    const [selectedDirection, setSelectedDirection] = useState(0);
-    const [processedStops, setProcessedStops] = useState<MapStop[]>([]);
-    const [selectedRoute, setSelectedRoute] = useState<MapRoute | null>(null);
+    const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
+    const [processedStops, setProcessedStops] = useState<IStop[]>([]);
+    const [selectedRoute, setSelectedRoute] = useState<IMapRoute | null>(null);
 
     // cleanup this view when the sheet is closed
     const closeModal = () => {
@@ -36,19 +40,22 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         clearSelectedRoute();
         clearStopEstimates();
 
+        // Fixes Android bug when switching from Favorites -> RouteDetails to RouteList, the FlatList does not render the favoriteRoutes and instead renders all routes
+        setDrawnRoutes(favoriteRoutes);
+
         // reset direction selector
-        setSelectedDirection(0);
+        setSelectedDirectionIndex(0);
     }
 
-    function getPatternPathForSelectedRoute(): MapPatternPath | undefined {
+    function getPatternPathForSelectedRoute(): IPatternPath | undefined {
         if (!selectedRoute) return undefined;
-        return selectedRoute.patternPaths.find(direction => direction.patternKey === selectedRoute.directionList[selectedDirection]?.patternList[0]?.key)
+        return selectedRoute.patternPaths.find(direction => direction.patternKey === selectedRoute.directionList[selectedDirectionIndex]?.patternList[0]?.key)
     }
 
     useEffect(() => {
         if (!selectedRoute) return;
 
-        const processedStops: MapStop[] = [];
+        const processedStops: IStop[] = [];
         const directionPath = getPatternPathForSelectedRoute()?.patternPoints ?? [];
 
         for (const point of directionPath) {
@@ -58,7 +65,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
         // TODO: process active buses and insert into proper locations
         setProcessedStops(processedStops);
-    }, [selectedRoute, selectedDirection])
+    }, [selectedRoute, selectedDirectionIndex])
 
     // Update the selected route when the currentSelectedRoute changes but only if it is not null
     // Prevents visual glitch when the sheet is closed and the selected route is null
@@ -68,10 +75,10 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         loadStopEstimates();
     }, [currentSelectedRoute])
 
-    function loadStopEstimates() {
+    async function loadStopEstimates() {
 
         if (!currentSelectedRoute || !authToken) return;
-        let allStops: MapStop[] = [];
+        let allStops: IStop[] = [];
 
         for (const path of currentSelectedRoute.patternPaths) {
             for (const point of path.patternPoints) {
@@ -85,9 +92,11 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         // load stop estimates
         for (const stop of allStops) {
             try {
-                getNextDepartureTimes(currentSelectedRoute.key, directionKeys, stop.stopCode, authToken).then((response) => {
-                    updateStopEstimate(response, stop.stopCode);
-                })
+                const response = await getNextDepartureTimes(currentSelectedRoute.key, directionKeys, stop.stopCode, authToken);
+
+                GetNextDepartTimesResponseSchema.parse(response);
+
+                updateStopEstimate(response, response.stopCode);
             } catch (error) {
                 console.error(error);
                 continue;
@@ -96,7 +105,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     }
 
     const handleSetSelectedDirection = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
-        setSelectedDirection(evt.nativeEvent.selectedSegmentIndex);
+        setSelectedDirectionIndex(evt.nativeEvent.selectedSegmentIndex);
     }
 
     const snapPoints = ['25%', '45%', '85%'];
@@ -127,7 +136,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                     <SegmentedControl
                         style={{ marginHorizontal: 16 }}
                         values={selectedRoute?.directionList.map(direction => "to " + direction.destination) ?? []}
-                        selectedIndex={selectedDirection}
+                        selectedIndex={selectedDirectionIndex}
                         onChange={handleSetSelectedDirection}
                     />
 
@@ -138,11 +147,12 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             {selectedRoute &&
                 <BottomSheetFlatList
                     data={processedStops}
-                    style={{ paddingTop: 8, height: "100%", marginLeft: 16 }}
-                    contentContainerStyle={{ paddingBottom: 30 }}
-                    renderItem={({ item: stop }) => {
+                    style={{ height: "100%", marginLeft: 16 }}
+                    contentContainerStyle={{ paddingBottom: 35 }}
+                    ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 4 }} />}
+                    renderItem={({ item: stop, index }) => {
                         const departureTimes = stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode);
-                        let directionTimes: RouteDirectionTime = { nextDeparts: [], directionKey: "", routeKey: "" };
+                        let directionTimes: IRouteDirectionTime = { nextDeparts: [], directionKey: "", routeKey: "" };
 
                         if (departureTimes) {
                             const routePatternPath = getPatternPathForSelectedRoute()?.directionKey;
@@ -154,10 +164,11 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         }
 
                         return (
-                            <RouteEstimates
+                            <StopCell
                                 stop={stop}
                                 directionTimes={directionTimes}
                                 color={selectedRoute?.directionList[0]?.lineColor ?? "#909090"}
+                                disabled={index === processedStops.length - 1}
                             />
                         );
                     }}
