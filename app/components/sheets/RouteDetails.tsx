@@ -161,7 +161,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         }
 
                         return (
-                            <StopCell
+                        <StopCell
                                 stop={stop}
                                 directionTimes={directionTimes}
                                 amenities={stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode)?.departureTimes.amenities ?? []}

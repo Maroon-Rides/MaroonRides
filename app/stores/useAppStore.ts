@@ -1,40 +1,33 @@
 import { create } from "zustand";
-import { MapRoute, MapServiceInterruption, MapStop, NextDepartureTimesResponse, Vehicle } from "aggie-spirit-api";
-import { CachedStopEstimate as CachedStopDepartureTimes } from "types/app";
+import { ICachedStopEstimate, IGetNextDepartTimesResponse, IMapRoute, IMapServiceInterruption, IStop } from "../../utils/interfaces";
 
 interface AppState {
     authToken: string | null
     setAuthToken: (authToken: string) => void;
 
-    mapServiceInterruption: MapServiceInterruption[]
-    setMapServiceInterruption: (mapServiceInterruption: MapServiceInterruption[]) => void
+    mapServiceInterruption: IMapServiceInterruption[]
+    setMapServiceInterruption: (mapServiceInterruption: IMapServiceInterruption[]) => void
 
-    routes: MapRoute[],
-    setRoutes: (routes: MapRoute[]) => void
+    routes: IMapRoute[],
+    setRoutes: (routes: IMapRoute[]) => void
 
-    drawnRoutes: MapRoute[],
-    setDrawnRoutes: (routes: MapRoute[]) => void
+    drawnRoutes: IMapRoute[],
+    setDrawnRoutes: (routes: IMapRoute[]) => void
     resetDrawnRoutes: () => void,
 
-    favoriteRoutes: MapRoute[],
-    setFavoriteRoutes: (favoriteRoutes: MapRoute[]) => void,
+    favoriteRoutes: IMapRoute[],
+    setFavoriteRoutes: (favoriteRoutes: IMapRoute[]) => void,
 
-    stopEstimates: CachedStopDepartureTimes[],
-    updateStopEstimate: (stopEstimate: NextDepartureTimesResponse, stopCode: string) => void,
+    stopEstimates: ICachedStopEstimate[],
+    updateStopEstimate: (stopEstimate: IGetNextDepartTimesResponse, stopCode: string) => void,
     clearStopEstimates: () => void,
 
-    selectedRoute: MapRoute | null,
-    setSelectedRoute: (selectedRoute: MapRoute) => void,
+    selectedRoute: IMapRoute | null,
+    setSelectedRoute: (selectedRoute: IMapRoute) => void,
     clearSelectedRoute: () => void,
 
-    selectedStop: MapStop | null,
-    setSelectedStop: (selectedStop: MapStop | null) => void,
-
-    selectedDirection: string | null,
-    setSelectedDirection: (selectedDirection: string | null) => void,
-
-    drawnBuses: Vehicle[],
-    setDrawnBuses: (buses: Vehicle[]) => void,
+    selectedStop: IStop | null,
+    setSelectedStop: (selectedStop: IStop | null) => void,
     
     presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable") => void
     setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable") => void) => void
@@ -63,7 +56,7 @@ const useAppStore = create<AppState>()((set) => ({
 
     stopEstimates: [],
     updateStopEstimate: (departureTimes, stopCode) => set(state => {
-        const newStopDepartureTime: CachedStopDepartureTimes = {
+        const newStopDepartureTime: ICachedStopEstimate = {
             stopCode,
             departureTimes
         };
@@ -85,12 +78,6 @@ const useAppStore = create<AppState>()((set) => ({
 
     selectedStop: null,
     setSelectedStop: (selectedStop) => set(() => ({ selectedStop })),
-
-    selectedDirection: null,
-    setSelectedDirection: (selectedDirection) => set(() => ({ selectedDirection })),
-
-    drawnBuses: [],
-    setDrawnBuses: (buses) => set(() => ({ drawnBuses: buses })),
 
     presentSheet: (sheet) => {console.log(sheet)},
     setPresentSheet: (presentSheet) => set(() => ({ presentSheet })),
