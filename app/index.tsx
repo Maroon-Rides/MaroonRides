@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { View, Alert } from 'react-native';
+import { View, Alert, Text } from 'react-native';
 import { getAuthentication, getBaseData, getPatternPaths } from "aggie-spirit-api";
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import useAppStore from './stores/useAppStore';
