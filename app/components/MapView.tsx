@@ -214,7 +214,7 @@ const Index: React.FC = () => {
                     })
 
                     return (
-                        <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={lineColor} strokeWidth={6} onPress={() => selectRoute(drawnRoute)}/>
+                        <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={lineColor} strokeWidth={4} onPress={() => selectRoute(drawnRoute)}/>
                     )
                 })}
 
@@ -243,9 +243,10 @@ const Index: React.FC = () => {
                                         }}
                                     />
                                     <StopCallout
-                                        stop={patternPoint.stop}
-                                        tintColor={lineColor}
+                                        stopName={patternPoint.stop.name}
+                                        stopCode={patternPoint.stop.stopCode}
                                         routeName={selectedRoute?.shortName ?? ""}
+                                        tintColor={lineColor}
                                     />
                                 </Marker>
                             );
