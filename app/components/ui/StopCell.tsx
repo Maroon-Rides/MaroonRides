@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
-
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { IAmenity, IRouteDirectionTime, IStop } from "../../../utils/interfaces";
 import TimeBubble from "./TimeBubble";
 import useAppStore from "../../stores/useAppStore";
@@ -56,7 +56,7 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
     }
 
     return (
-        <TouchableOpacity style={{ marginTop: 8 }} onPress={onPress} disabled={disabled}>
+        <View style={{ marginTop: 8 }} >
             <View style={{ flexDirection: "row", alignContent: "flex-start"}}>
                 <Text style={{ fontSize: 22, fontWeight: "bold", width: "75%"}}>{stop.name}</Text>
                 <View style={{ flex: 1 }}/>
@@ -71,35 +71,55 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
                 :
                 <Text style={{ marginBottom: 12 }}>{status}</Text>
             }
+            <View style={{ flexDirection: "row", alignItems: "center", marginRight: 8,  marginBottom: 8, marginTop: -4 }}>
+                <FlatList
+                    horizontal
+                    scrollEnabled={false}
+                    data={directionTimes.nextDeparts}
+                    keyExtractor={(_, index) => index.toString()}
+                    renderItem={({ item: departureTime, index }) => {
+                        let date;
+                        let live = false;
 
-            <FlatList
-                horizontal
-                scrollEnabled={false}
-                data={directionTimes.nextDeparts}
-                style={{ marginBottom: 8, marginTop: -4 }}
-                keyExtractor={(_, index) => index.toString()}
-                renderItem={({ item: departureTime, index }) => {
-                    let date;
-                    let live = false;
+                        if (departureTime.estimatedDepartTimeUtc) {
+                            date = new Date(departureTime.estimatedDepartTimeUtc)
+                            live = true;
+                        } else {
+                            date = new Date(departureTime.scheduledDepartTimeUtc ?? "")
+                        }
 
-                    if (departureTime.estimatedDepartTimeUtc) {
-                        date = new Date(departureTime.estimatedDepartTimeUtc)
-                        live = true;
-                    } else {
-                        date = new Date(departureTime.scheduledDepartTimeUtc ?? "")
-                    }
+                        const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'America/Chicago' })
 
-                    const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'America/Chicago' })
+                        // cut off the AM/PM
+                        const stringTime = time.substring(0, time.length - 3);
 
-                    // cut off the AM/PM
-                    const stringTime = time.substring(0, time.length - 3);
+                        return (
+                            <TimeBubble key={index} time={stringTime} color={index == 0 ? color+"40" : "lightgrey"} textColor={index == 0 ? color : "black"} live={live} />
+                        )
+                    }}
+                />
 
-                    return (
-                        <TimeBubble key={index} time={stringTime} color={index == 0 ? color : "grey"} live={live} />
-                    )
-                }}
-            />
-        </TouchableOpacity>
+                {/* <View style={{ flex: 1 }} /> */}
+                { !disabled &&
+                    <TouchableOpacity 
+                        style={{ 
+                            alignItems: 'center',
+                            flexDirection: "row",
+                            paddingVertical: 4, // increase touch area
+                            paddingLeft: 8, // increase touch area
+                        }}
+                        onPress={onPress} 
+                    >
+                        {/* <MaterialCommunityIcons name="clock-outline" size={20} />                 */}
+                        <Text style={{fontSize: 16, textAlign: 'center', fontWeight: 'bold', marginVertical: 4, marginLeft: 4, marginRight: 2, color: color }}>
+                            All
+                        </Text>
+                        <MaterialCommunityIcons name="chevron-right" size={20} color={color} />                
+
+                    </TouchableOpacity>
+                }
+            </View>
+        </View>
     )
 }
 

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Alert, Text, View } from 'react-native';
 
-import { GetStopEstimatesResponseSchema, IRouteDirectionTime, IRouteStopSchedule } from '../../../utils/interfaces';
+import { GetStopEstimatesResponseSchema, IRouteStopSchedule } from '../../../utils/interfaces';
 import BusIcon from './BusIcon';
 import TimeBubble from './TimeBubble';
 import { RouteStopSchedule, getStopEstimates } from 'aggie-spirit-api';

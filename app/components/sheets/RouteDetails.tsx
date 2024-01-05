@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, NativeSyntheticEvent } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent, Alert } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +10,7 @@ import useAppStore from "../../stores/useAppStore";
 import StopCell from "../ui/StopCell";
 import BusIcon from "../ui/BusIcon";
 import FavoritePill from "../ui/FavoritePill";
+import AlertPill from "../ui/AlertPill";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -123,8 +124,9 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         </TouchableOpacity>
                     </View>
 
-                    <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginLeft: 16 }}>
+                    <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginLeft: 16, gap: 4 }}>
                         <FavoritePill routeId={selectedRoute!.key} />
+                        <AlertPill routeId={selectedRoute!.key}/>
                     </View>
 
 
@@ -134,7 +136,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         selectedIndex={selectedDirectionIndex}
                         onChange={handleSetSelectedDirection}
                     />
-
                     <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
                 </BottomSheetView>
             }
