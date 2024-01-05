@@ -20,6 +20,16 @@ const AlertPill: React.FC<Props> = ({ routeId }) => {
 
     // Update the alert icon when the alerts change
     useEffect(() => {
+        if (!routeId) {
+            if (alerts.length > 0) {
+                setAlertIcon("bell-badge");
+            } else {
+                setAlertIcon("bell-outline");
+            }
+            return;
+        }
+
+
         // find the route that matches the routeId
         const route = routes.find((route) => route.key === routeId);
         var activeAlerts = false;
@@ -38,7 +48,7 @@ const AlertPill: React.FC<Props> = ({ routeId }) => {
         } else {
             setAlertIcon("bell-outline");
         }
-    }, []);
+    }, [alerts]);
 
     return (
         <TouchableOpacity onPress={() => presentSheet("alerts")}>

@@ -84,7 +84,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         <BottomSheetModal
             ref={sheetRef}
             snapPoints={snapPoints}
-            index={1}
+            index={2}
             enablePanDownToClose={false}
         >
             <BottomSheetView>
