@@ -47,7 +47,7 @@ const Home = () => {
                 } catch (error) {
                     console.error(error);
 
-                    throw new Error("Error while fetching pattern paths: ");
+                    throw new Error("Error while fetching pattern paths");
                 }
             }
 

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, memo } from 'react'
 import { View, Text } from 'react-native'
 import { Callout } from 'react-native-maps'
 import BusIcon from '../ui/BusIcon'
 import useAppStore from '../../stores/useAppStore'
 import { IGetNextDepartTimesResponse, IStop } from '../../../utils/interfaces'
-import AmenityRow from '../ui/AmenityRow'
+import AmenityRow from "../ui/AmenityRow";
 
 interface Props {
     stop: IStop
@@ -12,17 +12,16 @@ interface Props {
     routeName: string
 }
 
-const StopCallout: React.FC<Props> = ({ stop, tintColor, routeName }) => {
-    const [contentSize, setContentSizing] = useState([0, 15]);
-    
-    const [estimate, setEstimate] = useState<IGetNextDepartTimesResponse | undefined>(undefined);
+const StopCallout: React.FC<Props> = ({ stop, tintColor, routeName}) => {
+    const [contentSize, setContentSizing] = useState([100, 15]);
+
+    const [estimate, setEstimate] = useState<IGetNextDepartTimesResponse | null>(null);
     const stopEstimates = useAppStore((state) => state.stopEstimates);
 
     useEffect(() => {
         stopEstimates.forEach((stopEstimate) => {
             if (stopEstimate.stopCode === stop.stopCode) {
                 setEstimate(stopEstimate.departureTimes);
-                console.log(stopEstimate.departureTimes)
             }
         })
     }, [stopEstimates])
@@ -42,4 +41,4 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, routeName }) => {
     )
 }
 
-export default StopCallout;
+export default memo(StopCallout);

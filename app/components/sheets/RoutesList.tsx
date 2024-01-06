@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent, Alert } from "react-native";
+import React, { useEffect } from "react";
+import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 
 import { IDirectionList, IMapRoute } from "../../../utils/interfaces";
 import useAppStore from "../../stores/useAppStore";
@@ -23,13 +23,14 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const favoriteRoutes = useAppStore(state => state.favoriteRoutes);
     const setFavoriteRoutes = useAppStore(state => state.setFavoriteRoutes);
 
+    const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
+    const setSelectedRouteCategory = useAppStore(state => state.setSelectedRouteCategory);
+
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     
     const presentSheet = useAppStore((state) => state.presentSheet);
     
-    const [selectedRouteCategory, setSelectedRouteCategory] = useState<"favorites" | "all">("all");
-
     const handleRouteSelected = (selectedRoute: IMapRoute) => {        
         setSelectedRoute(selectedRoute);
         setDrawnRoutes([selectedRoute]);

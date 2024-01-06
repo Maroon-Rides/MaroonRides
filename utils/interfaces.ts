@@ -163,7 +163,7 @@ export type ITimetableRoute = z.infer<typeof TimetableRouteSchema>
 
 export const StopTimeSchema = z.object({
     scheduledDepartTimeUtc: z.string(),
-    estimatedDepartTimeUtc: z.string(),
+    estimatedDepartTimeUtc: z.string().nullable(),
     isRealtime: z.boolean(),
     tripPointId: z.string(),
     isLastPoint: z.boolean().nullable(),
@@ -252,3 +252,8 @@ export const GetStopEstimatesResponseSchema = z.object({
     amenities: z.array(AmenitySchema)
 });
 export type IGetStopEstimatesResponse = z.infer<typeof GetStopEstimatesResponseSchema>
+
+export interface ICachedStopEstimate {
+    stopCode: string,
+    departureTimes: IGetNextDepartTimesResponse
+};

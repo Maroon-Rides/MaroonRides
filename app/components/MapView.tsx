@@ -4,7 +4,7 @@ import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { getVehicles } from "aggie-spirit-api";
-import { GetVehiclesResponseSchema, IGetVehiclesResponse, IMapRoute, IVehicle } from "../../utils/interfaces";
+import { GetVehiclesResponseSchema, IGetVehiclesResponse, IMapRoute, IPatternPath, IVehicle } from "../../utils/interfaces";
 import useAppStore from "../stores/useAppStore";
 import BusMarker from "./map/markers/BusMarker";
 import StopMarker from "./map/markers/StopMarker";
@@ -125,7 +125,7 @@ const Map: React.FC = () => {
         let coords: LatLng[] = [];
 
         if (selectedRoute) {
-            selectedRoute.patternPaths.forEach((path) => {
+            selectedRoute.patternPaths.forEach((path: IPatternPath) => {
                 path.patternPoints.forEach((point) => {
                     coords.push({
                         latitude: point.latitude,
@@ -136,7 +136,7 @@ const Map: React.FC = () => {
         }
 
         drawnRoutes.forEach((route) => {
-            route.patternPaths.forEach((path) => {
+            route.patternPaths.forEach((path: IPatternPath) => {
                 path.patternPoints.forEach((point) => {
                     coords.push({
                         latitude: point.latitude,
@@ -193,7 +193,7 @@ const Map: React.FC = () => {
 
                     const lineColor = drawnRoute.directionList[0]?.lineColor;
 
-                    drawnRoute.patternPaths.forEach((path) => {
+                    drawnRoute.patternPaths.forEach((path: IPatternPath) => {
                         path.patternPoints.forEach((point) => {
                             coords.push({
                                 latitude: point.latitude,
@@ -203,11 +203,11 @@ const Map: React.FC = () => {
                     })
 
                     return (
-                        <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={lineColor} strokeWidth={6} onPress={() => selectRoute(drawnRoute)}/>
+                        <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={lineColor} strokeWidth={4} onPress={() => selectRoute(drawnRoute)}/>
                     )
                 })}
 
-                {selectedRoute && selectedRoute?.patternPaths.flatMap((patternPath, index1) => (
+                {selectedRoute && selectedRoute?.patternPaths.flatMap((patternPath: IPatternPath, index1: number) => (
                     patternPath.patternPoints.map((patternPoint, index2) => {
                         if (patternPoint.stop) {
                             const lineColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
