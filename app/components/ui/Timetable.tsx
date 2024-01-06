@@ -149,7 +149,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                         </View>
                     )
                 })}
-                {item.stopTimes.length == 0 && !item.isEndOfRoute && <Text style={{ color: "grey" }}>Bus is not scheduled today.</Text>}
+                {item.stopTimes.length == 0 && !item.isEndOfRoute && <Text style={{ color: "grey", textAlign:"center" }}>Bus is not scheduled today.</Text>}
             </View>
         </View>
     );
