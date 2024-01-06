@@ -11,7 +11,7 @@ import BusMarker from "./map/markers/BusMarker";
 import StopMarker from "./map/markers/StopMarker";
 // import StopCallout from "./map/StopCallout";
 
-const Index: React.FC = () => {
+const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
 
     const authToken = useAppStore((state) => state.authToken);
@@ -21,6 +21,7 @@ const Index: React.FC = () => {
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     const presentSheet = useAppStore((state) => state.presentSheet);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
+    const setZoomToStopLatLng = useAppStore((state) => state.setZoomToStopLatLng);
 
     const setBusRefreshInterval = useAppStore((state) => state.setBusRefreshInterval);
     const clearBusRefreshInterval = useAppStore((state) => state.clearBusRefreshInterval);
@@ -104,6 +105,19 @@ const Index: React.FC = () => {
     // handle weird edge case where map does not pick up on the initial region
     useEffect(() => {
         mapViewRef.current?.animateToRegion(defaultMapRegion);
+
+        setZoomToStopLatLng((lat, lng) => {
+            // Animate map to the current location
+            const region = {
+                latitude: lat-.002,
+                longitude: lng,
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005
+            };
+    
+            mapViewRef.current?.animateToRegion(region, 250);
+        })
+    
     }, []);
 
     
@@ -171,20 +185,7 @@ const Index: React.FC = () => {
 
         setIsViewCenteredOnUser(true);
     }
-
-    const setZoomToStopLatLng = useAppStore((state) => state.setZoomToStopLatLng);
-    setZoomToStopLatLng((lat, lng) => {
-        // Animate map to the current location
-        const region = {
-            latitude: lat-.002,
-            longitude: lng,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005
-        };
-
-        mapViewRef.current?.animateToRegion(region, 250);
-    })
-
+    
     return (
         <>
             <MapView showsUserLocation={true} style={{ width: "100%", height: "100%" }} ref={mapViewRef} rotateEnabled={false} initialRegion={defaultMapRegion} onPanDrag={() => setIsViewCenteredOnUser(false)}>
@@ -252,4 +253,4 @@ const Index: React.FC = () => {
     )
 }
 
-export default Index;
+export default Map;
