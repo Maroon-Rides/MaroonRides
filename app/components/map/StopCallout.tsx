@@ -26,7 +26,6 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, routeName}) => {
         })
     }, [stopEstimates])
 
-    // TODO: show amenities
     return (
         <Callout style={{alignItems: 'center', width: contentSize[0], height: contentSize[1]}}>
             <View  onLayout={(event) => { setContentSizing([event.nativeEvent.layout.width, event.nativeEvent.layout.height]) }} >

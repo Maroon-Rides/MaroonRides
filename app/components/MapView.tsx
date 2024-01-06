@@ -120,7 +120,6 @@ const Map: React.FC = () => {
 
     
 
-    // TODO: When the user clicks on a route, zoom so that the route path is clearly visible
     const centerViewOnRoutes = () => {
         let coords: LatLng[] = [];
 

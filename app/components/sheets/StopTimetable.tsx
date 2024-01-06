@@ -13,7 +13,6 @@ interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
 }
 
-// TODO: Fill in route details with new UI
 const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     const authToken = useAppStore((state) => state.authToken);
     const routes = useAppStore((state) => state.routes);

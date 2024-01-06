@@ -11,7 +11,6 @@ interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
 }
 
-// TODO: Fill in route details with new UI
 const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
     const snapPoints = ['25%', '45%', '85%'];
     

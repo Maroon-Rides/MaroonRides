@@ -16,7 +16,6 @@ interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
 }
 
-// TODO: Fill in route details with new UI
 const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const authToken = useAppStore((state) => state.authToken);
 
@@ -65,7 +64,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             processedStops.push(point.stop);
         }
 
-        // TODO: process active buses and insert into proper locations
+        // TODO: process active buses and insert into proper locations in stop list
         setProcessedStops(processedStops);
     }, [selectedRoute, selectedDirectionIndex])
 
