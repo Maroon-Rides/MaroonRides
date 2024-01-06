@@ -1,12 +1,11 @@
 
 
-import React, { useEffect, useMemo, useState } from 'react'
-import { Alert, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react'
+import { TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons} from '@expo/vector-icons';
 
 import IconPill from './IconPill'
 import useAppStore from '../../stores/useAppStore';
-import { IMapServiceInterruption } from 'utils/interfaces';
 
 interface Props {
     routeId?: string

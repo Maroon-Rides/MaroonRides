@@ -43,6 +43,12 @@ interface AppState {
     busLocationRefreshInterval: NodeJS.Timeout | null,
     setBusRefreshInterval: (busLocationRefreshInterval: NodeJS.Timeout) => void
     clearBusRefreshInterval: () => void
+
+    zoomToStopLatLng: (lat: number, lng: number) => void
+    setZoomToStopLatLng: (zoomToStopLatLng: (lat: number, lng: number) => void) => void
+
+    poppedUpStopCallout: MapStop | null,
+    setPoppedUpStopCallout: (poppedUpStopCallout: MapStop | null) => void
 }
 
 const useAppStore = create<AppState>()((set) => ({
@@ -105,7 +111,13 @@ const useAppStore = create<AppState>()((set) => ({
         }
 
         return { busLocationRefreshInterval: null };
-    })
+    }),
+    
+    zoomToStopLatLng: (lat, lng) => {console.log(lat + " " + lng)},
+    setZoomToStopLatLng: (zoomToStopLatLng) => set(() => ({ zoomToStopLatLng })),
+
+    poppedUpStopCallout: null,
+    setPoppedUpStopCallout: (poppedUpStopCallout) => set(() => ({ poppedUpStopCallout }))
 }));
 
 export default useAppStore;

@@ -11,13 +11,17 @@ interface Props {
     directionTimes: IRouteDirectionTime
     color: string
     disabled: boolean
-    amenities: IAmenity[]
+    amenities: IAmenity[],
+    setSheetPos: (pos: number) => void
 }
 
-const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amenities }) => {
+const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amenities, setSheetPos }) => {
     const [status, setStatus] = useState('On Time');
     const presentSheet = useAppStore((state) => state.presentSheet);
     const setSelectedStop = useAppStore((state) => state.setSelectedStop);
+    const selectedRoute = useAppStore((state) => state.selectedRoute);
+    const zoomToStopLatLng = useAppStore((state) => state.zoomToStopLatLng);
+    const setPoppedUpStopCallout = useAppStore((state) => state.setPoppedUpStopCallout);
 
     useEffect(() => {
         let totalDeviation = 0;
@@ -50,15 +54,29 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
     }, [directionTimes]);
 
     // when cell is tapped, open the stop timetable
-    function onPress() {
+    function toTimetable() {
         setSelectedStop(stop);
         presentSheet("stopTimetable")
+    }
+
+    function zoomToStop() {
+        // find the gps coordinates of the stop
+        selectedRoute?.patternPaths.forEach((path) => {
+            const point = path.patternPoints.find((point) => point.stop?.stopCode === stop.stopCode);
+            if (point) {
+                setSheetPos(1);
+                setTimeout(() => setPoppedUpStopCallout(stop), 250);
+                zoomToStopLatLng(point.latitude, point.longitude);
+            }
+        })
     }
 
     return (
         <View style={{ marginTop: 8 }} >
             <View style={{ flexDirection: "row", alignContent: "flex-start"}}>
-                <Text style={{ fontSize: 22, fontWeight: "bold", width: "75%"}}>{stop.name}</Text>
+                <TouchableOpacity style={{ width: "75%" }} onPress={zoomToStop}>
+                    <Text style={{ fontSize: 22, fontWeight: "bold"}}>{stop.name}</Text>
+                </TouchableOpacity>
                 <View style={{ flex: 1 }}/>
                 <AmenityRow amenities={amenities} size={24} color={"gray"} style={{paddingRight: 8, alignSelf:"flex-start"}}/>
             </View>
@@ -108,7 +126,7 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
                             paddingVertical: 4, // increase touch area
                             paddingLeft: 8, // increase touch area
                         }}
-                        onPress={onPress} 
+                        onPress={toTimetable} 
                     >
                         {/* <MaterialCommunityIcons name="clock-outline" size={20} />                 */}
                         <Text style={{fontSize: 16, textAlign: 'center', fontWeight: 'bold', marginVertical: 4, marginLeft: 4, marginRight: 2, color: color }}>

@@ -168,6 +168,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                                 amenities={stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode)?.departureTimes.amenities ?? []}
                                 color={selectedRoute?.directionList[0]?.lineColor ?? "#909090"}
                                 disabled={index === processedStops.length - 1}
+                                setSheetPos={(pos) => sheetRef.current?.snapToIndex(pos)}
                             />
                         );
                     }}
