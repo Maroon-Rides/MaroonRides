@@ -1,15 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Alert, Dimensions, TouchableOpacity, View } from "react-native";
-import MapView, { LatLng, Polyline, Marker, Region } from 'react-native-maps';
+import { Dimensions, TouchableOpacity } from "react-native";
+import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { getVehicles } from "aggie-spirit-api";
-
 import { GetVehiclesResponseSchema, IGetVehiclesResponse, IMapRoute, IVehicle } from "../../utils/interfaces";
 import useAppStore from "../stores/useAppStore";
 import BusMarker from "./map/markers/BusMarker";
 import StopMarker from "./map/markers/StopMarker";
-// import StopCallout from "./map/StopCallout";
 
 const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
