@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 
 import { IDirectionList, IMapRoute } from "../../../utils/interfaces";
 import useAppStore from "../../stores/useAppStore";
 import BusIcon from "../ui/BusIcon";
 import SheetHeader from "../ui/SheetHeader";
+import AlertPill from "../ui/AlertPill";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
 }
 
 const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
-    const alerts = useAppStore((state) => state.mapServiceInterruption);
 
     const routes = useAppStore((state) => state.routes);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
@@ -31,8 +31,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     
     const presentSheet = useAppStore((state) => state.presentSheet);
     
-    const [alertIcon, setAlertIcon] = useState<"bell-outline" | "bell-badge">("bell-outline");
-
     const handleRouteSelected = (selectedRoute: IMapRoute) => {        
         setSelectedRoute(selectedRoute);
         setDrawnRoutes([selectedRoute]);
@@ -61,14 +59,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         }
     }, [selectedRouteCategory, routes, favoriteRoutes]);
 
-    // Update the alert icon when the alerts change
-    useEffect(() => {
-        if (alerts.length > 0) {
-            setAlertIcon("bell-badge");
-        } else {
-            setAlertIcon("bell-outline");
-        }
-    }, [alerts]);
+
 
     // Update the favorites when the view is focused
     function onAnimate(from: number, _: number) {
@@ -103,9 +94,10 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                 <SheetHeader 
                     title="Routes" 
                     icon={
-                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => presentSheet("alerts")}>
-                            <MaterialCommunityIcons name={alertIcon} size={28} color="black" />
-                        </TouchableOpacity>
+                        // <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => presentSheet("alerts")}>
+                        //     <MaterialCommunityIcons name={alertIcon} size={28} color="black" />
+                        // </TouchableOpacity>
+                        <AlertPill />
                     }
                 />
 

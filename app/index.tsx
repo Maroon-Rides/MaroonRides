@@ -64,7 +64,7 @@ const Home = () => {
 
             async function loadData() {
                 try {
-                    if(!authToken) {
+                    if (!authToken) {
                         return;
                     }
 

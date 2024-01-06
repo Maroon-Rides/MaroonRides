@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, NativeSyntheticEvent } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent, Alert } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
@@ -10,12 +10,12 @@ import useAppStore from "../../stores/useAppStore";
 import StopCell from "../ui/StopCell";
 import BusIcon from "../ui/BusIcon";
 import FavoritePill from "../ui/FavoritePill";
+import AlertPill from "../ui/AlertPill";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
 }
 
-// TODO: Fill in route details with new UI
 const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const authToken = useAppStore((state) => state.authToken);
 
@@ -64,7 +64,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             processedStops.push(point.stop);
         }
 
-        // TODO: process active buses and insert into proper locations
+        // TODO: process active buses and insert into proper locations in stop list
         setProcessedStops(processedStops);
     }, [selectedRoute, selectedDirectionIndex])
 
@@ -131,8 +131,9 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         </TouchableOpacity>
                     </View>
 
-                    <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginLeft: 16 }}>
+                    <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginLeft: 16, gap: 4 }}>
                         <FavoritePill routeId={selectedRoute!.key} />
+                        <AlertPill routeId={selectedRoute!.key}/>
                     </View>
 
 
@@ -142,7 +143,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         selectedIndex={selectedDirectionIndex}
                         onChange={handleSetSelectedDirection}
                     />
-
                     <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
                 </BottomSheetView>
             }
@@ -175,6 +175,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                                 amenities={stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode)?.departureTimes.amenities ?? []}
                                 color={selectedRoute?.directionList[0]?.lineColor ?? "#909090"}
                                 disabled={index === processedStops.length - 1}
+                                setSheetPos={(pos) => sheetRef.current?.snapToIndex(pos)}
                             />
                         );
                     }}

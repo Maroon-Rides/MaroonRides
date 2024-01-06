@@ -13,7 +13,6 @@ interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
 }
 
-// TODO: Fill in route details with new UI
 const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     const authToken = useAppStore((state) => state.authToken);
     const routes = useAppStore((state) => state.routes);
@@ -84,7 +83,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         <BottomSheetModal
             ref={sheetRef}
             snapPoints={snapPoints}
-            index={1}
+            index={2}
             enablePanDownToClose={false}
         >
             <BottomSheetView>
@@ -110,7 +109,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                         renderItem={({ item, index }) => {
                             return (
                                 <View key={index}>
-                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} />
+                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""}/>
                                 </View>
                             )
                         }}
@@ -126,8 +125,10 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                             scrollEnabled={false}
                             ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />}
                             renderItem={({ item }) => {
+
+                                
                                 return (
-                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} />
+                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""}/>
                                 )
                             }}
                         />
