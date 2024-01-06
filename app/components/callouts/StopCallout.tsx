@@ -4,6 +4,7 @@ import { Callout } from 'react-native-maps'
 
 import useAppStore from '../../stores/useAppStore'
 import { IGetNextDepartTimesResponse } from '../../../utils/interfaces'
+import AmenityRow from "../ui/AmenityRow";
 
 interface Props {
     stopName: string
@@ -12,7 +13,7 @@ interface Props {
     tintColor: string
 }
 
-const StopCallout: React.FC<Props> = ({ stopName, stopCode, tintColor, routeName }) => {
+const StopCallout: React.FC<Props> = ({ stopName, stopCode, tintColor, routeName}) => {
     const [contentSize, setContentSizing] = useState([100, 15]);
 
     const [estimate, setEstimate] = useState<IGetNextDepartTimesResponse | null>(null);
@@ -35,7 +36,8 @@ const StopCallout: React.FC<Props> = ({ stopName, stopCode, tintColor, routeName
                         {routeName}
                     </Text>
                 </View>
-                <Text style={{ maxWidth: 200, fontWeight: 'bold' }} numberOfLines={1}>{stopName} {estimate?.amenities.length}</Text>
+                <Text style={{ maxWidth: 200, fontWeight: 'bold' }} numberOfLines={1}>{stopName + " "}</Text>
+                <AmenityRow amenities={estimate?.amenities} size={18} color={"gray"} style={{paddingRight: 3, alignSelf:"flex-start"}}/>
             </View>
         </Callout>
     )
