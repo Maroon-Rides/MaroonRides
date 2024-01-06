@@ -26,6 +26,7 @@
     "expo-router": "2.0.0",
     "expo-splash-screen": "~0.20.4",
     "expo-status-bar": "~1.6.0",
+    "moment": "^2.30.1",
     "nativewind": "^2.0.11",
     "patch-package": "^8.0.0",
     "react": "18.2.0",

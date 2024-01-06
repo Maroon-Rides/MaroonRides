@@ -5,6 +5,7 @@ import { GetStopEstimatesResponseSchema, IRouteStopSchedule } from '../../../uti
 import BusIcon from './BusIcon';
 import { RouteStopSchedule, getStopEstimates } from 'aggie-spirit-api';
 import useAppStore from '../../stores/useAppStore';
+import moment from 'moment';
 
 
 interface Props {
@@ -16,8 +17,8 @@ interface Props {
 interface TableItem {
     time: string,
     color: string,
-    live: boolean,
     shouldHighlight: boolean
+    live: boolean,
 }
 
 interface TableItemRow {
@@ -46,55 +47,48 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
     }, [])
 
     useEffect(() => {
+        const now = moment();
         const processed = item.stopTimes.map((time) => {
-            // check if time is in estimate
-            const timeEstimate = estimate?.stopTimes.find((stopTime) => {
-                return stopTime.tripPointId == time.tripPointId
-            })
-
             const timeEstimateIndex = estimate?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId)
-            
-            var dt;
-            if (timeEstimate) dt = new Date(timeEstimate.estimatedDepartTimeUtc)
-            else dt = new Date(time.scheduledDepartTimeUtc)
+            const timeEstimate = estimate?.stopTimes[timeEstimateIndex!];
 
-            let ds = dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'America/Chicago' })
+            var departTime = timeEstimate ? moment(timeEstimate.estimatedDepartTimeUtc) : moment(time.scheduledDepartTimeUtc);
+            let relativeMinutes = Math.round(departTime.diff(now, "minutes"));
 
-            // cut off the AM/PM
-            ds = ds.substring(0, ds.length - 3);
+            let shouldHighlight = false;
+            let color = "grey";
 
-            var shouldHighlight = false;
-
-            let color;
-            if (dt! < new Date() && !timeEstimate) {
-                color = "grey";
-            } else if (timeEstimateIndex == 0) {
+            if (timeEstimateIndex == 0) {
                 color = tintColor;
-                shouldHighlight = true;
-            } else {
+                shouldHighlight = true
+            } else if (relativeMinutes >= 0) {
                 color = "black";
                 shouldHighlight = true;
             }
             
             return {
-                time: ds,
+                time: relativeMinutes.toString() + "m",
                 color: color,
                 shouldHighlight: shouldHighlight,
-                live: timeEstimate !== undefined
+                live: (timeEstimate && timeEstimate.isRealtime) ?? false
             }
         })
 
         var stopRows: TableItemRow[] = [];
-
         var foundHighlight = false;
-        // chunk into rows of 3
+
+        // chunk into rows of 4
         for (let i = 0; i < processed.length; i += 4) {   
+            // check if any of the items in the row should be highlighted
             var shouldHighlight = processed.slice(i, i + 4).some((item) => item.shouldHighlight)  
+
+            // add row
             stopRows.push({
                 items: processed.slice(i, i + 4),
                 shouldHighlight: shouldHighlight && !foundHighlight
             })
-            if (shouldHighlight) foundHighlight = true;
+
+            shouldHighlight && (foundHighlight = true); // if we found a highlight, don't highlight any more rows
         }
 
         setTableRows(stopRows);
