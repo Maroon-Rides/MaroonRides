@@ -65,18 +65,16 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
             const point = path.patternPoints.find((point) => point.stop?.stopCode === stop.stopCode);
             if (point) {
                 setSheetPos(1);
-                setTimeout(() => setPoppedUpStopCallout(stop), 250);
                 zoomToStopLatLng(point.latitude, point.longitude);
+                setTimeout(() => setPoppedUpStopCallout(stop), 300);
             }
         })
     }
 
     return (
-        <View style={{ marginTop: 8 }} >
+        <TouchableOpacity style={{ marginTop: 8 }} onPress={zoomToStop}>
             <View style={{ flexDirection: "row", alignContent: "flex-start"}}>
-                <TouchableOpacity style={{ width: "75%" }} onPress={zoomToStop}>
-                    <Text style={{ fontSize: 22, fontWeight: "bold"}}>{stop.name}</Text>
-                </TouchableOpacity>
+                <Text style={{ fontSize: 22, fontWeight: "bold", width: "75%"}}>{stop.name}</Text>
                 <View style={{ flex: 1 }}/>
                 <AmenityRow amenities={amenities} size={24} color={"gray"} style={{paddingRight: 8, alignSelf:"flex-start"}}/>
             </View>
@@ -137,7 +135,7 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
                     </TouchableOpacity>
                 }
             </View>
-        </View>
+        </TouchableOpacity>
     )
 }
 

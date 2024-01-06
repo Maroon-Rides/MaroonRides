@@ -116,7 +116,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                 marginRight: 24,
             }}>
 
-                { tableRows.map((row, index) => {
+                { tableRows.map((row, rowIndex) => {
                     
                     // check if row has an item with a color that is not grey or black
                     
@@ -128,16 +128,18 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                                 paddingVertical: 8,
                                 paddingHorizontal: 8,
                                 borderRadius: 8,
-                                backgroundColor: row.shouldHighlight ? tintColor+"40" : (index % 2 == 0 ? "#efefef" : "white"),
+                                backgroundColor: row.shouldHighlight ? tintColor+"40" : (rowIndex % 2 == 0 ? "#efefef" : "white"),
                             }}
+                            key={rowIndex}
                         >
-                            { row.items.map((item, index) => {
+                            { row.items.map((item, colIndex) => {
                                 return (
                                     <View style= {{
                                         flexBasis: "25%",
-                                        marginLeft: index == 0 ? 16 : 0,
+                                        marginLeft: colIndex == 0 ? 16 : 0,
                                         flexDirection: "row",
-                                    }}>
+                                    }}
+                                    key={colIndex}>
                                         <Text style={{
                                                 color: item.color,
                                                 fontWeight: "bold",
