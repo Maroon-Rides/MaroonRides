@@ -77,7 +77,7 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
             <View style={{ flexDirection: "row", alignContent: "flex-start"}}>
                 <Text style={{ fontSize: 22, fontWeight: "bold", width: "75%"}}>{stop.name}</Text>
                 <View style={{ flex: 1 }}/>
-                <AmenityRow amenities={amenities} size={24} color={"gray"} style={{paddingRight: 8, alignSelf:"flex-start"}}/>
+                <AmenityRow amenities={amenities} size={24} color={"gray"} style={{paddingRight: 16, alignSelf:"flex-start"}}/>
             </View>
 
             {status == "Loading" ?
@@ -86,7 +86,7 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
                     <View style={{ flex: 1 }} />
                 </View>
                 :
-                <Text style={{ marginBottom: 12 }}>{status}</Text>
+                <Text style={{ marginBottom: 12, marginTop: 4 }}>{status}</Text>
             }
             <View style={{ flexDirection: "row", alignItems: "center", marginRight: 8,  marginBottom: 8, marginTop: -4 }}>
                 <FlatList
