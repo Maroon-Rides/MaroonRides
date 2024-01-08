@@ -8,6 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import useAppStore from "../../stores/useAppStore";
 import { GetStopSchedulesResponseSchema, IRouteStopSchedule, IStop } from "../../../utils/interfaces";
 import Timetable from "../ui/Timetable";
+import moment from "moment";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -31,7 +32,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         if (!newSelectedStop || !authToken) return;
 
         try {
-            const stopSchedulesResponse = await getStopSchedules(newSelectedStop?.stopCode, new Date(), authToken);
+            const stopSchedulesResponse = await getStopSchedules(newSelectedStop?.stopCode, moment().toDate(), authToken);
 
             GetStopSchedulesResponseSchema.parse(stopSchedulesResponse);
 

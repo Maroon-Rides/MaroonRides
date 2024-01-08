@@ -28,17 +28,17 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
         let totalDeviation = 0;
 
         for (const departTime of directionTimes.nextDeparts) {
-            const estimatedTime = new Date(departTime.estimatedDepartTimeUtc ?? "");
-            const scheduledTime = new Date(departTime.scheduledDepartTimeUtc ?? "");
+            const estimatedTime = moment(departTime.estimatedDepartTimeUtc ?? "");
+            const scheduledTime = moment(departTime.scheduledDepartTimeUtc ?? "");
 
-            const delayLength = estimatedTime.getTime() - scheduledTime.getTime();
+            const delayLength = estimatedTime.diff(scheduledTime, "seconds");
 
             if (!isNaN(delayLength)) {
                 totalDeviation += delayLength;
             }
         }
 
-        const avgDeviation = totalDeviation / directionTimes.nextDeparts.length / (1000 * 60);
+        const avgDeviation = totalDeviation / directionTimes.nextDeparts.length / (60);
         const roundedDeviation = Math.round(avgDeviation);
 
         if (directionTimes.directionKey === "") {

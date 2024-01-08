@@ -33,7 +33,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
     const [tableRows, setTableRows] = React.useState<TableItemRow[]>([]);
 
     useEffect(() => {
-        getStopEstimates(stopCode, new Date(), authToken!)
+        getStopEstimates(stopCode, moment().toDate(), authToken!)
             .then((response) => {
                 try {
                     GetStopEstimatesResponseSchema.parse(response);
