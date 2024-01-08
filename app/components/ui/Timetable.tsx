@@ -53,7 +53,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
             const timeEstimate = estimate?.stopTimes[timeEstimateIndex!];
 
             var departTime = timeEstimate ? moment(timeEstimate.estimatedDepartTimeUtc) : moment(time.scheduledDepartTimeUtc);
-            let relativeMinutes = Math.round(departTime.diff(now, "minutes"));
+            let relativeMinutes = departTime.diff(now, "minutes")
 
             let shouldHighlight = false;
             let color = "grey";
@@ -67,7 +67,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
             }
             
             return {
-                time: relativeMinutes.toString() + "m",
+                time: departTime.format("h:mm"),
                 color: color,
                 shouldHighlight: shouldHighlight,
                 live: (timeEstimate && timeEstimate.isRealtime) ?? false

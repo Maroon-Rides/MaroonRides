@@ -5,6 +5,7 @@ import { IAmenity, IRouteDirectionTime, IStop } from "../../../utils/interfaces"
 import TimeBubble from "./TimeBubble";
 import useAppStore from "../../stores/useAppStore";
 import AmenityRow from "./AmenityRow";
+import moment from "moment";
 
 interface Props {
     stop: IStop
@@ -94,23 +95,16 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
                     data={directionTimes.nextDeparts}
                     keyExtractor={(_, index) => index.toString()}
                     renderItem={({ item: departureTime, index }) => {
-                        let date;
-                        let live = false;
-
-                        if (departureTime.estimatedDepartTimeUtc) {
-                            date = new Date(departureTime.estimatedDepartTimeUtc)
-                            live = true;
-                        } else {
-                            date = new Date(departureTime.scheduledDepartTimeUtc ?? "")
-                        }
-
-                        const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'America/Chicago' })
-
-                        // cut off the AM/PM
-                        const stringTime = time.substring(0, time.length - 3);
-
+                        const date = moment(departureTime.estimatedDepartTimeUtc ?? departureTime.scheduledDepartTimeUtc ?? "");
+                        const relative = date.diff(moment(), "minutes");
                         return (
-                            <TimeBubble key={index} time={stringTime} color={index == 0 ? color+"40" : "lightgrey"} textColor={index == 0 ? color : "black"} live={live} />
+                            <TimeBubble 
+                                key={index} 
+                                time={relative <= 0 ? "Now" : relative.toString() + " min"} 
+                                color={index == 0 ? color+"40" : "lightgrey"} 
+                                textColor={index == 0 ? color : "black"} 
+                                live={departureTime.estimatedDepartTimeUtc == null ? false : true} 
+                            />
                         )
                     }}
                 />
