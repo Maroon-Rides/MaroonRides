@@ -185,7 +185,14 @@ const Map: React.FC = () => {
     
     return (
         <>
-            <MapView showsUserLocation={true} style={{ width: "100%", height: "100%" }} ref={mapViewRef} rotateEnabled={false} initialRegion={defaultMapRegion} onPanDrag={() => setIsViewCenteredOnUser(false)}>
+            <MapView 
+                showsUserLocation={true} 
+                style={{ width: "100%", height: "100%" }} 
+                ref={mapViewRef} rotateEnabled={false} 
+                initialRegion={defaultMapRegion} 
+                onPanDrag={() => setIsViewCenteredOnUser(false)}
+                showsMyLocationButton={false} // we have our own
+            >
                 {/* Route Polylines */}
                 {drawnRoutes.map(function (drawnRoute) {
                     const coords: LatLng[] = [];

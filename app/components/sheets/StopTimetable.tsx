@@ -8,6 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import useAppStore from "../../stores/useAppStore";
 import { GetStopSchedulesResponseSchema, IRouteStopSchedule, IStop } from "../../../utils/interfaces";
 import Timetable from "../ui/Timetable";
+import moment from "moment";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -31,19 +32,19 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         if (!newSelectedStop || !authToken) return;
 
         try {
-            const stopSchedulesResponse = await getStopSchedules(newSelectedStop?.stopCode, new Date(), authToken);
+            const stopSchedulesResponse = await getStopSchedules(newSelectedStop?.stopCode, moment().toDate(), authToken);
 
             GetStopSchedulesResponseSchema.parse(stopSchedulesResponse);
 
             // find the schedules for the selected route
-            let routeStops = stopSchedulesResponse.routeStopSchedules.filter((schedule) => schedule.routeName === selectedRoute?.name)
+            let routeStops = stopSchedulesResponse.routeStopSchedules.filter((schedule) => schedule.routeName === selectedRoute?.name && schedule.routeNumber === selectedRoute?.shortName)
 
             // filter anything that is end of route
             routeStops = routeStops.filter((schedule) => !schedule.isEndOfRoute);
             setRouteSchedules(routeStops);
 
             // filter out non route schedules
-            let nonRouteStops = stopSchedulesResponse.routeStopSchedules.filter((schedule) => schedule.routeName !== selectedRoute?.name)
+            let nonRouteStops = stopSchedulesResponse.routeStopSchedules.filter((schedule) => schedule.routeName !== selectedRoute?.name || schedule.routeNumber !== selectedRoute?.shortName)
 
             // filter anything that doesnt have stop times
             nonRouteStops = nonRouteStops.filter((schedule) => schedule.stopTimes.length > 0);
