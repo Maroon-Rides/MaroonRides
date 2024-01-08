@@ -48,6 +48,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
     useEffect(() => {
         const now = moment();
+        var foundNextStop = false
         const processed = item.stopTimes.map((time) => {
             const timeEstimateIndex = estimate?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId)
             const timeEstimate = estimate?.stopTimes[timeEstimateIndex!];
@@ -58,12 +59,13 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
             let shouldHighlight = false;
             let color = "grey";
 
-            if (timeEstimateIndex == 0) {
-                color = tintColor;
-                shouldHighlight = true
-            } else if (relativeMinutes >= 0) {
+            if (relativeMinutes >= 0) {
                 color = "black";
                 shouldHighlight = true;
+                if (!foundNextStop) {
+                    color = tintColor;
+                    foundNextStop = true;
+                }
             }
             
             return {
@@ -78,13 +80,13 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
         var foundHighlight = false;
 
         // chunk into rows of 4
-        for (let i = 0; i < processed.length; i += 4) {   
+        for (let i = 0; i < processed.length; i += 5) {   
             // check if any of the items in the row should be highlighted
             var shouldHighlight = processed.slice(i, i + 4).some((item) => item.shouldHighlight)  
 
             // add row
             stopRows.push({
-                items: processed.slice(i, i + 4),
+                items: processed.slice(i, i + 5),
                 shouldHighlight: shouldHighlight && !foundHighlight
             })
 
@@ -106,8 +108,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
             <View style={{
                 marginBottom: 8,
-                marginLeft: 48 + 8,
-                marginRight: 24,
+                marginRight: 16,
             }}>
 
                 { tableRows.map((row, rowIndex) => {
@@ -129,14 +130,14 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                             { row.items.map((item, colIndex) => {
                                 return (
                                     <View style= {{
-                                        flexBasis: "25%",
+                                        flexBasis: "20%",
                                         marginLeft: colIndex == 0 ? 16 : 0,
                                         flexDirection: "row",
                                     }}
                                     key={colIndex}>
                                         <Text style={{
                                                 color: item.color,
-                                                fontWeight: "bold",
+                                                fontWeight: item.color == tintColor ? "bold" : "normal",
                                                 fontSize: 16,
                                             }}
                                         >{item.time}</Text>
