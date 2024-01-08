@@ -11,7 +11,9 @@ interface Props {
     routeName: string
 }
 
+// Bus callout with amentities
 const BusCallout: React.FC<Props> = ({ bus, tintColor, routeName }) => {
+    // Calculate and round the percentage of the bus that's full
     const calcFullPercentage = (passengersOnboard: number, passengerCapacity: number) => {
         return Math.round(passengersOnboard / passengerCapacity)
     }

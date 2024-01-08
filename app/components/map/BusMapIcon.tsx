@@ -8,7 +8,9 @@ interface Props {
   borderColor: string
 }
 
+// Bus icon thats show on map
 const BusMapIcon: React.FC<Props> = ({ heading, color, borderColor }) => {
+  // Calculate the rotation angle based on the bearing of the bus
   const getRotationProp = (bearing: number | undefined) => {
     return [{ rotate: bearing !== undefined ? `${Math.round(bearing) - 135}deg` : '0deg' }]
   };

@@ -48,12 +48,13 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
     useEffect(() => {
         const now = moment();
-        var foundNextStop = false
+        let foundNextStop = false;
+
         const processed = item.stopTimes.map((time) => {
             const timeEstimateIndex = estimate?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId)
             const timeEstimate = estimate?.stopTimes[timeEstimateIndex!];
 
-            var departTime = timeEstimate ? moment(timeEstimate.estimatedDepartTimeUtc) : moment(time.scheduledDepartTimeUtc);
+            let departTime = timeEstimate ? moment(timeEstimate.estimatedDepartTimeUtc) : moment(time.scheduledDepartTimeUtc);
             let relativeMinutes = departTime.diff(now, "minutes")
 
             let shouldHighlight = false;
@@ -76,13 +77,13 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
             }
         })
 
-        var stopRows: TableItemRow[] = [];
-        var foundHighlight = false;
+        const stopRows: TableItemRow[] = [];
+        let foundHighlight = false;
 
         // chunk into rows of 4
         for (let i = 0; i < processed.length; i += 5) {   
             // check if any of the items in the row should be highlighted
-            var shouldHighlight = processed.slice(i, i + 4).some((item) => item.shouldHighlight)  
+            let shouldHighlight = processed.slice(i, i + 4).some((item) => item.shouldHighlight)
 
             // add row
             stopRows.push({

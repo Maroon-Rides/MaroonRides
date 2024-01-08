@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, NativeSyntheticEvent, Alert } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +16,7 @@ interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
 }
 
+// Display details when a route is selected
 const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const authToken = useAppStore((state) => state.authToken);
 
@@ -26,11 +27,9 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const clearStopEstimates = useAppStore((state) => state.clearStopEstimates);
     const updateStopEstimate = useAppStore((state) => state.updateStopEstimate);
 
-    const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
-    const favoriteRoutes = useAppStore(state => state.favoriteRoutes);
-    const setDrawnRoutes = useAppStore(state => state.setDrawnRoutes);
-
+    // Controls SegmentedControl
     const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
+
     const [processedStops, setProcessedStops] = useState<IStop[]>([]);
     const [selectedRoute, setSelectedRoute] = useState<IMapRoute | null>(null);
 
@@ -40,19 +39,17 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         clearSelectedRoute();
         clearStopEstimates();
 
-        if(selectedRouteCategory === 'favorites') {
-            setDrawnRoutes(favoriteRoutes);
-        }
-
         // reset direction selector
         setSelectedDirectionIndex(0);
     }
 
+    // Filters patternPaths for only the selected route from all patternPaths
     function getPatternPathForSelectedRoute(): IPatternPath | undefined {
         if (!selectedRoute) return undefined;
         return selectedRoute.patternPaths.find(direction => direction.patternKey === selectedRoute.directionList[selectedDirectionIndex]?.patternList[0]?.key)
     }
 
+    // When a new route is selected or the direction of the route is changed, update the stops
     useEffect(() => {
         if (!selectedRoute) return;
 

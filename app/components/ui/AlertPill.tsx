@@ -31,7 +31,7 @@ const AlertPill: React.FC<Props> = ({ routeId }) => {
 
         // find the route that matches the routeId
         const route = routes.find((route) => route.key === routeId);
-        var activeAlerts = false;
+        let activeAlerts = false;
 
         if (route) {
             for (const direction of route.directionList) {

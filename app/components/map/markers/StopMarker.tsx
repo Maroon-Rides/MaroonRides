@@ -12,16 +12,19 @@ interface Props {
     shortName: string
 }
 
+// Stop marker with callout
 const StopMarker: React.FC<Props> = ({ point, tintColor, shortName }) => {
     const markerRef = React.useRef<MapMarker>(null);
+
+    // Controls which StopCallout is shown at the global level
     const poppedUpStopCallout = useAppStore((state) => state.poppedUpStopCallout);
 
+    // If the global poppedUpStopCallout is the same as the current stop, show the callout on screen
     useEffect(() => {
         if (poppedUpStopCallout?.stopCode === point.stop?.stopCode) {
             markerRef.current?.showCallout();
         }
     }, [poppedUpStopCallout])
-
 
     return (
         <Marker

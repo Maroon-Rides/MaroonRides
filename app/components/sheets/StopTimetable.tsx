@@ -14,6 +14,7 @@ interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
 }
 
+// Timtable with upcoming routes
 const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     const authToken = useAppStore((state) => state.authToken);
     const routes = useAppStore((state) => state.routes);
