@@ -44,23 +44,26 @@ platform :ios do
   lane :prebuild do
     setup_ci if ENV['CI']
 
-    disable_automatic_code_signing(
-      path: "ios/ReveilleRides.xcodeproj",
-      team_id: TEAM_ID
-    )
-
+    
     match(
       type: 'appstore',
       app_identifier: 'com.bwees.reveille-rides',
+      readonly: true,
       git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
-    )
-
-    match(
-      type: 'development',
-      app_identifier: 'com.bwees.reveille-rides',
-      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
-    )
-
+      )
+      
+      match(
+        type: 'development',
+        app_identifier: 'com.bwees.reveille-rides',
+        readonly: true,
+        git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
+        )
+        
+      disable_automatic_code_signing(
+        path: "ios/ReveilleRides.xcodeproj",
+        team_id: TEAM_ID
+      )
+        
     update_project_team(
       path: "ios/ReveilleRides.xcodeproj",
       teamid: TEAM_ID
