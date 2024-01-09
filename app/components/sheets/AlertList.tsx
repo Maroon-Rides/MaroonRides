@@ -11,26 +11,28 @@ interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
 }
 
+// AlertList (for all routes and current route)
 const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
     const snapPoints = ['25%', '45%', '85%'];
-    
+
     const alerts = useAppStore((state) => state.mapServiceInterruption);
     const selectedRoute = useAppStore((state) => state.selectedRoute);
 
     const [shownAlerts, setShownAlerts] = useState<IMapServiceInterruption[]>([]);
 
+    // If no route is selected, we're looking at all routes, therefore show all alerts
+    // If a route is selected, only show the alerts for that route
     useEffect(() => {
-        if (selectedRoute) {
-            const alertKeys = selectedRoute.directionList.flatMap(direction => direction.serviceInterruptionKeys);
-            if (alertKeys.length === 0) {
-                setShownAlerts([]);
-                return;
-            }
-            const filteredAlerts = alerts.filter(alert => alertKeys.includes(Number(alert.key)));
-            setShownAlerts(filteredAlerts);
-        } else {
+        if (!selectedRoute) {
             setShownAlerts(alerts);
+
+            return;
         }
+
+        const alertKeys = selectedRoute.directionList.flatMap(direction => direction.serviceInterruptionKeys);
+        const filteredAlerts = alerts.filter(alert => alertKeys.includes(Number(alert.key)));
+
+        setShownAlerts(filteredAlerts);
     }, [selectedRoute, alerts]);
 
     return (
@@ -47,10 +49,10 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                     }
                 />
 
-                <View style={{height: 1, backgroundColor: "#eaeaea", marginTop: 8}} />
+                <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
 
-                { shownAlerts.length === 0 &&
-                    <View style={{alignItems: 'center', paddingTop: 16}}>
+                {shownAlerts.length === 0 &&
+                    <View style={{ alignItems: 'center', paddingTop: 16 }}>
                         <Text>There are no active alerts at this time.</Text>
                     </View>
                 }
@@ -64,18 +66,18 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                 contentContainerStyle={{ paddingBottom: 35, paddingRight: 16 }}
                 renderItem={({ item: alert }) => {
                     return (
-                        <View style={{ 
-                            flexDirection: 'row', 
-                            alignItems: 'center', 
+                        <View style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
                             marginVertical: 4,
                             backgroundColor: "#eaeaea",
                             padding: 8,
                             borderRadius: 8,
                         }}>
                             <Ionicons name="alert-circle" size={32} color="red" style={{ marginRight: 8 }} />
-                            <Text style={{flex: 1}}>{alert.name}</Text>
+                            <Text style={{ flex: 1 }}>{alert.name}</Text>
                         </View>
-                        
+
                     )
                 }}
             />

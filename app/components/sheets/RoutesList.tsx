@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
@@ -15,14 +15,11 @@ interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
 }
 
+// Display routes list for all routes and favorite routes
 const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
-
     const routes = useAppStore((state) => state.routes);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     
-    const favoriteRoutes = useAppStore(state => state.favoriteRoutes);
-    const setFavoriteRoutes = useAppStore(state => state.setFavoriteRoutes);
-
     const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
     const setSelectedRouteCategory = useAppStore(state => state.setSelectedRouteCategory);
 
@@ -30,6 +27,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     
     const presentSheet = useAppStore((state) => state.presentSheet);
+
+    const [favoriteRoutes, setFavoriteRoutes] = useState<IMapRoute[]>([]);
     
     const handleRouteSelected = (selectedRoute: IMapRoute) => {        
         setSelectedRoute(selectedRoute);
@@ -37,6 +36,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         presentSheet("routeDetails");
     }
 
+    // load favorite routes from async storage
     function loadFavorites() {
         AsyncStorage.getItem('favorites').then((favorites: string | null) => {
             if (!favorites) return;
@@ -93,12 +93,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             <BottomSheetView>
                 <SheetHeader 
                     title="Routes" 
-                    icon={
-                        // <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => presentSheet("alerts")}>
-                        //     <MaterialCommunityIcons name={alertIcon} size={28} color="black" />
-                        // </TouchableOpacity>
-                        <AlertPill />
-                    }
+                    icon={<AlertPill />}
                 />
 
                 <SegmentedControl
@@ -108,7 +103,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     onChange={handleSetSelectedRouteCategory}
                 />
                 <View style={{height: 1, backgroundColor: "#eaeaea", marginTop: 8}} />
-
 
                 { selectedRouteCategory === "favorites" && drawnRoutes.length === 0 && (
                     <View style={{ alignItems: 'center', marginTop: 16 }}>

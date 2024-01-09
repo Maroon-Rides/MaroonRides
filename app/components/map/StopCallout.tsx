@@ -12,16 +12,19 @@ interface Props {
     routeName: string
 }
 
+// Stop callout with amentities
 const StopCallout: React.FC<Props> = ({ stop, tintColor, routeName}) => {
-    const [contentSize, setContentSizing] = useState([100, 15]);
-
-    const [estimate, setEstimate] = useState<IGetNextDepartTimesResponse | null>(null);
     const stopEstimates = useAppStore((state) => state.stopEstimates);
+    
+    // Calculate size of callout based on the contentSize
+    const [contentSize, setContentSizing] = useState([100, 15]);
+    const [nextDepartTimes, setNextDepartTimes] = useState<IGetNextDepartTimesResponse | null>(null);
 
+    // Loop through global stopEstimates, find the current stop and set the nextDepartTimes
     useEffect(() => {
         stopEstimates.forEach((stopEstimate) => {
             if (stopEstimate.stopCode === stop.stopCode) {
-                setEstimate(stopEstimate.departureTimes);
+                setNextDepartTimes(stopEstimate.departureTimes);
             }
         })
     }, [stopEstimates])
@@ -34,7 +37,7 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, routeName}) => {
                     <Text style={{ maxWidth: 200, fontWeight: 'bold' }} numberOfLines={1}>{stop.name}</Text>
                 </View>
 
-                <AmenityRow amenities={estimate?.amenities ?? []} color='grey' size={20} style={{marginTop: 4}}/>
+                <AmenityRow amenities={nextDepartTimes?.amenities ?? []} color='grey' size={20} style={{marginTop: 4}}/>
             </View>
         </Callout>
     )

@@ -10,11 +10,13 @@ interface Props {
     routeName: string
 }
 
+// Bus Marker with icon and callout
 const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
     return (
         <Marker
             key={bus.key}
             coordinate={{ latitude: bus.location.latitude, longitude: bus.location.longitude }}
+            tracksViewChanges={false}
         >
             {/* Bus Icon on Map*/}
             <BusMapIcon color={tintColor} borderColor={getLighterColor(tintColor)} heading={bus.location.heading} />

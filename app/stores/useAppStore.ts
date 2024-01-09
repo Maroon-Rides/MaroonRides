@@ -16,9 +16,6 @@ interface AppState {
     setDrawnRoutes: (routes: IMapRoute[]) => void
     resetDrawnRoutes: () => void,
 
-    favoriteRoutes: IMapRoute[],
-    setFavoriteRoutes: (favoriteRoutes: IMapRoute[]) => void,
-
     stopEstimates: ICachedStopEstimate[],
     updateStopEstimate: (stopEstimate: IGetNextDepartTimesResponse, stopCode: string) => void,
     clearStopEstimates: () => void,
@@ -60,9 +57,6 @@ const useAppStore = create<AppState>()((set) => ({
     drawnRoutes: [],
     setDrawnRoutes: (routes) => set(() => ({ drawnRoutes: routes })),
     resetDrawnRoutes: () => set(state => ({ drawnRoutes: state.routes })),
-
-    favoriteRoutes: [],
-    setFavoriteRoutes: (favoriteRoutes) => set(() => ({ favoriteRoutes })),
 
     stopEstimates: [],
     updateStopEstimate: (departureTimes, stopCode) => set(state => {
