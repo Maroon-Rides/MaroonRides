@@ -54,7 +54,7 @@ platform :ios do
 
     update_project_provisioning(
       xcodeproj: "ios/ReveilleRides.xcodeproj",
-      profile: ENV["sigh_com.reveillerides.ReveilleRides_appstore_profile-path"]
+      profile: ENV["sigh_com.bwees.reveille-rides_appstore_profile-path"]
     )
 
     # set ITSAppUsesNonExemptEncryption to false, prevents Missing Compliance error in TF
