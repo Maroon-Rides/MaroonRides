@@ -52,13 +52,24 @@ jobs:
         with:
           node-version: '20.x'
 
+      - name: Cache npm dependencies
+        uses: actions/cache@v2
+        with:
+          path: '~/.npm'
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+  
+      - name: Install dependencies
+        run: npm install # or yarn install
+
       - name: Install dependencies
         run: |
           npm install
       
       - name: Create Prebuild and move to ios folder
         run: |
-          npx expo prebuild --ios
+          npx expo prebuild --platform ios
           cd ios/
 
       - name: build archive
