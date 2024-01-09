@@ -1,4 +1,4 @@
-name: "Build iOS app"
+name: "Build iOS .ipa"
 
 on:
   # manual trigger but change to any supported event
@@ -48,9 +48,9 @@ jobs:
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles    
           
       - name: Install Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: '14.x'
+          node-version: '20.x'
 
       - name: Install dependencies
         run: |
