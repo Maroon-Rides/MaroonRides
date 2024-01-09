@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
@@ -148,4 +148,4 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     )
 }
 
-export default RoutesList
+export default memo(RoutesList)
