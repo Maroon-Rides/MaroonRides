@@ -79,6 +79,7 @@ jobs:
           -sdk iphoneos \
           -configuration Release \
           -destination generic/platform=iOS \
+          -quiet \
           archive DEVELOPMENT_TEAM=$DEVELOPMENT_TEAM
 
       - name: Export .ipa file
