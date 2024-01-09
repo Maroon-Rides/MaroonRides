@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 import { MapMarker, Marker } from 'react-native-maps';
 import { IPatternPoint } from 'utils/interfaces';
 import StopCallout from '../StopCallout';
@@ -54,4 +54,4 @@ const StopMarker: React.FC<Props> = ({ point, tintColor, shortName }) => {
     );
 };
 
-export default StopMarker;
+export default memo(StopMarker);

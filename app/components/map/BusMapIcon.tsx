@@ -14,7 +14,7 @@ const BusMapIcon: React.FC<Props> = ({ heading, color, borderColor }) => {
   const getRotationProp = (bearing: number | undefined) => {
     return [{ rotate: bearing !== undefined ? `${Math.round(bearing) - 135}deg` : '0deg' }]
   };
-  
+
   return (
     <View style={{
       alignItems: 'center',

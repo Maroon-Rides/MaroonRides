@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { View, Text, ViewProps } from 'react-native'
 
 interface Props extends ViewProps {
@@ -17,4 +17,4 @@ const BusIcon: React.FC<Props> = ({name, color, isCallout=false, style={}}) => {
     )
 }
 
-export default BusIcon;
+export default memo(BusIcon);

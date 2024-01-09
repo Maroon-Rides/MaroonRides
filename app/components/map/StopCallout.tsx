@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { View, Text } from 'react-native'
 import { Callout } from 'react-native-maps'
 import BusIcon from '../ui/BusIcon'
