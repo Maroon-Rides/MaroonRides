@@ -60,7 +60,7 @@ platform :ios do
     )
 
     update_project_team(
-      xcodeproj: "ios/ReveilleRides.xcodeproj",
+      path: "ios/ReveilleRides.xcodeproj",
       teamid: TEAM_ID
     )
 
