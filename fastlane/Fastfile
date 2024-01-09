@@ -38,7 +38,7 @@ platform :ios do
       unlock: true
     )
   end
-  
+
   desc "Setup generated Xcode project for build"
   lane :prebuild do
     setup_ci if ENV['CI']
@@ -59,10 +59,10 @@ platform :ios do
       value: false
     )
 
-    update_project_provisioning(
-      xcodeproj: "ios/ReveilleRides.xcodeproj",
-      profile: ENV["sigh_com.bwees.reveille-rides_appstore_profile-path"]
+    disable_automatic_code_signing(
+      path: "ios/ReveilleRides.xcodeproj"
     )
+
   end
 
   desc "Push a new release build to the App Store"
