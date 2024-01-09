@@ -42,14 +42,19 @@ platform :ios do
   desc "Setup generated Xcode project for build"
   lane :prebuild do
     setup_ci if ENV['CI']
+
+    disable_automatic_code_signing(
+      path: "ios/ReveilleRides.xcodeproj"
+    )
+
     match(
       type: 'appstore',
       git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
     )
 
-    update_project_team(
-      path: "ios/ReveilleRides.xcodeproj",
-      teamid: "65AMD2STXG"
+    update_project_provisioning(
+      xcodeproj: "ios/ReveilleRides.xcodeproj",
+      profile: ENV["sigh_com.reveillerides.ReveilleRides_appstore_profile-path"]
     )
 
     # set ITSAppUsesNonExemptEncryption to false, prevents Missing Compliance error in TF
@@ -58,11 +63,6 @@ platform :ios do
       key: "ITSAppUsesNonExemptEncryption",
       value: false
     )
-
-    disable_automatic_code_signing(
-      path: "ios/ReveilleRides.xcodeproj"
-    )
-
   end
 
   desc "Push a new release build to the App Store"

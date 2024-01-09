@@ -40,11 +40,11 @@ jobs:
       - name: Install dependencies
         run: npm install
       
-      - name: Create Prebuild for iOS
+      - name: Expo Prebuild [iOS]
         run: |
           npx expo prebuild --platform ios --npm
 
-      - name: Fastlane Build
+      - name: Fastlane Build [iOS]
         run: fastlane beta
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
