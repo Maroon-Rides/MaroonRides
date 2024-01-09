@@ -71,7 +71,7 @@ jobs:
       - name: Build app archive
         working-directory: ios
         env:
-          DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
+          DEVELOPMENT_TEAM: ${{ secrets.DEV_TEAM_ID }}
         run: |
           xcodebuild -scheme "ReveilleRides" \                                                                                                    bwees@Brandons-MacBook-Pro-7
           -archivePath build/ReveilleRides.xcarchive \
