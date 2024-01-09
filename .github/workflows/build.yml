@@ -73,7 +73,7 @@ jobs:
         env:
           DEVELOPMENT_TEAM: ${{ secrets.DEV_TEAM_ID }}
         run: |
-          xcodebuild -scheme "ReveilleRides" \                                                                                                    bwees@Brandons-MacBook-Pro-7
+          xcodebuild -scheme "ReveilleRides" \
           -archivePath build/ReveilleRides.xcarchive \
           -workspace ReveilleRides.xcworkspace\
           -sdk iphoneos \
