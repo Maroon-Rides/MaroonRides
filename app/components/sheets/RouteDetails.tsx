@@ -75,7 +75,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     }, [currentSelectedRoute])
 
     async function loadStopEstimates() {
-        clearStopEstimates();
+        // clearStopEstimates();
 
         if (!currentSelectedRoute || !authToken) return;
         let allStops: IStop[] = [];
@@ -104,6 +104,17 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         }
     }
 
+    // Refresh the eta every minute
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            loadStopEstimates();
+        }, 30000);
+
+        return () => {
+            clearInterval(intervalId);
+        };
+    }, []);
+
     const handleSetSelectedDirection = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
         setSelectedDirectionIndex(evt.nativeEvent.selectedSegmentIndex);
     }
@@ -130,7 +141,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
                     <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginLeft: 16, gap: 4 }}>
                         <FavoritePill routeId={selectedRoute!.key} />
-                        <AlertPill routeId={selectedRoute!.key}/>
+                        <AlertPill routeId={selectedRoute!.key} />
                     </View>
 
 
@@ -145,8 +156,9 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             }
 
             {selectedRoute &&
-                <BottomSheetFlatList
+                <BottomSheetFlatList 
                     data={processedStops}
+                    extraData={[...stopEstimates]}
                     style={{ height: "100%" }}
                     contentContainerStyle={{ paddingBottom: 35, paddingLeft: 16 }}
                     onRefresh={() => loadStopEstimates()}
@@ -158,6 +170,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
                         if (departureTimes) {
                             const routePatternPath = getPatternPathForSelectedRoute()?.directionKey;
+
                             const tempDirectionTimes = departureTimes?.departureTimes.routeDirectionTimes.find((directionTime) => directionTime.directionKey === routePatternPath);
 
                             if (tempDirectionTimes) {
@@ -166,7 +179,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         }
 
                         return (
-                        <StopCell
+                            <StopCell
                                 stop={stop}
                                 directionTimes={directionTimes}
                                 amenities={stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode)?.departureTimes.amenities ?? []}
