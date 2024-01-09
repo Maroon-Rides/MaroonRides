@@ -32,7 +32,10 @@ platform :ios do
   desc "Setup generated Xcode project for build"
   lane :prebuild do
     setup_ci if ENV['CI']
-    match(type: 'appstore')
+    match(
+      type: 'appstore',
+      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
+    )
 
     update_project_team(
       path: "ios/ReveilleRides.xcodeproj",
