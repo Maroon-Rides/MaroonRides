@@ -1,39 +1,35 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { View, Text } from 'react-native'
 import { Callout } from 'react-native-maps'
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { IVehicle } from '../../../utils/interfaces';
+import { IAmenity } from '../../../utils/interfaces';
 import BusIcon from '../ui/BusIcon'
 import AmenityRow from '../ui/AmenityRow';
 interface Props {
-    bus: IVehicle
+    directionName: string
+    fullPercentage: number
+    amenities: IAmenity[]
     tintColor: string
     routeName: string
 }
 
 // Bus callout with amentities
-const BusCallout: React.FC<Props> = ({ bus, tintColor, routeName }) => {
-    // Calculate and round the percentage of the bus that's full
-    const calcFullPercentage = (passengersOnboard: number, passengerCapacity: number) => {
-        return Math.round(passengersOnboard / passengerCapacity)
-    }
-
+const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities, tintColor, routeName }) => {
     return (
         <Callout>
             <View style={{ width: 160 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 4 }}>
                     <BusIcon name={routeName} color={tintColor} isCallout={true} />
                     <View style={{ flex: 1 }} />
-                    <AmenityRow amenities={bus.amenities} color={"gray"} size={20} />
+                    <AmenityRow amenities={amenities} color={"gray"} size={20} />
                 </View>
-                <View style={{flexDirection: "row", justifyContent: "center", alignSelf: "flex-start"}}>
-                    <MaterialCommunityIcons name="sign-direction" size={16} color={tintColor} />
-                    <Text style={{ fontSize: 14, marginLeft: 2 }}>{bus.directionName}</Text>
-                </View>
-                <Text style={{ fontWeight: 'bold', color: '#6B7280', fontSize: 10, lineHeight: 16, marginTop: 4 }}>{calcFullPercentage(bus.passengersOnboard, bus.passengerCapacity)}% full</Text>
+                <Text style={{ flexDirection: "row", justifyContent: "center", alignSelf: "flex-start" }}>
+                    <Text style={{ fontWeight: '700', color: tintColor }}>To: </Text>
+                    <Text style={{ fontSize: 14, marginLeft: 2 }}>{directionName}</Text>
+                </Text>
+                <Text style={{ fontWeight: 'bold', color: '#6B7280', fontSize: 10, lineHeight: 16, marginTop: 4 }}>{fullPercentage}% full</Text>
             </View>
         </Callout>
     )
 }
 
-export default BusCallout;
+export default memo(BusCallout);

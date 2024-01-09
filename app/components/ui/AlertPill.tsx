@@ -1,6 +1,6 @@
 
 
-import React, { useEffect, useState } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons} from '@expo/vector-icons';
 
@@ -63,4 +63,4 @@ const AlertPill: React.FC<Props> = ({ routeId }) => {
     )
 }
 
-export default AlertPill;
+export default memo(AlertPill);

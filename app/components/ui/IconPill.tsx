@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { View, Text, ViewProps } from 'react-native'
 
 interface Props extends ViewProps {
@@ -45,4 +45,4 @@ const IconPill: React.FC<Props> = ({text, color, textColor, borderColor, icon, s
   )
 }
 
-export default IconPill;
+export default memo(IconPill);

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { View, ViewProps } from 'react-native'
 import { IAmenity } from 'utils/interfaces'
 import { MaterialCommunityIcons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
@@ -29,4 +29,4 @@ const AmenityRow: React.FC<Props> = ({amenities, color, size, style}) => {
     )
 }
 
-export default AmenityRow;
+export default memo(AmenityRow);

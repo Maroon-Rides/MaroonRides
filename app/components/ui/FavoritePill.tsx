@@ -1,6 +1,6 @@
 
 
-import React, { useEffect, useState } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { Alert, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {FontAwesome} from '@expo/vector-icons';
@@ -90,4 +90,4 @@ const FavoritePill: React.FC<Props> = ({ routeId }) => {
     )
 }
 
-export default FavoritePill;
+export default memo(FavoritePill);

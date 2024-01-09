@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { View, Text } from 'react-native'
 
 interface Props {
@@ -21,4 +21,4 @@ const SheetHeader: React.FC<Props> = ({ title, subtitle, icon }) => {
     )
 }
 
-export default SheetHeader;
+export default memo(SheetHeader);
