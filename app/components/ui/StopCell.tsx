@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 import { View, Text, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { IAmenity, IRouteDirectionTime, IStop } from "../../../utils/interfaces";
@@ -24,8 +24,12 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
     const zoomToStopLatLng = useAppStore((state) => state.zoomToStopLatLng);
     const setPoppedUpStopCallout = useAppStore((state) => state.setPoppedUpStopCallout);
 
+    const stopEstimates = useAppStore((state) => state.stopEstimates);
+
     useEffect(() => {
         let totalDeviation = 0;
+
+        console.log(directionTimes.nextDeparts)
 
         for (const departTime of directionTimes.nextDeparts) {
             const estimatedTime = moment(departTime.estimatedDepartTimeUtc ?? "");
@@ -52,7 +56,7 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
         } else {
             setStatus('On Time');
         }
-    }, [directionTimes]);
+    }, [directionTimes, stopEstimates]);
 
     // when cell is tapped, open the stop timetable
     function toTimetable() {
