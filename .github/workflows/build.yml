@@ -45,7 +45,21 @@ jobs:
 
           # apply provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles          
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles    
+          
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+
+      - name: Install dependencies
+        run: |
+          npm install
+      
+      - name: Create Prebuild and move to ios folder
+        run: |
+          expo prebuild --ios
+          cd ios/
 
       - name: build archive
         run: |
