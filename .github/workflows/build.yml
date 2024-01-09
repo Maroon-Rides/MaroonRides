@@ -66,24 +66,22 @@ jobs:
       
       - name: Create Prebuild and move to ios folder
         run: |
-          npx expo prebuild --platform ios
+          npx expo prebuild --platform ios --npm
 
-      - name: install pods
+      - name: Build app archive
         working-directory: ios
+        env:
+          DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
         run: |
-          pod install
-
-      - name: build archive
-        working-directory: ios
-        run: |
-          xcodebuild -scheme "ReveilleRides" \
-          -archivePath $RUNNER_TEMP/ReveilleRides.xcarchive \
+          xcodebuild -scheme "ReveilleRides" \                                                                                                    bwees@Brandons-MacBook-Pro-7
+          -archivePath build/ReveilleRides.xcarchive \
+          -workspace ReveilleRides.xcworkspace\
           -sdk iphoneos \
           -configuration Release \
           -destination generic/platform=iOS \
-          archive          
+          archive DEVELOPMENT_TEAM=$DEVELOPMENT_TEAM
 
-      - name: export ipa
+      - name: Export .ipa file
         working-directory: ios
         env:
           EXPORT_OPTIONS_PLIST: ${{ secrets.EXPORT_OPTIONS_PLIST }}
