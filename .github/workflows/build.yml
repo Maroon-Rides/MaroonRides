@@ -62,17 +62,13 @@ jobs:
   
       - name: Install dependencies
         run: npm install # or yarn install
-
-      - name: Install dependencies
-        run: |
-          npm install
       
       - name: Create Prebuild and move to ios folder
         run: |
           npx expo prebuild --platform ios
-          cd ios/
 
       - name: build archive
+        working-directory: ios
         run: |
           xcodebuild -scheme "Reveille Rides" \
           -archivePath $RUNNER_TEMP/ReveilleRides.xcarchive \
@@ -82,6 +78,7 @@ jobs:
           clean archive          
 
       - name: export ipa
+        working-directory: ios
         env:
           EXPORT_OPTIONS_PLIST: ${{ secrets.EXPORT_OPTIONS_PLIST }}
         run: |
