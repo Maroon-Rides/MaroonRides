@@ -50,6 +50,12 @@ platform :ios do
     )
 
     match(
+      type: 'development',
+      app_identifier: 'com.bwees.reveille-rides',
+      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
+    )
+
+    match(
       type: 'appstore',
       app_identifier: 'com.bwees.reveille-rides',
       git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
