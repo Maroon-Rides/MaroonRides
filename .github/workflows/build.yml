@@ -54,6 +54,7 @@ jobs:
 
       - name: Cache npm dependencies
         uses: actions/cache@v2
+        id: cache
         with:
           path: '~/.npm'
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -61,11 +62,17 @@ jobs:
             ${{ runner.os }}-node-
   
       - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm install # or yarn install
       
       - name: Create Prebuild and move to ios folder
         run: |
           npx expo prebuild --platform ios
+
+      - name: install pods
+        working-directory: ios
+        run: |
+          pod install
 
       - name: build archive
         working-directory: ios
@@ -75,7 +82,7 @@ jobs:
           -sdk iphoneos \
           -configuration Release \
           -destination generic/platform=iOS \
-          clean archive          
+          archive          
 
       - name: export ipa
         working-directory: ios
