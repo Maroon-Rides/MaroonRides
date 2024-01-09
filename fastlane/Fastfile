@@ -1,0 +1,67 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+# setup app store connect api key on local machine 
+app_store_connect_api_key(
+  key_id: ENV['ASC_KEY_ID'],
+  issuer_id: ENV['ASC_ISSUER_ID'],
+  key_content: ENV['ASC_KEY_BASE64']
+  is_key_content_base64: true
+) if ENV['CI']
+
+platform :ios do
+  desc "Setup generated Xcode project for build"
+  lane :prebuild do
+    setup_ci if ENV['CI']
+    match(type: 'appstore')
+
+    update_project_team(
+      path: "ios/ReveilleRides.xcodeproj",
+      teamid: "65AMD2STXG"
+    )
+
+    # set ITSAppUsesNonExemptEncryption to false, prevents Missing Compliance error in TF
+    set_info_plist_value(
+      path: "ios/ReveilleRides/Info.plist",
+      key: "ITSAppUsesNonExemptEncryption",
+      value: false
+    )
+  end
+
+  desc "Push a new release build to the App Store"
+  lane :release do
+    prebuild
+
+    # get current build number app_store_build_number and increment it
+    increment_build_number(xcodeproj: "ios/ReveilleRides.xcodeproj", build_number: app_store_build_number() + 1)
+
+    build_app(workspace: "ios/ReveilleRides.xcworkspace", scheme: "ReveilleRides")
+
+    upload_to_app_store(skip_metadata: true, skip_screenshots: true)
+  end
+
+  desc "Push a new beta build to TestFlight"
+  lane :beta do
+    prebuild
+
+    increment_build_number(xcodeproj: "ios/ReveilleRides.xcodeproj", build_number: app_store_build_number(live: false) + 1)
+
+    build_app(workspace: "ios/ReveilleRides.xcworkspace", scheme: "ReveilleRides")
+    
+    upload_to_testflight(skip_submission: true, skip_waiting_for_build_processing: true)
+  end
+end
