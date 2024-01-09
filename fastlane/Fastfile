@@ -18,6 +18,7 @@ default_platform(:ios)
 ASC_KEY_ID = ENV['ASC_KEY_ID']
 ASC_ISSUER_ID = ENV['ASC_ISSUER_ID']
 ASC_KEY_BASE64 = ENV['ASC_KEY_BASE64']
+TEAM_ID = ENV['TEAM_ID']
 
 
 # setup app store connect api key on local machine 
@@ -55,6 +56,12 @@ platform :ios do
     update_project_provisioning(
       xcodeproj: "ios/ReveilleRides.xcodeproj",
       profile: ENV["sigh_com.bwees.reveille-rides_appstore_profile-path"]
+      build_configuration: "Release"
+    )
+
+    update_project_team(
+      xcodeproj: "ios/ReveilleRides.xcodeproj",
+      teamid: TEAM_ID
     )
 
     # set ITSAppUsesNonExemptEncryption to false, prevents Missing Compliance error in TF
