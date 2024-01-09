@@ -70,7 +70,7 @@ jobs:
       - name: build archive
         working-directory: ios
         run: |
-          xcodebuild -scheme "Reveille Rides" \
+          xcodebuild -scheme "ReveilleRides" \
           -archivePath $RUNNER_TEMP/ReveilleRides.xcarchive \
           -sdk iphoneos \
           -configuration Release \
