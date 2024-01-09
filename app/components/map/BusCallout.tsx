@@ -13,7 +13,7 @@ interface Props {
 }
 
 // Bus callout with amentities
-const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities, tintColor, routeName }) => {
+const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities, tintColor, routeName }) => {    
     return (
         <Callout>
             <View style={{ width: 160 }}>

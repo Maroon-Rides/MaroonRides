@@ -1,5 +1,5 @@
-import React, { memo, useEffect, useState } from 'react'
-import { View, Text } from 'react-native'
+import React, { memo, useEffect, useState, useCallback } from 'react'
+import { View, Text, LayoutChangeEvent } from 'react-native'
 import { Callout } from 'react-native-maps'
 import BusIcon from '../ui/BusIcon'
 import useAppStore from '../../stores/useAppStore'
@@ -13,12 +13,18 @@ interface Props {
 }
 
 // Stop callout with amentities
-const StopCallout: React.FC<Props> = ({ stop, tintColor, routeName}) => {
+const StopCallout: React.FC<Props> = ({ stop, tintColor, routeName }) => {
     const stopEstimates = useAppStore((state) => state.stopEstimates);
-    
+
     // Calculate size of callout based on the contentSize
-    const [contentSize, setContentSizing] = useState([100, 15]);
+    const [contentSize, setContentSize] = useState([100, 15]);
     const [nextDepartTimes, setNextDepartTimes] = useState<IGetNextDepartTimesResponse | null>(null);
+
+    const handleLayout = useCallback((event: LayoutChangeEvent) => {        
+        const { width, height } = event.nativeEvent.layout;
+
+        setContentSize([width, height]);
+    }, [setContentSize]);
 
     // Loop through global stopEstimates, find the current stop and set the nextDepartTimes
     useEffect(() => {
@@ -30,14 +36,14 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, routeName}) => {
     }, [stopEstimates])
 
     return (
-        <Callout style={{alignItems: 'center', width: contentSize[0], height: contentSize[1]}}>
-            <View  onLayout={(event) => { setContentSizing([event.nativeEvent.layout.width, event.nativeEvent.layout.height]) }} >
-                <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", alignSelf: "flex-start"}}  >
+        <Callout style={{ alignItems: 'center', width: contentSize[0], height: contentSize[1] }}>
+            <View onLayout={handleLayout} >
+                <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", alignSelf: "flex-start" }}  >
                     <BusIcon name={routeName} color={tintColor} isCallout={true} style={{ marginRight: 8 }} />
                     <Text style={{ maxWidth: 200, fontWeight: 'bold' }} numberOfLines={1}>{stop.name}</Text>
                 </View>
 
-                <AmenityRow amenities={nextDepartTimes?.amenities ?? []} color='grey' size={20} style={{marginTop: 4}}/>
+                <AmenityRow amenities={nextDepartTimes?.amenities ?? []} color='grey' size={20} style={{ marginTop: 4 }} />
             </View>
         </Callout>
     )

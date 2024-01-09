@@ -64,7 +64,7 @@ export const MapServiceInterruptionSchema = z.object({
     description: z.string(),
     timeRangeString: z.string(),
     startDateUtc: z.string(),
-    endDateUtc: z.string(),
+    endDateUtc: z.string().nullable(),
     dailyStartTime: z.string(),
     dailyEndTime: z.string()
 });
