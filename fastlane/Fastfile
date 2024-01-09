@@ -45,18 +45,21 @@ platform :ios do
     setup_ci if ENV['CI']
 
     disable_automatic_code_signing(
-      path: "ios/ReveilleRides.xcodeproj"
+      path: "ios/ReveilleRides.xcodeproj",
+      teamid: TEAM_ID
     )
 
     match(
       type: 'appstore',
+      app_identifier: 'com.bwees.reveille-rides',
       git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
     )
 
     update_project_provisioning(
       xcodeproj: "ios/ReveilleRides.xcodeproj",
       profile: ENV["sigh_com.bwees.reveille-rides_appstore_profile-path"],
-      build_configuration: "Release"
+      build_configuration: "Release",
+      target_filter: "ReveilleRides",
     )
 
     update_project_team(
