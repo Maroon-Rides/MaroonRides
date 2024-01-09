@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { View, Text } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -17,10 +17,10 @@ const TimeBubble: React.FC<Props> = ({time, color, textColor, live}) => {
         </Text>
 
         { live && 
-          <MaterialCommunityIcons name="rss" size={12} color="white" style={{marginRight: -2, paddingLeft: 1, alignSelf: "flex-start"}} />
+          <MaterialCommunityIcons name="rss" size={12} color={textColor ?? "white"} style={{marginRight: -2, paddingLeft: 1, alignSelf: "flex-start"}} />
         }
     </View>
   )
 }
 
-export default TimeBubble;
+export default memo(TimeBubble);

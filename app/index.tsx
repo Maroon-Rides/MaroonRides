@@ -47,7 +47,7 @@ const Home = () => {
                 } catch (error) {
                     console.error(error);
 
-                    throw new Error("Error while fetching pattern paths: ");
+                    throw new Error("Error while fetching pattern paths");
                 }
             }
 
@@ -64,7 +64,7 @@ const Home = () => {
 
             async function loadData() {
                 try {
-                    if(!authToken) {
+                    if (!authToken) {
                         return;
                     }
 

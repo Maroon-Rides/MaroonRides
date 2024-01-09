@@ -3,26 +3,23 @@ import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent }
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 
 import { IDirectionList, IMapRoute } from "../../../utils/interfaces";
 import useAppStore from "../../stores/useAppStore";
 import BusIcon from "../ui/BusIcon";
 import SheetHeader from "../ui/SheetHeader";
+import AlertPill from "../ui/AlertPill";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
 }
 
+// Display routes list for all routes and favorite routes
 const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
-    const alerts = useAppStore((state) => state.mapServiceInterruption);
-
     const routes = useAppStore((state) => state.routes);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     
-    const favoriteRoutes = useAppStore(state => state.favoriteRoutes);
-    const setFavoriteRoutes = useAppStore(state => state.setFavoriteRoutes);
-
     const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
     const setSelectedRouteCategory = useAppStore(state => state.setSelectedRouteCategory);
 
@@ -30,15 +27,16 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     
     const presentSheet = useAppStore((state) => state.presentSheet);
-    
-    const [alertIcon, setAlertIcon] = useState<"bell-outline" | "bell-badge">("bell-outline");
 
+    const [favoriteRoutes, setFavoriteRoutes] = useState<IMapRoute[]>([]);
+    
     const handleRouteSelected = (selectedRoute: IMapRoute) => {        
         setSelectedRoute(selectedRoute);
         setDrawnRoutes([selectedRoute]);
         presentSheet("routeDetails");
     }
 
+    // load favorite routes from async storage
     function loadFavorites() {
         AsyncStorage.getItem('favorites').then((favorites: string | null) => {
             if (!favorites) return;
@@ -61,14 +59,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         }
     }, [selectedRouteCategory, routes, favoriteRoutes]);
 
-    // Update the alert icon when the alerts change
-    useEffect(() => {
-        if (alerts.length > 0) {
-            setAlertIcon("bell-badge");
-        } else {
-            setAlertIcon("bell-outline");
-        }
-    }, [alerts]);
+
 
     // Update the favorites when the view is focused
     function onAnimate(from: number, _: number) {
@@ -102,11 +93,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             <BottomSheetView>
                 <SheetHeader 
                     title="Routes" 
-                    icon={
-                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => presentSheet("alerts")}>
-                            <MaterialCommunityIcons name={alertIcon} size={28} color="black" />
-                        </TouchableOpacity>
-                    }
+                    icon={<AlertPill />}
                 />
 
                 <SegmentedControl
@@ -116,7 +103,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     onChange={handleSetSelectedRouteCategory}
                 />
                 <View style={{height: 1, backgroundColor: "#eaeaea", marginTop: 8}} />
-
 
                 { selectedRouteCategory === "favorites" && drawnRoutes.length === 0 && (
                     <View style={{ alignItems: 'center', marginTop: 16 }}>

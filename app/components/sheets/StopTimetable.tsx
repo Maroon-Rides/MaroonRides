@@ -8,12 +8,13 @@ import { Ionicons } from "@expo/vector-icons";
 import useAppStore from "../../stores/useAppStore";
 import { GetStopSchedulesResponseSchema, IRouteStopSchedule, IStop } from "../../../utils/interfaces";
 import Timetable from "../ui/Timetable";
+import moment from "moment";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
 }
 
-// TODO: Fill in route details with new UI
+// Timtable with upcoming routes
 const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     const authToken = useAppStore((state) => state.authToken);
     const routes = useAppStore((state) => state.routes);
@@ -32,19 +33,19 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         if (!newSelectedStop || !authToken) return;
 
         try {
-            const stopSchedulesResponse = await getStopSchedules(newSelectedStop?.stopCode, new Date(), authToken);
+            const stopSchedulesResponse = await getStopSchedules(newSelectedStop?.stopCode, moment().toDate(), authToken);
 
             GetStopSchedulesResponseSchema.parse(stopSchedulesResponse);
 
             // find the schedules for the selected route
-            let routeStops = stopSchedulesResponse.routeStopSchedules.filter((schedule) => schedule.routeName === selectedRoute?.name)
+            let routeStops = stopSchedulesResponse.routeStopSchedules.filter((schedule) => schedule.routeName === selectedRoute?.name && schedule.routeNumber === selectedRoute?.shortName)
 
             // filter anything that is end of route
             routeStops = routeStops.filter((schedule) => !schedule.isEndOfRoute);
             setRouteSchedules(routeStops);
 
             // filter out non route schedules
-            let nonRouteStops = stopSchedulesResponse.routeStopSchedules.filter((schedule) => schedule.routeName !== selectedRoute?.name)
+            let nonRouteStops = stopSchedulesResponse.routeStopSchedules.filter((schedule) => schedule.routeName !== selectedRoute?.name || schedule.routeNumber !== selectedRoute?.shortName)
 
             // filter anything that doesnt have stop times
             nonRouteStops = nonRouteStops.filter((schedule) => schedule.stopTimes.length > 0);
@@ -84,7 +85,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         <BottomSheetModal
             ref={sheetRef}
             snapPoints={snapPoints}
-            index={1}
+            index={2}
             enablePanDownToClose={false}
         >
             <BottomSheetView>
@@ -110,7 +111,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                         renderItem={({ item, index }) => {
                             return (
                                 <View key={index}>
-                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} />
+                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""}/>
                                 </View>
                             )
                         }}
@@ -126,8 +127,10 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                             scrollEnabled={false}
                             ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />}
                             renderItem={({ item }) => {
+
+                                
                                 return (
-                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} />
+                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""}/>
                                 )
                             }}
                         />

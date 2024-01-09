@@ -163,7 +163,7 @@ export type ITimetableRoute = z.infer<typeof TimetableRouteSchema>
 
 export const StopTimeSchema = z.object({
     scheduledDepartTimeUtc: z.string(),
-    estimatedDepartTimeUtc: z.string(),
+    estimatedDepartTimeUtc: z.string().nullable(),
     isRealtime: z.boolean(),
     tripPointId: z.string(),
     isLastPoint: z.boolean().nullable(),
@@ -176,7 +176,7 @@ export const RouteStopScheduleSchema = z.object({
     routeName: z.string(),
     routeNumber: z.string(),
     directionName: z.string(),
-    stopTimes: z.array(z.any()),
+    stopTimes: z.array(StopTimeSchema),
     frequencyInfo: z.any(),
     hasTrips: z.boolean(),
     hasSchedule: z.boolean(),

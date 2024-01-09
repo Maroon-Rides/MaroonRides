@@ -1,17 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, TouchableOpacity, View } from "react-native";
-import MapView, { LatLng, Polyline, Marker, Region } from 'react-native-maps';
+import { Dimensions, TouchableOpacity } from "react-native";
+import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { getVehicles } from "aggie-spirit-api";
-
 import { GetVehiclesResponseSchema, IGetVehiclesResponse, IMapRoute, IVehicle } from "../../utils/interfaces";
-import StopCallout from "./callouts/StopCallout";
-import BusCallout from "./callouts/BusCallout";
-import BusMapIcon from "./callouts/BusMapIcon";
 import useAppStore from "../stores/useAppStore";
+import BusMarker from "./map/markers/BusMarker";
+import StopMarker from "./map/markers/StopMarker";
 
-const Index: React.FC = () => {
+const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
 
     const authToken = useAppStore((state) => state.authToken);
@@ -21,6 +19,7 @@ const Index: React.FC = () => {
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     const presentSheet = useAppStore((state) => state.presentSheet);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
+    const setZoomToStopLatLng = useAppStore((state) => state.setZoomToStopLatLng);
 
     const setBusRefreshInterval = useAppStore((state) => state.setBusRefreshInterval);
     const clearBusRefreshInterval = useAppStore((state) => state.clearBusRefreshInterval);
@@ -104,34 +103,23 @@ const Index: React.FC = () => {
     // handle weird edge case where map does not pick up on the initial region
     useEffect(() => {
         mapViewRef.current?.animateToRegion(defaultMapRegion);
+
+        setZoomToStopLatLng((lat, lng) => {
+            // Animate map to the current location
+            const region = {
+                latitude: lat-.002,
+                longitude: lng,
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005
+            };
+    
+            mapViewRef.current?.animateToRegion(region, 250);
+        })
+    
     }, []);
 
-    // given a hex code without the #, return a lighter version of it
-    function getLighterColor(color: string) {
-        // remove the # from the beginning of the color
-        color = color.substring(1);
+    
 
-        // Parse the color components from the input string
-        const r = parseInt(color.substring(0, 2), 16);
-        const g = parseInt(color.substring(2, 4), 16);
-        const b = parseInt(color.substring(4, 6), 16);
-
-        // Increase the brightness of each color component
-        const lightenedR = Math.min(r + 100, 255);
-        const lightenedG = Math.min(g + 100, 255);
-        const lightenedB = Math.min(b + 100, 255);
-
-        // Convert the lightened color components back to a hex string
-        const lightenedColor = (
-            lightenedR.toString(16).padStart(2, '0') +
-            lightenedG.toString(16).padStart(2, '0') +
-            lightenedB.toString(16).padStart(2, '0')
-        );
-
-        return "#" + lightenedColor;
-    }
-
-    // TODO: When the user clicks on a route, zoom so that the route path is clearly visible
     const centerViewOnRoutes = () => {
         let coords: LatLng[] = [];
 
@@ -184,7 +172,7 @@ const Index: React.FC = () => {
 
         // Animate map to the current location
         const region = {
-            latitude: location.coords.latitude,
+            latitude: location.coords.latitude-.002,
             longitude: location.coords.longitude,
             latitudeDelta: 0.01,
             longitudeDelta: 0.01
@@ -194,10 +182,17 @@ const Index: React.FC = () => {
 
         setIsViewCenteredOnUser(true);
     }
-
+    
     return (
         <>
-            <MapView showsUserLocation={true} style={{ width: "100%", height: "100%" }} ref={mapViewRef} rotateEnabled={false} initialRegion={defaultMapRegion} onPanDrag={() => setIsViewCenteredOnUser(false)}>
+            <MapView 
+                showsUserLocation={true} 
+                style={{ width: "100%", height: "100%" }} 
+                ref={mapViewRef} rotateEnabled={false} 
+                initialRegion={defaultMapRegion} 
+                onPanDrag={() => setIsViewCenteredOnUser(false)}
+                showsMyLocationButton={false} // we have our own
+            >
                 {/* Route Polylines */}
                 {drawnRoutes.map(function (drawnRoute) {
                     const coords: LatLng[] = [];
@@ -214,7 +209,7 @@ const Index: React.FC = () => {
                     })
 
                     return (
-                        <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={lineColor} strokeWidth={6} onPress={() => selectRoute(drawnRoute)}/>
+                        <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={lineColor} strokeWidth={4} onPress={() => selectRoute(drawnRoute)}/>
                     )
                 })}
 
@@ -224,30 +219,12 @@ const Index: React.FC = () => {
                             const lineColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
 
                             return (
-                                <Marker
-                                    key={`${index1}-${index2}`}
-                                    coordinate={{
-                                        latitude: patternPoint.latitude,
-                                        longitude: patternPoint.longitude
-                                    }}
-                                    tracksViewChanges={false}
-                                >
-                                    <View
-                                        style={{
-                                            width: 16,
-                                            height: 16,
-                                            borderWidth: 2,
-                                            borderRadius: 9999,
-                                            backgroundColor: lineColor,
-                                            borderColor: getLighterColor(lineColor),
-                                        }}
-                                    />
-                                    <StopCallout
-                                        stop={patternPoint.stop}
-                                        tintColor={lineColor}
-                                        routeName={selectedRoute?.shortName ?? ""}
-                                    />
-                                </Marker>
+                                <StopMarker
+                                    key={`${patternPoint.stop.stopCode}-${index1}-${index2}`}
+                                    point={patternPoint}
+                                    tintColor={lineColor}
+                                    shortName={selectedRoute?.shortName ?? ""}
+                                />
                             );
                         }
 
@@ -259,14 +236,12 @@ const Index: React.FC = () => {
                 {selectedRoute && buses.map((bus) => {
                     const color = selectedRoute.directionList[0]?.lineColor ?? "#500000"
                     return (
-                        <Marker
+                        <BusMarker
                             key={bus.key}
-                            coordinate={{ latitude: bus.location.latitude, longitude: bus.location.longitude }}
-                        >
-                            {/* Bus Icon on Map*/}
-                            <BusMapIcon color={color} borderColor={getLighterColor(color)} heading={bus.location.heading} />
-                            <BusCallout bus={bus} tintColor={selectedRoute!.directionList[0]?.lineColor ?? "#500000"} routeName={selectedRoute!.shortName} />
-                        </Marker>
+                            bus={bus}
+                            tintColor={color}
+                            routeName={selectedRoute.shortName}
+                        />
                     )
                 })}
             </MapView>
@@ -282,4 +257,4 @@ const Index: React.FC = () => {
     )
 }
 
-export default Index;
+export default Map;

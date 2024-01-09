@@ -10,12 +10,13 @@ import useAppStore from "../../stores/useAppStore";
 import StopCell from "../ui/StopCell";
 import BusIcon from "../ui/BusIcon";
 import FavoritePill from "../ui/FavoritePill";
+import AlertPill from "../ui/AlertPill";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
 }
 
-// TODO: Fill in route details with new UI
+// Display details when a route is selected
 const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const authToken = useAppStore((state) => state.authToken);
 
@@ -26,11 +27,9 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const clearStopEstimates = useAppStore((state) => state.clearStopEstimates);
     const updateStopEstimate = useAppStore((state) => state.updateStopEstimate);
 
-    const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
-    const favoriteRoutes = useAppStore(state => state.favoriteRoutes);
-    const setDrawnRoutes = useAppStore(state => state.setDrawnRoutes);
-
+    // Controls SegmentedControl
     const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
+
     const [processedStops, setProcessedStops] = useState<IStop[]>([]);
     const [selectedRoute, setSelectedRoute] = useState<IMapRoute | null>(null);
 
@@ -40,19 +39,17 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         clearSelectedRoute();
         clearStopEstimates();
 
-        if(selectedRouteCategory === 'favorites') {
-            setDrawnRoutes(favoriteRoutes);
-        }
-
         // reset direction selector
         setSelectedDirectionIndex(0);
     }
 
+    // Filters patternPaths for only the selected route from all patternPaths
     function getPatternPathForSelectedRoute(): IPatternPath | undefined {
         if (!selectedRoute) return undefined;
         return selectedRoute.patternPaths.find(direction => direction.patternKey === selectedRoute.directionList[selectedDirectionIndex]?.patternList[0]?.key)
     }
 
+    // When a new route is selected or the direction of the route is changed, update the stops
     useEffect(() => {
         if (!selectedRoute) return;
 
@@ -64,7 +61,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             processedStops.push(point.stop);
         }
 
-        // TODO: process active buses and insert into proper locations
+        // TODO: process active buses and insert into proper locations in stop list
         setProcessedStops(processedStops);
     }, [selectedRoute, selectedDirectionIndex])
 
@@ -131,8 +128,9 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         </TouchableOpacity>
                     </View>
 
-                    <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginLeft: 16 }}>
+                    <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginLeft: 16, gap: 4 }}>
                         <FavoritePill routeId={selectedRoute!.key} />
+                        <AlertPill routeId={selectedRoute!.key}/>
                     </View>
 
 
@@ -142,7 +140,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         selectedIndex={selectedDirectionIndex}
                         onChange={handleSetSelectedDirection}
                     />
-
                     <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
                 </BottomSheetView>
             }
@@ -175,6 +172,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                                 amenities={stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode)?.departureTimes.amenities ?? []}
                                 color={selectedRoute?.directionList[0]?.lineColor ?? "#909090"}
                                 disabled={index === processedStops.length - 1}
+                                setSheetPos={(pos) => sheetRef.current?.snapToIndex(pos)}
                             />
                         );
                     }}
