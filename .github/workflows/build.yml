@@ -73,7 +73,6 @@ jobs:
         env:
           DEVELOPMENT_TEAM: ${{ secrets.DEV_TEAM_ID }}
         run: |
-          ls -l
           xcodebuild -scheme "ReveilleRides" \
           -archivePath build/ReveilleRides.xcarchive \
           -workspace ReveilleRides.xcworkspace \
