@@ -37,7 +37,8 @@ platform :ios do
       default_keychain: true,
       unlock: true
     )
-
+  end
+  
   desc "Setup generated Xcode project for build"
   lane :prebuild do
     setup_ci if ENV['CI']
