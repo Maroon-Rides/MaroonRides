@@ -75,7 +75,7 @@ jobs:
         run: |
           xcodebuild -scheme "ReveilleRides" \
           -archivePath build/ReveilleRides.xcarchive \
-          -workspace ReveilleRides.xcworkspace\
+          -workspace ReveilleRides.xcworkspace \
           -sdk iphoneos \
           -configuration Release \
           -destination generic/platform=iOS \
