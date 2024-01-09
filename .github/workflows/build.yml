@@ -58,7 +58,7 @@ jobs:
       
       - name: Create Prebuild and move to ios folder
         run: |
-          expo prebuild --ios
+          npx expo prebuild --ios
           cd ios/
 
       - name: build archive
