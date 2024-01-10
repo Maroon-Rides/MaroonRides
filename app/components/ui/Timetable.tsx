@@ -41,7 +41,8 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                     if (estimate) setEstimate(estimate);
                 } catch (error) {
                     console.error(error);
-                    Alert.alert("Error while loading stop estimates");
+                    
+                    Alert.alert("Something went wrong", "Some features may not work correctly. Please try again later.");
                 }
             })
     }, [])

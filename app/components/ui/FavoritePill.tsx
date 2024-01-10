@@ -26,7 +26,7 @@ const FavoritePill: React.FC<Props> = ({ routeId }) => {
         } catch(error) {
             console.error(error);
 
-            Alert.alert("Error while retrieving favorited route")
+            Alert.alert("Something went wrong", "Some features may not work correctly. Please try again later.");
         }
     }, [])
 
@@ -62,7 +62,7 @@ const FavoritePill: React.FC<Props> = ({ routeId }) => {
         } catch (error) {
             console.error(error);
 
-            Alert.alert("Error while marking route as favorite");
+            Alert.alert("Something went wrong", "Some features may not work correctly. Please try again later.");
         }
     }
 

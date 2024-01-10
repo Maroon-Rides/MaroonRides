@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, NativeSyntheticEvent } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent, Alert } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
 import { getNextDepartureTimes } from "aggie-spirit-api";
 
-import { GetNextDepartTimesResponseSchema, IMapRoute, IPatternPath, IRouteDirectionTime, IStop } from "../../../utils/interfaces";
+import { GetNextDepartTimesResponseSchema, ICachedStopEstimate, IMapRoute, IPatternPath, IRouteDirectionTime, IStop } from "../../../utils/interfaces";
 import useAppStore from "../../stores/useAppStore";
 import StopCell from "../ui/StopCell";
 import BusIcon from "../ui/BusIcon";
@@ -24,9 +24,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
 
     const stopEstimates = useAppStore((state) => state.stopEstimates);
-    const clearStopEstimates = useAppStore((state) => state.clearStopEstimates);
-    const updateStopEstimate = useAppStore((state) => state.updateStopEstimate);
-
+    const setStopEstimates = useAppStore(state => state.setStopEstimates);
+    
     // Controls SegmentedControl
     const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
 
@@ -37,7 +36,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const closeModal = () => {
         sheetRef.current?.dismiss();
         clearSelectedRoute();
-        clearStopEstimates();
+        setStopEstimates([]);
 
         // reset direction selector
         setSelectedDirectionIndex(0);
@@ -61,7 +60,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             processedStops.push(point.stop);
         }
 
-        // TODO: process active buses and insert into proper locations in stop list
         setProcessedStops(processedStops);
     }, [selectedRoute, selectedDirectionIndex])
 
@@ -75,8 +73,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     }, [currentSelectedRoute])
 
     async function loadStopEstimates() {
-        // clearStopEstimates();
-
         if (!currentSelectedRoute || !authToken) return;
         let allStops: IStop[] = [];
 
@@ -89,31 +85,26 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
         const directionKeys = currentSelectedRoute.patternPaths.map(direction => direction.directionKey);
 
-        // load stop estimates
-        for (const stop of allStops) {
-            try {
-                const response = await getNextDepartureTimes(currentSelectedRoute.key, directionKeys, stop.stopCode, authToken);
+        const newStopEstimates: ICachedStopEstimate[] = [];
 
-                GetNextDepartTimesResponseSchema.parse(response);
+        // load stop estimates concurrently
+        const promises = allStops.map(stop =>
+            getNextDepartureTimes(currentSelectedRoute.key, directionKeys, stop.stopCode, authToken)
+                .then(response => {            
+                    GetNextDepartTimesResponseSchema.parse(response);
 
-                updateStopEstimate(response, response.stopCode);
-            } catch (error) {
-                console.error(error);
-                continue;
-            }
-        }
+                    newStopEstimates.push({ stopCode: stop.stopCode, departureTimes: response });
+                })
+                .catch(error => {
+                    console.error(error);
+                    
+                    Alert.alert("Something went wrong", "Some features may not work correctly. Please try again later.");
+                })
+        );
+
+        await Promise.all(promises);
+        setStopEstimates(newStopEstimates);
     }
-
-    // Refresh the eta every minute
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            loadStopEstimates();
-        }, 30000);
-
-        return () => {
-            clearInterval(intervalId);
-        };
-    }, []);
 
     const handleSetSelectedDirection = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
         setSelectedDirectionIndex(evt.nativeEvent.selectedSegmentIndex);
@@ -156,7 +147,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             }
 
             {selectedRoute &&
-                <BottomSheetFlatList 
+                <BottomSheetFlatList
                     data={processedStops}
                     extraData={[...stopEstimates]}
                     style={{ height: "100%" }}
