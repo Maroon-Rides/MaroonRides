@@ -52,17 +52,13 @@ platform :ios do
       git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
       )
       
-      match(
-        type: 'development',
-        app_identifier: 'com.bwees.reveille-rides',
-        readonly: true,
-        git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
-        )
-        
-      disable_automatic_code_signing(
-        path: "ios/ReveilleRides.xcodeproj",
-        team_id: TEAM_ID
-      )
+    match(
+      type: 'development',
+      app_identifier: 'com.bwees.reveille-rides',
+      readonly: true,
+      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
+    )
+
         
     update_project_team(
       path: "ios/ReveilleRides.xcodeproj",
@@ -92,27 +88,17 @@ platform :ios do
     increment_build_number(xcodeproj: "ios/ReveilleRides.xcodeproj", build_number: app_store_build_number() + 1)
 
     build_app(workspace: "ios/ReveilleRides.xcworkspace", scheme: "ReveilleRides")
-
+    
     upload_to_app_store(skip_metadata: true, skip_screenshots: true)
   end
-
+  
   desc "Push a new beta build to TestFlight"
   lane :beta do
     prebuild
-
+    
     increment_build_number(xcodeproj: "ios/ReveilleRides.xcodeproj", build_number: app_store_build_number(live: false) + 1)
-
-    gym(
-      configuration: "Release",
-      workspace: "ios/ReveilleRides.xcworkspace",
-      scheme: "ReveilleRides",
-      export_method: "app-store",
-      export_options: {
-        provisioningProfiles: { 
-            "com.bwees.reveille-rides" => "match AppStore com.bwees.reveille-rides"
-        }
-      }
-    )
+    
+    build_app(workspace: "ios/ReveilleRides.xcworkspace", scheme: "ReveilleRides", xcargs: "-allowProvisioningUpdates")
     
     upload_to_testflight(skip_submission: true, skip_waiting_for_build_processing: true)
   end
