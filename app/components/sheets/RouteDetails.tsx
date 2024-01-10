@@ -36,6 +36,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const closeModal = () => {
         sheetRef.current?.dismiss();
         clearSelectedRoute();
+        setStopEstimates([]);
 
         // reset direction selector
         setSelectedDirectionIndex(0);
