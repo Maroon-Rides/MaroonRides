@@ -46,31 +46,31 @@ platform :ios do
 
     
     match(
-      type: 'appstore',
-      app_identifier: 'com.bwees.reveille-rides',
-      readonly: true,
-      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
-      )
-      
-    match(
       type: 'development',
       app_identifier: 'com.bwees.reveille-rides',
       readonly: true,
       git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
     )
 
+    match(
+      type: 'appstore',
+      app_identifier: 'com.bwees.reveille-rides',
+      readonly: true,
+      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
+    )
+    
         
     update_project_team(
       path: "ios/ReveilleRides.xcodeproj",
       teamid: TEAM_ID
     )
 
-    # update_project_provisioning(
-    #   xcodeproj: "ios/ReveilleRides.xcodeproj",
-    #   profile: ENV["sigh_com.bwees.reveille-rides_appstore_profile-path"],
-    #   build_configuration: "Release",
-    #   target_filter: "ReveilleRides",
-    # )
+    update_project_provisioning(
+      xcodeproj: "ios/ReveilleRides.xcodeproj",
+      profile: ENV["sigh_com.bwees.reveille-rides_appstore_profile-path"],
+      build_configuration: "Release",
+      target_filter: "ReveilleRides",
+    )
 
     # set ITSAppUsesNonExemptEncryption to false, prevents Missing Compliance error in TF
     set_info_plist_value(
@@ -98,7 +98,7 @@ platform :ios do
     
     increment_build_number(xcodeproj: "ios/ReveilleRides.xcodeproj", build_number: app_store_build_number(live: false) + 1)
     
-    build_app(workspace: "ios/ReveilleRides.xcworkspace", scheme: "ReveilleRides", xcargs: "-allowProvisioningUpdates")
+    build_app(workspace: "ios/ReveilleRides.xcworkspace", scheme: "ReveilleRides")
     
     upload_to_testflight(skip_submission: true, skip_waiting_for_build_processing: true)
   end
