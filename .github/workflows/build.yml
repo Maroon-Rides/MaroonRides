@@ -4,7 +4,11 @@ on:
   # manual trigger but change to any supported event
   # see addl: https://www.andrewhoog.com/post/how-to-build-react-native-android-app-with-github-actions/#3-run-build-workflow
   workflow_dispatch:
-    branches: [main]
+
+  push:
+    branches:
+      - main
+
 
 jobs:
   build_ios:
@@ -44,7 +48,7 @@ jobs:
         run: |
           npx expo prebuild --platform ios --npm
 
-      - name: Fastlane Build [iOS]
+      - name: Fastlane Beta Late [iOS]
         run: fastlane beta
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}

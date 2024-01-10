@@ -109,6 +109,9 @@ platform :ios do
     
     build_app(workspace: "ios/ReveilleRides.xcworkspace", scheme: "ReveilleRides")
     
-    upload_to_testflight(skip_submission: true, skip_waiting_for_build_processing: true)
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      notify_external_testers: true
+    )
   end
 end
