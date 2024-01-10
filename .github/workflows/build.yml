@@ -47,7 +47,7 @@ jobs:
         run: |
           npx expo prebuild --platform ios --npm
 
-      - name: Fastlane Beta Lane [iOS]
+      - name: Fastlane Beta [iOS]
         run: fastlane beta
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
