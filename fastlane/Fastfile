@@ -65,12 +65,12 @@ platform :ios do
       teamid: TEAM_ID
     )
 
-    update_project_provisioning(
-      xcodeproj: "ios/ReveilleRides.xcodeproj",
-      profile: ENV["sigh_com.bwees.reveille-rides_appstore_profile-path"],
-      build_configuration: "Release",
-      target_filter: "ReveilleRides",
-    )
+    # update_project_provisioning(
+    #   xcodeproj: "ios/ReveilleRides.xcodeproj",
+    #   profile: ENV["sigh_com.bwees.reveille-rides_appstore_profile-path"],
+    #   build_configuration: "Release",
+    #   target_filter: "ReveilleRides",
+    # )
 
     # set ITSAppUsesNonExemptEncryption to false, prevents Missing Compliance error in TF
     set_info_plist_value(
