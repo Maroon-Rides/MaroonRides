@@ -111,7 +111,8 @@ platform :ios do
     
     upload_to_testflight(
       skip_waiting_for_build_processing: true,
-      notify_external_testers: true
+      notify_external_testers: true,
+      changelog: "Howdy! This update includes some bug fixes and performance improvements. Please let us know if you have any feedback or questions through TestFlight! Thanks and Gig 'Em!",
     )
   end
 end
