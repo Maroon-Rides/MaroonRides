@@ -72,6 +72,15 @@ platform :ios do
       target_filter: "ReveilleRides",
     )
 
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "ios/ReveilleRides.xcodeproj",
+      team_id: TEAM_ID,
+      bundle_identifier: "com.bwees.reveille-rides",
+      code_sign_identity: "iPhone Distribution",
+      sdk: "iphoneos*",
+    )
+
     # set ITSAppUsesNonExemptEncryption to false, prevents Missing Compliance error in TF
     set_info_plist_value(
       path: "ios/ReveilleRides/Info.plist",
