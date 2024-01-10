@@ -1,12 +1,16 @@
-name: TypeScript Compile
+name: TypeScript Linting
 
 on:
   push:
     branches:
       - '*'
+    paths-ignore:
+      - ".github/**"
   pull_request:
     branches:
       - '*'
+    paths-ignore:
+      - ".github/**"
 
 jobs:
   tsc:
