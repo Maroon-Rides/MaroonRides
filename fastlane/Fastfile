@@ -114,7 +114,10 @@ platform :ios do
     upload_to_testflight(
       skip_waiting_for_build_processing: true,
       notify_external_testers: true,
-      changelog: CHANGELOG
+      changelog: CHANGELOG,
+      groups: [
+        "Beta Testers"
+      ]
     )
   end
 end
