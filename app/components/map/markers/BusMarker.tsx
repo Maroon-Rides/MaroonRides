@@ -12,7 +12,7 @@ interface Props {
 }
 
 // Bus Marker with icon and callout
-const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {    
+const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
     return (
         <Marker
             key={bus.key}

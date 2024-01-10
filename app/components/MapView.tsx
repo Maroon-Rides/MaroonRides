@@ -24,6 +24,8 @@ const Map: React.FC = () => {
     const setBusRefreshInterval = useAppStore((state) => state.setBusRefreshInterval);
     const clearBusRefreshInterval = useAppStore((state) => state.clearBusRefreshInterval);
 
+    const poppedUpStopCallout = useAppStore((state) => state.poppedUpStopCallout);
+
     const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
 
     const [buses, setBuses] = useState<IVehicle[]>([]);
@@ -215,15 +217,18 @@ const Map: React.FC = () => {
 
                 {selectedRoute && selectedRoute?.patternPaths.flatMap((patternPath, index1) => (
                     patternPath.patternPoints.map((patternPoint, index2) => {
-                        if (patternPoint.stop) {
+                        const stop = patternPoint.stop
+                        
+                        if (stop) {
                             const lineColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
 
                             return (
                                 <StopMarker
-                                    key={`${patternPoint.stop.stopCode}-${index1}-${index2}`}
+                                    key={`${stop.stopCode}-${index1}-${index2}`}
                                     point={patternPoint}
                                     tintColor={lineColor}
                                     shortName={selectedRoute?.shortName ?? ""}
+                                    isCalloutShown={poppedUpStopCallout?.stopCode === stop.stopCode}
                                 />
                             );
                         }
