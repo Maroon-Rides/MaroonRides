@@ -1,4 +1,3 @@
-// TODO: Fix all of the 'any' types once the API has live data
 import { z } from "zod";
 
 // From Map API

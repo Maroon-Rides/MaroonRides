@@ -17,6 +17,7 @@ interface AppState {
     resetDrawnRoutes: () => void,
 
     stopEstimates: ICachedStopEstimate[],
+    setStopEstimates: (stopEstimates: ICachedStopEstimate[]) => void
     updateStopEstimate: (stopEstimate: IGetNextDepartTimesResponse, stopCode: string) => void,
     clearStopEstimates: () => void,
 
@@ -59,6 +60,7 @@ const useAppStore = create<AppState>()((set) => ({
     resetDrawnRoutes: () => set(state => ({ drawnRoutes: state.routes })),
 
     stopEstimates: [],
+    setStopEstimates: (stopEstimates) => set(() => ({ stopEstimates })),
     updateStopEstimate: (departureTimes, stopCode) => set(state => {
         const newStopDepartureTime: ICachedStopEstimate = {
             stopCode,

@@ -54,7 +54,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         } catch (error) {
             console.error(error);
 
-            Alert.alert("Error while fetching stop schedules");
+            Alert.alert("Something went wrong", "Some features may not work correctly. Please try again later.");
         }
     }
 

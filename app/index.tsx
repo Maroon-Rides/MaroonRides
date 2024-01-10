@@ -21,8 +21,10 @@ const Home = () => {
         const getInitialData = async () => {
             // Get and store the auth token
             // Auth token is needed for future api requests and must use the value in AppStore
-            const authToken = await getAuthentication().catch(() => {
-                Alert.alert("Error while fetching auth token");
+            const authToken = await getAuthentication().catch((error) => {
+                console.error(error);
+
+                Alert.alert("Something went wrong", "Some features may not work correctly. Please try again later.");
 
                 return;
             });
@@ -85,7 +87,7 @@ const Home = () => {
                 } catch (error) {
                     console.error(error);
 
-                    Alert.alert("Error while loading initial data");
+                    Alert.alert("Something went wrong", "Some features may not work correctly. Please try again later.");
                 }
             }
 
