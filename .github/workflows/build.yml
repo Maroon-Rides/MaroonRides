@@ -5,11 +5,8 @@ on:
   # see addl: https://www.andrewhoog.com/post/how-to-build-react-native-android-app-with-github-actions/#3-run-build-workflow
   workflow_dispatch:
 
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - ".github/**"
+  release:
+    types: [published]
 
 
 jobs:
