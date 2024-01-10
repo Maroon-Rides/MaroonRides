@@ -101,7 +101,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                 {!routeSchedules && <ActivityIndicator style={{ marginTop: 16 }} />}
             </BottomSheetView>
 
-            <BottomSheetScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 35, paddingTop: 4 }}>
+            {routeSchedules && (<BottomSheetScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 35, paddingTop: 4 }}>
                 {routeSchedules &&
                     <FlatList
                         data={routeSchedules}
@@ -111,13 +111,13 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                         renderItem={({ item, index }) => {
                             return (
                                 <View key={index}>
-                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""}/>
+                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""} />
                                 </View>
                             )
                         }}
                     />
                 }
-                
+
                 {showNonRouteSchedules &&
                     <View>
                         <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />
@@ -128,9 +128,9 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                             ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />}
                             renderItem={({ item }) => {
 
-                                
+
                                 return (
-                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""}/>
+                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""} />
                                 )
                             }}
                         />
@@ -155,7 +155,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                     </TouchableOpacity>
                 }
 
-            </BottomSheetScrollView>
+            </BottomSheetScrollView>)}
         </BottomSheetModal>
     )
 }

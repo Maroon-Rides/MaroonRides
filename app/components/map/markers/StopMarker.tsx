@@ -4,27 +4,24 @@ import { IPatternPoint } from 'utils/interfaces';
 import StopCallout from '../StopCallout';
 import { View } from 'react-native';
 import { getLighterColor } from '../../../utils';
-import useAppStore from '../../../stores/useAppStore';
 
 interface Props {
     point: IPatternPoint,
     tintColor: string,
     shortName: string
+    isCalloutShown?: boolean
 }
 
 // Stop marker with callout
-const StopMarker: React.FC<Props> = ({ point, tintColor, shortName }) => {
+const StopMarker: React.FC<Props> = ({ point, tintColor, shortName, isCalloutShown=false }) => {
     const markerRef = React.useRef<MapMarker>(null);
-
-    // Controls which StopCallout is shown at the global level
-    const poppedUpStopCallout = useAppStore((state) => state.poppedUpStopCallout);
 
     // If the global poppedUpStopCallout is the same as the current stop, show the callout on screen
     useEffect(() => {
-        if (poppedUpStopCallout?.stopCode === point.stop?.stopCode) {
+        if (isCalloutShown) {
             markerRef.current?.showCallout();
         }
-    }, [poppedUpStopCallout])
+    }, [isCalloutShown])
 
     return (
         <Marker

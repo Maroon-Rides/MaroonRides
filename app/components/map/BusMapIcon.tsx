@@ -34,4 +34,5 @@ const BusMapIcon: React.FC<Props> = ({ heading, color, borderColor }) => {
   )
 }
 
+// Not memoizing this component since the bearing changes when the bus moves
 export default BusMapIcon;
