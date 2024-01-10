@@ -2,10 +2,9 @@ name: TypeScript Linting
 
 on:
   push:
-    branches:
-      - '*'
     paths-ignore:
       - ".github/**"
+      - "fastlane/**"
   pull_request:
     branches:
       - '*'
