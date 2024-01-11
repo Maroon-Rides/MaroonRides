@@ -1,0 +1,58 @@
+name: "Build iOS"
+
+on:
+  # manual trigger but change to any supported event
+  # see addl: https://www.andrewhoog.com/post/how-to-build-react-native-android-app-with-github-actions/#3-run-build-workflow
+  workflow_dispatch:
+
+  release:
+    types: [published]
+
+
+jobs:
+  build_ios:
+    runs-on: macos-latest
+    steps:
+      # this was more debug as was curious what came pre-installed
+      # GitHub shares this online, e.g. https://github.com/actions/runner-images/blob/macOS-12/20230224.1/images/macos/macos-12-Readme.md
+      - name: check Xcode version
+        run: /usr/bin/xcodebuild -version
+
+      - name: checkout repository
+        uses: actions/checkout@v3  
+
+      - name: Install Fastlane
+        run: |
+          sudo gem install fastlane -NV
+          fastlane --version
+          
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v2
+        id: cache
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-
+  
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Expo Prebuild [iOS]
+        run: |
+          npx expo prebuild --platform ios --npm
+
+      - name: Fastlane Beta [iOS]
+        run: fastlane beta
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_BASE64: ${{ secrets.ASC_KEY_BASE64 }}
+          GIT_AUTHORIZATION: ${{ secrets.GIT_AUTHORIZATION }}
+          CHANGELOG: ${{ github.event.release.body }}

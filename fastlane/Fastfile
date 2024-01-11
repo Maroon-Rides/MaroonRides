@@ -1,0 +1,123 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+ASC_KEY_ID = ENV['ASC_KEY_ID']
+ASC_ISSUER_ID = ENV['ASC_ISSUER_ID']
+ASC_KEY_BASE64 = ENV['ASC_KEY_BASE64']
+TEAM_ID = ENV['TEAM_ID']
+
+# use changelog env var if set, otherwise use default
+CHANGELOG = ENV['CHANGELOG'] || "Howdy! This update includes some bug fixes and performance improvements. Please let us know if you have any feedback or questions through TestFlight! Thanks and Gig 'Em!"
+
+# setup app store connect api key on local machine 
+app_store_connect_api_key(
+  key_id: ASC_KEY_ID,
+  issuer_id: ASC_ISSUER_ID,
+  key_content: ASC_KEY_BASE64,
+  is_key_content_base64: true
+)
+
+
+platform :ios do
+  lane :setup_keychain do
+    setup_keychain(
+      keychain_name: "fastlane_tmp_keychain",
+      keychain_password: "fastlane_tmp_keychain",
+      default_keychain: true,
+      unlock: true
+    )
+  end
+
+  desc "Setup generated Xcode project for build"
+  lane :prebuild do
+    setup_ci if ENV['CI']
+
+    
+    match(
+      type: 'development',
+      app_identifier: 'com.bwees.reveille-rides',
+      readonly: true,
+      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
+    )
+
+    match(
+      type: 'appstore',
+      app_identifier: 'com.bwees.reveille-rides',
+      readonly: true,
+      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
+    )
+    
+        
+    update_project_team(
+      path: "ios/ReveilleRides.xcodeproj",
+      teamid: TEAM_ID
+    )
+
+    update_project_provisioning(
+      xcodeproj: "ios/ReveilleRides.xcodeproj",
+      profile: ENV["sigh_com.bwees.reveille-rides_appstore_profile-path"],
+      build_configuration: "Release",
+      target_filter: "ReveilleRides",
+    )
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "ios/ReveilleRides.xcodeproj",
+      team_id: TEAM_ID,
+      bundle_identifier: "com.bwees.reveille-rides",
+      code_sign_identity: "iPhone Distribution",
+      sdk: "iphoneos*",
+    )
+
+    # set ITSAppUsesNonExemptEncryption to false, prevents Missing Compliance error in TF
+    set_info_plist_value(
+      path: "ios/ReveilleRides/Info.plist",
+      key: "ITSAppUsesNonExemptEncryption",
+      value: false
+    )
+  end
+
+  desc "Push a new release build to the App Store"
+  lane :release do
+    prebuild
+
+    # get current build number app_store_build_number and increment it
+    increment_build_number(xcodeproj: "ios/ReveilleRides.xcodeproj", build_number: app_store_build_number() + 1)
+
+    build_app(workspace: "ios/ReveilleRides.xcworkspace", scheme: "ReveilleRides")
+    
+    upload_to_app_store(skip_metadata: true, skip_screenshots: true)
+  end
+  
+  desc "Push a new beta build to TestFlight"
+  lane :beta do
+    prebuild
+    
+    increment_build_number(xcodeproj: "ios/ReveilleRides.xcodeproj", build_number: app_store_build_number(live: false) + 1)
+    
+    build_app(workspace: "ios/ReveilleRides.xcworkspace", scheme: "ReveilleRides")
+    
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      notify_external_testers: true,
+      changelog: CHANGELOG,
+      groups: [
+        "Beta Testers"
+      ]
+    )
+  end
+end
