@@ -116,7 +116,7 @@ platform :ios do
       notify_external_testers: true,
       changelog: CHANGELOG,
       groups: [
-        "Beta Testers"
+        "Beta Tester"
       ]
     )
   end
