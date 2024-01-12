@@ -167,6 +167,12 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                             if (tempDirectionTimes) {
                                 directionTimes = tempDirectionTimes;
                             }
+
+                            // remove duplicate nextDeparts if there are any scheduledDepartTimeUtc duplicates
+                            directionTimes.nextDeparts = directionTimes.nextDeparts.filter((value, index, self) => {
+                                return self.findIndex((time) => time.scheduledDepartTimeUtc === value.scheduledDepartTimeUtc) === index;
+                            });
+
                         }
 
                         return (
