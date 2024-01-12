@@ -51,7 +51,9 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
         const now = moment();
         let foundNextStop = false;
 
-        const processed = item.stopTimes.map((time) => {
+        const sliceLength = 5;
+
+        let processed = item.stopTimes.map((time) => {
             const timeEstimateIndex = estimate?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId)
             const timeEstimate = estimate?.stopTimes[timeEstimateIndex!];
 
@@ -61,9 +63,10 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
             let shouldHighlight = false;
             let color = "grey";
 
-            if (relativeMinutes >= 0) {
+            if (relativeMinutes >= 0 || timeEstimate?.isRealtime) {
                 color = "black";
                 shouldHighlight = true;
+
                 if (!foundNextStop) {
                     color = tintColor;
                     foundNextStop = true;
@@ -81,14 +84,25 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
         const stopRows: TableItemRow[] = [];
         let foundHighlight = false;
 
-        // chunk into rows of 4
-        for (let i = 0; i < processed.length; i += 5) {   
+        // chunk into rows of 5
+        for (let i = 0; i < processed.length; i += sliceLength) {   
             // check if any of the items in the row should be highlighted
-            let shouldHighlight = processed.slice(i, i + 4).some((item) => item.shouldHighlight)
+            let shouldHighlight = processed.slice(i, i + sliceLength).some((item) => item.shouldHighlight)
+
+            let row = processed.slice(i, i + sliceLength)
+
+            if (shouldHighlight && !foundHighlight) {
+                // set all of the expired items to tint color and 50% opacity
+                for (let j = 0; j < row.length; j++) {
+                    if (row[j]!.color == "grey") {
+                        row[j]!.color = tintColor + "80";
+                    }
+                }
+            }
 
             // add row
             stopRows.push({
-                items: processed.slice(i, i + 5),
+                items: row,
                 shouldHighlight: shouldHighlight && !foundHighlight
             })
 
@@ -115,7 +129,6 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
                 { tableRows.map((row, rowIndex) => {
                     
-                    // check if row has an item with a color that is not grey or black
                     
                     return (
                         <View 
@@ -152,7 +165,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                         </View>
                     )
                 })}
-                {item.stopTimes.length == 0 && !item.isEndOfRoute && <Text style={{ color: "grey", textAlign:"center" }}>Timetable Unavailable</Text>}
+                {item.stopTimes.length == 0 && !item.isEndOfRoute && <Text style={{ color: "#8e8e9332", textAlign:"center" }}>Timetable Unavailable</Text>}
             </View>
         </View>
     );
