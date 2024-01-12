@@ -85,7 +85,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
         let foundHighlight = false;
 
         // chunk into rows of 5
-        for (let i = 0; i < processed.length; i += 5) {   
+        for (let i = 0; i < processed.length; i += sliceLength) {   
             // check if any of the items in the row should be highlighted
             let shouldHighlight = processed.slice(i, i + sliceLength).some((item) => item.shouldHighlight)
 
