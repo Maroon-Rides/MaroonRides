@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Alert, AppState } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { GetNextDepartTimesResponseSchema, IAmenity, IRouteDirectionTime, IStop } from "../../../utils/interfaces";
 import TimeBubble from "./TimeBubble";
@@ -19,6 +19,7 @@ interface Props {
 
 const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amenities, setSheetPos }) => {
     const authToken = useAppStore(state => state.authToken);
+    const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
     const [status, setStatus] = useState('On Time');
     const presentSheet = useAppStore((state) => state.presentSheet);
@@ -79,8 +80,9 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
     }
 
     // Refresh the eta every minute
-    useEffect(() => {
-        const intervalId = setInterval(async () => {
+    const setupInterval = () => {
+        intervalIdRef.current = setInterval(async () => {
+            // Your interval logic here
             if (!selectedRoute || !authToken) return;
 
             try {
@@ -97,9 +99,33 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
                 Alert.alert("Something went wrong", "Some features may not work correctly. Please try again later.");
             }
         }, 30000);
+    };
 
+    useEffect(() => {
+        // Set up the interval on mount
+        setupInterval();
+
+        const handleAppStateChange = (nextAppState: string) => {
+            if (nextAppState === 'background') {
+                // App is in the background, clear the interval
+                if (intervalIdRef.current !== null) {
+                    clearInterval(intervalIdRef.current);
+                }
+            } else if (nextAppState === 'active') {
+                // App is in the foreground, start or restart the interval
+                setupInterval();
+            }
+        };
+
+        // Subscribe to app state changes
+        const appStateListener = AppState.addEventListener('change', handleAppStateChange);
+
+        // Clear the interval when the component unmounts
         return () => {
-            clearInterval(intervalId);
+            if (intervalIdRef.current !== null) {
+                clearInterval(intervalIdRef.current);
+            }
+            appStateListener.remove(); // Remove the event listener
         };
     }, []);
 
