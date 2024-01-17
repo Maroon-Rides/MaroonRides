@@ -40,7 +40,7 @@ const Map: React.FC = () => {
     const updateBuses = async () => {
         if (!selectedRoute || !authToken) return
 
-        let busesResponse: IGetVehiclesResponse
+        let busesResponse: IGetVehiclesResponse = []
         try {
             busesResponse = await getVehicles([selectedRoute.key], authToken) as IGetVehiclesResponse;
 
@@ -48,8 +48,7 @@ const Map: React.FC = () => {
         } catch (error) {
             console.error(error);
             // prevent alert loop from filling screen with alerts.
-            clearBusRefreshInterval()
-            throw new Error("Error while updating buses");
+            clearBusRefreshInterval();
         }
 
         if (busesResponse.length == 0 || !busesResponse[0]?.vehiclesByDirections) {
@@ -66,7 +65,7 @@ const Map: React.FC = () => {
 
         setBuses(extracted)
     }
-    
+
     function selectRoute(route: IMapRoute) {
         if (selectedRoute?.key === route.key) return;
 
@@ -109,18 +108,18 @@ const Map: React.FC = () => {
         setZoomToStopLatLng((lat, lng) => {
             // Animate map to the current location
             const region = {
-                latitude: lat-.002,
+                latitude: lat - .002,
                 longitude: lng,
                 latitudeDelta: 0.005,
                 longitudeDelta: 0.005
             };
-    
+
             mapViewRef.current?.animateToRegion(region, 250);
         })
-    
+
     }, []);
 
-    
+
 
     const centerViewOnRoutes = () => {
         let coords: LatLng[] = [];
@@ -174,7 +173,7 @@ const Map: React.FC = () => {
 
         // Animate map to the current location
         const region = {
-            latitude: location.coords.latitude-.002,
+            latitude: location.coords.latitude - .002,
             longitude: location.coords.longitude,
             latitudeDelta: 0.01,
             longitudeDelta: 0.01
@@ -184,14 +183,14 @@ const Map: React.FC = () => {
 
         setIsViewCenteredOnUser(true);
     }
-    
+
     return (
         <>
-            <MapView 
-                showsUserLocation={true} 
-                style={{ width: "100%", height: "100%" }} 
-                ref={mapViewRef} rotateEnabled={false} 
-                initialRegion={defaultMapRegion} 
+            <MapView
+                showsUserLocation={true}
+                style={{ width: "100%", height: "100%" }}
+                ref={mapViewRef} rotateEnabled={false}
+                initialRegion={defaultMapRegion}
                 onPanDrag={() => setIsViewCenteredOnUser(false)}
                 showsMyLocationButton={false} // we have our own
             >
@@ -211,14 +210,14 @@ const Map: React.FC = () => {
                     })
 
                     return (
-                        <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={lineColor} strokeWidth={4} onPress={() => selectRoute(drawnRoute)}/>
+                        <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={lineColor} strokeWidth={4} onPress={() => selectRoute(drawnRoute)} />
                     )
                 })}
 
                 {selectedRoute && selectedRoute?.patternPaths.flatMap((patternPath, index1) => (
                     patternPath.patternPoints.map((patternPoint, index2) => {
                         const stop = patternPoint.stop
-                        
+
                         if (stop) {
                             const lineColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
 
