@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { GetStopEstimatesResponseSchema, IRouteStopSchedule } from '../../../utils/interfaces';
 import BusIcon from './BusIcon';
@@ -19,6 +19,7 @@ interface TableItem {
     color: string,
     shouldHighlight: boolean
     live: boolean,
+    cancelled: boolean
 }
 
 interface TableItemRow {
@@ -29,14 +30,17 @@ interface TableItemRow {
 const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
     const authToken = useAppStore((state) => state.authToken);
+
     const [estimate, setEstimate] = useState<RouteStopSchedule | null>(null);
     const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
+    const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
     const [error, setError] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setIsLoading(true);
                 const response = await getStopEstimates(stopCode, moment().toDate(), authToken!);
                 GetStopEstimatesResponseSchema.parse(response);
 
@@ -45,14 +49,14 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                 if (estimate) {
                     setEstimate(estimate);
                 }
+                setIsLoading(false);
             } catch (error) {
                 console.error(error);
-
                 setError(true);
-
+                setIsLoading(false);
+              
                 return;
             }
-
             setError(false);
         };
 
@@ -69,13 +73,19 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
             const timeEstimateIndex = estimate?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId)
             const timeEstimate = estimate?.stopTimes[timeEstimateIndex!];
 
-            let departTime = timeEstimate ? moment(timeEstimate.estimatedDepartTimeUtc) : moment(time.scheduledDepartTimeUtc);
-            let relativeMinutes = departTime.diff(now, "minutes")
+            // have to check if it isnt undefined because if it is undefined, moment will default to current time
+            const estimatedTime = timeEstimate && moment(timeEstimate?.estimatedDepartTimeUtc).isValid() ? moment(timeEstimate?.estimatedDepartTimeUtc) : null;
+            const scheduledTime = moment(time.scheduledDepartTimeUtc);
+
+            // switch to scheduled time if estimated time is invalid
+            let departTime = estimatedTime ?? scheduledTime; 
 
             let shouldHighlight = false;
             let color = "grey";
 
-            if (relativeMinutes >= 0 || timeEstimate?.isRealtime) {
+            // if the time is in the future or realtime, highlight it
+            // and the next stop isnt cancelled
+            if ((departTime.diff(now, "minutes") >= 0 || timeEstimate?.isRealtime) && !timeEstimate?.isCancelled) {
                 color = "black";
                 shouldHighlight = true;
 
@@ -89,7 +99,8 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                 time: departTime.format("h:mm"),
                 color: color,
                 shouldHighlight: shouldHighlight,
-                live: (timeEstimate && timeEstimate.isRealtime) ?? false
+                live: (timeEstimate && timeEstimate.isRealtime) ?? false,
+                cancelled: timeEstimate?.isCancelled ?? false
             }
         })
 
@@ -133,7 +144,10 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
             <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
                 <BusIcon name={item.routeNumber} color={tintColor} style={{ marginRight: 8 }} />
                 <View>
-                    <Text style={{ fontWeight: "bold", fontSize: 24, flex: 1 }}>{item.routeName}</Text>
+                    <View style={{ flexDirection: "row", alignItems: "center", flex: 1}}>
+                        <Text style={{ fontWeight: "bold", fontSize: 24, paddingRight: 8 }}>{item.routeName}</Text>
+                        { isLoading && <ActivityIndicator /> }
+                    </View>
                     <Text>{item.directionName}</Text>
                 </View>
             </View>
@@ -167,11 +181,13 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                                     }}
                                         key={colIndex}>
                                         <Text style={{
-                                            color: item.color,
-                                            fontWeight: item.color == tintColor ? "bold" : "normal",
-                                            fontSize: 16,
-                                        }}
+                                                color: item.color,
+                                                fontWeight: item.color == tintColor ? "bold" : "normal",
+                                                fontSize: 16,
+                                                textDecorationLine: item.cancelled ? "line-through" : "none"
+                                            }}
                                         >{item.time}</Text>
+                                    
                                         {item.live &&
                                             <MaterialCommunityIcons name="rss" size={12} color={item.color} style={{ marginRight: -2, paddingLeft: 1, alignSelf: "flex-start" }} />
                                         }
