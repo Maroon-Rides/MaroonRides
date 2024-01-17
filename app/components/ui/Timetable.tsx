@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { GetStopEstimatesResponseSchema, IRouteStopSchedule } from '../../../utils/interfaces';
 import BusIcon from './BusIcon';
@@ -32,14 +32,17 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
     const authToken = useAppStore((state) => state.authToken);
     const [estimate, setEstimate] = React.useState<RouteStopSchedule | null>(null);
     const [tableRows, setTableRows] = React.useState<TableItemRow[]>([]);
+    const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
     useEffect(() => {
+        setIsLoading(true);
         getStopEstimates(stopCode, moment().toDate(), authToken!)
             .then((response) => {
                 try {
                     GetStopEstimatesResponseSchema.parse(response);
                     const estimate = response.routeStopSchedules.find((schedule) => schedule.directionName === item.directionName && schedule.routeName === item.routeName)
                     if (estimate) setEstimate(estimate);
+                    setIsLoading(false);
                 } catch (error) {
                     console.error(error);
                     
@@ -58,13 +61,19 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
             const timeEstimateIndex = estimate?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId)
             const timeEstimate = estimate?.stopTimes[timeEstimateIndex!];
 
-            let departTime = (timeEstimate && timeEstimate.scheduledDepartTimeUtc != "0001-01-01T00:00:00") ? moment(timeEstimate.estimatedDepartTimeUtc) : moment(time.scheduledDepartTimeUtc);
-            let relativeMinutes = departTime.diff(now, "minutes")
+            // have to check if it isnt undefined because if it is undefined, moment will default to current time
+            const estimatedTime = timeEstimate && moment(timeEstimate?.estimatedDepartTimeUtc).isValid() ? moment(timeEstimate?.estimatedDepartTimeUtc) : null;
+            const scheduledTime = moment(time.scheduledDepartTimeUtc);
+
+            // switch to scheduled time if estimated time is invalid
+            let departTime = estimatedTime ?? scheduledTime; 
 
             let shouldHighlight = false;
             let color = "grey";
 
-            if (relativeMinutes >= 0 || timeEstimate?.isRealtime) {
+            // if the time is in the future or realtime, highlight it
+            // and the next stop isnt cancelled
+            if ((departTime.diff(now, "minutes") >= 0 || timeEstimate?.isRealtime) && !timeEstimate?.isCancelled) {
                 color = "black";
                 shouldHighlight = true;
 
@@ -119,7 +128,10 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
             <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
                 <BusIcon name={item.routeNumber} color={tintColor} style={{ marginRight: 8 }} />
                 <View>
-                    <Text style={{ fontWeight: "bold", fontSize: 24, flex: 1 }}>{item.routeName}</Text>
+                    <View style={{ flexDirection: "row", alignItems: "center", flex: 1}}>
+                        <Text style={{ fontWeight: "bold", fontSize: 24, paddingRight: 8 }}>{item.routeName}</Text>
+                        { isLoading && <ActivityIndicator /> }
+                    </View>
                     <Text>{item.directionName}</Text>
                 </View>
             </View>
