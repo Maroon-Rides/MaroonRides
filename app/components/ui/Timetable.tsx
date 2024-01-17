@@ -27,7 +27,6 @@ interface TableItemRow {
 }
 
 const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
-
     const authToken = useAppStore((state) => state.authToken);
     const [estimate, setEstimate] = useState<RouteStopSchedule | null>(null);
     const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
@@ -38,6 +37,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
         const fetchData = async () => {
             try {
                 const response = await getStopEstimates(stopCode, moment().toDate(), authToken!);
+
                 GetStopEstimatesResponseSchema.parse(response);
 
                 const estimate = response.routeStopSchedules.find((schedule) => schedule.directionName === item.directionName && schedule.routeName === item.routeName);
@@ -56,7 +56,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
             setError(false);
         };
 
-        fetchData(); // Call the async function immediately
+        fetchData();
     }, [stopCode, authToken, item.directionName, item.routeName]);
 
     useEffect(() => {
@@ -65,33 +65,43 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
         const sliceLength = 5;
 
-        let processed = item.stopTimes.map((time) => {
-            const timeEstimateIndex = estimate?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId)
-            const timeEstimate = estimate?.stopTimes[timeEstimateIndex!];
+        let processed = item.stopTimes
+            .filter((time) => {
+                const timeEstimateIndex = estimate?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId);
+                const timeEstimate = estimate?.stopTimes[timeEstimateIndex!];
 
-            let departTime = timeEstimate ? moment(timeEstimate.estimatedDepartTimeUtc) : moment(time.scheduledDepartTimeUtc);
-            let relativeMinutes = departTime.diff(now, "minutes")
+                let departTime = timeEstimate ? moment(timeEstimate.estimatedDepartTimeUtc) : moment(time.scheduledDepartTimeUtc);
 
-            let shouldHighlight = false;
-            let color = "grey";
+                // Only include items where departTime.isValid() is true
+                return departTime.isValid();
+            })
+            .map((time) => {
+                const timeEstimateIndex = estimate?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId);
+                const timeEstimate = estimate?.stopTimes[timeEstimateIndex!];
 
-            if (relativeMinutes >= 0 || timeEstimate?.isRealtime) {
-                color = "black";
-                shouldHighlight = true;
+                let departTime = timeEstimate ? moment(timeEstimate.estimatedDepartTimeUtc) : moment(time.scheduledDepartTimeUtc);
+                let relativeMinutes = departTime.diff(now, "minutes");
 
-                if (!foundNextStop) {
-                    color = tintColor;
-                    foundNextStop = true;
+                let shouldHighlight = false;
+                let color = "grey";
+
+                if (relativeMinutes >= 0 || timeEstimate?.isRealtime) {
+                    color = "black";
+                    shouldHighlight = true;
+
+                    if (!foundNextStop) {
+                        color = tintColor;
+                        foundNextStop = true;
+                    }
                 }
-            }
 
-            return {
-                time: departTime.format("h:mm"),
-                color: color,
-                shouldHighlight: shouldHighlight,
-                live: (timeEstimate && timeEstimate.isRealtime) ?? false
-            }
-        })
+                return {
+                    time: departTime.format("h:mm"),
+                    color: color,
+                    shouldHighlight: shouldHighlight,
+                    live: (timeEstimate && timeEstimate.isRealtime) ?? false,
+                };
+            });
 
         const stopRows: TableItemRow[] = [];
         let foundHighlight = false;
@@ -124,7 +134,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
         setTableRows(stopRows);
     }, [estimate])
 
-    if(error) {
+    if (error) {
         return <Text style={{ textAlign: 'center', marginTop: 10 }}>Something went wrong. Please try again later</Text>
     }
 
