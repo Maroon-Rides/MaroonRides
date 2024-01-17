@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { FlatList } from "react-native-gesture-handler";
 import { getStopSchedules } from "aggie-spirit-api";
@@ -29,6 +29,8 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     const [nonRouteSchedules, setNonRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
     const [routeSchedules, setRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
 
+    const [error, setError] = useState(false);
+
     async function loadSchedule(newSelectedStop: IStop | null = null) {
         if (!newSelectedStop || !authToken) return;
 
@@ -54,7 +56,10 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         } catch (error) {
             console.error(error);
 
-            Alert.alert("Something went wrong", "Some features may not work correctly. Please try again later.");
+            setError(true);
+
+            // Make sure to return as if we don't the error state will be reset by the next line
+            return;
         }
     }
 
@@ -98,64 +103,63 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                 </View>
                 <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
 
-                {!routeSchedules && <ActivityIndicator style={{ marginTop: 16 }} />}
+                {!routeSchedules && !error && <ActivityIndicator style={{ marginTop: 16 }} />}
             </BottomSheetView>
 
-            {routeSchedules && (<BottomSheetScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 35, paddingTop: 4 }}>
-                {routeSchedules &&
-                    <FlatList
-                        data={routeSchedules}
-                        scrollEnabled={false}
-                        keyExtractor={(_, index) => index.toString()}
-                        ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />}
-                        renderItem={({ item, index }) => {
-                            return (
-                                <View key={index}>
-                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""} />
-                                </View>
-                            )
-                        }}
-                    />
-                }
+            { error && <Text style={{ textAlign: 'center', marginTop: 10 }}>Something went wrong. Please try again later</Text> }
 
-                {showNonRouteSchedules &&
-                    <View>
-                        <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />
+            {!error && routeSchedules && (
+                <BottomSheetScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 35, paddingTop: 4 }}>
+                    {routeSchedules && (
                         <FlatList
-                            data={nonRouteSchedules}
-                            keyExtractor={(_, index) => index.toString()}
+                            data={routeSchedules}
                             scrollEnabled={false}
+                            keyExtractor={(_, index) => index.toString()}
                             ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />}
-                            renderItem={({ item }) => {
-
-
+                            renderItem={({ item, index }) => {
                                 return (
-                                    <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""} />
-                                )
+                                    <View key={index}>
+                                        <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""} />
+                                    </View>
+                                );
                             }}
                         />
-                    </View>
-                }
+                    )}
 
-                {nonRouteSchedules && nonRouteSchedules.length > 0 &&
-                    // show other routes button
-                    <TouchableOpacity
-                        style={{
-                            padding: 8,
-                            paddingHorizontal: 16,
-                            marginHorizontal: 16,
-                            borderRadius: 8,
-                            marginTop: 16,
-                            alignSelf: 'center',
-                            backgroundColor: getLineColor(selectedRoute?.shortName ?? "#550000"),
-                        }}
-                        onPress={() => setShowNonRouteSchedules(!showNonRouteSchedules)}
-                    >
-                        <Text style={{ color: "white" }}>{showNonRouteSchedules ? "Hide" : "Show"} Other Routes</Text>
-                    </TouchableOpacity>
-                }
+                    {showNonRouteSchedules && (
+                        <View>
+                            <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />
+                            <FlatList
+                                data={nonRouteSchedules}
+                                keyExtractor={(_, index) => index.toString()}
+                                scrollEnabled={false}
+                                ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />}
+                                renderItem={({ item }) => {
+                                    return <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""} />;
+                                }}
+                            />
+                        </View>
+                    )}
 
-            </BottomSheetScrollView>)}
+                    {nonRouteSchedules && nonRouteSchedules.length > 0 && (
+                        // show other routes button
+                        <TouchableOpacity
+                            style={{
+                                padding: 8,
+                                paddingHorizontal: 16,
+                                marginHorizontal: 16,
+                                borderRadius: 8,
+                                marginTop: 16,
+                                alignSelf: 'center',
+                                backgroundColor: getLineColor(selectedRoute?.shortName ?? "#550000"),
+                            }}
+                            onPress={() => setShowNonRouteSchedules(!showNonRouteSchedules)}
+                        >
+                            <Text style={{ color: "white" }}>{showNonRouteSchedules ? "Hide" : "Show"} Other Routes</Text>
+                        </TouchableOpacity>
+                    )}
+                </BottomSheetScrollView>
+            )}
         </BottomSheetModal>
     )
 }

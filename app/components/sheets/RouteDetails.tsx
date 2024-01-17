@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, NativeSyntheticEvent, Alert } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
@@ -25,12 +25,14 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const stopEstimates = useAppStore((state) => state.stopEstimates);
     const setStopEstimates = useAppStore(state => state.setStopEstimates);
-    
+
     // Controls SegmentedControl
     const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
 
     const [processedStops, setProcessedStops] = useState<IStop[]>([]);
     const [selectedRoute, setSelectedRoute] = useState<IMapRoute | null>(null);
+
+    const [error, setError] = useState(false);
 
     // cleanup this view when the sheet is closed
     const closeModal = () => {
@@ -88,19 +90,24 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         const newStopEstimates: ICachedStopEstimate[] = [];
 
         // load stop estimates concurrently
-        const promises = allStops.map(stop =>
-            getNextDepartureTimes(currentSelectedRoute.key, directionKeys, stop.stopCode, authToken)
-                .then(response => {            
-                    GetNextDepartTimesResponseSchema.parse(response);
+        const promises = allStops.map(async stop => {
+            try {
+                const response = await getNextDepartureTimes(currentSelectedRoute.key, directionKeys, stop.stopCode, authToken);
+                GetNextDepartTimesResponseSchema.parse(response);
 
-                    newStopEstimates.push({ stopCode: stop.stopCode, departureTimes: response });
-                })
-                .catch(error => {
-                    console.error(error);
-                    
-                    Alert.alert("Something went wrong", "Some features may not work correctly. Please try again later.");
-                })
-        );
+                newStopEstimates.push({ stopCode: stop.stopCode, departureTimes: response });
+            } catch (error) {
+                console.error(error);
+
+                setError(true);
+
+                // Make sure to return as if we don't the error state will be reset by the next line
+                return;
+            }
+
+            // If we rerun the request and there is no error, make sure to reset the error state
+            setError(false);
+        });
 
         await Promise.all(promises);
         setStopEstimates(newStopEstimates);
@@ -112,6 +119,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const snapPoints = ['25%', '45%', '85%'];
 
+    
     return (
         <BottomSheetModal
             ref={sheetRef}
@@ -145,8 +153,10 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                     <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
                 </BottomSheetView>
             }
+            
+            { error && <Text style={{ textAlign: 'center', marginTop: 10 }}>Something went wrong. Please try again later</Text> }
 
-            {selectedRoute &&
+            {!error && selectedRoute &&
                 <BottomSheetFlatList
                     data={processedStops}
                     extraData={[...stopEstimates]}
