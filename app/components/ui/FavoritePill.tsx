@@ -2,7 +2,6 @@ import React, { memo, useEffect, useState } from 'react'
 import {  TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {FontAwesome} from '@expo/vector-icons';
-
 import IconPill from './IconPill'
 
 interface Props {
@@ -41,6 +40,7 @@ const FavoritePill: React.FC<Props> = ({ routeId }) => {
         try {
             // If no favorites exist and we are adding favorite, create a new array with the routeId
             if (!savedFavorites && newState) {
+                setIsFavorite(true);
                 return AsyncStorage.setItem('favorites', JSON.stringify([routeId]));
             }
 
