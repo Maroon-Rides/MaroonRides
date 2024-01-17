@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Alert, AppState } from 'react-native';
+import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, AppState } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { GetNextDepartTimesResponseSchema, IAmenity, IRouteDirectionTime, IStop } from "../../../utils/interfaces";
 import TimeBubble from "./TimeBubble";
@@ -30,6 +30,8 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
 
     const stopEstimates = useAppStore((state) => state.stopEstimates);
     const updateStopEstimate = useAppStore(state => state.updateStopEstimate);
+
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         let totalDeviation = 0;
@@ -96,8 +98,13 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
             } catch (error) {
                 console.error(error);
 
-                Alert.alert("Something went wrong", "Some features may not work correctly. Please try again later.");
+                setError(true);
+
+                return;
+
             }
+
+            setError(false);
         }, 30000);
     };
 
@@ -137,14 +144,17 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
                 <AmenityRow amenities={amenities} size={24} color={"gray"} style={{ paddingRight: 16, alignSelf: "flex-start" }} />
             </View>
 
-            {status == "Loading" ?
+            {error ? (
+                <Text>Something went wrong. Please try again later</Text>
+            ) : status === "Loading" ? (
                 <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 2 }}>
                     <ActivityIndicator style={{ justifyContent: "flex-start" }} />
                     <View style={{ flex: 1 }} />
                 </View>
-                :
+            ) : (
                 <Text style={{ marginBottom: 12, marginTop: 4 }}>{status}</Text>
-            }
+            )}
+
             <View style={{ flexDirection: "row", alignItems: "center", marginRight: 8, marginBottom: 8, marginTop: -4 }}>
                 <FlatList
                     horizontal

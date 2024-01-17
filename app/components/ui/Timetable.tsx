@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Alert, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { GetStopEstimatesResponseSchema, IRouteStopSchedule } from '../../../utils/interfaces';
 import BusIcon from './BusIcon';
@@ -29,23 +29,35 @@ interface TableItemRow {
 const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
     const authToken = useAppStore((state) => state.authToken);
-    const [estimate, setEstimate] = React.useState<RouteStopSchedule | null>(null);
-    const [tableRows, setTableRows] = React.useState<TableItemRow[]>([]);
+    const [estimate, setEstimate] = useState<RouteStopSchedule | null>(null);
+    const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
+
+    const [error, setError] = useState(false);
 
     useEffect(() => {
-        getStopEstimates(stopCode, moment().toDate(), authToken!)
-            .then((response) => {
-                try {
-                    GetStopEstimatesResponseSchema.parse(response);
-                    const estimate = response.routeStopSchedules.find((schedule) => schedule.directionName === item.directionName && schedule.routeName === item.routeName)
-                    if (estimate) setEstimate(estimate);
-                } catch (error) {
-                    console.error(error);
-                    
-                    Alert.alert("Something went wrong", "Some features may not work correctly. Please try again later.");
+        const fetchData = async () => {
+            try {
+                const response = await getStopEstimates(stopCode, moment().toDate(), authToken!);
+                GetStopEstimatesResponseSchema.parse(response);
+
+                const estimate = response.routeStopSchedules.find((schedule) => schedule.directionName === item.directionName && schedule.routeName === item.routeName);
+
+                if (estimate) {
+                    setEstimate(estimate);
                 }
-            })
-    }, [])
+            } catch (error) {
+                console.error(error);
+
+                setError(true);
+
+                return;
+            }
+
+            setError(false);
+        };
+
+        fetchData(); // Call the async function immediately
+    }, [stopCode, authToken, item.directionName, item.routeName]);
 
     useEffect(() => {
         const now = moment();
@@ -72,7 +84,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                     foundNextStop = true;
                 }
             }
-            
+
             return {
                 time: departTime.format("h:mm"),
                 color: color,
@@ -85,7 +97,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
         let foundHighlight = false;
 
         // chunk into rows of 5
-        for (let i = 0; i < processed.length; i += sliceLength) {   
+        for (let i = 0; i < processed.length; i += sliceLength) {
             // check if any of the items in the row should be highlighted
             let shouldHighlight = processed.slice(i, i + sliceLength).some((item) => item.shouldHighlight)
 
@@ -112,6 +124,10 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
         setTableRows(stopRows);
     }, [estimate])
 
+    if(error) {
+        return <Text style={{ textAlign: 'center', marginTop: 10 }}>Something went wrong. Please try again later</Text>
+    }
+
     return (
         <View style={{ marginLeft: 16, paddingTop: 8 }}>
             <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
@@ -127,37 +143,37 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                 marginRight: 16,
             }}>
 
-                { tableRows.map((row, rowIndex) => {
-                    
-                    
+                {tableRows.map((row, rowIndex) => {
+
+
                     return (
-                        <View 
+                        <View
                             style={{
                                 flexDirection: "row",
                                 alignItems: "center",
                                 paddingVertical: 8,
                                 paddingHorizontal: 8,
                                 borderRadius: 8,
-                                backgroundColor: row.shouldHighlight ? tintColor+"40" : (rowIndex % 2 == 0 ? "#efefef" : "white"),
+                                backgroundColor: row.shouldHighlight ? tintColor + "40" : (rowIndex % 2 == 0 ? "#efefef" : "white"),
                             }}
                             key={rowIndex}
                         >
-                            { row.items.map((item, colIndex) => {
+                            {row.items.map((item, colIndex) => {
                                 return (
-                                    <View style= {{
+                                    <View style={{
                                         flexBasis: "20%",
                                         marginLeft: colIndex == 0 ? 16 : 0,
                                         flexDirection: "row",
                                     }}
-                                    key={colIndex}>
+                                        key={colIndex}>
                                         <Text style={{
-                                                color: item.color,
-                                                fontWeight: item.color == tintColor ? "bold" : "normal",
-                                                fontSize: 16,
-                                            }}
+                                            color: item.color,
+                                            fontWeight: item.color == tintColor ? "bold" : "normal",
+                                            fontSize: 16,
+                                        }}
                                         >{item.time}</Text>
                                         {item.live &&
-                                            <MaterialCommunityIcons name="rss" size={12} color={item.color} style={{marginRight: -2, paddingLeft: 1, alignSelf: "flex-start"}} />    
+                                            <MaterialCommunityIcons name="rss" size={12} color={item.color} style={{ marginRight: -2, paddingLeft: 1, alignSelf: "flex-start" }} />
                                         }
                                     </View>
                                 )
@@ -165,7 +181,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                         </View>
                     )
                 })}
-                {item.stopTimes.length == 0 && !item.isEndOfRoute && <Text style={{ color: "#8e8e9332", textAlign:"center" }}>Timetable Unavailable</Text>}
+                {item.stopTimes.length == 0 && !item.isEndOfRoute && <Text style={{ color: "#8e8e9332", textAlign: "center" }}>Timetable Unavailable</Text>}
             </View>
         </View>
     );

@@ -1,7 +1,5 @@
-
-
 import React, { memo, useEffect, useState } from 'react'
-import { Alert, TouchableOpacity } from 'react-native';
+import {  TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {FontAwesome} from '@expo/vector-icons';
 
@@ -26,7 +24,9 @@ const FavoritePill: React.FC<Props> = ({ routeId }) => {
         } catch(error) {
             console.error(error);
 
-            Alert.alert("Something went wrong", "Some features may not work correctly. Please try again later.");
+            Alert.alert("Something Went Wrong", "Please try again later")
+
+            return;
         }
     }, [])
 
@@ -62,10 +62,12 @@ const FavoritePill: React.FC<Props> = ({ routeId }) => {
         } catch (error) {
             console.error(error);
 
-            Alert.alert("Something went wrong", "Some features may not work correctly. Please try again later.");
+            Alert.alert("Something Went Wrong", "Please try again later");
+
+            return;
         }
     }
-
+    
     return (
         <TouchableOpacity onPress={toggleFavorite}>
             {isFavorite ?
