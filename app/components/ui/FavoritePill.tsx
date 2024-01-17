@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {FontAwesome} from '@expo/vector-icons';
 
 import IconPill from './IconPill'
+import { set } from 'zod';
 
 interface Props {
     routeId: string
@@ -41,6 +42,7 @@ const FavoritePill: React.FC<Props> = ({ routeId }) => {
         try {
             // If no favorites exist and we are adding favorite, create a new array with the routeId
             if (!savedFavorites && newState) {
+                setIsFavorite(true);
                 return AsyncStorage.setItem('favorites', JSON.stringify([routeId]));
             }
 
