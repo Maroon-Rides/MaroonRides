@@ -19,6 +19,7 @@ interface TableItem {
     color: string,
     shouldHighlight: boolean
     live: boolean,
+    cancelled: boolean
 }
 
 interface TableItemRow {
@@ -57,7 +58,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
             const timeEstimateIndex = estimate?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId)
             const timeEstimate = estimate?.stopTimes[timeEstimateIndex!];
 
-            let departTime = timeEstimate ? moment(timeEstimate.estimatedDepartTimeUtc) : moment(time.scheduledDepartTimeUtc);
+            let departTime = (timeEstimate && timeEstimate.scheduledDepartTimeUtc != "0001-01-01T00:00:00") ? moment(timeEstimate.estimatedDepartTimeUtc) : moment(time.scheduledDepartTimeUtc);
             let relativeMinutes = departTime.diff(now, "minutes")
 
             let shouldHighlight = false;
@@ -77,7 +78,8 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                 time: departTime.format("h:mm"),
                 color: color,
                 shouldHighlight: shouldHighlight,
-                live: (timeEstimate && timeEstimate.isRealtime) ?? false
+                live: (timeEstimate && timeEstimate.isRealtime) ?? false,
+                cancelled: timeEstimate?.isCancelled ?? false
             }
         })
 
@@ -154,6 +156,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                                                 color: item.color,
                                                 fontWeight: item.color == tintColor ? "bold" : "normal",
                                                 fontSize: 16,
+                                                textDecorationLine: item.cancelled ? "line-through" : "none"
                                             }}
                                         >{item.time}</Text>
                                         {item.live &&
