@@ -31,6 +31,8 @@ const StopMarker: React.FC<Props> = ({ point, tintColor, shortName, isCalloutSho
                 longitude: point.longitude
             }}
             tracksViewChanges={false}
+            anchor={{x: 1, y: 1}}
+            pointerEvents="auto"
         >
             <View
                 style={{
