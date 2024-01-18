@@ -18,6 +18,8 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             key={bus.key}
             coordinate={{ latitude: bus.location.latitude, longitude: bus.location.longitude }}
             tracksViewChanges={false}
+            anchor={{x: 1, y: 1}}
+            pointerEvents="auto"
         >
             {/* Bus Icon on Map*/}
             <BusMapIcon color={tintColor} borderColor={getLighterColor(tintColor)} heading={bus.location.heading} />
