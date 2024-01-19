@@ -23,6 +23,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
 
+    const setSelectedRouteDestination = useAppStore(state => state.setSelectedRouteDestination);
+
     const stopEstimates = useAppStore((state) => state.stopEstimates);
     const setStopEstimates = useAppStore(state => state.setStopEstimates);
 
@@ -71,8 +73,14 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         if (!currentSelectedRoute) return;
         setSelectedRoute(currentSelectedRoute);
 
+        setSelectedRouteDestination(currentSelectedRoute.directionList[0]?.destination ?? null);
+
         loadStopEstimates();
     }, [currentSelectedRoute])
+
+    useEffect(() => {
+        return () => setSelectedRouteDestination(null);
+    }, []);
 
     async function loadStopEstimates() {
         if (!currentSelectedRoute || !authToken) return;
@@ -115,6 +123,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const handleSetSelectedDirection = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
         setSelectedDirectionIndex(evt.nativeEvent.selectedSegmentIndex);
+        
+        setSelectedRouteDestination(selectedRoute?.directionList[evt.nativeEvent.selectedSegmentIndex]?.destination ?? null);
     }
 
     const snapPoints = ['25%', '45%', '85%'];
