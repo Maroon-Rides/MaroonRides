@@ -5,6 +5,8 @@ import BusCallout from '../BusCallout';
 import { getLighterColor } from '../../../utils';
 import { IVehicle } from 'utils/interfaces';
 
+import useAppStore from '../../../stores/useAppStore';
+
 interface Props {
     bus: IVehicle,
     tintColor: string,
@@ -13,6 +15,11 @@ interface Props {
 
 // Bus Marker with icon and callout
 const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
+    const selectedRouteDestination = useAppStore(state => state.selectedRouteDestination);
+
+    const busColor = selectedRouteDestination === bus.directionName ? tintColor : '#808080';
+    const borderColor = getLighterColor(busColor);
+
     return (
         <Marker
             key={bus.key}
@@ -22,7 +29,7 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             pointerEvents="auto"
         >
             {/* Bus Icon on Map*/}
-            <BusMapIcon color={tintColor} borderColor={getLighterColor(tintColor)} heading={bus.location.heading} />
+            <BusMapIcon color={busColor} borderColor={borderColor} heading={bus.location.heading} />
             <BusCallout directionName={bus.directionName} fullPercentage={Math.round(bus.passengersOnboard / bus.passengerCapacity)} amenities={bus.amenities} tintColor={tintColor ?? "#500000"} routeName={routeName} />
         </Marker>
     );
