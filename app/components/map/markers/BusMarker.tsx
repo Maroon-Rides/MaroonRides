@@ -17,8 +17,8 @@ interface Props {
 const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
     const selectedRouteDestination = useAppStore(state => state.selectedRouteDestination);
 
-    const busColor = selectedRouteDestination === bus.directionName ? tintColor : '#808080';
-    const borderColor = getLighterColor(busColor);
+    const busColor = selectedRouteDestination === bus.directionName ? tintColor : tintColor+"50";
+    const borderColor = selectedRouteDestination === bus.directionName ? getLighterColor(tintColor) :busColor;
 
     return (
         <Marker
