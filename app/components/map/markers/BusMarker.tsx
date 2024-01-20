@@ -17,8 +17,9 @@ interface Props {
 const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
     const selectedRouteDestination = useAppStore(state => state.selectedRouteDestination);
 
-    const busColor = selectedRouteDestination === bus.directionName ? tintColor : '#808080';
-    const borderColor = getLighterColor(busColor);
+    const busColor = selectedRouteDestination === bus.directionName ? tintColor : tintColor+"70";
+    const borderColor = selectedRouteDestination === bus.directionName ? getLighterColor(tintColor) : busColor;
+    const iconColor = selectedRouteDestination === bus.directionName ? "white" : "#ffffffcc";
 
     return (
         <Marker
@@ -29,7 +30,7 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             pointerEvents="auto"
         >
             {/* Bus Icon on Map*/}
-            <BusMapIcon color={busColor} borderColor={borderColor} heading={bus.location.heading} />
+            <BusMapIcon color={busColor} borderColor={borderColor} heading={bus.location.heading} iconColor={iconColor} />
             <BusCallout directionName={bus.directionName} fullPercentage={Math.round(bus.passengersOnboard / bus.passengerCapacity)} amenities={bus.amenities} tintColor={tintColor ?? "#500000"} routeName={routeName} />
         </Marker>
     );
