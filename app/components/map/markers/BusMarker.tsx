@@ -31,7 +31,7 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
         >
             {/* Bus Icon on Map*/}
             <BusMapIcon color={busColor} borderColor={borderColor} heading={bus.location.heading} iconColor={iconColor} />
-            <BusCallout directionName={bus.directionName} fullPercentage={Math.round(bus.passengersOnboard / bus.passengerCapacity)} amenities={bus.amenities} tintColor={tintColor ?? "#500000"} routeName={routeName} />
+            <BusCallout directionName={bus.directionName} fullPercentage={Math.round((bus.passengersOnboard / bus.passengerCapacity)*100)} amenities={bus.amenities} tintColor={tintColor ?? "#500000"} routeName={routeName} />
         </Marker>
     );
 };
