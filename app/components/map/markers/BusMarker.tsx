@@ -15,12 +15,13 @@ interface Props {
 
 // Bus Marker with icon and callout
 const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
-    const selectedRouteDestination = useAppStore(state => state.selectedRouteDestination);
+    const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
 
-    const busColor = selectedRouteDestination === bus.directionName ? tintColor : tintColor+"70";
-    const borderColor = selectedRouteDestination === bus.directionName ? getLighterColor(tintColor) : busColor;
-    const iconColor = selectedRouteDestination === bus.directionName ? "white" : "#ffffffcc";
+    const busColor = selectedRouteDirection === bus.directionKey ? tintColor : tintColor+"70";
+    const borderColor = selectedRouteDirection === bus.directionKey ? getLighterColor(tintColor) : undefined;
+    const iconColor = selectedRouteDirection === bus.directionKey ? "white" : "#ffffffcc";
 
+    
     return (
         <Marker
             key={bus.key}
@@ -28,6 +29,7 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             tracksViewChanges={false}
             anchor={{x: 1, y: 1}}
             pointerEvents="auto"
+            style={{ zIndex: 1000, elevation: 1000 }}
         >
             {/* Bus Icon on Map*/}
             <BusMapIcon color={busColor} borderColor={borderColor} heading={bus.location.heading} iconColor={iconColor} />

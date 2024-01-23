@@ -25,8 +25,8 @@ interface AppState {
     setSelectedRoute: (selectedRoute: IMapRoute) => void,
     clearSelectedRoute: () => void,
 
-    selectedRouteDestination: string | null,
-    setSelectedRouteDestination: (selectedRouteDirection: string | null) => void,
+    selectedRouteDirection: string | null,
+    setSelectedRouteDirection: (selectedRouteDirection: string | null) => void,
 
     selectedRouteCategory: "favorites" | "all",
     setSelectedRouteCategory: (selectedRouteCategory: "favorites" | "all") => void
@@ -85,8 +85,8 @@ const useAppStore = create<AppState>()((set) => ({
         return { selectedRoute: null };
     }),
 
-    selectedRouteDestination: null,
-    setSelectedRouteDestination: (selectedRouteDirection) => set(() => ({ selectedRouteDestination: selectedRouteDirection })),
+    selectedRouteDirection: null,
+    setSelectedRouteDirection: (selectedRouteDirection) => set(() => ({ selectedRouteDirection: selectedRouteDirection })),
 
     selectedRouteCategory: 'all',
     setSelectedRouteCategory: (selectedRouteCategory) => set(() => ({ selectedRouteCategory })),
