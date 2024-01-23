@@ -5,7 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 interface Props {
   heading: number,
   color: string,
-  borderColor: string,
+  borderColor?: string,
   iconColor: string
 }
 
@@ -15,6 +15,7 @@ const BusMapIcon: React.FC<Props> = ({ heading, color, borderColor, iconColor })
   const getRotationProp = (bearing: number | undefined) => {
     return [{ rotate: bearing !== undefined ? `${Math.round(bearing) - 135}deg` : '0deg' }]
   };
+
 
   return (
     <View style={{
@@ -27,7 +28,7 @@ const BusMapIcon: React.FC<Props> = ({ heading, color, borderColor, iconColor })
       borderBottomLeftRadius: 15,
       backgroundColor: color,
       borderColor: borderColor,
-      borderWidth: 2,
+      borderWidth: borderColor ? 2 : 0,
       transform: getRotationProp(heading)
     }}>
       <MaterialCommunityIcons name="bus" size={18} color={iconColor} style={{transform: getRotationProp(-heading-90)}} />

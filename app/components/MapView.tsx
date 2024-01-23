@@ -20,6 +20,8 @@ const Map: React.FC = () => {
     const presentSheet = useAppStore((state) => state.presentSheet);
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
     const setZoomToStopLatLng = useAppStore((state) => state.setZoomToStopLatLng);
+    const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
+
 
     const setBusRefreshInterval = useAppStore((state) => state.setBusRefreshInterval);
     const clearBusRefreshInterval = useAppStore((state) => state.clearBusRefreshInterval);
@@ -129,7 +131,7 @@ const Map: React.FC = () => {
                 path.patternPoints.forEach((point) => {
                     coords.push({
                         latitude: point.latitude,
-                        longitude: point.longitude
+                        longitude: point.longitude,
                     });
                 });
             });
@@ -196,29 +198,45 @@ const Map: React.FC = () => {
             >
                 {/* Route Polylines */}
                 {drawnRoutes.map(function (drawnRoute) {
-                    const coords: LatLng[] = [];
-
-                    const lineColor = drawnRoute.directionList[0]?.lineColor;
+                    const coordDirections: { [directionId: string]: LatLng[]; } = {};
 
                     drawnRoute.patternPaths.forEach((path) => {
                         path.patternPoints.forEach((point) => {
-                            coords.push({
+                            coordDirections[path.directionKey] = coordDirections[path.directionKey] ?? [];
+
+                            coordDirections[path.directionKey]!.push({
                                 latitude: point.latitude,
-                                longitude: point.longitude
+                                longitude: point.longitude,
                             })
                         })
                     })
 
+                    const lineColor = drawnRoute.directionList[0]?.lineColor ?? "#FFFF";
+                    
                     return (
-                        <Polyline key={drawnRoute.key} coordinates={coords} strokeColor={lineColor} strokeWidth={4} onPress={() => selectRoute(drawnRoute)} />
-                    )
+                        Object.keys(coordDirections).map((directionId) => {
+
+                            const directionColor = directionId === selectedRouteDirection || selectedRouteDirection == null ? lineColor : lineColor + "70";
+                            return (
+                                <Polyline
+                                    key={`${directionId}`}
+                                    coordinates={coordDirections[directionId] ?? []}
+                                    strokeColor={directionColor}
+                                    strokeWidth={5}
+                                    tappable={true}
+                                    onPress={() => selectRoute(drawnRoute)}
+                                />
+                            )
+                        })
+                    ) 
                 })}
 
+                {/* Stops */}
                 {selectedRoute && selectedRoute?.patternPaths.flatMap((patternPath, index1) => (
                     patternPath.patternPoints.map((patternPoint, index2) => {
                         const stop = patternPoint.stop
 
-                        if (stop) {
+                        if (stop && patternPath.directionKey === selectedRouteDirection) {
                             const lineColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
 
                             return (

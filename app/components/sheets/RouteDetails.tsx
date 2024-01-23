@@ -23,7 +23,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
 
-    const setSelectedRouteDestination = useAppStore(state => state.setSelectedRouteDestination);
+    const setSelectedRouteDirection = useAppStore(state => state.setSelectedRouteDirection);
 
     const stopEstimates = useAppStore((state) => state.stopEstimates);
     const setStopEstimates = useAppStore(state => state.setStopEstimates);
@@ -41,6 +41,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         sheetRef.current?.dismiss();
         clearSelectedRoute();
         setStopEstimates([]);
+        setSelectedRouteDirection(null);
 
         // reset direction selector
         setSelectedDirectionIndex(0);
@@ -73,13 +74,13 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         if (!currentSelectedRoute) return;
         setSelectedRoute(currentSelectedRoute);
 
-        setSelectedRouteDestination(currentSelectedRoute.directionList[0]?.destination ?? null);
+        setSelectedRouteDirection(currentSelectedRoute.directionList[0]?.direction.key ?? null);
 
         loadStopEstimates();
     }, [currentSelectedRoute])
 
     useEffect(() => {
-        return () => setSelectedRouteDestination(null);
+        return () => setSelectedRouteDirection(null);
     }, []);
 
     async function loadStopEstimates() {
@@ -124,7 +125,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const handleSetSelectedDirection = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
         setSelectedDirectionIndex(evt.nativeEvent.selectedSegmentIndex);
         
-        setSelectedRouteDestination(selectedRoute?.directionList[evt.nativeEvent.selectedSegmentIndex]?.destination ?? null);
+        setSelectedRouteDirection(selectedRoute?.directionList[evt.nativeEvent.selectedSegmentIndex]?.direction.key ?? null);
     }
 
     const snapPoints = ['25%', '45%', '85%'];
