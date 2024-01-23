@@ -4,7 +4,7 @@ import { getAuthentication, getBaseData, getPatternPaths } from "aggie-spirit-ap
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import useAppStore from './stores/useAppStore';
 import { GetBaseDataResponseSchema, GetPatternPathsResponseSchema, IGetPatternPathsResponse, IMapRoute } from "../utils/interfaces";
-import MapView from './components/MapView';
+import MapView from './components/map/MapView';
 import RoutesList from './components/sheets/RoutesList';
 import AlertList from './components/sheets/AlertList';
 import RouteDetails from './components/sheets/RouteDetails';

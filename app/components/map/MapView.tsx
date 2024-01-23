@@ -4,10 +4,10 @@ import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { getVehicles } from "aggie-spirit-api";
-import { GetVehiclesResponseSchema, IGetVehiclesResponse, IMapRoute, IVehicle } from "../../utils/interfaces";
-import useAppStore from "../stores/useAppStore";
-import BusMarker from "./map/markers/BusMarker";
-import StopMarker from "./map/markers/StopMarker";
+import { GetVehiclesResponseSchema, IGetVehiclesResponse, IMapRoute, IVehicle } from "../../../utils/interfaces";
+import useAppStore from "../../stores/useAppStore";
+import BusMarker from "./markers/BusMarker";
+import StopMarker from "./markers/StopMarker";
 
 const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
