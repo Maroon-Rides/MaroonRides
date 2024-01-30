@@ -29,7 +29,7 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             tracksViewChanges={false}
             anchor={{x: 1, y: 1}}
             pointerEvents="auto"
-            style={{ zIndex: 1000, elevation: 1000 }}
+            style={{ zIndex: 100, elevation: 100 }}
         >
             {/* Bus Icon on Map*/}
             <BusMapIcon color={busColor} borderColor={borderColor} heading={bus.location.heading} iconColor={iconColor} />

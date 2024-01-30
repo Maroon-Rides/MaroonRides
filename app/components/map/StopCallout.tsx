@@ -36,7 +36,15 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, routeName }) => {
     }, [stopEstimates])
 
     return (
-        <Callout style={{ alignItems: 'center', width: contentSize[0], height: contentSize[1] }}>
+        <Callout 
+            style={{ 
+                alignItems: 'center',
+                width: contentSize[0],
+                height: contentSize[1],
+                zIndex: 1000,
+                elevation: 1000 
+            }}
+        >
             <View onLayout={handleLayout} >
                 <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", alignSelf: "flex-start" }}  >
                     <BusIcon name={routeName} color={tintColor} isCallout={true} style={{ marginRight: 8 }} />
