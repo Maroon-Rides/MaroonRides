@@ -8,7 +8,6 @@ import { GetVehiclesResponseSchema, IGetVehiclesResponse, IMapRoute, IVehicle } 
 import useAppStore from "../../stores/useAppStore";
 import BusMarker from "./markers/BusMarker";
 import StopMarker from "./markers/StopMarker";
-import { getLighterColor } from "../../utils";
 
 const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
