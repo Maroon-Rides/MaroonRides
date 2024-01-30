@@ -10,15 +10,17 @@ interface Props {
     amenities: IAmenity[]
     tintColor: string
     routeName: string
+    busId: string
 }
 
 // Bus callout with amentities
-const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities, tintColor, routeName }) => {    
+const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities, tintColor, routeName, busId }) => {    
     return (
         <Callout>
             <View style={{ width: 160 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 4 }}>
                     <BusIcon name={routeName} color={tintColor} isCallout={true} />
+                    <Text style={{paddingLeft: 6, color: tintColor, fontWeight: "600"}}>{busId}</Text>
                     <View style={{ flex: 1 }} />
                     <AmenityRow amenities={amenities} color={"gray"} size={20} />
                 </View>
