@@ -8,6 +8,7 @@ import { GetVehiclesResponseSchema, IGetVehiclesResponse, IMapRoute, IVehicle } 
 import useAppStore from "../../stores/useAppStore";
 import BusMarker from "./markers/BusMarker";
 import StopMarker from "./markers/StopMarker";
+import { getLighterColor } from "../../utils";
 
 const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
@@ -236,8 +237,12 @@ const Map: React.FC = () => {
                     patternPath.patternPoints.map((patternPoint, index2) => {
                         const stop = patternPoint.stop
 
-                        if (stop && patternPath.directionKey === selectedRouteDirection) {
-                            const lineColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
+                        if (stop) {
+                            var lineColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
+
+                            if (patternPath.directionKey !== selectedRouteDirection) {
+                                lineColor = lineColor + "70";
+                            }
 
                             return (
                                 <StopMarker
