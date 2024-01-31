@@ -9,6 +9,7 @@ import RoutesList from './components/sheets/RoutesList';
 import AlertList from './components/sheets/AlertList';
 import RouteDetails from './components/sheets/RouteDetails';
 import StopTimetable from './components/sheets/StopTimetable';
+import Settings from './components/sheets/Settings';
 
 const Home = () => {
     const setAuthToken = useAppStore((state) => state.setAuthToken);
@@ -124,6 +125,7 @@ const Home = () => {
     const alertListSheetRef = useRef<BottomSheetModal>(null);
     const routeDetailSheetRef = useRef<BottomSheetModal>(null);
     const stopTimetableSheetRef = useRef<BottomSheetModal>(null);
+    const settingsSheetRef = useRef<BottomSheetModal>(null);
 
     setPresentSheet((sheet) => {
         switch (sheet) {
@@ -135,6 +137,9 @@ const Home = () => {
                 break;
             case "stopTimetable":
                 stopTimetableSheetRef.current?.present();
+                break;
+            case "settings":
+                settingsSheetRef.current?.present();
                 break;
             default:
                 break;
@@ -150,7 +155,7 @@ const Home = () => {
             <View style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <MapView />
 
-
+                <Settings sheetRef={settingsSheetRef} />
                 <RouteDetails sheetRef={routeDetailSheetRef} />
                 <RoutesList sheetRef={routesListSheetRef} />
                 <AlertList sheetRef={alertListSheetRef} />

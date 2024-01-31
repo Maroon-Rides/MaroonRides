@@ -3,13 +3,14 @@ import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent }
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 
 import { IDirectionList, IMapRoute } from "../../../utils/interfaces";
 import useAppStore from "../../stores/useAppStore";
 import BusIcon from "../ui/BusIcon";
 import SheetHeader from "../ui/SheetHeader";
 import AlertPill from "../ui/AlertPill";
+import IconPill from "../ui/IconPill";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -47,8 +48,18 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         })
     }
 
-    // Load favorites on first render
-    useEffect(() => loadFavorites(), [routes]);
+    function loadSettings() {
+        AsyncStorage.getItem('default-group').then((defaultGroup: string | null) => {
+            if (!defaultGroup) return;
+            setSelectedRouteCategory(Number(defaultGroup) === 0 ? "all" : "favorites");
+        })
+    }
+
+    // Load preferences on first render
+    useEffect(() => {
+        loadFavorites()
+        loadSettings()
+    }, [routes]);
 
     // Update the shown routes when the selectedRouteCategory changes
     useEffect(() => {
@@ -93,7 +104,18 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             <BottomSheetView>
                 <SheetHeader 
                     title="Routes" 
-                    icon={<AlertPill />}
+                    icon={
+                    <View style={{flexDirection: "row", alignContent: "center"}}>
+                        <AlertPill />
+                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => presentSheet("settings")}>
+                            <IconPill 
+                                icon={<MaterialIcons name="settings" size={16} color="black" />}
+                                color="white"
+                                borderColor="#cccccd"
+                                textColor="black"
+                            />
+                        </TouchableOpacity>
+                    </View>}
                 />
 
                 <SegmentedControl
@@ -104,7 +126,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                 />
                 <View style={{height: 1, backgroundColor: "#eaeaea", marginTop: 8}} />
 
-                { selectedRouteCategory === "favorites" && drawnRoutes.length === 0 && (
+                { selectedRouteCategory === "favorites" && drawnRoutes.length === 0 && routes.length != 0 && (
                     <View style={{ alignItems: 'center', marginTop: 16 }}>
                         <Text>You have no favorited routes.</Text>
                     </View>
