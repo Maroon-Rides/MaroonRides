@@ -28,6 +28,16 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "plugins": ["@config-plugins/detox", "expo-router", "expo-location"]
+    "plugins": [
+      "@config-plugins/detox", 
+      "expo-router", 
+      "expo-location", 
+      ["@bacons/apple-targets",
+        {
+          "appleTeamId": "65AMD2STXG"
+        }
+      ]
+    ]
+    
   }
 }
