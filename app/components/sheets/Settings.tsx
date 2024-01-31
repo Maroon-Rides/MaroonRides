@@ -55,7 +55,8 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
             <BottomSheetScrollView
                 style={{ padding: 16 }}
             >
-                <Text style={{fontSize: 16, fontWeight: "bold"}}>Default Shown Route Group</Text>
+                <Text style={{fontSize: 16, fontWeight: "bold"}}>Default Route Group</Text>
+                <Text style={{fontSize: 12, color: "grey", marginTop: 4}}>Choose the default route group to display when the app opens</Text>
                 <SegmentedControl
                     values={['All Routes', 'Favorites']}
                     selectedIndex={defaultGroup}
