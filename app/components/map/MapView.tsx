@@ -236,8 +236,12 @@ const Map: React.FC = () => {
                     patternPath.patternPoints.map((patternPoint, index2) => {
                         const stop = patternPoint.stop
 
-                        if (stop && patternPath.directionKey === selectedRouteDirection) {
-                            const lineColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
+                        if (stop) {
+                            var lineColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
+
+                            if (patternPath.directionKey !== selectedRouteDirection) {
+                                lineColor = lineColor + "70";
+                            }
 
                             return (
                                 <StopMarker
