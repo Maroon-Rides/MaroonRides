@@ -9,7 +9,9 @@ import SwiftUI
 
 struct RouteList: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+      ScrollView {
+        Bus_Icon(name: "RELLIS", number: "47", color: Color.red, subtitle: "MSC | Rellis")
+      }
     }
 }
 
