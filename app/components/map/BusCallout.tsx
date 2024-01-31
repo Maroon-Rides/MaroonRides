@@ -17,10 +17,27 @@ interface Props {
 const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities, tintColor, routeName, busId }) => {    
     return (
         <Callout>
-            <View style={{ width: 160 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 4 }}>
-                    <BusIcon name={routeName} color={tintColor} isCallout={true} />
-                    <Text style={{paddingLeft: 6, color: tintColor, fontWeight: "600"}}>{busId}</Text>
+            <View style={{ width: 165 }}>
+                <View style={{ 
+                    flexDirection: 'row', 
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    marginBottom: 4 
+                }}>
+                    <View style={{
+                        flexDirection: "row",
+                        justifyContent: 'center', 
+                        alignItems: 'center', 
+                        backgroundColor: "#efefef", 
+                        marginRight: 8,
+                        borderRadius: 4, 
+                    }}>
+                        <BusIcon name={routeName} color={tintColor} isCallout={true} />
+                        <Text style={{fontSize: 12, marginLeft: 6, marginRight: 4, color: "grey"}}>
+                            <Text style={{fontWeight: "bold" }}>ID: </Text>
+                            <Text>{busId}</Text>
+                        </Text>
+                    </View>
                     <View style={{ flex: 1 }} />
                     <AmenityRow amenities={amenities} color={"gray"} size={20} />
                 </View>
