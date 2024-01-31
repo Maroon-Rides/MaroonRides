@@ -60,8 +60,8 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
 
 
             <BottomSheetFlatList
-                data={shownAlerts}
-                keyExtractor={alert => alert.name}
+                data={shownAlerts.filter((obj, index, self) => self.findIndex(o => o.name === obj.name) === index)}
+                keyExtractor={alert => alert.key}
                 style={{ height: "100%", marginLeft: 16, paddingTop: 8 }}
                 contentContainerStyle={{ paddingBottom: 35, paddingRight: 16 }}
                 renderItem={({ item: alert }) => {
