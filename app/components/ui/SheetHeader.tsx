@@ -16,7 +16,7 @@ const SheetHeader: React.FC<Props> = ({ title, subtitle, icon }) => {
                 <View style={{ flex: 1 }} />
                 {icon}
             </View>
-            <Text style={{ fontSize: 16, color: "grey"}}>{subtitle}</Text>
+            { subtitle && <Text style={{ fontSize: 16, color: "grey"}}>{subtitle}</Text>}
         </View>
     )
 }

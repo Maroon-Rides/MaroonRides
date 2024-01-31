@@ -39,7 +39,8 @@ const IconPill: React.FC<Props> = ({text, color, textColor, borderColor, icon, s
                     paddingLeft: 6
                 }}>
                 {text}
-            </Text> : null
+            </Text>
+        : <View style={{height: 18, marginVertical: 5}} />
         }
     </View>
   )

@@ -34,8 +34,8 @@ interface AppState {
     selectedStop: IStop | null,
     setSelectedStop: (selectedStop: IStop | null) => void,
     
-    presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable") => void
-    setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable") => void) => void
+    presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings") => void
+    setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings") => void) => void
 
     busLocationRefreshInterval: NodeJS.Timeout | null,
     setBusRefreshInterval: (busLocationRefreshInterval: NodeJS.Timeout) => void
