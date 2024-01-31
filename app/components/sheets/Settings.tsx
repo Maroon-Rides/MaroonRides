@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Alert, NativeSyntheticEvent } from "react-native";
-import { BottomSheetModal, BottomSheetView, BottomSheetFlatList, BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SheetHeader from "../ui/SheetHeader";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
