@@ -36,7 +36,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
     }, [selectedRoute, alerts]);
 
     return (
-        <BottomSheetModal ref={sheetRef} snapPoints={snapPoints} >
+        <BottomSheetModal ref={sheetRef} snapPoints={snapPoints} index={1} >
             <BottomSheetView>
                 {/* header */}
                 <SheetHeader
