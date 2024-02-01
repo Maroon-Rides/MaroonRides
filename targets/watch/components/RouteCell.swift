@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Bus_Icon: View {
+struct RouteCell: View {
   var name: String
   var number: String
   var color: Color
@@ -55,7 +55,7 @@ struct Bus_Icon: View {
 }
 
 #Preview {
-    Bus_Icon(
+    RouteCell(
       name: "RELLIS",
       number: "47",
       color: Color.red,

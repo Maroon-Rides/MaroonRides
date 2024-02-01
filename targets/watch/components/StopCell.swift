@@ -28,7 +28,8 @@ struct StopCell: View {
       .store(in: &apiManager.cancellables)
   }
   
-  
+  // refresh ETA every 30s
+  let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
   
   var body: some View {
     VStack {
@@ -75,6 +76,10 @@ struct StopCell: View {
       Divider()
 
     }
+    .onReceive(timer, perform: { _ in
+      print("update")
+      updateStopEstimates()
+    })
     .onAppear(perform: {
       updateStopEstimates()
     })
