@@ -27,6 +27,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const stopEstimates = useAppStore((state) => state.stopEstimates);
     const setStopEstimates = useAppStore(state => state.setStopEstimates);
+    
     // Controls SegmentedControl
     const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
 
