@@ -12,7 +12,7 @@ struct TimeBubble: View {
   var isLive: Bool = false
   var color: Color
   
-  func parseRelativeTime(iso: String) -> String {
+  func parseRelativeTime(for iso: String) -> String {
     let dateFormatter = ISO8601DateFormatter()
     guard let date = dateFormatter.date(from: iso) else {
         return "Invalid"
@@ -35,7 +35,7 @@ struct TimeBubble: View {
   
   var body: some View {
     HStack {
-      Text(parseRelativeTime(iso: date))
+      Text(parseRelativeTime(for: date))
       if (isLive) {
         Image(systemName: "dot.radiowaves.up.forward")
           .font(.system(size: 10))
