@@ -11,7 +11,6 @@ import StopCell from "../ui/StopCell";
 import BusIcon from "../ui/BusIcon";
 import FavoritePill from "../ui/FavoritePill";
 import AlertPill from "../ui/AlertPill";
-import { string } from "zod";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
