@@ -36,7 +36,9 @@ extension Color {
     }
 }
 
-extension Color {
-  static let lightText = Color(UIColor.darkGray).opacity(0.5)
-    
+extension Array where Element: Equatable {
+  func deduplicated<U: Hashable>(by keyPath: KeyPath<Element, U>) -> [Element] {
+      var seen = Set<U>()
+      return filter { seen.insert($0[keyPath: keyPath]).inserted }
+  }
 }
