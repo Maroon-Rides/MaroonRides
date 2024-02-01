@@ -36,17 +36,17 @@ struct TimeBubble: View {
   var body: some View {
     HStack {
       Text(parseRelativeTime(iso: date))
-      Image(systemName: "dot.radiowaves.up.forward")
-        .font(.system(size: 10))
-        .padding([.bottom], 8)
-        .padding([.leading], -4)
+      if (isLive) {
+        Image(systemName: "dot.radiowaves.up.forward")
+          .font(.system(size: 10))
+          .padding([.bottom], 8)
+          .padding([.leading], -4)
+      }
     }
       .padding([.vertical], 4)
       .padding([.horizontal], 8)
       .background(color)
       .cornerRadius(8)
-    
-    
   }
 }
 

@@ -36,9 +36,14 @@ struct RouteList: View {
                 NavigationLink {
                   RouteDetail(route: route, favorited: true)
                 }
-              label: {
-                Bus_Icon(name: route.name, number: route.shortName, color: Color(hex: route.directionList[0].lineColor), subtitle: getDirectionString(directions: route.directionList))
-              }
+                label: {
+                  RouteCell(
+                    name: route.name,
+                    number: route.shortName,
+                    color: Color(hex: route.directionList[0].lineColor),
+                    subtitle: getDirectionString(directions: route.directionList)
+                  )
+                }
               }
             }
           }
@@ -51,7 +56,12 @@ struct RouteList: View {
               RouteDetail(route: route)
             }
             label: {
-              Bus_Icon(name: route.name, number: route.shortName, color: Color(hex: route.directionList[0].lineColor), subtitle: getDirectionString(directions: route.directionList))
+              RouteCell(
+                name: route.name,
+                number: route.shortName,
+                color: Color(hex: route.directionList[0].lineColor),
+                subtitle: getDirectionString(directions: route.directionList)
+              )
             }
           }
         }
