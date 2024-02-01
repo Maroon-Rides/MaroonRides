@@ -15,26 +15,30 @@ struct Bus_Icon: View {
 
   var body: some View {
       HStack {
-        Text("01")
-          .padding([.vertical], 8)
-          
-          .padding([.horizontal], 12)
-          .background(color)
-          .clipShape(.rect(cornerSize: CGSize(width: 8, height: 8)))
-          
         VStack {
           HStack {
+            Text(number)
+              .padding([.vertical], 2)
+              .padding([.horizontal], 6)
+              .font(.system(size: 16).bold())
+              .minimumScaleFactor(0.1)
+              .lineLimit(1)
+              .background(color)
+              .clipShape(.rect(cornerSize: CGSize(width: 8, height: 8)))
             Text(name)
               .font(.headline)
               .frame(alignment: .leading)
+              .lineLimit(1)
             Spacer()
           }
           
           HStack {
             Text(subtitle)
-              .font(.caption2)
+              .font(.system(size: 12))
               .frame(alignment: .leading)
               .foregroundStyle(.secondary)
+              .lineLimit(1)
+
             Spacer()
           }
         }
@@ -45,6 +49,8 @@ struct Bus_Icon: View {
         Image(systemName: "chevron.right")
           .foregroundStyle(.tertiary)
       }
+      .padding([.vertical], 8)
+
   }
 }
 
