@@ -8,6 +8,7 @@ import { GetVehiclesResponseSchema, IGetVehiclesResponse, IMapRoute, IVehicle } 
 import useAppStore from "../../stores/useAppStore";
 import BusMarker from "./markers/BusMarker";
 import StopMarker from "./markers/StopMarker";
+import { getLighterColor } from "../../utils";
 
 const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
@@ -216,7 +217,7 @@ const Map: React.FC = () => {
                     return (
                         Object.keys(coordDirections).map((directionId) => {
 
-                            const directionColor = directionId === selectedRouteDirection || selectedRouteDirection == null ? lineColor : lineColor + "70";
+                            const directionColor = directionId === selectedRouteDirection || selectedRouteDirection == null ? lineColor : lineColor + "40";
                             return (
                                 <Polyline
                                     key={`${directionId}`}
@@ -237,10 +238,12 @@ const Map: React.FC = () => {
                         const stop = patternPoint.stop
 
                         if (stop) {
-                            var lineColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
+                            let lineColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
+                            let stopBorderColor = getLighterColor(lineColor)
 
                             if (patternPath.directionKey !== selectedRouteDirection) {
-                                lineColor = lineColor + "70";
+                                stopBorderColor = lineColor + "60";
+                                lineColor = lineColor + "40";
                             }
 
                             return (
@@ -248,6 +251,7 @@ const Map: React.FC = () => {
                                     key={`${stop.stopCode}-${index1}-${index2}`}
                                     point={patternPoint}
                                     tintColor={lineColor}
+                                    borderColor={stopBorderColor}
                                     shortName={selectedRoute?.shortName ?? ""}
                                     isCalloutShown={poppedUpStopCallout?.stopCode === stop.stopCode}
                                 />
@@ -272,7 +276,20 @@ const Map: React.FC = () => {
                 })}
             </MapView>
 
-            <TouchableOpacity style={{ top: 60, alignContent: 'center', justifyContent: 'center', position: 'absolute', right: 8, overflow: 'hidden', borderRadius: 8, backgroundColor: 'white', padding: 12 }} onPress={() => recenterView()}>
+            <TouchableOpacity 
+                style={{ 
+                    top: 60, 
+                    alignContent: 'center', 
+                    justifyContent: 'center', 
+                    position: 'absolute', 
+                    right: 8, 
+                    overflow: 'hidden', 
+                    borderRadius: 8, 
+                    backgroundColor: 'white', 
+                    padding: 12 
+                }} 
+                onPress={() => recenterView()}
+            >
                 {isViewCenteredOnUser ?
                     <MaterialIcons name="my-location" size={24} color="gray" />
                     :
