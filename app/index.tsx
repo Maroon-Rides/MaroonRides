@@ -7,6 +7,7 @@ import { GetBaseDataResponseSchema, GetPatternPathsResponseSchema, IGetPatternPa
 import MapView from './components/map/MapView';
 import RoutesList from './components/sheets/RoutesList';
 import AlertList from './components/sheets/AlertList';
+import AlertDetail from "./components/sheets/AlertDetail";
 import RouteDetails from './components/sheets/RouteDetails';
 import StopTimetable from './components/sheets/StopTimetable';
 import Settings from './components/sheets/Settings';
@@ -123,6 +124,7 @@ const Home = () => {
 
     const routesListSheetRef = useRef<BottomSheetModal>(null);
     const alertListSheetRef = useRef<BottomSheetModal>(null);
+    const alertDetailSheetRef = useRef<BottomSheetModal>(null);
     const routeDetailSheetRef = useRef<BottomSheetModal>(null);
     const stopTimetableSheetRef = useRef<BottomSheetModal>(null);
     const settingsSheetRef = useRef<BottomSheetModal>(null);
@@ -140,6 +142,9 @@ const Home = () => {
                 break;
             case "settings":
                 settingsSheetRef.current?.present();
+                break;
+            case "alertsDetail":
+                alertDetailSheetRef.current?.present();
                 break;
             default:
                 break;
@@ -159,6 +164,7 @@ const Home = () => {
                 <RouteDetails sheetRef={routeDetailSheetRef} />
                 <RoutesList sheetRef={routesListSheetRef} />
                 <AlertList sheetRef={alertListSheetRef} />
+                <AlertDetail sheetRef={alertDetailSheetRef} />
                 <StopTimetable sheetRef={stopTimetableSheetRef} />
             </View>
         </BottomSheetModalProvider>

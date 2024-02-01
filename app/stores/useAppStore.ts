@@ -34,8 +34,11 @@ interface AppState {
     selectedStop: IStop | null,
     setSelectedStop: (selectedStop: IStop | null) => void,
     
-    presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings") => void
-    setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings") => void) => void
+    presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail") => void
+    setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail") => void) => void
+
+    alertDetail: IMapServiceInterruption | null,
+    setAlertDetail: (alertDetail: IMapServiceInterruption | null) => void
 
     busLocationRefreshInterval: NodeJS.Timeout | null,
     setBusRefreshInterval: (busLocationRefreshInterval: NodeJS.Timeout) => void
@@ -96,6 +99,9 @@ const useAppStore = create<AppState>()((set) => ({
 
     presentSheet: (sheet) => {console.log(sheet)},
     setPresentSheet: (presentSheet) => set(() => ({ presentSheet })),
+
+    alertDetail: null,
+    setAlertDetail: (alertDetail) => set(() => ({ alertDetail })),
 
     // Timeouts
     busLocationRefreshInterval: null,

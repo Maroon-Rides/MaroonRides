@@ -13,11 +13,14 @@ interface SheetProps {
 
 // AlertList (for all routes and current route)
 const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
+
     const snapPoints = ['25%', '45%', '85%'];
 
+    
     const alerts = useAppStore((state) => state.mapServiceInterruption);
     const selectedRoute = useAppStore((state) => state.selectedRoute);
-
+    const presentSheet = useAppStore((state) => state.presentSheet);
+    const setAlertDetail = useAppStore((state) => state.setAlertDetail);
     const [shownAlerts, setShownAlerts] = useState<IMapServiceInterruption[]>([]);
 
     // If no route is selected, we're looking at all routes, therefore show all alerts
@@ -35,6 +38,10 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
         setShownAlerts(filteredAlerts);
     }, [selectedRoute, alerts]);
 
+    const displayDetailAlert = (alert: IMapServiceInterruption) => {
+        setAlertDetail(alert);
+        presentSheet("alertsDetail");
+    }
     return (
         <BottomSheetModal ref={sheetRef} snapPoints={snapPoints} index={1} >
             <BottomSheetView>
@@ -66,19 +73,23 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                 contentContainerStyle={{ paddingBottom: 35, paddingRight: 16 }}
                 renderItem={({ item: alert }) => {
                     return (
-                        <View style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            marginVertical: 4,
-                            backgroundColor: "#eaeaea",
-                            padding: 8,
-                            borderRadius: 8,
-                        }}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                displayDetailAlert(alert);
+                            }}
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                marginVertical: 4,
+                                backgroundColor: "#eaeaea",
+                                padding: 8,
+                                borderRadius: 8,
+                            }}
+                        >
                             <Ionicons name="alert-circle" size={32} color="red" style={{ marginRight: 8 }} />
                             <Text style={{ flex: 1 }}>{alert.name}</Text>
-                        </View>
-
-                    )
+                        </TouchableOpacity>
+                    );
                 }}
             />
         </BottomSheetModal>

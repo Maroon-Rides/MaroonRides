@@ -11,6 +11,7 @@ import StopCell from "../ui/StopCell";
 import BusIcon from "../ui/BusIcon";
 import FavoritePill from "../ui/FavoritePill";
 import AlertPill from "../ui/AlertPill";
+import { string } from "zod";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -27,7 +28,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const stopEstimates = useAppStore((state) => state.stopEstimates);
     const setStopEstimates = useAppStore(state => state.setStopEstimates);
-
     // Controls SegmentedControl
     const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
 
