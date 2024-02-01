@@ -6,14 +6,15 @@ import { View } from 'react-native';
 import { getLighterColor } from '../../../utils';
 
 interface Props {
-    point: IPatternPoint,
-    tintColor: string,
+    point: IPatternPoint
+    tintColor: string
+    borderColor: string
     shortName: string
     isCalloutShown?: boolean
 }
 
 // Stop marker with callout
-const StopMarker: React.FC<Props> = ({ point, tintColor, shortName, isCalloutShown=false }) => {
+const StopMarker: React.FC<Props> = ({ point, tintColor, borderColor, shortName, isCalloutShown=false }) => {
     const markerRef = React.useRef<MapMarker>(null);
 
     // If the global poppedUpStopCallout is the same as the current stop, show the callout on screen
@@ -41,7 +42,7 @@ const StopMarker: React.FC<Props> = ({ point, tintColor, shortName, isCalloutSho
                     borderWidth: 2,
                     borderRadius: 9999,
                     backgroundColor: tintColor,
-                    borderColor: getLighterColor(tintColor),
+                    borderColor: borderColor,
                 }}
             />
             <StopCallout
