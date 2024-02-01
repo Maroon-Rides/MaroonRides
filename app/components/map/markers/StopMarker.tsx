@@ -3,7 +3,6 @@ import { MapMarker, Marker } from 'react-native-maps';
 import { IPatternPoint } from 'utils/interfaces';
 import StopCallout from '../StopCallout';
 import { View } from 'react-native';
-import { getLighterColor } from '../../../utils';
 
 interface Props {
     point: IPatternPoint
