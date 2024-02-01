@@ -8,18 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var apiManager: APIManager = APIManager()
     var body: some View {
       NavigationStack {
-        TabView {
-          RouteList()
-            .navigationTitle("Favorites")
-          Text("HSHSHSH")
-            .navigationTitle("All Routes")
-        }
+        RouteList()
       }
+      .onAppear(perform: {
+        apiManager.fetchData()
+      })
+      .environmentObject(apiManager)
     }
 }
 
-#Preview {
-    ContentView()
-}
