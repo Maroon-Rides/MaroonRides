@@ -1,5 +1,5 @@
-import {TouchableOpacity, useWindowDimensions} from "react-native";
 import { BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
+import { View, Text, TouchableOpacity, useWindowDimensions} from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../stores/useAppStore";
 import SheetHeader from "../ui/SheetHeader";
@@ -15,16 +15,18 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
     <BottomSheetModal ref={sheetRef} snapPoints={snapPoints} index={1}>
         <BottomSheetView>
             <SheetHeader
-                title="Alerts Details"
+                title="Alert Details"
                 icon={
                     <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => sheetRef.current?.dismiss()}>
                         <Ionicons name="close-circle" size={28} color="grey" />
                     </TouchableOpacity>
                 }
             />
+            <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
+
             <RenderHtml
                 contentWidth={useWindowDimensions().width}
-                baseStyle={{ fontSize: 16, padding: 10 }}
+                baseStyle={{ fontSize: 16, paddingHorizontal: 16, paddingTop: 8}}
                 source={{ html: alert?.description || '' }}
             />
         </BottomSheetView>
