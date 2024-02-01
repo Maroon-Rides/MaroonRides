@@ -51,11 +51,20 @@ struct StopCell: View {
         } else {
           ScrollView(.horizontal) {
             HStack {
-              ForEach((estimates?.routeDirectionTimes[0].nextDeparts)!, id: \.scheduledDepartTimeUtc) { depart in
+              ForEach((estimates?.routeDirectionTimes[0].nextDeparts.deduplicated(by: \.estimatedDepartTimeUtc))!, id: \.scheduledDepartTimeUtc) { depart in
+                // if first time
                 if estimates?.routeDirectionTimes[0].nextDeparts.firstIndex(where: {$0.scheduledDepartTimeUtc == depart.scheduledDepartTimeUtc}) == 0 {
-                  TimeBubble(date: (depart.estimatedDepartTimeUtc ?? depart.scheduledDepartTimeUtc)!, isLive: depart.estimatedDepartTimeUtc != nil, color: Color(hex: route.directionList[0].lineColor))
+                  TimeBubble(
+                    date: (depart.estimatedDepartTimeUtc ?? depart.scheduledDepartTimeUtc)!,
+                    isLive: depart.estimatedDepartTimeUtc != nil,
+                    color: Color(hex: route.directionList[0].lineColor)
+                  )
                 } else {
-                  TimeBubble(date: (depart.estimatedDepartTimeUtc ?? depart.scheduledDepartTimeUtc)!, isLive: depart.estimatedDepartTimeUtc != nil, color: Color.white)
+                  TimeBubble(
+                    date: (depart.estimatedDepartTimeUtc ?? depart.scheduledDepartTimeUtc)!,
+                    isLive: depart.estimatedDepartTimeUtc != nil,
+                    color: Color(hex: "#48484a")
+                  )
                 }
               }
             }

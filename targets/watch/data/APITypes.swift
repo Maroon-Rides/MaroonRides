@@ -65,7 +65,7 @@ struct MapServiceInterruption: Codable {
     let dailyEndTime: String
 }
 
-struct DepartTime: Codable {
+struct DepartTime: Codable, Hashable {
     let estimatedDepartTimeUtc: String?
     let scheduledDepartTimeUtc: String?
     let isOffRoute: Bool

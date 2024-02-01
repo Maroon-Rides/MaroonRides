@@ -12,17 +12,36 @@ struct TimeBubble: View {
   var isLive: Bool = false
   var color: Color
   
-  func parseTime(time: String) -> Date {
-    return ISO8601DateFormatter().date(from: time)!
+  func parseRelativeTime(iso: String) -> String {
+    let dateFormatter = ISO8601DateFormatter()
+    guard let date = dateFormatter.date(from: iso) else {
+        return "Invalid"
+    }
+    
+    let calendar = Calendar.current
+    let now = Date()
+    let components = calendar.dateComponents([.minute], from: now, to: date)
+    
+    if let minutes = components.minute {
+        if minutes < 1 {
+            return "Now"
+        } else {
+            return "\(minutes) min"
+        }
+    } else {
+        return "Unknown"
+    }
   }
   
   var body: some View {
     HStack {
-      Text(parseTime(time: date), style: .time)
+      Text(parseRelativeTime(iso: date))
       Image(systemName: "dot.radiowaves.up.forward")
-        .font(.system(size: 16))
+        .font(.system(size: 10))
+        .padding([.bottom], 8)
+        .padding([.leading], -4)
     }
-    .padding([.vertical], 4)
+      .padding([.vertical], 4)
       .padding([.horizontal], 8)
       .background(color)
       .cornerRadius(8)
