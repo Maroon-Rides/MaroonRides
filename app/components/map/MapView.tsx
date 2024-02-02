@@ -217,7 +217,7 @@ const Map: React.FC = () => {
                     return (
                         Object.keys(coordDirections).map((directionId) => {
 
-                            const directionColor = directionId === selectedRouteDirection || selectedRouteDirection == null ? lineColor : lineColor + "40";
+                            const directionColor = directionId === selectedRouteDirection || selectedRouteDirection == null ? lineColor : lineColor + "60";
                             return (
                                 <Polyline
                                     key={`${directionId}`}
@@ -238,19 +238,20 @@ const Map: React.FC = () => {
                         const stop = patternPoint.stop
 
                         if (stop) {
-                            let lineColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
-                            let stopBorderColor = getLighterColor(lineColor)
+                            let fillColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
+                            let stopBorderColor = getLighterColor(fillColor)
 
                             if (patternPath.directionKey !== selectedRouteDirection) {
-                                stopBorderColor = lineColor + "60";
-                                lineColor = lineColor + "40";
+                                stopBorderColor = fillColor + "60";
+                                fillColor = fillColor + "60";
                             }
 
                             return (
                                 <StopMarker
                                     key={`${stop.stopCode}-${index1}-${index2}`}
                                     point={patternPoint}
-                                    tintColor={lineColor}
+                                    tintColor={selectedRoute?.directionList[0]?.lineColor ?? "#FFFF"}
+                                    fillColor={fillColor}
                                     borderColor={stopBorderColor}
                                     shortName={selectedRoute?.shortName ?? ""}
                                     isCalloutShown={poppedUpStopCallout?.stopCode === stop.stopCode}

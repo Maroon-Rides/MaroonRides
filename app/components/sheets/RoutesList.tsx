@@ -152,14 +152,16 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                                         <FontAwesome name="star" size={16} color="#ffcc01" style={{marginLeft: 4}} />
                                     }
                                 </View>
-                                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                    {route.directionList.map((elm: IDirectionList, index: number) => (
-                                        <React.Fragment key={index}>
-                                            <Text>{elm.destination}</Text>
-                                            {index !== route.directionList.length - 1 && <Text style={{ marginHorizontal: 2 }}>|</Text>}
-                                        </React.Fragment>
-                                    ))}
-                                </View>
+                                { route.directionList.length > 1 &&
+                                    <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                        {route.directionList.map((elm: IDirectionList, index: number) => (
+                                            <React.Fragment key={index}>
+                                                <Text>{elm.destination}</Text>
+                                                {index !== route.directionList.length - 1 && <Text style={{ marginHorizontal: 2 }}>|</Text>}
+                                            </React.Fragment>
+                                        ))}
+                                    </View>
+                                } 
                             </View>
                         </TouchableOpacity>
                     )
