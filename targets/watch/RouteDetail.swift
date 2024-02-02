@@ -80,27 +80,29 @@ struct RouteDetail: View {
       }
 
       
-      
-      Button(action: {
-        var newSelected = selectedDirection + 1
-        
-        if newSelected >= route.directionList.count {
-          newSelected = 0
+      if (route.directionList.count > 1) {
+        Button(action: {
+          var newSelected = selectedDirection + 1
+          
+          if newSelected >= route.directionList.count {
+            newSelected = 0
+          }
+          selectedDirection = newSelected
+          selectedPath = patternPaths[0].patternPaths.filter({$0.directionKey == route.directionList[selectedDirection].direction.key}).first
+        }) {
+          HStack {
+            Image(systemName: "chevron.up.chevron.down")
+            Text("to " + route.directionList[selectedDirection].destination)
+              .lineLimit(1)
+          }
+          .padding([.vertical], 4)
+          .padding([.horizontal], 8)
+          .background(.quaternary)
+          .cornerRadius(32)
         }
-        selectedDirection = newSelected
-        selectedPath = patternPaths[0].patternPaths.filter({$0.directionKey == route.directionList[selectedDirection].direction.key}).first
-      }) {
-        HStack {
-          Image(systemName: "chevron.up.chevron.down")
-          Text("to " + route.directionList[selectedDirection].destination)
-            .lineLimit(1)
-        }
-        .padding([.vertical], 4)
-        .padding([.horizontal], 8)
-        .background(.quaternary)
-        .cornerRadius(32)
+          .buttonStyle(.plain)
       }
-        .buttonStyle(.plain)
+      
       
       if (patternPaths.count > 0) {
         Divider()

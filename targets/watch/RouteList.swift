@@ -13,7 +13,7 @@ struct RouteList: View {
   @State var favorites: [String] = []
   
   func getDirectionString(directions: [DirectionList]) -> String {
-    return directions[0].destination + " | " + directions[1].destination
+      return directions[0].destination + " | " + directions[1].destination
   }
   
   func reloadFavorites() {
@@ -41,7 +41,7 @@ struct RouteList: View {
                     name: route.name,
                     number: route.shortName,
                     color: Color(hex: route.directionList[0].lineColor),
-                    subtitle: getDirectionString(directions: route.directionList)
+                    subtitle: route.directionList.count == 2 ? getDirectionString(directions: route.directionList) : ""
                   )
                 }
               }
@@ -60,7 +60,7 @@ struct RouteList: View {
                 name: route.name,
                 number: route.shortName,
                 color: Color(hex: route.directionList[0].lineColor),
-                subtitle: getDirectionString(directions: route.directionList)
+                subtitle: route.directionList.count == 2 ? getDirectionString(directions: route.directionList) : ""
               )
             }
           }

@@ -31,15 +31,16 @@ struct RouteCell: View {
               .lineLimit(1)
             Spacer()
           }
-          
-          HStack {
-            Text(subtitle)
-              .font(.system(size: 12))
-              .frame(alignment: .leading)
-              .foregroundStyle(.secondary)
-              .lineLimit(1)
+          if subtitle != "" {
+            HStack {
+              Text(subtitle)
+                .font(.system(size: 12))
+                .frame(alignment: .leading)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
 
-            Spacer()
+              Spacer()
+            }
           }
         }
         .padding([.leading], 4)
