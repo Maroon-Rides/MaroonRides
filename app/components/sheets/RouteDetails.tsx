@@ -154,13 +154,15 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         <AlertPill routeId={selectedRoute!.key} />
                     </View>
 
-
-                    <SegmentedControl
-                        style={{ marginHorizontal: 16 }}
-                        values={selectedRoute?.directionList.map(direction => "to " + direction.destination) ?? []}
-                        selectedIndex={selectedDirectionIndex}
-                        onChange={handleSetSelectedDirection}
-                    />
+                    { selectedRoute?.directionList.length > 1 && 
+                        <SegmentedControl
+                            style={{ marginHorizontal: 16 }}
+                            values={selectedRoute?.directionList.map(direction => "to " + direction.destination) ?? []}
+                            selectedIndex={selectedDirectionIndex}
+                            onChange={handleSetSelectedDirection}
+                        />
+                    }
+                    
                     <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
                 </BottomSheetView>
             }
