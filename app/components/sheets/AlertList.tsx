@@ -86,8 +86,9 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                                 borderRadius: 8,
                             }}
                         >
-                            <Ionicons name="alert-circle" size={32} color="red" style={{ marginRight: 8 }} />
+                            <Ionicons name="warning" size={32} color="red" style={{ marginRight: 8 }} />
                             <Text style={{ flex: 1 }}>{alert.name}</Text>
+                            <Ionicons name="chevron-forward" size={24} color="grey" />
                         </TouchableOpacity>
                     );
                 }}
