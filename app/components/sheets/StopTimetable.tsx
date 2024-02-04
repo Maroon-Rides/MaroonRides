@@ -128,7 +128,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
             {!error && (
                 <BottomSheetScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 35, paddingTop: 4 }}>
-                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 8}}>
                         <View style={{flex: 1}} />
                         <DateSelector 
                             text={moment(selectedDate || moment()).strftime("%A, %B %d")} 
@@ -139,7 +139,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                         <View style={{flex: 1}} />
                     </View>
 
-                    {!routeSchedules && !error && <ActivityIndicator style={{ marginTop: 16 }} />}
+                    {!routeSchedules && !error && <ActivityIndicator style={{ marginBottom: 8 }} />}
 
                     {routeSchedules && (
                         <FlatList
