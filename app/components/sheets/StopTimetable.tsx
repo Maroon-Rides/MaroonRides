@@ -4,12 +4,11 @@ import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorho
 import { FlatList } from "react-native-gesture-handler";
 import { getStopSchedules } from "aggie-spirit-api";
 import { Ionicons } from "@expo/vector-icons";
-
 import useAppStore from "../../stores/useAppStore";
 import { GetStopSchedulesResponseSchema, IRouteStopSchedule, IStop } from "../../../utils/interfaces";
 import Timetable from "../ui/Timetable";
-import moment from "moment";
-import ArrowTextComponent from '../ui/LeftRightArrows';
+import moment from "moment-strftime";
+import DateSelector from '../ui/DateSelector';
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -123,14 +122,25 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                 </View>
                 <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
 
-                {!routeSchedules && !error && <ActivityIndicator style={{ marginTop: 16 }} />}
             </BottomSheetView>
-            <ArrowTextComponent text={(selectedDate || moment().toDate()).toDateString()} showLeftArrow={new Date()<(selectedDate || moment().toDate())} onLeftClick={handleLeftClick} onRightClick={handleRightClick} />
 
             { error && <Text style={{ textAlign: 'center', marginTop: 10 }}>Something went wrong. Please try again later</Text> }
 
-            {!error && routeSchedules && (
+            {!error && (
                 <BottomSheetScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 35, paddingTop: 4 }}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                        <View style={{flex: 1}} />
+                        <DateSelector 
+                            text={moment(selectedDate || moment()).strftime("%A, %B %d")} 
+                            leftArrowShown={new Date() < (selectedDate || moment().toDate())} 
+                            onLeftClick={handleLeftClick} 
+                            onRightClick={handleRightClick}
+                        />
+                        <View style={{flex: 1}} />
+                    </View>
+
+                    {!routeSchedules && !error && <ActivityIndicator style={{ marginTop: 16 }} />}
+
                     {routeSchedules && (
                         <FlatList
                             data={routeSchedules}
