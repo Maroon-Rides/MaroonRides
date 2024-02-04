@@ -30,6 +30,7 @@ interface TableItemRow {
 const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
     const authToken = useAppStore((state) => state.authToken);
+    const selectedDate = useAppStore((state) => state.selectedDate);
 
     const [estimate, setEstimate] = useState<RouteStopSchedule | null>(null);
     const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
@@ -37,15 +38,17 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
     const [error, setError] = useState(false);
 
+
+
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setIsLoading(true);
-                const response = await getStopEstimates(stopCode, moment().toDate(), authToken!);
+                const response = await getStopEstimates(stopCode, selectedDate || moment().toDate(), authToken!);
+                
                 GetStopEstimatesResponseSchema.parse(response);
 
                 const estimate = response.routeStopSchedules.find((schedule) => schedule.directionName === item.directionName && schedule.routeName === item.routeName);
-
                 if (estimate) {
                     setEstimate(estimate);
                 }
@@ -61,10 +64,10 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
         };
 
         fetchData(); // Call the async function immediately
-    }, [stopCode, authToken, item.directionName, item.routeName]);
+    }, [stopCode, authToken, item.directionName, item.routeName, selectedDate]);
 
     useEffect(() => {
-        const now = moment();
+        const now = moment().toDate();
         let foundNextStop = false;
 
         const sliceLength = 5;
@@ -85,10 +88,12 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
             // if the time is in the future or realtime, highlight it
             // and the next stop isnt cancelled
-            if ((departTime.diff(now, "minutes") >= 0 || timeEstimate?.isRealtime) && !timeEstimate?.isCancelled) {
+            // and the time is in the same day
+
+            if (departTime.isSame(now, 'day') && departTime.diff(now, "minutes") >= 0 || (timeEstimate?.isRealtime && !timeEstimate?.isCancelled)) {
                 color = "black";
                 shouldHighlight = true;
-
+        
                 if (!foundNextStop) {
                     color = tintColor;
                     foundNextStop = true;
@@ -133,7 +138,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
         }
 
         setTableRows(stopRows);
-    }, [estimate])
+    }, [estimate,selectedDate])
 
     if(error) {
         return <Text style={{ textAlign: 'center', marginTop: 10 }}>Something went wrong. Please try again later</Text>
@@ -156,8 +161,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                 marginBottom: 8,
                 marginRight: 16,
             }}>
-
-                {tableRows.map((row, rowIndex) => {
+                    {tableRows.map((row, rowIndex) => {
 
 
                     return (

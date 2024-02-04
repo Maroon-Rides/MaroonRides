@@ -9,6 +9,7 @@ import useAppStore from "../../stores/useAppStore";
 import { GetStopSchedulesResponseSchema, IRouteStopSchedule, IStop } from "../../../utils/interfaces";
 import Timetable from "../ui/Timetable";
 import moment from "moment";
+import ArrowTextComponent from '../ui/LeftRightArrows';
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -24,19 +25,37 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const selectedRoute = useAppStore((state) => state.selectedRoute);
 
+    const selectedDate = useAppStore((state) => state.selectedDate);
+    const setSelectedDate = useAppStore((state) => state.setSelectedDate);
+
     const [tempSelectedStop, setTempSelectedStop] = useState<IStop | null>(null);
     const [showNonRouteSchedules, setShowNonRouteSchedules] = useState<boolean>(false);
     const [nonRouteSchedules, setNonRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
     const [routeSchedules, setRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
-
     const [error, setError] = useState(false);
 
+    const handleLeftClick = () => {
+        // Decrease the date by one day
+        const prevDate = moment(selectedDate || moment().toDate()).subtract(1, 'days').toDate();
+        setRouteSchedules(null);
+        setNonRouteSchedules(null);
+        setSelectedDate(prevDate);
+      };
+    
+      const handleRightClick = () => {
+        // Increase the date by one day
+        const nextDate = moment(selectedDate || moment().toDate()).add(1, 'days').toDate();
+        setRouteSchedules(null);
+        setNonRouteSchedules(null);
+        setSelectedDate(nextDate);
+      };
+
     async function loadSchedule(newSelectedStop: IStop | null = null) {
+
         if (!newSelectedStop || !authToken) return;
 
         try {
-            const stopSchedulesResponse = await getStopSchedules(newSelectedStop?.stopCode, moment().toDate(), authToken);
-
+            const stopSchedulesResponse = await getStopSchedules(newSelectedStop?.stopCode, selectedDate || moment().toDate(), authToken);
             GetStopSchedulesResponseSchema.parse(stopSchedulesResponse);
 
             // find the schedules for the selected route
@@ -74,7 +93,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
         setTempSelectedStop(selectedStop);
         loadSchedule(selectedStop);
-    }, [selectedStop])
+    }, [selectedStop, selectedDate])
 
     function closeModal() {
         sheetRef.current?.dismiss();
@@ -82,6 +101,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         setNonRouteSchedules(null);
         setSelectedStop(null);
         setShowNonRouteSchedules(false);
+        setSelectedDate(null);
     }
 
     const snapPoints = ['25%', '45%', '85%'];
@@ -105,6 +125,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
                 {!routeSchedules && !error && <ActivityIndicator style={{ marginTop: 16 }} />}
             </BottomSheetView>
+            <ArrowTextComponent text={(selectedDate || moment().toDate()).toDateString()} showLeftArrow={new Date()<(selectedDate || moment().toDate())} onLeftClick={handleLeftClick} onRightClick={handleRightClick} />
 
             { error && <Text style={{ textAlign: 'center', marginTop: 10 }}>Something went wrong. Please try again later</Text> }
 
