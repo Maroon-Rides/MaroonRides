@@ -152,7 +152,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                                         <FontAwesome name="star" size={16} color="#ffcc01" style={{marginLeft: 4}} />
                                     }
                                 </View>
-                                { route.directionList.length > 1 &&
+                                { route.directionList.length > 1 ?
                                     <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                                         {route.directionList.map((elm: IDirectionList, index: number) => (
                                             <React.Fragment key={index}>
@@ -161,6 +161,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                                             </React.Fragment>
                                         ))}
                                     </View>
+                                    :
+                                    <Text>Campus Circulator</Text>
                                 } 
                             </View>
                         </TouchableOpacity>
