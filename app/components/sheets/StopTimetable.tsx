@@ -129,7 +129,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
             </BottomSheetView>
 
-            { error && <Text style={{ textAlign: 'center', marginTop: 10 }}>Something went wrong. Please try again later</Text> }
+            { error && <Text style={{ textAlign: 'center', marginTop: 10, color: theme.subtitle }}>Something went wrong. Please try again later</Text> }
 
             {!error && (
                 <BottomSheetScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 35, paddingTop: 4 }}>

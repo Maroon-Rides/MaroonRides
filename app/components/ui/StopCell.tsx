@@ -146,7 +146,7 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
             </View>
 
             {error ? (
-                <Text>Something went wrong. Please try again later</Text>
+                <Text style={{ color: theme.subtitle }}>Something went wrong. Please try again later</Text>
             ) : status === "Loading" ? (
                 <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 2 }}>
                     <ActivityIndicator style={{ justifyContent: "flex-start" }} />

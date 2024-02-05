@@ -141,7 +141,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
     }, [estimate, selectedTimetableDate])
 
     if(error) {
-        return <Text style={{ textAlign: 'center', marginTop: 10 }}>Something went wrong. Please try again later</Text>
+        return <Text style={{ textAlign: 'center', marginTop: 10, color: theme.subtitle }}>Something went wrong. Please try again later</Text>
     }
 
     return (
