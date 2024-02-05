@@ -30,21 +30,18 @@ interface TableItemRow {
 const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
     const authToken = useAppStore((state) => state.authToken);
-    const selectedDate = useAppStore((state) => state.selectedDate);
+    const selectedTimetableDate = useAppStore((state) => state.selectedTimetableDate);
 
     const [estimate, setEstimate] = useState<RouteStopSchedule | null>(null);
     const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
-
     const [error, setError] = useState(false);
-
-
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setIsLoading(true);
-                const response = await getStopEstimates(stopCode, selectedDate || moment().toDate(), authToken!);
+                const response = await getStopEstimates(stopCode, selectedTimetableDate || moment().toDate(), authToken!);
                 
                 GetStopEstimatesResponseSchema.parse(response);
 
@@ -64,7 +61,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
         };
 
         fetchData(); // Call the async function immediately
-    }, [stopCode, authToken, item.directionName, item.routeName, selectedDate]);
+    }, [stopCode, authToken, item.directionName, item.routeName, selectedTimetableDate]);
 
     useEffect(() => {
         const now = moment().toDate();
@@ -90,7 +87,9 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
             // and the next stop isnt cancelled
             // and the time is in the same day
 
-            if (departTime.isSame(now, 'day') && departTime.diff(now, "minutes") >= 0 || (timeEstimate?.isRealtime && !timeEstimate?.isCancelled)) {
+            if (departTime.isSame(now, 'day') 
+                && departTime.diff(now, "minutes") >= 0
+                || (timeEstimate?.isRealtime && !timeEstimate?.isCancelled)) {
                 color = "black";
                 shouldHighlight = true;
         
@@ -138,7 +137,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
         }
 
         setTableRows(stopRows);
-    }, [estimate,selectedDate])
+    }, [estimate, selectedTimetableDate])
 
     if(error) {
         return <Text style={{ textAlign: 'center', marginTop: 10 }}>Something went wrong. Please try again later</Text>

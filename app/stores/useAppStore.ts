@@ -40,8 +40,8 @@ interface AppState {
     alertDetail: IMapServiceInterruption | null,
     setAlertDetail: (alertDetail: IMapServiceInterruption | null) => void
 
-    selectedDate: Date | null,
-    setSelectedDate: (selectedDate: Date | null) => void
+    selectedTimetableDate: Date | null,
+    setSelectedTimetableDate: (selectedTimetableDate: Date | null) => void
 
     busLocationRefreshInterval: NodeJS.Timeout | null,
     setBusRefreshInterval: (busLocationRefreshInterval: NodeJS.Timeout) => void
@@ -100,8 +100,8 @@ const useAppStore = create<AppState>()((set) => ({
     selectedStop: null,
     setSelectedStop: (selectedStop) => set(() => ({ selectedStop })),
 
-    selectedDate: null,
-    setSelectedDate: (selectedDate) => set(() => ({ selectedDate })),
+    selectedTimetableDate: null,
+    setSelectedTimetableDate: (selectedTimetableDate) => set(() => ({ selectedTimetableDate })),
 
     presentSheet: (sheet) => {console.log(sheet)},
     setPresentSheet: (presentSheet) => set(() => ({ presentSheet })),

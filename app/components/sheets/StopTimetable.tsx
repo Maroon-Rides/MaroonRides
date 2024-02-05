@@ -24,8 +24,8 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const selectedRoute = useAppStore((state) => state.selectedRoute);
 
-    const selectedDate = useAppStore((state) => state.selectedDate);
-    const setSelectedDate = useAppStore((state) => state.setSelectedDate);
+    const selectedTimetableDate = useAppStore((state) => state.selectedTimetableDate);
+    const setSelectedTimetableDate = useAppStore((state) => state.setSelectedTimetableDate);
 
     const [tempSelectedStop, setTempSelectedStop] = useState<IStop | null>(null);
     const [showNonRouteSchedules, setShowNonRouteSchedules] = useState<boolean>(false);
@@ -33,28 +33,28 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     const [routeSchedules, setRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
     const [error, setError] = useState(false);
 
-    const handleLeftClick = () => {
+    const dayDecrement = () => {
         // Decrease the date by one day
-        const prevDate = moment(selectedDate || moment().toDate()).subtract(1, 'days').toDate();
+        const prevDate = moment(selectedTimetableDate || moment().toDate()).subtract(1, 'days').toDate();
         setRouteSchedules(null);
         setNonRouteSchedules(null);
-        setSelectedDate(prevDate);
-      };
+        setSelectedTimetableDate(prevDate);
+    };
     
-      const handleRightClick = () => {
+    const dayIncrement = () => {
         // Increase the date by one day
-        const nextDate = moment(selectedDate || moment().toDate()).add(1, 'days').toDate();
+        const nextDate = moment(selectedTimetableDate || moment().toDate()).add(1, 'days').toDate();
         setRouteSchedules(null);
         setNonRouteSchedules(null);
-        setSelectedDate(nextDate);
-      };
+        setSelectedTimetableDate(nextDate);
+    };
 
     async function loadSchedule(newSelectedStop: IStop | null = null) {
 
         if (!newSelectedStop || !authToken) return;
 
         try {
-            const stopSchedulesResponse = await getStopSchedules(newSelectedStop?.stopCode, selectedDate || moment().toDate(), authToken);
+            const stopSchedulesResponse = await getStopSchedules(newSelectedStop?.stopCode, selectedTimetableDate || moment().toDate(), authToken);
             GetStopSchedulesResponseSchema.parse(stopSchedulesResponse);
 
             // find the schedules for the selected route
@@ -92,7 +92,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
         setTempSelectedStop(selectedStop);
         loadSchedule(selectedStop);
-    }, [selectedStop, selectedDate])
+    }, [selectedStop, selectedTimetableDate])
 
     function closeModal() {
         sheetRef.current?.dismiss();
@@ -100,7 +100,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         setNonRouteSchedules(null);
         setSelectedStop(null);
         setShowNonRouteSchedules(false);
-        setSelectedDate(null);
+        setSelectedTimetableDate(null);
     }
 
     const snapPoints = ['25%', '45%', '85%'];
@@ -131,10 +131,10 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 8}}>
                         <View style={{flex: 1}} />
                         <DateSelector 
-                            text={moment(selectedDate || moment()).strftime("%A, %B %d")} 
-                            leftArrowShown={new Date() < (selectedDate || moment().toDate())} 
-                            onLeftClick={handleLeftClick} 
-                            onRightClick={handleRightClick}
+                            text={moment(selectedTimetableDate || moment()).strftime("%A, %B %d")} 
+                            leftArrowShown={new Date() < (selectedTimetableDate || moment().toDate())} 
+                            onLeftClick={dayDecrement} 
+                            onRightClick={dayIncrement}
                         />
                         <View style={{flex: 1}} />
                     </View>
