@@ -5,6 +5,9 @@ on:
     paths-ignore:
       - ".github/**"
       - "fastlane/**"
+    branches:
+      - main
+  pull_request:
 
 jobs:
   tsc:
