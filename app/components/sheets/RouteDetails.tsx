@@ -24,7 +24,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
 
     const setSelectedRouteDirection = useAppStore(state => state.setSelectedRouteDirection);
-
+    const setSelectedStop = useAppStore(state => state.setSelectedStop);
     const stopEstimates = useAppStore((state) => state.stopEstimates);
     const setStopEstimates = useAppStore(state => state.setStopEstimates);
 
@@ -42,6 +42,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         clearSelectedRoute();
         setStopEstimates([]);
         setSelectedRouteDirection(null);
+        setSelectedStop(null);
 
         // reset direction selector
         setSelectedDirectionIndex(0);
