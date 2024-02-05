@@ -31,6 +31,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
     const authToken = useAppStore((state) => state.authToken);
     const selectedTimetableDate = useAppStore((state) => state.selectedTimetableDate);
+    const theme = useAppStore((state) => state.theme);
 
     const [estimate, setEstimate] = useState<RouteStopSchedule | null>(null);
     const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
@@ -81,7 +82,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
             let departTime = estimatedTime ?? scheduledTime; 
 
             let shouldHighlight = false;
-            let color = "grey";
+            let color = theme.subtitle;
 
             // if the time is in the future or realtime, highlight it
             // and the next stop isnt cancelled
@@ -90,7 +91,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
             if (departTime.isSame(now, 'day') 
                 && departTime.diff(now, "minutes") >= 0
                 || (timeEstimate?.isRealtime && !timeEstimate?.isCancelled)) {
-                color = "black";
+                color = theme.text;
                 shouldHighlight = true;
         
                 if (!foundNextStop) {
@@ -149,10 +150,10 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                 <BusIcon name={item.routeNumber} color={tintColor} style={{ marginRight: 8 }} />
                 <View>
                     <View style={{ flexDirection: "row", alignItems: "center", flex: 1}}>
-                        <Text style={{ fontWeight: "bold", fontSize: 24, paddingRight: 8 }}>{item.routeName}</Text>
+                        <Text style={{ fontWeight: "bold", fontSize: 24, paddingRight: 8, color: theme.text }}>{item.routeName}</Text>
                         { isLoading && <ActivityIndicator /> }
                     </View>
-                    <Text>{item.directionName}</Text>
+                    <Text style={{color: theme.subtitle}}>{item.directionName}</Text>
                 </View>
             </View>
 
@@ -161,44 +162,42 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                 marginRight: 16,
             }}>
                     {tableRows.map((row, rowIndex) => {
-
-
-                    return (
-                        <View
-                            style={{
-                                flexDirection: "row",
-                                alignItems: "center",
-                                paddingVertical: 8,
-                                paddingHorizontal: 8,
-                                borderRadius: 8,
-                                backgroundColor: row.shouldHighlight ? tintColor + "40" : (rowIndex % 2 == 0 ? "#efefef" : "white"),
-                            }}
-                            key={rowIndex}
-                        >
-                            {row.items.map((item, colIndex) => {
-                                return (
-                                    <View style={{
-                                        flexBasis: "20%",
-                                        marginLeft: colIndex == 0 ? 16 : 0,
-                                        flexDirection: "row",
-                                    }}
-                                        key={colIndex}>
-                                        <Text style={{
-                                                color: item.color,
-                                                fontWeight: item.color == tintColor ? "bold" : "normal",
-                                                fontSize: 16,
-                                                textDecorationLine: item.cancelled ? "line-through" : "none"
-                                            }}
-                                        >{item.time}</Text>
-                                    
-                                        {item.live &&
-                                            <MaterialCommunityIcons name="rss" size={12} color={item.color} style={{ marginRight: -2, paddingLeft: 1, alignSelf: "flex-start" }} />
-                                        }
-                                    </View>
-                                )
-                            })}
-                        </View>
-                    )
+                        return (
+                            <View
+                                style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    paddingVertical: 8,
+                                    paddingHorizontal: 8,
+                                    borderRadius: 8,
+                                    backgroundColor: row.shouldHighlight ? tintColor + "40" : (rowIndex % 2 == 0 ? theme.timetableRowB : theme.timetableRowA),
+                                }}
+                                key={rowIndex}
+                            >
+                                {row.items.map((item, colIndex) => {
+                                    return (
+                                        <View style={{
+                                            flexBasis: "20%",
+                                            marginLeft: colIndex == 0 ? 16 : 0,
+                                            flexDirection: "row",
+                                        }}
+                                            key={colIndex}>
+                                            <Text style={{
+                                                    color: item.color,
+                                                    fontWeight: item.color == tintColor ? "bold" : "normal",
+                                                    fontSize: 16,
+                                                    textDecorationLine: item.cancelled ? "line-through" : "none"
+                                                }}
+                                            >{item.time}</Text>
+                                        
+                                            {item.live &&
+                                                <MaterialCommunityIcons name="rss" size={12} color={item.color} style={{ marginRight: -2, paddingLeft: 1, alignSelf: "flex-start" }} />
+                                            }
+                                        </View>
+                                    )
+                                })}
+                            </View>
+                        )
                 })}
                 {item.stopTimes.length == 0 && !item.isEndOfRoute && <Text style={{ color: "#8e8e9332", textAlign: "center" }}>Timetable Unavailable</Text>}
             </View>

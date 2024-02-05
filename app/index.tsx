@@ -11,6 +11,8 @@ import AlertDetail from "./components/sheets/AlertDetail";
 import RouteDetails from './components/sheets/RouteDetails';
 import StopTimetable from './components/sheets/StopTimetable';
 import Settings from './components/sheets/Settings';
+import { useColorScheme } from 'react-native';
+import { darkMode, lightMode } from './theme';
 
 const Home = () => {
     const setAuthToken = useAppStore((state) => state.setAuthToken);
@@ -18,8 +20,14 @@ const Home = () => {
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     const setMapServiceInterruption = useAppStore((state) => state.setMapServiceInterruption);
     const setPresentSheet = useAppStore((state) => state.setPresentSheet);
+    const setTheme = useAppStore((state) => state.setTheme);
+    const setColorScheme = useAppStore((state) => state.setColorScheme);
+    const colorScheme = useColorScheme();
     
     useEffect(() => {
+        setTheme(colorScheme == "dark" ? darkMode : lightMode);
+        setColorScheme(colorScheme);
+
         const getInitialData = async () => {
             // Get and store the auth token
             // Auth token is needed for future api requests and must use the value in AppStore

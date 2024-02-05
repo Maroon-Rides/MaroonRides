@@ -22,6 +22,7 @@ const Map: React.FC = () => {
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
     const setZoomToStopLatLng = useAppStore((state) => state.setZoomToStopLatLng);
     const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
+    const theme = useAppStore((state) => state.theme);
 
 
     const setBusRefreshInterval = useAppStore((state) => state.setBusRefreshInterval);
@@ -196,6 +197,7 @@ const Map: React.FC = () => {
                 initialRegion={defaultMapRegion}
                 onPanDrag={() => setIsViewCenteredOnUser(false)}
                 showsMyLocationButton={false} // we have our own
+                userInterfaceStyle={theme.mode}
             >
                 {/* Route Polylines */}
                 {drawnRoutes.map(function (drawnRoute) {
@@ -286,7 +288,7 @@ const Map: React.FC = () => {
                     right: 8, 
                     overflow: 'hidden', 
                     borderRadius: 8, 
-                    backgroundColor: 'white', 
+                    backgroundColor: theme.background, 
                     padding: 12 
                 }} 
                 onPress={() => recenterView()}
