@@ -4,11 +4,11 @@ import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorho
 import { FlatList } from "react-native-gesture-handler";
 import { getStopSchedules } from "aggie-spirit-api";
 import { Ionicons } from "@expo/vector-icons";
-
 import useAppStore from "../../stores/useAppStore";
 import { GetStopSchedulesResponseSchema, IRouteStopSchedule, IStop } from "../../../utils/interfaces";
 import Timetable from "../ui/Timetable";
-import moment from "moment";
+import moment from "moment-strftime";
+import DateSelector from '../ui/DateSelector';
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -24,19 +24,37 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const selectedRoute = useAppStore((state) => state.selectedRoute);
 
+    const selectedTimetableDate = useAppStore((state) => state.selectedTimetableDate);
+    const setSelectedTimetableDate = useAppStore((state) => state.setSelectedTimetableDate);
+
     const [tempSelectedStop, setTempSelectedStop] = useState<IStop | null>(null);
     const [showNonRouteSchedules, setShowNonRouteSchedules] = useState<boolean>(false);
     const [nonRouteSchedules, setNonRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
     const [routeSchedules, setRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
-
     const [error, setError] = useState(false);
 
+    const dayDecrement = () => {
+        // Decrease the date by one day
+        const prevDate = moment(selectedTimetableDate || moment().toDate()).subtract(1, 'days').toDate();
+        setRouteSchedules(null);
+        setNonRouteSchedules(null);
+        setSelectedTimetableDate(prevDate);
+    };
+    
+    const dayIncrement = () => {
+        // Increase the date by one day
+        const nextDate = moment(selectedTimetableDate || moment().toDate()).add(1, 'days').toDate();
+        setRouteSchedules(null);
+        setNonRouteSchedules(null);
+        setSelectedTimetableDate(nextDate);
+    };
+
     async function loadSchedule(newSelectedStop: IStop | null = null) {
+
         if (!newSelectedStop || !authToken) return;
 
         try {
-            const stopSchedulesResponse = await getStopSchedules(newSelectedStop?.stopCode, moment().toDate(), authToken);
-
+            const stopSchedulesResponse = await getStopSchedules(newSelectedStop?.stopCode, selectedTimetableDate || moment().toDate(), authToken);
             GetStopSchedulesResponseSchema.parse(stopSchedulesResponse);
 
             // find the schedules for the selected route
@@ -74,7 +92,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
         setTempSelectedStop(selectedStop);
         loadSchedule(selectedStop);
-    }, [selectedStop])
+    }, [selectedStop, selectedTimetableDate])
 
     function closeModal() {
         sheetRef.current?.dismiss();
@@ -82,6 +100,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         setNonRouteSchedules(null);
         setSelectedStop(null);
         setShowNonRouteSchedules(false);
+        setSelectedTimetableDate(null);
     }
 
     const snapPoints = ['25%', '45%', '85%'];
@@ -103,13 +122,25 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                 </View>
                 <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
 
-                {!routeSchedules && !error && <ActivityIndicator style={{ marginTop: 16 }} />}
             </BottomSheetView>
 
             { error && <Text style={{ textAlign: 'center', marginTop: 10 }}>Something went wrong. Please try again later</Text> }
 
-            {!error && routeSchedules && (
+            {!error && (
                 <BottomSheetScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 35, paddingTop: 4 }}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 8}}>
+                        <View style={{flex: 1}} />
+                        <DateSelector 
+                            text={moment(selectedTimetableDate || moment()).strftime("%A, %B %d")} 
+                            leftArrowShown={new Date() < (selectedTimetableDate || moment().toDate())} 
+                            onLeftClick={dayDecrement} 
+                            onRightClick={dayIncrement}
+                        />
+                        <View style={{flex: 1}} />
+                    </View>
+
+                    {!routeSchedules && !error && <ActivityIndicator style={{ marginBottom: 8 }} />}
+
                     {routeSchedules && (
                         <FlatList
                             data={routeSchedules}
