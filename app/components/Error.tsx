@@ -1,4 +1,4 @@
-import useAppStore from "app/stores/useAppStore";
+import useAppStore from "../stores/useAppStore";
 import React from "react";
 import { SafeAreaView, Text } from 'react-native';
 
