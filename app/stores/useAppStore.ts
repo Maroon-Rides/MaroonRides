@@ -2,14 +2,10 @@ import { create } from "zustand";
 import { ICachedStopEstimate, IGetNextDepartTimesResponse, IMapRoute, IMapServiceInterruption, IStop } from "../../utils/interfaces";
 import { MapStop } from "aggie-spirit-api";
 import { Theme, lightMode } from "../theme";
-import { ColorSchemeName } from "react-native";
 
 interface AppState {
     theme: Theme,
     setTheme: (theme: Theme) => void
-
-    colorScheme: ColorSchemeName
-    setColorScheme: (colorScheme: ColorSchemeName) => void
 
     authToken: string | null
     setAuthToken: (authToken: string) => void;
@@ -66,9 +62,6 @@ const useAppStore = create<AppState>()((set) => ({
 
     theme: lightMode,
     setTheme: (theme) => set(() => ({ theme })),
-
-    colorScheme: "light",
-    setColorScheme: (colorScheme) => set(() => ({ colorScheme })),
 
     authToken: null,
     setAuthToken: (authToken) => set(() => ({ authToken })),

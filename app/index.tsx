@@ -21,12 +21,10 @@ const Home = () => {
     const setMapServiceInterruption = useAppStore((state) => state.setMapServiceInterruption);
     const setPresentSheet = useAppStore((state) => state.setPresentSheet);
     const setTheme = useAppStore((state) => state.setTheme);
-    const setColorScheme = useAppStore((state) => state.setColorScheme);
     const colorScheme = useColorScheme();
     
     useEffect(() => {
         setTheme(colorScheme == "dark" ? darkMode : lightMode);
-        setColorScheme(colorScheme);
 
         const getInitialData = async () => {
             // Get and store the auth token
