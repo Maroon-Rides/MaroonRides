@@ -44,7 +44,7 @@ const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities,
                         </Text>
                     </View>
                     <View style={{ flex: 1 }} />
-                    <AmenityRow amenities={amenities} color={theme.subtitle} size={20} />
+                    <AmenityRow amenities={amenities} color="gray" size={20} />
                 </View>
                 <Text style={{ flexDirection: "row", justifyContent: "center", alignSelf: "flex-start" }}>
                     <Text style={{ fontWeight: '700', color: tintColor }}>To: </Text>
