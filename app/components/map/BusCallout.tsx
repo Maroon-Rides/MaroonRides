@@ -4,7 +4,6 @@ import { Callout } from 'react-native-maps'
 import { IAmenity } from '../../../utils/interfaces';
 import BusIcon from '../ui/BusIcon'
 import AmenityRow from '../ui/AmenityRow';
-import useAppStore from '../../stores/useAppStore';
 interface Props {
     directionName: string
     fullPercentage: number
@@ -16,7 +15,6 @@ interface Props {
 
 // Bus callout with amentities
 const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities, tintColor, routeName, busId }) => {    
-    const theme = useAppStore((state) => state.theme);
 
     return (
         <Callout
