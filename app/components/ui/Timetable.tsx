@@ -200,7 +200,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                         </View>
                     )
                 })}
-                {item.stopTimes.length == 0 && !item.isEndOfRoute && <Text style={{ color: "#8e8e9332", textAlign: "center" }}>Timetable Unavailable</Text>}
+                {item.stopTimes.length == 0 && !item.isEndOfRoute && <Text style={{ color: "grey", textAlign: "center" }}>No Timetable for Today</Text>}
             </View>
         </View>
     );
