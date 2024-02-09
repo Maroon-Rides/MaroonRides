@@ -104,6 +104,17 @@ const Home = () => {
 
                     // Add patternPaths to routes
                     const routes = addPatternPathsToRoutes([...baseData.routes], patternPathsResponse);
+
+                    // convert colors based on theme
+                    const colorTheme = colorScheme == "dark" ? darkMode : lightMode
+
+                    routes.forEach(route => {
+                        if (colorTheme.busTints[route.shortName]) {
+                            route.directionList.forEach(direction => {
+                                direction.lineColor = colorTheme.busTints[route.shortName]!;
+                            })
+                        }
+                    });
                     
                     // Validate the data against schemas
                     GetBaseDataResponseSchema.parse(baseData);

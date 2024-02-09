@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, TouchableOpacity } from "react-native";
+import { Dimensions, TouchableOpacity, useColorScheme } from "react-native";
 import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -23,6 +23,7 @@ const Map: React.FC = () => {
     const setZoomToStopLatLng = useAppStore((state) => state.setZoomToStopLatLng);
     const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
     const theme = useAppStore((state) => state.theme);
+    const colorScheme = useColorScheme();
 
 
     const setBusRefreshInterval = useAppStore((state) => state.setBusRefreshInterval);
@@ -197,7 +198,7 @@ const Map: React.FC = () => {
                 initialRegion={defaultMapRegion}
                 onPanDrag={() => setIsViewCenteredOnUser(false)}
                 showsMyLocationButton={false} // we have our own
-                userInterfaceStyle={theme.mode}
+                // userInterfaceStyle={colorScheme == "dark" ? "dark" : "light"}
             >
                 {/* Route Polylines */}
                 {drawnRoutes.map(function (drawnRoute) {

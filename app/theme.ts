@@ -11,11 +11,12 @@ export interface Theme {
     starColor: string,
     timetableRowA: string,
     timetableRowB: string,
+    busTints: {[key: string] : string}
 }
 
 export const lightMode: Theme = {
     mode: 'light',
-    background: '#fff',
+    background: '#ffffff',
     subtitle: 'gray',
     text: '#000',
     divider: '#e5e5ea',
@@ -26,20 +27,42 @@ export const lightMode: Theme = {
     starColor: '#ffcc00',
     timetableRowA: 'white',
     timetableRowB: '#efefef',
+    busTints: {
+        "47": "#2e8545",
+    }
 }
 
 export const darkMode: Theme = {
     mode: 'dark',
     background: '#1c1c1e',
     subtitle: '#d1d1d6',
-    text: '#fff',
+    text: '#ffffff',
     divider: '#48484a',
     exitButton: 'gray',
     nextStopBubble: '#48484a',
     secondaryBackground: '#48484a',
-    alertSymbol: '#3a3a3d',
+    alertSymbol: '#fe453a',
     starColor: '#ffd60a',
     timetableRowA: '#1c1c1e',
     timetableRowB: '#2c2c2e',
+    busTints: {
+        "01-04": "#fe453a",
+        "03": "#03a8e4",
+        "03-05": "#0285ff",
+        "04": "#ff9500",
+        "05": "#cd18ff",
+        "07": "#dca200",
+        "08": "#619bff",
+        "12": "#04bcef",
+        "15": "#34d070",
+        "22": "#dca200",
+        "27": "#29c753",
+        "34": "#ff3078",
+        "35": "#ff9500",
+        "40": "#2da9de",
+        "47-48": "#00dfc5",
+        "47": "#05d56d",
+        "48": "#0e852c",
+    }
 }
 
