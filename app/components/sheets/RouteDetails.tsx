@@ -24,10 +24,12 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
 
     const setSelectedRouteDirection = useAppStore(state => state.setSelectedRouteDirection);
-
+    const setSelectedStop = useAppStore(state => state.setSelectedStop);
     const stopEstimates = useAppStore((state) => state.stopEstimates);
     const setStopEstimates = useAppStore(state => state.setStopEstimates);
+    const setPoppedUpStopCallout = useAppStore(state => state.setPoppedUpStopCallout);
     const theme = useAppStore(state => state.theme);
+
 
     // Controls SegmentedControl
     const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
@@ -43,6 +45,9 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         clearSelectedRoute();
         setStopEstimates([]);
         setSelectedRouteDirection(null);
+
+        setSelectedStop(null);
+        setPoppedUpStopCallout(null);
 
         // reset direction selector
         setSelectedDirectionIndex(0);
