@@ -5,7 +5,7 @@ import { FlatList } from "react-native-gesture-handler";
 import { getStopSchedules } from "aggie-spirit-api";
 import { Ionicons } from "@expo/vector-icons";
 import useAppStore from "../../stores/useAppStore";
-import { GetStopSchedulesResponseSchema, IRouteStopSchedule, IStop } from "../../../utils/interfaces";
+import { GetStopSchedulesResponseSchema, IMapRoute, IRouteStopSchedule, IStop } from "../../../utils/interfaces";
 import Timetable from "../ui/Timetable";
 import moment from "moment-strftime";
 import DateSelector from '../ui/DateSelector';
@@ -24,6 +24,10 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     const setSelectedStop = useAppStore((state) => state.setSelectedStop);
 
     const selectedRoute = useAppStore((state) => state.selectedRoute);
+    const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
+    const setSelectdDirection = useAppStore((state) => state.setSelectedRouteDirection);
+    const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
+    const presentSheet = useAppStore((state) => state.presentSheet);
 
     const selectedTimetableDate = useAppStore((state) => state.selectedTimetableDate);
     const setSelectedTimetableDate = useAppStore((state) => state.setSelectedTimetableDate);
@@ -171,7 +175,23 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                                 scrollEnabled={false}
                                 ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: theme.divider, marginVertical: 8 }} />}
                                 renderItem={({ item }) => {
-                                    return <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""} />;
+                                    return <Timetable 
+                                        item={item} 
+                                        dismissBack={() => {
+                                            const route = routes.find((route) => route.shortName === item.routeNumber);
+                                            
+                                            if (route) {
+                                                // setSelectdDirection(route.directionList[0]?.direction.key ?? "");
+                                                closeModal()
+
+                                                setSelectedRoute(route);
+                                                setDrawnRoutes([route]);
+                                                presentSheet("routeDetails");
+                                            }
+                                        }}
+                                        tintColor={getLineColor(item.routeNumber)} 
+                                        stopCode={selectedStop?.stopCode ?? ""} 
+                                    />;
                                 }}
                             />
                         </View>

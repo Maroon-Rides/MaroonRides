@@ -6,12 +6,14 @@ import BusIcon from './BusIcon';
 import { RouteStopSchedule, getStopEstimates } from 'aggie-spirit-api';
 import useAppStore from '../../stores/useAppStore';
 import moment from 'moment';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 
 interface Props {
     item: IRouteStopSchedule
     tintColor: string
     stopCode: string
+    dismissBack?: () => void
 }
 
 interface TableItem {
@@ -24,10 +26,10 @@ interface TableItem {
 
 interface TableItemRow {
     items: TableItem[],
-    shouldHighlight: boolean
+    shouldHighlight: boolean,
 }
 
-const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
+const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) => {
 
     const authToken = useAppStore((state) => state.authToken);
     const selectedTimetableDate = useAppStore((state) => state.selectedTimetableDate);
@@ -146,7 +148,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
     return (
         <View style={{ marginLeft: 16, paddingTop: 8 }}>
-            <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
+            <TouchableOpacity onPress={dismissBack} disabled={dismissBack == null} style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
                 <BusIcon name={item.routeNumber} color={tintColor} style={{ marginRight: 8 }} />
                 <View>
                     <View style={{ flexDirection: "row", alignItems: "center", flex: 1}}>
@@ -155,7 +157,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
                     </View>
                     <Text style={{color: theme.subtitle}}>{item.directionName}</Text>
                 </View>
-            </View>
+            </TouchableOpacity>
 
             <View style={{
                 marginBottom: 8,
