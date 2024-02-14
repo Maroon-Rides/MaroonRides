@@ -21,9 +21,11 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v3  
 
-      - name: Install Fastlane
+      - name: Install Fastlane and Fix CocoaPods
         run: |
           sudo gem install fastlane -NV
+          sudo gem uninstall cocoapods
+          sudo gem install cocoapods -v 1.14.3
           fastlane --version
           
       - name: Install Node.js
