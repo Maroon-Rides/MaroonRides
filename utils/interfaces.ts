@@ -60,7 +60,7 @@ export type IMapRoute = z.infer<typeof MapRouteSchema>
 export const MapServiceInterruptionSchema = z.object({
     key: z.string(),
     name: z.string(),
-    description: z.string(),
+    description: z.string().nullable(),
     timeRangeString: z.string(),
     startDateUtc: z.string(),
     endDateUtc: z.string().nullable(),
