@@ -23,11 +23,10 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     
     const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
     const setSelectedRouteCategory = useAppStore(state => state.setSelectedRouteCategory);
-
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
-    
     const presentSheet = useAppStore((state) => state.presentSheet);
+    const theme = useAppStore((state) => state.theme);
 
     const [favoriteRoutes, setFavoriteRoutes] = useState<IMapRoute[]>([]);
     
@@ -100,6 +99,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             enableDismissOnClose={false}
             enablePanDownToClose={false}
             onAnimate={onAnimate}
+            backgroundStyle={{ backgroundColor: theme.background }}
+            handleIndicatorStyle={{ backgroundColor: theme.divider }}
         >
             <BottomSheetView>
                 <SheetHeader 
@@ -109,10 +110,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                         <AlertPill />
                         <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => presentSheet("settings")}>
                             <IconPill 
-                                icon={<MaterialIcons name="settings" size={16} color="black" />}
-                                color="white"
-                                borderColor="#cccccd"
-                                textColor="black"
+                                icon={<MaterialIcons name="settings" size={16} color={theme.text} />}
                             />
                         </TouchableOpacity>
                     </View>}
@@ -124,11 +122,11 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     style={{ marginHorizontal: 16 }}
                     onChange={handleSetSelectedRouteCategory}
                 />
-                <View style={{height: 1, backgroundColor: "#eaeaea", marginTop: 8}} />
+                <View style={{height: 1, backgroundColor: theme.divider, marginTop: 8}} />
 
                 { selectedRouteCategory === "favorites" && drawnRoutes.length === 0 && routes.length != 0 && (
                     <View style={{ alignItems: 'center', marginTop: 16 }}>
-                        <Text>You have no favorited routes.</Text>
+                        <Text style={{color: theme.text}}>You have no favorited routes.</Text>
                     </View>
                 )}
 
@@ -147,22 +145,22 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                             <BusIcon name={route.shortName} color={route.directionList[0]?.lineColor ?? "#000"} style={{ marginRight: 12 }} />
                             <View>                                
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 20, lineHeight: 28 }}>{route.name}</Text>
+                                    <Text style={{ fontWeight: 'bold', fontSize: 20, lineHeight: 28, color: theme.text }}>{route.name}</Text>
                                     {favoriteRoutes.includes(route) && 
-                                        <FontAwesome name="star" size={16} color="#ffcc01" style={{marginLeft: 4}} />
+                                        <FontAwesome name="star" size={16} color={theme.starColor} style={{marginLeft: 4}} />
                                     }
                                 </View>
                                 { route.directionList.length > 1 ?
                                     <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                                         {route.directionList.map((elm: IDirectionList, index: number) => (
                                             <React.Fragment key={index}>
-                                                <Text>{elm.destination}</Text>
-                                                {index !== route.directionList.length - 1 && <Text style={{ marginHorizontal: 2 }}>|</Text>}
+                                                <Text style={{ color: theme.text }}>{elm.destination}</Text>
+                                                {index !== route.directionList.length - 1 && <Text style={{ marginHorizontal: 2, color: theme.text }}>|</Text>}
                                             </React.Fragment>
                                         ))}
                                     </View>
                                     :
-                                    <Text>Campus Circulator</Text>
+                                    <Text style={{ color: theme.text }}>Campus Circulator</Text>
                                 } 
                             </View>
                         </TouchableOpacity>

@@ -11,6 +11,8 @@ import AlertDetail from "./components/sheets/AlertDetail";
 import RouteDetails from './components/sheets/RouteDetails';
 import StopTimetable from './components/sheets/StopTimetable';
 import Settings from './components/sheets/Settings';
+import { useColorScheme } from 'react-native';
+import { darkMode, lightMode } from './theme';
 
 const Home = () => {
     const setAuthToken = useAppStore((state) => state.setAuthToken);
@@ -18,8 +20,12 @@ const Home = () => {
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     const setMapServiceInterruption = useAppStore((state) => state.setMapServiceInterruption);
     const setPresentSheet = useAppStore((state) => state.setPresentSheet);
+    const setTheme = useAppStore((state) => state.setTheme);
+    const colorScheme = useColorScheme();
     
     useEffect(() => {
+        setTheme(colorScheme == "dark" ? darkMode : lightMode);
+
         const getInitialData = async () => {
             // Get and store the auth token
             // Auth token is needed for future api requests and must use the value in AppStore
@@ -98,6 +104,17 @@ const Home = () => {
 
                     // Add patternPaths to routes
                     const routes = addPatternPathsToRoutes([...baseData.routes], patternPathsResponse);
+
+                    // convert colors based on theme
+                    const colorTheme = colorScheme == "dark" ? darkMode : lightMode
+
+                    routes.forEach(route => {
+                        if (colorTheme.busTints[route.shortName]) {
+                            route.directionList.forEach(direction => {
+                                direction.lineColor = colorTheme.busTints[route.shortName]!;
+                            })
+                        }
+                    });
                     
                     // Validate the data against schemas
                     GetBaseDataResponseSchema.parse(baseData);

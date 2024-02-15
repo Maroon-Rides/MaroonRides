@@ -3,6 +3,7 @@ import {  TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {FontAwesome} from '@expo/vector-icons';
 import IconPill from './IconPill'
+import useAppStore from '../../stores/useAppStore';
 
 interface Props {
     routeId: string
@@ -10,6 +11,7 @@ interface Props {
 
 const FavoritePill: React.FC<Props> = ({ routeId }) => {
     const [isFavorite, setIsFavorite] = useState(false);
+    const theme = useAppStore((state) => state.theme);
 
     useEffect(() => {
         try {
@@ -74,17 +76,11 @@ const FavoritePill: React.FC<Props> = ({ routeId }) => {
                 <IconPill 
                 icon={<FontAwesome name="star" size={16} color="#ffcc01" />}
                 text="Favorited" 
-                color="white"
-                borderColor="#cccccd"
-                textColor="black"
             />
             :
                 <IconPill 
-                    icon={<FontAwesome name="star-o" size={16} color="black" />}
+                    icon={<FontAwesome name="star-o" size={16} color={theme.text} />}
                     text="Favorite" 
-                    color="white"
-                    borderColor="#cccccd"
-                    textColor="black"
                 />
                 
             }

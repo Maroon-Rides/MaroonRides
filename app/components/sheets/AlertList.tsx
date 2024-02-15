@@ -16,7 +16,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const snapPoints = ['25%', '45%', '85%'];
 
-    
+    const theme = useAppStore((state) => state.theme);
     const alerts = useAppStore((state) => state.mapServiceInterruption);
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const presentSheet = useAppStore((state) => state.presentSheet);
@@ -43,7 +43,13 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
         presentSheet("alertsDetail");
     }
     return (
-        <BottomSheetModal ref={sheetRef} snapPoints={snapPoints} index={1} >
+        <BottomSheetModal 
+            ref={sheetRef} 
+            snapPoints={snapPoints} 
+            index={1} 
+            backgroundStyle={{backgroundColor: theme.background}}
+            handleIndicatorStyle={{backgroundColor: theme.divider}}
+        >
             <BottomSheetView>
                 {/* header */}
                 <SheetHeader
@@ -51,16 +57,16 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                     subtitle={selectedRoute ? selectedRoute.name : "All Routes"}
                     icon={
                         <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => sheetRef.current?.dismiss()}>
-                            <Ionicons name="close-circle" size={28} color="grey" />
+                            <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>
                     }
                 />
 
-                <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
+                <View style={{ height: 1, backgroundColor: theme.divider, marginTop: 8 }} />
 
                 {shownAlerts.length === 0 &&
                     <View style={{ alignItems: 'center', paddingTop: 16 }}>
-                        <Text>There are no active alerts at this time.</Text>
+                        <Text style={{color: theme.subtitle }}>There are no active alerts at this time.</Text>
                     </View>
                 }
             </BottomSheetView>
@@ -81,13 +87,13 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                                 flexDirection: 'row',
                                 alignItems: 'center',
                                 marginVertical: 4,
-                                backgroundColor: "#eaeaea",
+                                backgroundColor: theme.secondaryBackground,
                                 padding: 8,
                                 borderRadius: 8,
                             }}
                         >
-                            <Ionicons name="warning" size={32} color="red" style={{ marginRight: 8 }} />
-                            <Text style={{ flex: 1 }}>{alert.name}</Text>
+                            <Ionicons name="warning" size={32} color={theme.alertSymbol} style={{ marginRight: 8 }} />
+                            <Text style={{ flex: 1, color: theme.text }}>{alert.name}</Text>
                             <Ionicons name="chevron-forward" size={24} color="grey" />
                         </TouchableOpacity>
                     );

@@ -9,6 +9,7 @@ import { GetStopSchedulesResponseSchema, IRouteStopSchedule, IStop } from "../..
 import Timetable from "../ui/Timetable";
 import moment from "moment-strftime";
 import DateSelector from '../ui/DateSelector';
+import SheetHeader from "../ui/SheetHeader";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -32,6 +33,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     const [nonRouteSchedules, setNonRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
     const [routeSchedules, setRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
     const [error, setError] = useState(false);
+    const theme = useAppStore((state) => state.theme);
 
     const dayDecrement = () => {
         // Decrease the date by one day
@@ -111,20 +113,23 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
             snapPoints={snapPoints}
             index={2}
             enablePanDownToClose={false}
+            backgroundStyle={{ backgroundColor: theme.background }}
+            handleIndicatorStyle={{ backgroundColor: theme.divider }}
         >
             <BottomSheetView>
-                <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginHorizontal: 16 }}>
-                    <Text style={{ fontWeight: 'bold', fontSize: 28, flex: 1 }}>{tempSelectedStop?.name ?? "Something went wrong"}</Text>
-
-                    <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }} onPress={closeModal}>
-                        <Ionicons name="close-circle" size={32} color="grey" />
-                    </TouchableOpacity>
-                </View>
-                <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
+                <SheetHeader
+                    title={tempSelectedStop?.name ?? "Something went wrong"}
+                    icon={
+                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={closeModal}>
+                            <Ionicons name="close-circle" size={28} color={theme.exitButton} />
+                        </TouchableOpacity>
+                    }
+                />
+                <View style={{ height: 1, backgroundColor: theme.divider, marginTop: 8 }} />
 
             </BottomSheetView>
 
-            { error && <Text style={{ textAlign: 'center', marginTop: 10 }}>Something went wrong. Please try again later</Text> }
+            { error && <Text style={{ textAlign: 'center', marginTop: 10, color: theme.subtitle }}>Something went wrong. Please try again later</Text> }
 
             {!error && (
                 <BottomSheetScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 35, paddingTop: 4 }}>
@@ -146,7 +151,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                             data={routeSchedules}
                             scrollEnabled={false}
                             keyExtractor={(_, index) => index.toString()}
-                            ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />}
+                            ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: theme.divider, marginVertical: 8 }} />}
                             renderItem={({ item, index }) => {
                                 return (
                                     <View key={index}>
@@ -159,12 +164,12 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
                     {showNonRouteSchedules && (
                         <View>
-                            <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />
+                            <View style={{ height: 1, backgroundColor: theme.divider, marginVertical: 8 }} />
                             <FlatList
                                 data={nonRouteSchedules}
                                 keyExtractor={(_, index) => index.toString()}
                                 scrollEnabled={false}
-                                ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 8 }} />}
+                                ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: theme.divider, marginVertical: 8 }} />}
                                 renderItem={({ item }) => {
                                     return <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""} />;
                                 }}

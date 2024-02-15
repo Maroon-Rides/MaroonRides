@@ -42,16 +42,16 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, routeName }) => {
                 width: contentSize[0],
                 height: contentSize[1],
                 zIndex: 1000,
-                elevation: 1000 
+                elevation: 1000
             }}
         >
-            <View onLayout={handleLayout} >
+            <View onLayout={handleLayout}>
                 <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", alignSelf: "flex-start" }}  >
                     <BusIcon name={routeName} color={tintColor} isCallout={true} style={{ marginRight: 8 }} />
                     <Text style={{ maxWidth: 200, fontWeight: 'bold' }} numberOfLines={1}>{stop.name}</Text>
                 </View>
 
-                <AmenityRow amenities={nextDepartTimes?.amenities ?? []} color='grey' size={20} style={{ marginTop: 4 }} />
+                <AmenityRow amenities={nextDepartTimes?.amenities ?? []} color="gray" size={20} style={{ marginTop: 4 }} />
             </View>
         </Callout>
     )

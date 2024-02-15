@@ -28,6 +28,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const stopEstimates = useAppStore((state) => state.stopEstimates);
     const setStopEstimates = useAppStore(state => state.setStopEstimates);
     const setPoppedUpStopCallout = useAppStore(state => state.setPoppedUpStopCallout);
+    const theme = useAppStore(state => state.theme);
+
 
     // Controls SegmentedControl
     const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
@@ -141,12 +143,18 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             snapPoints={snapPoints}
             index={1}
             enablePanDownToClose={false}
+            backgroundStyle={{ backgroundColor:  theme.background }}
+            handleIndicatorStyle={{backgroundColor: theme.divider}}
         >
             {selectedRoute &&
                 <BottomSheetView>
                     <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginHorizontal: 16 }}>
-                        <BusIcon name={selectedRoute?.shortName ?? "Something went wrong"} color={selectedRoute?.directionList[0]?.lineColor ?? "#500000"} style={{ marginRight: 16 }} />
-                        <Text style={{ fontWeight: 'bold', fontSize: 28, flex: 1 }}>{selectedRoute?.name ?? "Something went wrong"}</Text>
+                        <BusIcon 
+                            name={selectedRoute?.shortName ?? "Something went wrong"} 
+                            color={selectedRoute?.directionList[0]?.lineColor ?? "#500000"} 
+                            style={{ marginRight: 16 }} 
+                        />
+                        <Text style={{ fontWeight: 'bold', fontSize: 28, flex: 1, color: theme.text }}>{selectedRoute?.name ?? "Something went wrong"}</Text>
 
                         <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }} onPress={closeModal}>
                             <Ionicons name="close-circle" size={32} color="grey" />
@@ -167,11 +175,11 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         />
                     }
                     
-                    <View style={{ height: 1, backgroundColor: "#eaeaea", marginTop: 8 }} />
+                    <View style={{ height: 1, backgroundColor: theme.divider, marginTop: 8 }} />
                 </BottomSheetView>
             }
             
-            { error && <Text style={{ textAlign: 'center', marginTop: 10 }}>Something went wrong. Please try again later</Text> }
+            { error && <Text style={{ textAlign: 'center', marginTop: 10, color: theme.subtitle }}>Something went wrong. Please try again later</Text> }
 
             {!error && selectedRoute &&
                 <BottomSheetFlatList
@@ -181,7 +189,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                     contentContainerStyle={{ paddingBottom: 35, paddingLeft: 16 }}
                     onRefresh={() => loadStopEstimates()}
                     refreshing={false}
-                    ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: "#eaeaea", marginVertical: 4 }} />}
+                    ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: theme.divider, marginVertical: 4 }} />}
                     renderItem={({ item: stop, index }) => {
                         const departureTimes = stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode);
                         let directionTimes: IRouteDirectionTime = { nextDeparts: [], directionKey: "", routeKey: "" };
@@ -218,7 +226,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
             {!selectedRoute && (
                 <View style={{ alignItems: 'center', marginTop: 16 }}>
-                    <Text>Something went wrong.</Text>
+                    <Text style={{ color: theme.text }}>Something went wrong.</Text>
                 </View>
             )}
         </BottomSheetModal>
