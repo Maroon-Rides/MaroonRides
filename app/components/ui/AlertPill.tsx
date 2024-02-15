@@ -15,6 +15,7 @@ const AlertPill: React.FC<Props> = ({ routeId }) => {
     const presentSheet = useAppStore((state) => state.presentSheet);
     const alerts = useAppStore((state) => state.mapServiceInterruption);
     const routes = useAppStore((state) => state.routes);
+    const theme = useAppStore((state) => state.theme);
     const [alertIcon, setAlertIcon] = useState<"bell-badge" | "bell-outline">("bell-outline");
 
     // Update the alert icon when the alerts change
@@ -53,11 +54,8 @@ const AlertPill: React.FC<Props> = ({ routeId }) => {
         <TouchableOpacity onPress={() => presentSheet("alerts")}>
 
                 <IconPill 
-                    icon={<MaterialCommunityIcons name={alertIcon} size={16} color="black" />}
+                    icon={<MaterialCommunityIcons name={alertIcon} size={16} color={theme.text} />}
                     text="Alerts" 
-                    color="white"
-                    borderColor="#cccccd"
-                    textColor="black"
                 />
         </TouchableOpacity>
     )

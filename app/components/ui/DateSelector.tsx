@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import useAppStore from '../../stores/useAppStore';
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 
@@ -13,12 +14,14 @@ interface DateSelectorComponentProps {
 }
 
 const DateSelector: React.FC<DateSelectorComponentProps> = ({ text, leftArrowShown, onLeftClick, onRightClick }) => {
+  const theme = useAppStore((state) => state.theme);
+
   return (
       <View style={{
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#efefef',
+        backgroundColor: theme.secondaryBackground,
         marginTop: 8,
         paddingVertical: 2,
         paddingHorizontal: 6,
@@ -26,16 +29,16 @@ const DateSelector: React.FC<DateSelectorComponentProps> = ({ text, leftArrowSho
       }}>
           {leftArrowShown ? (
               <TouchableOpacity onPress={onLeftClick}>
-                <Ionicons name="chevron-back" size={24} color="black" />
+                <Ionicons name="chevron-back" size={24} color={theme.text} />
               </TouchableOpacity>
           ) : (
               <View style={{width: 26}} />
           )}
 
-          <Text style={{paddingHorizontal: 16}}>{text}</Text>
+          <Text style={{paddingHorizontal: 16, color: theme.text}}>{text}</Text>
           
           <TouchableOpacity onPress={onRightClick}>
-            <Ionicons name="chevron-forward" size={24} color="black" />
+            <Ionicons name="chevron-forward" size={24} color={theme.text} />
           </TouchableOpacity>
       </View>
   );

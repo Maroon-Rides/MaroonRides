@@ -15,6 +15,7 @@ interface Props {
 
 // Bus callout with amentities
 const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities, tintColor, routeName, busId }) => {    
+
     return (
         <Callout
             style={{ zIndex: 1000, elevation: 1000 }}
@@ -41,7 +42,7 @@ const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities,
                         </Text>
                     </View>
                     <View style={{ flex: 1 }} />
-                    <AmenityRow amenities={amenities} color={"gray"} size={20} />
+                    <AmenityRow amenities={amenities} color="gray" size={20} />
                 </View>
                 
                 { directionName != "" &&

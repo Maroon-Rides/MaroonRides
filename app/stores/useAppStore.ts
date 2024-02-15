@@ -1,8 +1,12 @@
 import { create } from "zustand";
 import { ICachedStopEstimate, IGetNextDepartTimesResponse, IMapRoute, IMapServiceInterruption, IStop } from "../../utils/interfaces";
 import { MapStop } from "aggie-spirit-api";
+import { Theme, lightMode } from "../theme";
 
 interface AppState {
+    theme: Theme,
+    setTheme: (theme: Theme) => void
+
     authToken: string | null
     setAuthToken: (authToken: string) => void;
 
@@ -55,6 +59,10 @@ interface AppState {
 }
 
 const useAppStore = create<AppState>()((set) => ({
+
+    theme: lightMode,
+    setTheme: (theme) => set(() => ({ theme })),
+
     authToken: null,
     setAuthToken: (authToken) => set(() => ({ authToken })),
 

@@ -27,6 +27,7 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const zoomToStopLatLng = useAppStore((state) => state.zoomToStopLatLng);
     const setPoppedUpStopCallout = useAppStore((state) => state.setPoppedUpStopCallout);
+    const theme = useAppStore((state) => state.theme);
 
     const stopEstimates = useAppStore((state) => state.stopEstimates);
     const updateStopEstimate = useAppStore(state => state.updateStopEstimate);
@@ -139,20 +140,20 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
     return (
         <TouchableOpacity style={{ marginTop: 8 }} onPress={zoomToStop}>
             <View style={{ flexDirection: "row", alignContent: "flex-start" }}>
-                <Text style={{ fontSize: 22, fontWeight: "bold", width: "75%" }}>{stop.name}</Text>
+                <Text style={{ fontSize: 22, fontWeight: "bold", width: "75%", color: theme.text }}>{stop.name}</Text>
                 <View style={{ flex: 1 }} />
-                <AmenityRow amenities={amenities} size={24} color={"gray"} style={{ paddingRight: 16, alignSelf: "flex-start" }} />
+                <AmenityRow amenities={amenities} size={24} color={theme.subtitle} style={{ paddingRight: 16, alignSelf: "flex-start" }} />
             </View>
 
             {error ? (
-                <Text>Something went wrong. Please try again later</Text>
+                <Text style={{ color: theme.subtitle }}>Something went wrong. Please try again later</Text>
             ) : status === "Loading" ? (
                 <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 2 }}>
                     <ActivityIndicator style={{ justifyContent: "flex-start" }} />
                     <View style={{ flex: 1 }} />
                 </View>
             ) : (
-                <Text style={{ marginBottom: 12, marginTop: 4 }}>{status}</Text>
+                <Text style={{ marginBottom: 12, marginTop: 4, color: theme.subtitle }}>{status}</Text>
             )}
 
             <View style={{ flexDirection: "row", alignItems: "center", marginRight: 8, marginBottom: 8, marginTop: -4 }}>
@@ -168,8 +169,8 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
                             <TimeBubble
                                 key={index}
                                 time={relative <= 0 ? "Now" : relative.toString() + " min"}
-                                color={index == 0 ? color + "40" : "lightgrey"}
-                                textColor={index == 0 ? color : "black"}
+                                color={index == 0 ? color + (theme.mode == "dark" ? "65" : "40") : theme.nextStopBubble}
+                                textColor={index == 0 ? (theme.mode == "dark" ? theme.text : color) : theme.text}
                                 live={departureTime.estimatedDepartTimeUtc == null ? false : true}
                             />
                         )

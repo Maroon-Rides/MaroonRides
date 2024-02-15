@@ -10,17 +10,28 @@ interface Props {
 }
 
 const TimeBubble: React.FC<Props> = ({time, color, textColor, live}) => {
-  return (
-    <View style={{ backgroundColor: color, borderRadius: 6, alignItems: 'center', justifyContent: "center", alignSelf: 'center', flexDirection: "row", padding: 4, paddingHorizontal: 8, marginRight: 4}}>
-        <Text style={{fontSize: 16, textAlign: 'center', fontWeight: '600', color: textColor ?? 'white' }}>
-            {time}
-        </Text>
+    return (
+        <View 
+            style={{ 
+                backgroundColor: color, 
+                borderRadius: 6, 
+                alignItems: 'center', 
+                justifyContent: "center",
+                alignSelf: 'center', 
+                flexDirection: "row", 
+                padding: 4, 
+                paddingHorizontal: 8, 
+                marginRight: 4
+            }}>
+                <Text style={{fontSize: 16, textAlign: 'center', fontWeight: '600', color: textColor ?? 'white' }}>
+                    {time}
+                </Text>
 
-        { live && 
-          <MaterialCommunityIcons name="rss" size={12} color={textColor ?? "white"} style={{marginRight: -2, paddingLeft: 1, alignSelf: "flex-start"}} />
-        }
-    </View>
-  )
+                { live && 
+                    <MaterialCommunityIcons name="rss" size={12} color={textColor ?? "white"} style={{marginRight: -2, paddingLeft: 1, alignSelf: "flex-start"}} />
+                }
+        </View>
+    )
 }
 
 export default TimeBubble;
