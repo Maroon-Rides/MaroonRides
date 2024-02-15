@@ -41,9 +41,39 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         AsyncStorage.getItem('favorites').then((favorites: string | null) => {
             if (!favorites) return;
 
-            const favoritesArray = JSON.parse(favorites);
+            var favoritesArray = JSON.parse(favorites);
 
-            setFavoriteRoutes(routes.filter(route => favoritesArray.includes(route.key)));
+            // uuid regex
+            const uuidRegex = new RegExp("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+
+            if (favoritesArray.some((fav: string) => uuidRegex.test(fav))) {
+                console.log("Found a uuid in favorited, running migration steps...")
+
+                // convert any uuids (based on regex) to the new route shortName
+                favoritesArray = favoritesArray.map((fav: string) => {
+                    // check if the favorite is a uuid
+                    if (uuidRegex.test(fav)) {
+                        const match = routes.find(route => route.key === fav);
+                        
+                        return match ? match.shortName : null; // return null if the route is not found
+                    } else { 
+                        // otherwise return the favorite
+                        return fav;
+                    }
+                })
+
+                // remove any undefined values
+                favoritesArray = favoritesArray.filter((el: string | undefined) => el !== null);
+
+                // deduplicate the array
+                favoritesArray = [...new Set(favoritesArray)];
+
+                // save the converted favorites to AsyncStorage
+                AsyncStorage.setItem('favorites', JSON.stringify(favoritesArray));
+            }
+
+            // set the favorite routes
+            setFavoriteRoutes(routes.filter(route => favoritesArray.includes(route.shortName)));
         })
     }
 
