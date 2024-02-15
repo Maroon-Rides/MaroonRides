@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, TouchableOpacity, useColorScheme } from "react-native";
+import { Dimensions, TouchableOpacity } from "react-native";
 import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
