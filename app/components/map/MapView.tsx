@@ -23,8 +23,6 @@ const Map: React.FC = () => {
     const setZoomToStopLatLng = useAppStore((state) => state.setZoomToStopLatLng);
     const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
     const theme = useAppStore((state) => state.theme);
-    const colorScheme = useColorScheme();
-
 
     const setBusRefreshInterval = useAppStore((state) => state.setBusRefreshInterval);
     const clearBusRefreshInterval = useAppStore((state) => state.clearBusRefreshInterval);
