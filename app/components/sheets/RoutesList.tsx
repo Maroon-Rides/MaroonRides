@@ -126,7 +126,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
                 { selectedRouteCategory === "favorites" && drawnRoutes.length === 0 && routes.length != 0 && (
                     <View style={{ alignItems: 'center', marginTop: 16 }}>
-                        <Text>You have no favorited routes.</Text>
+                        <Text style={{color: theme.text}}>You have no favorited routes.</Text>
                     </View>
                 )}
 

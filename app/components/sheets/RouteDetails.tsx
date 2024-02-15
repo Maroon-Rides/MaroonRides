@@ -226,7 +226,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
             {!selectedRoute && (
                 <View style={{ alignItems: 'center', marginTop: 16 }}>
-                    <Text>Something went wrong.</Text>
+                    <Text style={{ color: theme.text }}>Something went wrong.</Text>
                 </View>
             )}
         </BottomSheetModal>

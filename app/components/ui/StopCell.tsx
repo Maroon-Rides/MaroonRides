@@ -169,8 +169,8 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
                             <TimeBubble
                                 key={index}
                                 time={relative <= 0 ? "Now" : relative.toString() + " min"}
-                                color={index == 0 ? color + (theme.mode == "dark" ? "af" : "40") : theme.nextStopBubble}
-                                textColor={index == 0 ? (theme.mode == "dark" ? theme.text+"f0" : color) : theme.text}
+                                color={index == 0 ? color + (theme.mode == "dark" ? "65" : "40") : theme.nextStopBubble}
+                                textColor={index == 0 ? (theme.mode == "dark" ? theme.text : color) : theme.text}
                                 live={departureTime.estimatedDepartTimeUtc == null ? false : true}
                             />
                         )

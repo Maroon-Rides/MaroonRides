@@ -13,7 +13,7 @@ const IconPill: React.FC<Props> = ({text, icon, style}) => {
     return (
         <View style={[{ 
                 // backgroundColor: color, 
-                borderColor: "#cccccd",
+                borderColor: theme.pillBorder,
                 borderWidth: 1,
                 borderRadius: 1000, 
                 alignItems: 'center', 
