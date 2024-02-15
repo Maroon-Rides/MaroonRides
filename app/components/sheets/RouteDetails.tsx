@@ -162,7 +162,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                     </View>
 
                     <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginLeft: 16, gap: 4 }}>
-                        <FavoritePill routeId={selectedRoute!.key} />
+                        <FavoritePill routeShortName={selectedRoute!.shortName} />
                         <AlertPill routeId={selectedRoute!.key} />
                     </View>
 

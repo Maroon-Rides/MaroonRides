@@ -6,10 +6,10 @@ import IconPill from './IconPill'
 import useAppStore from '../../stores/useAppStore';
 
 interface Props {
-    routeId: string
+    routeShortName: string
 }
 
-const FavoritePill: React.FC<Props> = ({ routeId }) => {
+const FavoritePill: React.FC<Props> = ({ routeShortName }) => {
     const [isFavorite, setIsFavorite] = useState(false);
     const theme = useAppStore((state) => state.theme);
 
@@ -20,7 +20,7 @@ const FavoritePill: React.FC<Props> = ({ routeId }) => {
     
                 const favoritesArray = JSON.parse(favorites);
     
-                setIsFavorite(favoritesArray.includes(routeId));
+                setIsFavorite(favoritesArray.includes(routeShortName));
             })
         } catch(error) {
             console.error(error);
@@ -40,22 +40,22 @@ const FavoritePill: React.FC<Props> = ({ routeId }) => {
         if (!savedFavorites && !newState) return;
 
         try {
-            // If no favorites exist and we are adding favorite, create a new array with the routeId
+            // If no favorites exist and we are adding favorite, create a new array with the routeShortName
             if (!savedFavorites && newState) {
                 setIsFavorite(true);
-                return AsyncStorage.setItem('favorites', JSON.stringify([routeId]));
+                return AsyncStorage.setItem('favorites', JSON.stringify([routeShortName]));
             }
 
-            // If favorites exist and we are adding favorite, add routeId to array
+            // If favorites exist and we are adding favorite, add routeShortName to array
             if (newState) {
                 const favoritesArray = JSON.parse(savedFavorites!);
-                favoritesArray.push(routeId);
+                favoritesArray.push(routeShortName);
 
                 AsyncStorage.setItem('favorites', JSON.stringify(favoritesArray));
             } else { 
-                // If favorites exist and we are removing favorite, remove routeId from array
+                // If favorites exist and we are removing favorite, remove routeShortName from array
                 const favoritesArray = JSON.parse(savedFavorites!);
-                const newFavoritesArray = favoritesArray.filter((id: string) => id !== routeId);
+                const newFavoritesArray = favoritesArray.filter((id: string) => id !== routeShortName);
 
                 AsyncStorage.setItem('favorites', JSON.stringify(newFavoritesArray));
             }
