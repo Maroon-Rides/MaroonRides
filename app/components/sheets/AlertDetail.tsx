@@ -20,8 +20,6 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
     div: {paddingBottom: 0, marginBottom: 0, color: theme.text}
   };
 
-  console.log(alert?.description)
-
   return (
     <BottomSheetModal 
       ref={sheetRef} 
