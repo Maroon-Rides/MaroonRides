@@ -1,4 +1,4 @@
-import { BottomSheetModal, BottomSheetView} from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetScrollView, BottomSheetView} from "@gorhom/bottom-sheet";
 import { View, TouchableOpacity, useWindowDimensions} from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../stores/useAppStore";
@@ -13,11 +13,11 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
   const theme = useAppStore((state) => state.theme);
   
   const tagStyles = { 
-    h3: { color: theme.text },
-    h6: { fontSize: 20, fontWeight: "bold", marginTop: 24, marginBottom: 8, color: theme.text}, 
+    h3: { fontSize: 32, fontWeight: "bold", marginTop: 24, marginBottom: 8, color: theme.text },
+    h6: { fontSize: 20, fontWeight: "bold", marginTop: 24, marginBottom: 8, color: theme.text }, 
     span: {fontWeight: "bold"},
     ul: {marginLeft: 16, marginTop: 8, padding: 8, paddingLeft: 24, backgroundColor: theme.secondaryBackground, borderRadius: 8},
-    div: {paddingBottom: 0, marginBottom: 0, color: theme.text},
+    div: {paddingBottom: 0, marginBottom: 0, color: theme.text}
   };
 
   return (
@@ -39,15 +39,19 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
             />
             <View style={{ height: 1, backgroundColor: theme.divider, marginTop: 8 }} />
 
+        </BottomSheetView>
+        <BottomSheetScrollView>
+
+
             <RenderHtml
                 contentWidth={useWindowDimensions().width}
-                baseStyle={{ fontSize: 16, paddingHorizontal: 16, paddingTop: 8}}
+                baseStyle={{ fontSize: 16, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 48}}
                 source={{ html: alert?.description || 'No details to show.' }}
 
                 // @ts-ignore: Werid errors with tagStyles typings, but it works
                 tagsStyles={tagStyles}
             />
-        </BottomSheetView>
+        </BottomSheetScrollView>
     </BottomSheetModal>
   );
 };
