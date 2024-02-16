@@ -16,6 +16,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
     const snapPoints = ['25%', '45%', '85%'];
 
     const [defaultGroup, setDefaultGroup] = useState(0);
+    const [themeSetting, setTheme] = useState(0);
     const theme = useAppStore((state) => state.theme);
 
     useEffect(() => {
@@ -23,6 +24,11 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
             AsyncStorage.getItem('default-group').then((defaultGroup: string | null) => {
                 if (!defaultGroup) return;    
                 setDefaultGroup(Number(defaultGroup));
+            })
+
+            AsyncStorage.getItem('app-theme').then((theme: string | null) => {
+                if (!theme) return;
+                setTheme(Number(theme));
             })
         } catch(error) {
             console.error(error);
@@ -35,6 +41,16 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
         setDefaultGroup(evt.nativeEvent.selectedSegmentIndex);
         AsyncStorage.setItem('default-group', evt.nativeEvent.selectedSegmentIndex.toString());
     }
+
+    function setAppThemeValue(evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) {
+        setTheme(evt.nativeEvent.selectedSegmentIndex);
+        AsyncStorage.setItem('app-theme', evt.nativeEvent.selectedSegmentIndex.toString());
+
+        // show alert to restart app
+        Alert.alert("Restart App", "Please restart the app to see the changes.");
+    }
+
+
 
     return (
         <BottomSheetModal 
@@ -63,14 +79,27 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
             <BottomSheetScrollView
                 style={{ padding: 16 }}
             >
-                <Text style={{fontSize: 16, fontWeight: "bold", color: theme.text}}>Default Route Group</Text>
-                <Text style={{fontSize: 12, color: theme.subtitle, marginTop: 4}}>Choose the default route group to display when the app opens</Text>
-                <SegmentedControl
-                    values={['All Routes', 'Favorites']}
-                    selectedIndex={defaultGroup}
-                    style={{ marginTop: 8 }}
-                    onChange={setDefaultGroupValue}
-                />
+                <View style={{ marginBottom: 16 }}>
+                    <Text style={{fontSize: 16, fontWeight: "bold", color: theme.text}}>Default Route Group</Text>
+                    <Text style={{fontSize: 12, color: theme.subtitle, marginTop: 4}}>Choose the default route group to display when the app opens</Text>
+                    <SegmentedControl
+                        values={['All Routes', 'Favorites']}
+                        selectedIndex={defaultGroup}
+                        style={{ marginTop: 8 }}
+                        onChange={setDefaultGroupValue}
+                    />
+                </View>
+
+                <View style={{ marginBottom: 16 }}>
+                    <Text style={{fontSize: 16, fontWeight: "bold", color: theme.text}}>App Theme</Text>
+                    <Text style={{fontSize: 12, color: theme.subtitle, marginTop: 4}}>Choose the theme that the app uses.</Text>
+                    <SegmentedControl
+                        values={['System', 'Light', 'Dark']}
+                        selectedIndex={themeSetting}
+                        style={{ marginTop: 8 }}
+                        onChange={setAppThemeValue}
+                    />
+                </View>
             </BottomSheetScrollView>
         </BottomSheetModal>
 
