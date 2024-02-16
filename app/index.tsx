@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { View, Alert } from 'react-native';
+import { View, Alert, Appearance } from 'react-native';
 import { getAuthentication, getBaseData, getPatternPaths } from "aggie-spirit-api";
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import useAppStore from './stores/useAppStore';
@@ -13,6 +13,7 @@ import StopTimetable from './components/sheets/StopTimetable';
 import Settings from './components/sheets/Settings';
 import { useColorScheme } from 'react-native';
 import { darkMode, lightMode } from './theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Home = () => {
     const setAuthToken = useAppStore((state) => state.setAuthToken);
@@ -23,8 +24,28 @@ const Home = () => {
     const setTheme = useAppStore((state) => state.setTheme);
     const colorScheme = useColorScheme();
     
+    async function getColorScheme(): Promise<string> {
+        const themeIndex = await AsyncStorage.getItem('app-theme')
+        switch (themeIndex) {
+            case "0":
+                return colorScheme == "dark" ? "dark" : "light"
+            case "1":
+                return "light"
+            case "2":
+                return "dark"
+        }    
+
+        return "light"
+    }
+
     useEffect(() => {
-        setTheme(colorScheme == "dark" ? darkMode : lightMode);
+        getColorScheme().then((newTheme) => {
+            const t = newTheme == "dark" ? darkMode : lightMode
+
+            setTheme(t);
+            Appearance.setColorScheme(t.mode);
+        })
+
 
         const getInitialData = async () => {
             // Get and store the auth token
@@ -106,7 +127,7 @@ const Home = () => {
                     const routes = addPatternPathsToRoutes([...baseData.routes], patternPathsResponse);
 
                     // convert colors based on theme
-                    const colorTheme = colorScheme == "dark" ? darkMode : lightMode
+                    const colorTheme = (await getColorScheme()) == "dark" ? darkMode : lightMode
 
                     routes.forEach(route => {
                         if (colorTheme.busTints[route.shortName]) {
