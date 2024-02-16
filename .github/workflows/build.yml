@@ -23,7 +23,7 @@ jobs:
 
       - name: Install Fastlane and Fix CocoaPods
         run: |
-          sudo gem install cocoapods -v 1.14.3
+          sudo gem install cocoapods -v 1.15.2
           sudo gem install fastlane -NV
           fastlane --version
           
