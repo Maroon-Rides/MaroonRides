@@ -40,6 +40,12 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
     useEffect(() => {
         const fetchData = async () => {
+
+            if (moment().toDate().toDateString() != selectedTimetableDate?.toDateString()) {
+                setIsLoading(false);
+                return;
+            }
+
             try {
                 setIsLoading(true);
                 const response = await getStopEstimates(stopCode, selectedTimetableDate || moment().toDate(), authToken!);
@@ -66,6 +72,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode }) => {
 
     useEffect(() => {
         const now = moment().toDate();
+
         let foundNextStop = false;
 
         const sliceLength = 5;
