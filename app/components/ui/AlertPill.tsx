@@ -48,7 +48,7 @@ const AlertPill: React.FC<Props> = ({ routeId }) => {
         } else {
             setAlertIcon("bell-outline");
         }
-    }, [alerts]);
+    }, [alerts, routeId]);
 
     return (
         <TouchableOpacity onPress={() => presentSheet("alerts")}>
