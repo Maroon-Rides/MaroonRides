@@ -11,10 +11,14 @@ on:
 
 jobs:
   build_ios:
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
-      # this was more debug as was curious what came pre-installed
-      # GitHub shares this online, e.g. https://github.com/actions/runner-images/blob/macOS-12/20230224.1/images/macos/macos-12-Readme.md
+      - name: List Xcode Installs
+        run: sudo ls -1 /Applications | grep "Xcode"
+
+      - name: Select Xcode 15.2
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+
       - name: check Xcode version
         run: /usr/bin/xcodebuild -version
 
