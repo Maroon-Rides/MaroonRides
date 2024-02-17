@@ -5,7 +5,7 @@ import { FlatList } from "react-native-gesture-handler";
 import { getStopSchedules } from "aggie-spirit-api";
 import { Ionicons } from "@expo/vector-icons";
 import useAppStore from "../../stores/useAppStore";
-import { GetStopSchedulesResponseSchema, IMapRoute, IRouteStopSchedule, IStop } from "../../../utils/interfaces";
+import { GetStopSchedulesResponseSchema, IRouteStopSchedule, IStop } from "../../../utils/interfaces";
 import Timetable from "../ui/Timetable";
 import moment from "moment-strftime";
 import DateSelector from '../ui/DateSelector';
@@ -25,7 +25,6 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
-    const setSelectdDirection = useAppStore((state) => state.setSelectedRouteDirection);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     const presentSheet = useAppStore((state) => state.presentSheet);
 
@@ -181,7 +180,6 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                                             const route = routes.find((route) => route.shortName === item.routeNumber);
                                             
                                             if (route) {
-                                                // setSelectdDirection(route.directionList[0]?.direction.key ?? "");
                                                 closeModal()
 
                                                 setSelectedRoute(route);
