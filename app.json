@@ -7,20 +7,35 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "scheme": "myapp",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bwees.reveille-rides"
+      "bundleIdentifier": "com.bwees.reveille-rides",
+      "splash": {
+        "image": "./assets/splash.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#fbffff",
+        "dark": {
+             "image": "./assets/splash.png",
+             "resizeMode": "cover",
+             "backgroundColor": "#191919"
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "splash": {
+        "image": "./assets/splash.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#fbffff",
+        "dark": {
+             "image": "./assets/splash.png",
+             "resizeMode": "cover",
+             "backgroundColor": "#191919"
+        }
       },
       "package": "com.anonymous.reactnativeboilerplate"
     },
