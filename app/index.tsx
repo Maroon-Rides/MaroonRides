@@ -14,6 +14,7 @@ import Settings from './components/sheets/Settings';
 import { useColorScheme } from 'react-native';
 import { darkMode, lightMode } from './theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Home = () => {
     const setAuthToken = useAppStore((state) => state.setAuthToken);
@@ -193,18 +194,20 @@ const Home = () => {
     }, [])
 
     return (
-        <BottomSheetModalProvider>
-            <View style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <MapView />
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <BottomSheetModalProvider>
+                <View style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <MapView />
 
-                <Settings sheetRef={settingsSheetRef} />
-                <RouteDetails sheetRef={routeDetailSheetRef} />
-                <RoutesList sheetRef={routesListSheetRef} />
-                <AlertList sheetRef={alertListSheetRef} />
-                <AlertDetail sheetRef={alertDetailSheetRef} />
-                <StopTimetable sheetRef={stopTimetableSheetRef} />
-            </View>
-        </BottomSheetModalProvider>
+                    <Settings sheetRef={settingsSheetRef} />
+                    <RouteDetails sheetRef={routeDetailSheetRef} />
+                    <RoutesList sheetRef={routesListSheetRef} />
+                    <AlertList sheetRef={alertListSheetRef} />
+                    <AlertDetail sheetRef={alertDetailSheetRef} />
+                    <StopTimetable sheetRef={stopTimetableSheetRef} />
+                </View>
+            </BottomSheetModalProvider>
+        </GestureHandlerRootView>
     )
 }
 
