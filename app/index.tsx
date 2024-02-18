@@ -26,16 +26,15 @@ const Home = () => {
     
     async function getColorScheme(): Promise<string> {
         const themeIndex = await AsyncStorage.getItem('app-theme')
+
         switch (themeIndex) {
-            case "0":
-                return colorScheme == "dark" ? "dark" : "light"
             case "1":
                 return "light"
             case "2":
                 return "dark"
+            default:
+                return colorScheme == "dark" ? "dark" : "light"
         }    
-
-        return "light"
     }
 
     useEffect(() => {
