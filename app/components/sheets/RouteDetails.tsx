@@ -78,9 +78,12 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     // Prevents visual glitch when the sheet is closed and the selected route is null
     useEffect(() => {
         if (!currentSelectedRoute) return;
+
         setSelectedRoute(currentSelectedRoute);
 
+        // reset direction selector
         setSelectedRouteDirection(currentSelectedRoute.directionList[0]?.direction.key ?? null);
+        setSelectedDirectionIndex(0);
 
         loadStopEstimates();
     }, [currentSelectedRoute])

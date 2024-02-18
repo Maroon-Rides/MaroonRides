@@ -23,7 +23,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     
     const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
     const setSelectedRouteCategory = useAppStore(state => state.setSelectedRouteCategory);
-    const drawnRoutes = useAppStore((state) => state.drawnRoutes);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     const presentSheet = useAppStore((state) => state.presentSheet);
     const theme = useAppStore((state) => state.theme);
@@ -154,7 +153,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                 />
                 <View style={{height: 1, backgroundColor: theme.divider, marginTop: 8}} />
 
-                { selectedRouteCategory === "favorites" && drawnRoutes.length === 0 && routes.length != 0 && (
+                { selectedRouteCategory === "favorites" && favoriteRoutes.length === 0 && routes.length != 0 && (
                     <View style={{ alignItems: 'center', marginTop: 16 }}>
                         <Text style={{color: theme.text}}>You have no favorited routes.</Text>
                     </View>
@@ -166,7 +165,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
             <BottomSheetFlatList
                 contentContainerStyle={{ paddingBottom: 35 }}
-                data={drawnRoutes}
+                data={routes.filter(route => selectedRouteCategory === "all" || favoriteRoutes.includes(route))}
                 keyExtractor={(route: IMapRoute) => route.key}
                 style={{ marginLeft: 16 }}
                 renderItem={({item: route}) => {
