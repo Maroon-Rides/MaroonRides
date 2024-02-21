@@ -8,8 +8,7 @@ import RenderHtml from 'react-native-render-html';
 
 const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = ({ sheetRef }) => {
   const snapPoints = ['25%', '45%', '85%'];
-  const alert = useAppStore((state) => state.alertDetail);
-
+  const alert = useAppStore((state) => state.selectedAlert);
   const theme = useAppStore((state) => state.theme);
   
   const tagStyles = { 

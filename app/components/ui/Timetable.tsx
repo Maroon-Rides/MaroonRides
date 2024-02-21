@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { GetStopEstimatesResponseSchema, IRouteStopSchedule } from '../../../utils/interfaces';
+import { IRouteStopSchedule } from '../../../utils/interfaces';
 import BusIcon from './BusIcon';
-import { RouteStopSchedule, getStopEstimates } from 'aggie-spirit-api';
+import { RouteStopSchedule } from 'aggie-spirit-api';
 import useAppStore from '../../stores/useAppStore';
 import moment from 'moment';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-
+import { useStopEstimate, useTimetableEstimate } from 'app/stores/query';
 
 interface Props {
     item: IRouteStopSchedule
@@ -31,46 +31,13 @@ interface TableItemRow {
 
 const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) => {
 
-    const authToken = useAppStore((state) => state.authToken);
     const selectedTimetableDate = useAppStore((state) => state.selectedTimetableDate);
     const theme = useAppStore((state) => state.theme);
 
-    const [estimate, setEstimate] = useState<RouteStopSchedule | null>(null);
+    // const [estimate, setEstimate] = useState<RouteStopSchedule | null>(null);
     const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
-    const [isLoading, setIsLoading] = React.useState<boolean>(false);
-    const [error, setError] = useState(false);
-
-    useEffect(() => {
-        const fetchData = async () => {
-
-            if (moment().toDate().toDateString() != selectedTimetableDate?.toDateString()) {
-                setIsLoading(false);
-                return;
-            }
-
-            try {
-                setIsLoading(true);
-                const response = await getStopEstimates(stopCode, selectedTimetableDate || moment().toDate(), authToken!);
-                
-                GetStopEstimatesResponseSchema.parse(response);
-
-                const estimate = response.routeStopSchedules.find((schedule) => schedule.directionName === item.directionName && schedule.routeName === item.routeName);
-                if (estimate) {
-                    setEstimate(estimate);
-                }
-                setIsLoading(false);
-            } catch (error) {
-                console.error(error);
-                setError(true);
-                setIsLoading(false);
-              
-                return;
-            }
-            setError(false);
-        };
-
-        fetchData(); // Call the async function immediately
-    }, [stopCode, authToken, item.directionName, item.routeName, selectedTimetableDate]);
+    const { data: estimate, isLoading } = useTimetableEstimate(stopCode, selectedTimetableDate || moment().toDate());
+    console.log("TIMETABLE!")
 
     useEffect(() => {
         const now = moment().toDate();

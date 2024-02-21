@@ -7,20 +7,19 @@ interface AppState {
     theme: Theme,
     setTheme: (theme: Theme) => void
 
-    authToken: string | null
-    setAuthToken: (authToken: string) => void;
+    // authToken: string | null
+    // setAuthToken: (authToken: string) => void;
 
-    mapServiceInterruption: IMapServiceInterruption[]
-    setMapServiceInterruption: (mapServiceInterruption: IMapServiceInterruption[]) => void
+    // mapServiceInterruption: IMapServiceInterruption[] // TODO: Switch to React Query
+    // setMapServiceInterruption: (mapServiceInterruption: IMapServiceInterruption[]) => void
 
-    routes: IMapRoute[],
-    setRoutes: (routes: IMapRoute[]) => void
+    // routes: IMapRoute[], // TODO: Switch to React Query
+    // setRoutes: (routes: IMapRoute[]) => void
 
     drawnRoutes: IMapRoute[],
     setDrawnRoutes: (routes: IMapRoute[]) => void
-    resetDrawnRoutes: () => void,
 
-    stopEstimates: ICachedStopEstimate[],
+    stopEstimates: ICachedStopEstimate[], // TODO: Switch to React Query
     setStopEstimates: (stopEstimates: ICachedStopEstimate[]) => void
     updateStopEstimate: (stopEstimate: IGetNextDepartTimesResponse, stopCode: string) => void,
     clearStopEstimates: () => void,
@@ -38,19 +37,21 @@ interface AppState {
     selectedStop: IStop | null,
     setSelectedStop: (selectedStop: IStop | null) => void,
     
+    // TODO: Switch to Provider Functions
     presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail") => void
     setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail") => void) => void
 
-    alertDetail: IMapServiceInterruption | null,
-    setAlertDetail: (alertDetail: IMapServiceInterruption | null) => void
+    selectedAlert: IMapServiceInterruption | null,
+    setSelectedAlert: (selectedAlert: IMapServiceInterruption | null) => void
 
     selectedTimetableDate: Date | null,
     setSelectedTimetableDate: (selectedTimetableDate: Date | null) => void
 
-    busLocationRefreshInterval: NodeJS.Timeout | null,
+    busLocationRefreshInterval: NodeJS.Timeout | null, // TODO: Switch to React Query
     setBusRefreshInterval: (busLocationRefreshInterval: NodeJS.Timeout) => void
     clearBusRefreshInterval: () => void
 
+    // TODO: Switch to Provider Functions
     zoomToStopLatLng: (lat: number, lng: number) => void
     setZoomToStopLatLng: (zoomToStopLatLng: (lat: number, lng: number) => void) => void
 
@@ -63,18 +64,17 @@ const useAppStore = create<AppState>()((set) => ({
     theme: lightMode,
     setTheme: (theme) => set(() => ({ theme })),
 
-    authToken: null,
-    setAuthToken: (authToken) => set(() => ({ authToken })),
+    // authToken: null,
+    // setAuthToken: (authToken) => set(() => ({ authToken })),
 
-    mapServiceInterruption: [],
-    setMapServiceInterruption: (mapServiceInterruption) => set(() => ({ mapServiceInterruption })),
+    // mapServiceInterruption: [],
+    // setMapServiceInterruption: (mapServiceInterruption) => set(() => ({ mapServiceInterruption })),
 
-    routes: [],
-    setRoutes: (routes) => set(() => ({ routes })),
+    // routes: [],
+    // setRoutes: (routes) => set(() => ({ routes })),
 
     drawnRoutes: [],
     setDrawnRoutes: (routes) => set(() => ({ drawnRoutes: routes })),
-    resetDrawnRoutes: () => set(state => ({ drawnRoutes: state.routes })),
 
     stopEstimates: [],
     setStopEstimates: (stopEstimates) => set(() => ({ stopEstimates })),
@@ -93,11 +93,7 @@ const useAppStore = create<AppState>()((set) => ({
     
     selectedRoute: null,
     setSelectedRoute: (selectedRoute) => set(() => ({ selectedRoute })),
-    clearSelectedRoute: () => set(state => {
-        state.resetDrawnRoutes();
-
-        return { selectedRoute: null };
-    }),
+    clearSelectedRoute: () => set(() => ({ selectedRoute: null })),
 
     selectedRouteDirection: null,
     setSelectedRouteDirection: (selectedRouteDirection) => set(() => ({ selectedRouteDirection: selectedRouteDirection })),
@@ -114,8 +110,8 @@ const useAppStore = create<AppState>()((set) => ({
     presentSheet: (sheet) => {console.log(sheet)},
     setPresentSheet: (presentSheet) => set(() => ({ presentSheet })),
 
-    alertDetail: null,
-    setAlertDetail: (alertDetail) => set(() => ({ alertDetail })),
+    selectedAlert: null,
+    setSelectedAlert: (selectedAlert) => set(() => ({ selectedAlert })),
 
     // Timeouts
     busLocationRefreshInterval: null,

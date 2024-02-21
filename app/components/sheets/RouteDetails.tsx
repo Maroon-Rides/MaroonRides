@@ -3,14 +3,13 @@ import { View, Text, TouchableOpacity, NativeSyntheticEvent } from "react-native
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
-import { getNextDepartureTimes } from "aggie-spirit-api";
-
 import { GetNextDepartTimesResponseSchema, ICachedStopEstimate, IMapRoute, IPatternPath, IRouteDirectionTime, IStop } from "../../../utils/interfaces";
 import useAppStore from "../../stores/useAppStore";
 import StopCell from "../ui/StopCell";
 import BusIcon from "../ui/BusIcon";
 import FavoritePill from "../ui/FavoritePill";
 import AlertPill from "../ui/AlertPill";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -18,8 +17,6 @@ interface SheetProps {
 
 // Display details when a route is selected
 const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
-    const authToken = useAppStore((state) => state.authToken);
-
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
 
@@ -37,7 +34,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const [processedStops, setProcessedStops] = useState<IStop[]>([]);
     const [selectedRoute, setSelectedRoute] = useState<IMapRoute | null>(null);
 
-    const [error, setError] = useState(false);
+    const client = useQueryClient();
 
     // cleanup this view when the sheet is closed
     const closeModal = () => {
@@ -78,58 +75,17 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     // Prevents visual glitch when the sheet is closed and the selected route is null
     useEffect(() => {
         if (!currentSelectedRoute) return;
-
         setSelectedRoute(currentSelectedRoute);
 
         // reset direction selector
         setSelectedRouteDirection(currentSelectedRoute.directionList[0]?.direction.key ?? null);
         setSelectedDirectionIndex(0);
 
-        loadStopEstimates();
     }, [currentSelectedRoute])
 
     useEffect(() => {
         return () => setSelectedRouteDirection(null);
     }, []);
-
-    async function loadStopEstimates() {
-        if (!currentSelectedRoute || !authToken) return;
-        let allStops: IStop[] = [];
-
-        for (const path of currentSelectedRoute.patternPaths) {
-            for (const point of path.patternPoints) {
-                if (!point.stop) continue;
-                allStops.push(point.stop);
-            }
-        }
-
-        const directionKeys = currentSelectedRoute.patternPaths.map(direction => direction.directionKey);
-
-        const newStopEstimates: ICachedStopEstimate[] = [];
-
-        // load stop estimates concurrently
-        const promises = allStops.map(async stop => {
-            try {
-                const response = await getNextDepartureTimes(currentSelectedRoute.key, directionKeys, stop.stopCode, authToken);
-                GetNextDepartTimesResponseSchema.parse(response);
-
-                newStopEstimates.push({ stopCode: stop.stopCode, departureTimes: response });
-            } catch (error) {
-                console.error(error);
-
-                setError(true);
-
-                // Make sure to return as if we don't the error state will be reset by the next line
-                return;
-            }
-
-            // If we rerun the request and there is no error, make sure to reset the error state
-            setError(false);
-        });
-
-        await Promise.all(promises);
-        setStopEstimates(newStopEstimates);
-    }
 
     const handleSetSelectedDirection = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
         setSelectedDirectionIndex(evt.nativeEvent.selectedSegmentIndex);
@@ -182,41 +138,22 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                 </BottomSheetView>
             }
             
-            { error && <Text style={{ textAlign: 'center', marginTop: 10, color: theme.subtitle }}>Something went wrong. Please try again later</Text> }
 
-            {!error && selectedRoute &&
+            { selectedRoute &&
                 <BottomSheetFlatList
                     data={processedStops}
                     extraData={[...stopEstimates]}
                     style={{ height: "100%" }}
                     contentContainerStyle={{ paddingBottom: 35, paddingLeft: 16 }}
-                    onRefresh={() => loadStopEstimates()}
+                    onRefresh={() => client.invalidateQueries({ queryKey: ["stopEstimate"] })}
                     refreshing={false}
                     ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: theme.divider, marginVertical: 4 }} />}
                     renderItem={({ item: stop, index }) => {
-                        const departureTimes = stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode);
-                        let directionTimes: IRouteDirectionTime = { nextDeparts: [], directionKey: "", routeKey: "" };
-
-                        if (departureTimes) {
-                            const routePatternPath = getPatternPathForSelectedRoute()?.directionKey;
-
-                            const tempDirectionTimes = departureTimes?.departureTimes.routeDirectionTimes.find((directionTime) => directionTime.directionKey === routePatternPath);
-
-                            if (tempDirectionTimes) {
-                                directionTimes = tempDirectionTimes;
-                            }
-
-                            // remove duplicate nextDeparts if there are any scheduledDepartTimeUtc duplicates
-                            directionTimes.nextDeparts = directionTimes.nextDeparts.filter((value, index, self) => {
-                                return self.findIndex((time) => time.scheduledDepartTimeUtc === value.scheduledDepartTimeUtc) === index;
-                            });
-
-                        }
-
                         return (
                             <StopCell
                                 stop={stop}
-                                directionTimes={directionTimes}
+                                route={selectedRoute}
+                                direction={selectedRoute?.directionList[selectedDirectionIndex]?.direction!}
                                 amenities={stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode)?.departureTimes.amenities ?? []}
                                 color={selectedRoute?.directionList[0]?.lineColor ?? "#909090"}
                                 disabled={index === processedStops.length - 1}

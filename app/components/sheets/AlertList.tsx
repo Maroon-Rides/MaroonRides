@@ -6,6 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../stores/useAppStore";
 import SheetHeader from "../ui/SheetHeader";
 import { IMapServiceInterruption } from "utils/interfaces";
+import { useServiceInterruptions } from "app/stores/query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -17,18 +18,23 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
     const snapPoints = ['25%', '45%', '85%'];
 
     const theme = useAppStore((state) => state.theme);
-    const alerts = useAppStore((state) => state.mapServiceInterruption);
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const presentSheet = useAppStore((state) => state.presentSheet);
-    const setAlertDetail = useAppStore((state) => state.setAlertDetail);
+    const setSelectedAlert = useAppStore((state) => state.setSelectedAlert);
     const [shownAlerts, setShownAlerts] = useState<IMapServiceInterruption[]>([]);
+
+    const { data: alerts } = useServiceInterruptions()
 
     // If no route is selected, we're looking at all routes, therefore show all alerts
     // If a route is selected, only show the alerts for that route
     useEffect(() => {
+        if (!alerts) {
+            setShownAlerts([]);
+            return
+        }
+
         if (!selectedRoute) {
             setShownAlerts(alerts);
-
             return;
         }
 
@@ -39,7 +45,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
     }, [selectedRoute, alerts]);
 
     const displayDetailAlert = (alert: IMapServiceInterruption) => {
-        setAlertDetail(alert);
+        setSelectedAlert(alert);
         presentSheet("alertsDetail");
     }
     return (

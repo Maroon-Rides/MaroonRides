@@ -11,6 +11,7 @@ import BusIcon from "../ui/BusIcon";
 import SheetHeader from "../ui/SheetHeader";
 import AlertPill from "../ui/AlertPill";
 import IconPill from "../ui/IconPill";
+import { useAuthToken, useBaseData, usePatternPaths, useRoutes } from "app/stores/query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -18,7 +19,6 @@ interface SheetProps {
 
 // Display routes list for all routes and favorite routes
 const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
-    const routes = useAppStore((state) => state.routes);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     
     const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
@@ -29,6 +29,13 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const [favoriteRoutes, setFavoriteRoutes] = useState<IMapRoute[]>([]);
     
+    useAuthToken()
+    useBaseData()
+    usePatternPaths()
+    
+    const { data: routes, isLoading } = useRoutes();
+
+    
     const handleRouteSelected = (selectedRoute: IMapRoute) => {        
         setSelectedRoute(selectedRoute);
         setDrawnRoutes([selectedRoute]);
@@ -37,6 +44,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     // load favorite routes from async storage
     function loadFavorites() {
+        if (!routes) return;
+
         AsyncStorage.getItem('favorites').then((favorites: string | null) => {
             if (!favorites) return;
 
@@ -91,6 +100,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     // Update the shown routes when the selectedRouteCategory changes
     useEffect(() => {
+        if (!routes) return;
+
         if (selectedRouteCategory === "all") {
             setDrawnRoutes(routes);
         } else {
@@ -107,7 +118,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
             // match the selectedRouteCategory on the map
             if (selectedRouteCategory === "all") {
-                setDrawnRoutes(routes);
+                setDrawnRoutes(routes ?? []);
             } else {
                 setDrawnRoutes(favoriteRoutes);
             }
@@ -153,19 +164,19 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                 />
                 <View style={{height: 1, backgroundColor: theme.divider, marginTop: 8}} />
 
-                { selectedRouteCategory === "favorites" && favoriteRoutes.length === 0 && routes.length != 0 && (
+                { selectedRouteCategory === "favorites" && favoriteRoutes.length === 0 && routes?.length != 0 && (
                     <View style={{ alignItems: 'center', marginTop: 16 }}>
                         <Text style={{color: theme.text}}>You have no favorited routes.</Text>
                     </View>
                 )}
 
                 {/* Loading indicatior */}
-                { routes.length == 0 && <ActivityIndicator style={{ marginTop: 12 }} /> }
+                { isLoading && <ActivityIndicator style={{ marginTop: 12 }} /> }
             </BottomSheetView>
 
             <BottomSheetFlatList
                 contentContainerStyle={{ paddingBottom: 35 }}
-                data={routes.filter(route => selectedRouteCategory === "all" || favoriteRoutes.includes(route))}
+                data={routes?.filter(route => selectedRouteCategory === "all" || favoriteRoutes.includes(route)) ?? []}
                 keyExtractor={(route: IMapRoute) => route.key}
                 style={{ marginLeft: 16 }}
                 renderItem={({item: route}) => {
