@@ -15,7 +15,7 @@ const SheetHeader: React.FC<Props> = ({ title, subtitle, icon }) => {
     return (
         <View style={{ marginBottom: 8, marginHorizontal: 16 }}>
             <View style={{ flexDirection: "row", alignItems: 'center'}}>
-            <Text style={{ fontWeight: 'bold', fontSize: 32, color: theme.text }}>{title}</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 32, color: theme.text, width: "60%" }}>{title}</Text>
                 <View style={{ flex: 1 }} />
                 {icon}
             </View>
