@@ -1,8 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getAuthentication, getBaseData, getNextDepartureTimes, getPatternPaths, getStopEstimates, getStopSchedules } from "aggie-spirit-api";
+import { getAuthentication, getBaseData, getNextDepartureTimes, getPatternPaths, getStopEstimates, getStopSchedules, getVehicles } from "aggie-spirit-api";
 import { darkMode, lightMode } from "app/theme";
 import { getColorScheme } from "app/utils";
-import { GetBaseDataResponseSchema, GetNextDepartTimesResponseSchema, GetPatternPathsResponseSchema, GetStopEstimatesResponseSchema, GetStopSchedulesResponseSchema, IGetBaseDataResponse, IGetPatternPathsResponse, IGetStopEstimatesResponse, IGetStopSchedulesResponse, IMapRoute, IMapServiceInterruption, IRouteDirectionTime } from "utils/interfaces";
+import { GetBaseDataResponseSchema, GetNextDepartTimesResponseSchema, GetPatternPathsResponseSchema, GetStopEstimatesResponseSchema, GetStopSchedulesResponseSchema, GetVehiclesResponseSchema, IGetBaseDataResponse, IGetPatternPathsResponse, IGetStopSchedulesResponse, IGetVehiclesResponse, IMapRoute, IMapServiceInterruption, IRouteDirectionTime, IVehicle } from "utils/interfaces";
 
 
 export const useAuthToken = () => {
@@ -134,7 +134,7 @@ export const useStopEstimate = (routeKey: string, directionKey: string, stopCode
 export const useTimetableEstimate = (stopCode: string, date: Date) => {
     const client = useQueryClient();
 
-    return useQuery<IGetStopEstimatesResponse>({
+    return useQuery<IGetStopSchedulesResponse>({
         queryKey: ["timetableEstimate", stopCode, date],
         queryFn: async () => {
             const authToken: string = client.getQueryData(["authToken"])!;
@@ -157,6 +157,7 @@ export const useSchedule = (stopCode: string, date: Date) => {
         queryKey: ["schedule", stopCode, date],
         queryFn: async () => {
             console.log("fetching schedule")
+            console.log(stopCode, date)
             const authToken: string = client.getQueryData(["authToken"])!;
     
             const stopSchedulesResponse = await getStopSchedules(stopCode, date, authToken);
@@ -164,8 +165,42 @@ export const useSchedule = (stopCode: string, date: Date) => {
 
             return stopSchedulesResponse
         },
-        enabled: useAuthToken().isSuccess,
+        enabled: useAuthToken().isSuccess && stopCode !== "" && date !== null,
         staleTime: 30000,
         refetchInterval: 30000  
+    })
+}
+
+export const useVehicles = (routeKey: string) => {
+    const client = useQueryClient();
+
+    return useQuery<IVehicle[]>({
+        queryKey: ["vehicles", routeKey],
+        queryFn: async () => {
+            console.log("fetching vehicles")
+            const authToken: string = client.getQueryData(["authToken"])!;
+    
+            
+            let busesResponse = await getVehicles([routeKey], authToken) as IGetVehiclesResponse;
+
+            GetVehiclesResponseSchema.parse(busesResponse);
+            
+
+            if (busesResponse.length == 0 || !busesResponse[0]?.vehiclesByDirections) {
+                return []
+            }
+
+            let extracted: IVehicle[] = []
+            for (let direction of busesResponse[0]?.vehiclesByDirections) {
+                for (let bus of direction.vehicles) {
+                    extracted.push(bus)
+                }
+            }
+
+            return extracted;
+        },
+        enabled: useAuthToken().isSuccess && routeKey !== "",
+        staleTime: 10000,
+        refetchInterval: 10000  
     })
 }

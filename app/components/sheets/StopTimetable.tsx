@@ -35,14 +35,13 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     const theme = useAppStore((state) => state.theme);
 
     const { data: routes } = useRoutes();
-    // const { 
-    //     data: stopSchedule, 
-    //     isError: scheduleError, 
-    //     isLoading: scheduleLoading ,
-    //     error
-    // } = useSchedule(selectedStop?.stopCode ?? "", selectedTimetableDate ?? moment().toDate());
+    const { 
+        data: stopSchedule, 
+        isError: scheduleError, 
+        isLoading: scheduleLoading 
+    } = useSchedule(selectedStop?.stopCode ?? "", selectedTimetableDate ?? moment().toDate());
 
-    console.log("Sfoiausdfaiusdfasdf")
+    console.log(selectedTimetableDate)
 
     const dayDecrement = () => {
         // Decrease the date by one day
@@ -60,14 +59,8 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         setSelectedTimetableDate(nextDate);
     };
 
-    // useEffect(() => {
-    //     console.log(error)
-    // }, [error])
-
     useEffect(() => {
         if (!stopSchedule) return;
-
-        console.log("Stop Schedule", stopSchedule)
 
         // find the schedules for the selected route
         let routeStops = stopSchedule.routeStopSchedules.filter((schedule) => schedule.routeName === selectedRoute?.name && schedule.routeNumber === selectedRoute?.shortName)
@@ -93,6 +86,8 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     // prevent data from disappearing when the sheet is closed
     useEffect(() => {
         if (!selectedStop) return;
+
+        if (!selectedTimetableDate) setSelectedTimetableDate(moment().toDate());
 
         setTempSelectedStop(selectedStop);
     }, [selectedStop, selectedTimetableDate])

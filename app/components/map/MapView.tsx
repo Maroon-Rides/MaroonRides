@@ -3,17 +3,15 @@ import { Dimensions, TouchableOpacity } from "react-native";
 import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { getVehicles } from "aggie-spirit-api";
-import { GetVehiclesResponseSchema, IGetVehiclesResponse, IMapRoute, IVehicle } from "../../../utils/interfaces";
+import { IMapRoute } from "../../../utils/interfaces";
 import useAppStore from "../../stores/useAppStore";
 import BusMarker from "./markers/BusMarker";
 import StopMarker from "./markers/StopMarker";
 import { getLighterColor } from "../../utils";
+import { useVehicles } from "app/stores/query";
 
 const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
-
-    const authToken = useAppStore((state) => state.authToken);
 
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
@@ -23,15 +21,11 @@ const Map: React.FC = () => {
     const setZoomToStopLatLng = useAppStore((state) => state.setZoomToStopLatLng);
     const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
     const theme = useAppStore((state) => state.theme);
-
-    const setBusRefreshInterval = useAppStore((state) => state.setBusRefreshInterval);
-    const clearBusRefreshInterval = useAppStore((state) => state.clearBusRefreshInterval);
-
     const poppedUpStopCallout = useAppStore((state) => state.poppedUpStopCallout);
 
     const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
 
-    const [buses, setBuses] = useState<IVehicle[]>([]);
+    const { data: buses } = useVehicles(selectedRoute?.key ?? "");
 
     const defaultMapRegion: Region = {
         latitude: 30.6060,
@@ -39,35 +33,6 @@ const Map: React.FC = () => {
         latitudeDelta: 0.10,
         longitudeDelta: 0.01
     };
-
-    const updateBuses = async () => {
-        if (!selectedRoute || !authToken) return
-
-        let busesResponse: IGetVehiclesResponse = []
-        try {
-            busesResponse = await getVehicles([selectedRoute.key], authToken) as IGetVehiclesResponse;
-
-            GetVehiclesResponseSchema.parse(busesResponse);
-        } catch (error) {
-            console.error(error);
-            // prevent alert loop from filling screen with alerts.
-            clearBusRefreshInterval();
-        }
-
-        if (busesResponse.length == 0 || !busesResponse[0]?.vehiclesByDirections) {
-            setBuses([])
-            return
-        }
-
-        let extracted: IVehicle[] = []
-        for (let direction of busesResponse[0]?.vehiclesByDirections) {
-            for (let bus of direction.vehicles) {
-                extracted.push(bus)
-            }
-        }
-
-        setBuses(extracted)
-    }
 
     function selectRoute(route: IMapRoute) {
         if (selectedRoute?.key === route.key) return;
@@ -77,31 +42,9 @@ const Map: React.FC = () => {
         presentSheet("routeDetails");
     }
 
-    // If the user toggles between on-campus and off-campus routes, adjust the zoom level of the map
-    // Ignore if the mapRenderCount is less than 2 since it takes two renders to show the initial region
+    // center the view on the drawn routes
     useEffect(() => {
         centerViewOnRoutes();
-
-        // Handle updating buses based on the number of drawn routes
-        if (drawnRoutes.length === 1 && drawnRoutes[0]?.shortName) {
-            // Update the buses initially
-            updateBuses();
-
-            // Set up interval to update buses every 5 seconds
-            setBusRefreshInterval(setInterval(async () => {
-                await updateBuses();
-            }, 5000));
-        } else {
-            // Clear the interval and reset the buses if there are no drawn routes or more than one
-            clearBusRefreshInterval();
-            setBuses([]);
-        }
-
-        // Clear the interval and reset the buses if the component unmounts
-        return () => {
-            clearBusRefreshInterval();
-            setBuses([]);
-        }
     }, [drawnRoutes]);
 
     // handle weird edge case where map does not pick up on the initial region
@@ -265,7 +208,7 @@ const Map: React.FC = () => {
                 ))}
 
                 {/* Buses */}
-                {selectedRoute && buses.map((bus) => {
+                {selectedRoute && buses?.map((bus) => {
                     const color = selectedRoute.directionList[0]?.lineColor ?? "#500000"
                     return (
                         <BusMarker

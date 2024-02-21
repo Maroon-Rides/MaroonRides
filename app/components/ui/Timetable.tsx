@@ -3,11 +3,10 @@ import { ActivityIndicator, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { IRouteStopSchedule } from '../../../utils/interfaces';
 import BusIcon from './BusIcon';
-import { RouteStopSchedule } from 'aggie-spirit-api';
 import useAppStore from '../../stores/useAppStore';
 import moment from 'moment';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useStopEstimate, useTimetableEstimate } from 'app/stores/query';
+import { useTimetableEstimate } from 'app/stores/query';
 
 interface Props {
     item: IRouteStopSchedule
@@ -36,7 +35,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
 
     // const [estimate, setEstimate] = useState<RouteStopSchedule | null>(null);
     const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
-    const { data: estimate, isLoading } = useTimetableEstimate(stopCode, selectedTimetableDate || moment().toDate());
+    const { data: estimate, isLoading, isError } = useTimetableEstimate(stopCode, selectedTimetableDate || moment().toDate());
     console.log("TIMETABLE!")
 
     useEffect(() => {
@@ -47,8 +46,8 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
         const sliceLength = 5;
 
         let processed = item.stopTimes.map((time) => {
-            const timeEstimateIndex = estimate?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId)
-            const timeEstimate = estimate?.stopTimes[timeEstimateIndex!];
+            const timeEstimateIndex = item?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId)
+            const timeEstimate = item?.stopTimes[timeEstimateIndex!];
 
             // have to check if it isnt undefined because if it is undefined, moment will default to current time
             const estimatedTime = timeEstimate && moment(timeEstimate?.estimatedDepartTimeUtc).isValid() ? moment(timeEstimate?.estimatedDepartTimeUtc) : null;
@@ -116,7 +115,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
         setTableRows(stopRows);
     }, [estimate, selectedTimetableDate])
 
-    if(error) {
+    if (isError) {
         return <Text style={{ textAlign: 'center', marginTop: 10, color: theme.subtitle }}>Something went wrong. Please try again later</Text>
     }
 

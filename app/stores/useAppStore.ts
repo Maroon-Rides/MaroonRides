@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { ICachedStopEstimate, IGetNextDepartTimesResponse, IMapRoute, IMapServiceInterruption, IStop } from "../../utils/interfaces";
-import { MapStop } from "aggie-spirit-api";
 import { Theme, lightMode } from "../theme";
 
 interface AppState {
@@ -55,8 +54,8 @@ interface AppState {
     zoomToStopLatLng: (lat: number, lng: number) => void
     setZoomToStopLatLng: (zoomToStopLatLng: (lat: number, lng: number) => void) => void
 
-    poppedUpStopCallout: MapStop | null,
-    setPoppedUpStopCallout: (poppedUpStopCallout: MapStop | null) => void
+    poppedUpStopCallout: IStop | null,
+    setPoppedUpStopCallout: (poppedUpStopCallout: IStop | null) => void
 }
 
 const useAppStore = create<AppState>()((set) => ({
