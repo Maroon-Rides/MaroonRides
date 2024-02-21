@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { IAmenity, IDirection, IMapRoute, IStop } from "../../../utils/interfaces";
+import { IDirection, IMapRoute, IStop } from "../../../utils/interfaces";
 import TimeBubble from "./TimeBubble";
 import useAppStore from "../../stores/useAppStore";
 import AmenityRow from "./AmenityRow";
@@ -14,11 +14,10 @@ interface Props {
     direction: IDirection
     color: string
     disabled: boolean
-    amenities: IAmenity[],
     setSheetPos: (pos: number) => void
 }
 
-const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, amenities, setSheetPos }) => {
+const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, setSheetPos }) => {
     const [status, setStatus] = useState('On Time');
 
     const presentSheet = useAppStore((state) => state.presentSheet);
@@ -33,9 +32,11 @@ const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, am
     useEffect(() => {
         if (!stopEstimate) return
 
+        const estimate = stopEstimate.routeDirectionTimes[0]!;
+
         let totalDeviation = 0;
 
-        for (const departTime of stopEstimate.nextDeparts) {
+        for (const departTime of estimate.nextDeparts) {
             const estimatedTime = moment(departTime.estimatedDepartTimeUtc ?? "");
             const scheduledTime = moment(departTime.scheduledDepartTimeUtc ?? "");
 
@@ -46,12 +47,12 @@ const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, am
             }
         }
 
-        const avgDeviation = totalDeviation / stopEstimate.nextDeparts.length / (60);
+        const avgDeviation = totalDeviation / estimate.nextDeparts.length / (60);
         const roundedDeviation = Math.round(avgDeviation);
 
-        if (stopEstimate.directionKey === "") {
+        if (estimate.directionKey === "") {
             setStatus('Loading');
-        } else if (stopEstimate.nextDeparts.length === 0) {
+        } else if (estimate.nextDeparts.length === 0) {
             setStatus("No times to show");
         } else if (roundedDeviation > 0) {
             setStatus(`${roundedDeviation} ${roundedDeviation > 1 ? "minutes" : "minute"} late`);
@@ -85,7 +86,7 @@ const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, am
             <View style={{ flexDirection: "row", alignContent: "flex-start" }}>
                 <Text style={{ fontSize: 22, fontWeight: "bold", width: "75%", color: theme.text }}>{stop.name}</Text>
                 <View style={{ flex: 1 }} />
-                <AmenityRow amenities={amenities} size={24} color={theme.subtitle} style={{ paddingRight: 16, alignSelf: "flex-start" }} />
+                <AmenityRow amenities={stopEstimate?.amenities ?? []} size={24} color={theme.subtitle} style={{ paddingRight: 16, alignSelf: "flex-start" }} />
             </View>
 
             { isLoading ? (
@@ -105,7 +106,7 @@ const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, am
                 <FlatList
                     horizontal
                     scrollEnabled={false}
-                    data={stopEstimate?.nextDeparts ?? []}
+                    data={stopEstimate?.routeDirectionTimes[0]?.nextDeparts ?? []}
                     keyExtractor={(_, index) => index.toString()}
                     renderItem={({ item: departureTime, index }) => {
                         const date = moment(departureTime.estimatedDepartTimeUtc ?? departureTime.scheduledDepartTimeUtc ?? "");

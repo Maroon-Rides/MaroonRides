@@ -12,7 +12,6 @@ import AlertPill from "../ui/AlertPill";
 import IconPill from "../ui/IconPill";
 import { useRoutes } from "app/stores/api_query";
 import { useDefaultRouteGroup, useFavorites } from "app/stores/storage_query";
-import { useQueryClient } from "@tanstack/react-query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>

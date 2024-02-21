@@ -197,7 +197,8 @@ const Map: React.FC = () => {
                                     tintColor={selectedRoute?.directionList[0]?.lineColor ?? "#FFFF"}
                                     fillColor={fillColor}
                                     borderColor={stopBorderColor}
-                                    shortName={selectedRoute?.shortName ?? ""}
+                                    route={selectedRoute}
+                                    direction={selectedRoute?.directionList[0]!.direction}
                                     isCalloutShown={poppedUpStopCallout?.stopCode === stop.stopCode}
                                 />
                             );

@@ -5,14 +5,13 @@ import { getColorScheme } from "app/utils";
 import moment from "moment";
 import { useEffect } from "react";
 import { Alert } from "react-native";
-import { GetBaseDataResponseSchema, GetNextDepartTimesResponseSchema, GetPatternPathsResponseSchema, GetStopEstimatesResponseSchema, GetStopSchedulesResponseSchema, GetVehiclesResponseSchema, IGetBaseDataResponse, IGetPatternPathsResponse, IGetStopEstimatesResponse, IGetStopSchedulesResponse, IGetVehiclesResponse, IMapRoute, IMapServiceInterruption, IRouteDirectionTime, IVehicle } from "utils/interfaces";
+import { GetBaseDataResponseSchema, GetNextDepartTimesResponseSchema, GetPatternPathsResponseSchema, GetStopEstimatesResponseSchema, GetStopSchedulesResponseSchema, GetVehiclesResponseSchema, IGetBaseDataResponse, IGetNextDepartTimesResponse, IGetPatternPathsResponse, IGetStopEstimatesResponse, IGetStopSchedulesResponse, IGetVehiclesResponse, IMapRoute, IMapServiceInterruption, IVehicle } from "utils/interfaces";
 
 
 export const useAuthToken = () => {
     const query = useQuery({
         queryKey: ["authToken"],
         queryFn: async () => {
-            console.log("fetching auth token")
             return await getAuthentication();
         },
         staleTime: Infinity
@@ -33,7 +32,6 @@ export const useBaseData = () => {
     const query = useQuery<IGetBaseDataResponse>({
         queryKey: ["baseData"],
         queryFn: async () => {
-            console.log("fetching base data")
             const authToken: string = client.getQueryData(["authToken"])!;
             const baseData = await getBaseData(authToken);
 
@@ -63,7 +61,6 @@ export const usePatternPaths = () => {
     const query = useQuery<IGetPatternPathsResponse>({
         queryKey: ["patternPaths"],
         queryFn: async () => {
-            console.log("fetching pattern paths")
             const authToken: string = client.getQueryData(["authToken"])!;
             const baseData = client.getQueryData(["baseData"]) as IGetBaseDataResponse;
 
@@ -150,7 +147,7 @@ export const useServiceInterruptions = () => {
 export const useStopEstimate = (routeKey: string, directionKey: string, stopCode: string) => {
     const client = useQueryClient();
 
-    return useQuery<IRouteDirectionTime | undefined>({
+    return useQuery<IGetNextDepartTimesResponse>({
         queryKey: ["stopEstimate", routeKey, directionKey, stopCode],
         queryFn: async () => {
             const authToken: string = client.getQueryData(["authToken"])!;
@@ -174,7 +171,7 @@ export const useStopEstimate = (routeKey: string, directionKey: string, stopCode
                 response.routeDirectionTimes[0].nextDeparts = deduped;
             }
 
-            return response.routeDirectionTimes[0];
+            return response
         },
         enabled: useAuthToken().isSuccess,
         staleTime: 30000,
@@ -207,7 +204,6 @@ export const useSchedule = (stopCode: string, date: Date) => {
     return useQuery<IGetStopSchedulesResponse>({
         queryKey: ["schedule", stopCode, date],
         queryFn: async () => {
-            console.log("fetching schedule")
             const authToken: string = client.getQueryData(["authToken"])!;
     
             const stopSchedulesResponse = await getStopSchedules(stopCode, date, authToken);
@@ -216,8 +212,7 @@ export const useSchedule = (stopCode: string, date: Date) => {
             return stopSchedulesResponse
         },
         enabled: useAuthToken().isSuccess && stopCode !== "" && date !== null,
-        staleTime: 30000,
-        refetchInterval: 30000  
+        staleTime: Infinity
     })
 }
 
@@ -227,14 +222,10 @@ export const useVehicles = (routeKey: string) => {
     return useQuery<IVehicle[]>({
         queryKey: ["vehicles", routeKey],
         queryFn: async () => {
-            console.log("fetching vehicles")
             const authToken: string = client.getQueryData(["authToken"])!;
     
-            
             let busesResponse = await getVehicles([routeKey], authToken) as IGetVehiclesResponse;
-
             GetVehiclesResponseSchema.parse(busesResponse);
-            
 
             if (busesResponse.length == 0 || !busesResponse[0]?.vehiclesByDirections) {
                 return []

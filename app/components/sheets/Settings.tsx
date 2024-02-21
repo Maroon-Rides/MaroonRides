@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useState } from "react";
 import { View, Text, TouchableOpacity, Alert, NativeSyntheticEvent } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';

@@ -3,13 +3,14 @@ import { View, Text, TouchableOpacity, NativeSyntheticEvent } from "react-native
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
-import { GetNextDepartTimesResponseSchema, ICachedStopEstimate, IMapRoute, IPatternPath, IRouteDirectionTime, IStop } from "../../../utils/interfaces";
+import { IMapRoute, IPatternPath, IStop } from "../../../utils/interfaces";
 import useAppStore from "../../stores/useAppStore";
 import StopCell from "../ui/StopCell";
 import BusIcon from "../ui/BusIcon";
 import FavoritePill from "../ui/FavoritePill";
 import AlertPill from "../ui/AlertPill";
 import { useQueryClient } from "@tanstack/react-query";
+import { useStopEstimate } from "app/stores/api_query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -22,10 +23,14 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const setSelectedRouteDirection = useAppStore(state => state.setSelectedRouteDirection);
     const setSelectedStop = useAppStore(state => state.setSelectedStop);
-    const stopEstimates = useAppStore((state) => state.stopEstimates);
-    const setStopEstimates = useAppStore(state => state.setStopEstimates);
     const setPoppedUpStopCallout = useAppStore(state => state.setPoppedUpStopCallout);
     const theme = useAppStore(state => state.theme);
+
+    const { data: stopEstimates } = useStopEstimate(
+        currentSelectedRoute?.key ?? "", 
+        currentSelectedRoute?.directionList[0]?.direction.key ?? "", 
+        currentSelectedRoute?.patternPaths[0]?.patternPoints[0]?.stop?.stopCode ?? ""
+    )
 
 
     // Controls SegmentedControl
@@ -40,7 +45,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const closeModal = () => {
         sheetRef.current?.dismiss();
         clearSelectedRoute();
-        setStopEstimates([]);
         setSelectedRouteDirection(null);
 
         setSelectedStop(null);
@@ -142,7 +146,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             { selectedRoute &&
                 <BottomSheetFlatList
                     data={processedStops}
-                    extraData={[...stopEstimates]}
+                    extraData={stopEstimates?.routeDirectionTimes[0]}
                     style={{ height: "100%" }}
                     contentContainerStyle={{ paddingBottom: 35, paddingLeft: 16 }}
                     onRefresh={() => client.invalidateQueries({ queryKey: ["stopEstimate"] })}
@@ -154,7 +158,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                                 stop={stop}
                                 route={selectedRoute}
                                 direction={selectedRoute?.directionList[selectedDirectionIndex]?.direction!}
-                                amenities={stopEstimates.find((stopEstimate) => stopEstimate.stopCode === stop.stopCode)?.departureTimes.amenities ?? []}
                                 color={selectedRoute?.directionList[0]?.lineColor ?? "#909090"}
                                 disabled={index === processedStops.length - 1}
                                 setSheetPos={(pos) => sheetRef.current?.snapToIndex(pos)}

@@ -1,39 +1,31 @@
-import React, { memo, useEffect, useState, useCallback } from 'react'
+import React, { memo, useState, useCallback } from 'react'
 import { View, Text, LayoutChangeEvent } from 'react-native'
 import { Callout } from 'react-native-maps'
 import BusIcon from '../ui/BusIcon'
-import useAppStore from '../../stores/useAppStore'
-import { IGetNextDepartTimesResponse, IStop } from '../../../utils/interfaces'
+import { IDirection, IMapRoute, IStop } from '../../../utils/interfaces'
 import AmenityRow from "../ui/AmenityRow";
+import { useStopEstimate } from 'app/stores/api_query'
 
 interface Props {
     stop: IStop
     tintColor: string
-    routeName: string
+    route: IMapRoute
+    direction: IDirection
 }
 
 // Stop callout with amentities
-const StopCallout: React.FC<Props> = ({ stop, tintColor, routeName }) => {
-    const stopEstimates = useAppStore((state) => state.stopEstimates);
+const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => {
 
     // Calculate size of callout based on the contentSize
     const [contentSize, setContentSize] = useState([100, 15]);
-    const [nextDepartTimes, setNextDepartTimes] = useState<IGetNextDepartTimesResponse | null>(null);
+
+    const { data: estimate } = useStopEstimate(route.key, direction.key, stop.stopCode);
 
     const handleLayout = useCallback((event: LayoutChangeEvent) => {        
         const { width, height } = event.nativeEvent.layout;
 
         setContentSize([width, height]);
     }, [setContentSize]);
-
-    // Loop through global stopEstimates, find the current stop and set the nextDepartTimes
-    useEffect(() => {
-        stopEstimates.forEach((stopEstimate) => {
-            if (stopEstimate.stopCode === stop.stopCode) {
-                setNextDepartTimes(stopEstimate.departureTimes);
-            }
-        })
-    }, [stopEstimates])
 
     return (
         <Callout 
@@ -47,11 +39,11 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, routeName }) => {
         >
             <View onLayout={handleLayout}>
                 <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", alignSelf: "flex-start" }}  >
-                    <BusIcon name={routeName} color={tintColor} isCallout={true} style={{ marginRight: 8 }} />
+                    <BusIcon name={route.shortName} color={tintColor} isCallout={true} style={{ marginRight: 8 }} />
                     <Text style={{ maxWidth: 200, fontWeight: 'bold' }} numberOfLines={1}>{stop.name}</Text>
                 </View>
 
-                <AmenityRow amenities={nextDepartTimes?.amenities ?? []} color="gray" size={20} style={{ marginTop: 4 }} />
+                <AmenityRow amenities={estimate?.amenities ?? []} color="gray" size={20} style={{ marginTop: 4 }} />
             </View>
         </Callout>
     )
