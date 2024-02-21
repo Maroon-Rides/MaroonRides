@@ -9,7 +9,7 @@ import Timetable from "../ui/Timetable";
 import moment from "moment-strftime";
 import DateSelector from '../ui/DateSelector';
 import SheetHeader from "../ui/SheetHeader";
-import { useRoutes, useSchedule } from "app/stores/query";
+import { useRoutes, useSchedule } from "app/stores/api_query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -38,10 +38,8 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     const { 
         data: stopSchedule, 
         isError: scheduleError, 
-        isLoading: scheduleLoading 
+        isLoading: scheduleLoading
     } = useSchedule(selectedStop?.stopCode ?? "", selectedTimetableDate ?? moment().toDate());
-
-    console.log(selectedTimetableDate)
 
     const dayDecrement = () => {
         // Decrease the date by one day

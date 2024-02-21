@@ -8,7 +8,7 @@ import useAppStore from "../../stores/useAppStore";
 import BusMarker from "./markers/BusMarker";
 import StopMarker from "./markers/StopMarker";
 import { getLighterColor } from "../../utils";
-import { useVehicles } from "app/stores/query";
+import { useVehicles } from "app/stores/api_query";
 
 const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);

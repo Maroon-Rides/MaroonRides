@@ -5,7 +5,7 @@ import { TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons} from '@expo/vector-icons';
 import IconPill from './IconPill'
 import useAppStore from '../../stores/useAppStore';
-import { useRoutes, useServiceInterruptions } from 'app/stores/query';
+import { useRoutes, useServiceInterruptions } from 'app/stores/api_query';
 
 interface Props {
     routeId?: string
@@ -22,8 +22,6 @@ const AlertPill: React.FC<Props> = ({ routeId }) => {
     // Update the alert icon when the alerts change
     useEffect(() => {
         if (!alerts) return
-
-        console.log(alerts)
 
         if (!routeId) {
             if (alerts.length > 0) {

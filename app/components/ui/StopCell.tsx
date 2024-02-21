@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, AppState } from 'react-native';
+import { View, Text, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { IAmenity, IDirection, IMapRoute, IStop } from "../../../utils/interfaces";
 import TimeBubble from "./TimeBubble";
 import useAppStore from "../../stores/useAppStore";
 import AmenityRow from "./AmenityRow";
 import moment from "moment";
-import { useStopEstimate } from "app/stores/query";
+import { useStopEstimate } from "app/stores/api_query";
 
 interface Props {
     stop: IStop
@@ -88,15 +88,17 @@ const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, am
                 <AmenityRow amenities={amenities} size={24} color={theme.subtitle} style={{ paddingRight: 16, alignSelf: "flex-start" }} />
             </View>
 
-            {isError ? (
-                <Text style={{ color: theme.subtitle }}>Something went wrong. Please try again later</Text>
-            ) : isLoading ? (
+            { isLoading ? (
                 <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 2 }}>
                     <ActivityIndicator style={{ justifyContent: "flex-start" }} />
                     <View style={{ flex: 1 }} />
                 </View>
             ) : (
-                <Text style={{ marginBottom: 12, marginTop: 4, color: theme.subtitle }}>{status}</Text>
+                <Text style={{ marginBottom: 12, marginTop: 4, color: theme.subtitle }}>
+                    { isError
+                        ? "Something went wrong. Please try again later."
+                        : status
+                    }</Text>
             )}
 
             <View style={{ flexDirection: "row", alignItems: "center", marginRight: 8, marginBottom: 8, marginTop: -4 }}>

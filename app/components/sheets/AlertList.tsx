@@ -6,7 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../stores/useAppStore";
 import SheetHeader from "../ui/SheetHeader";
 import { IMapServiceInterruption } from "utils/interfaces";
-import { useServiceInterruptions } from "app/stores/query";
+import { useServiceInterruptions } from "app/stores/api_query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>

@@ -177,12 +177,12 @@ export const RouteStopScheduleSchema = z.object({
     directionName: z.string(),
     stopTimes: z.array(StopTimeSchema),
     frequencyInfo: z.any(),
-    hasTrips: z.boolean(),
-    hasSchedule: z.boolean(),
-    isEndOfRoute: z.boolean(),
-    isTemporaryStopOnly: z.boolean(),
-    isClosedRegularStop: z.boolean(),
-    serviceInterruptions: z.array(z.any())
+    hasTrips: z.boolean().nullable(),
+    hasSchedule: z.boolean().nullable(),
+    isEndOfRoute: z.boolean().nullable(),
+    isTemporaryStopOnly: z.boolean().nullable(),
+    isClosedRegularStop: z.boolean().nullable(),
+    serviceInterruptions: z.array(z.any()).nullable()
 });
 export type IRouteStopSchedule = z.infer<typeof RouteStopScheduleSchema>
 
@@ -246,7 +246,7 @@ export const GetStopSchedulesResponseSchema = z.object({
 export type IGetStopSchedulesResponse = z.infer<typeof GetStopSchedulesResponseSchema>
 
 export const GetStopEstimatesResponseSchema = z.object({
-    routeStopSchedules: z.array(z.any()),
+    routeStopSchedules: z.array(RouteStopScheduleSchema),
     date: z.string(),
     amenities: z.array(AmenitySchema)
 });

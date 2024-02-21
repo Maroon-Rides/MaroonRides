@@ -2,11 +2,14 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAuthentication, getBaseData, getNextDepartureTimes, getPatternPaths, getStopEstimates, getStopSchedules, getVehicles } from "aggie-spirit-api";
 import { darkMode, lightMode } from "app/theme";
 import { getColorScheme } from "app/utils";
-import { GetBaseDataResponseSchema, GetNextDepartTimesResponseSchema, GetPatternPathsResponseSchema, GetStopEstimatesResponseSchema, GetStopSchedulesResponseSchema, GetVehiclesResponseSchema, IGetBaseDataResponse, IGetPatternPathsResponse, IGetStopSchedulesResponse, IGetVehiclesResponse, IMapRoute, IMapServiceInterruption, IRouteDirectionTime, IVehicle } from "utils/interfaces";
+import moment from "moment";
+import { useEffect } from "react";
+import { Alert } from "react-native";
+import { GetBaseDataResponseSchema, GetNextDepartTimesResponseSchema, GetPatternPathsResponseSchema, GetStopEstimatesResponseSchema, GetStopSchedulesResponseSchema, GetVehiclesResponseSchema, IGetBaseDataResponse, IGetPatternPathsResponse, IGetStopEstimatesResponse, IGetStopSchedulesResponse, IGetVehiclesResponse, IMapRoute, IMapServiceInterruption, IRouteDirectionTime, IVehicle } from "utils/interfaces";
 
 
 export const useAuthToken = () => {
-    return useQuery({
+    const query = useQuery({
         queryKey: ["authToken"],
         queryFn: async () => {
             console.log("fetching auth token")
@@ -14,12 +17,20 @@ export const useAuthToken = () => {
         },
         staleTime: Infinity
     });
+
+    useEffect(() => {
+        if (query.error) {
+          Alert.alert("Error", "Something went wrong. Please try again later.");
+        }
+      }, [query.error])
+
+    return query;
 };
 
 export const useBaseData = () => {
     const client = useQueryClient();
 
-    return useQuery<IGetBaseDataResponse>({
+    const query = useQuery<IGetBaseDataResponse>({
         queryKey: ["baseData"],
         queryFn: async () => {
             console.log("fetching base data")
@@ -36,12 +47,20 @@ export const useBaseData = () => {
         enabled: useAuthToken().isSuccess,
         staleTime: Infinity
     });
+
+    useEffect(() => {
+        if (query.error) {
+            Alert.alert("Error", "Something went wrong. Please try again later.");
+        }
+    }, [query.error])
+
+    return query;
 };
 
 export const usePatternPaths = () => {
     const client = useQueryClient();
 
-    return useQuery<IGetPatternPathsResponse>({
+    const query = useQuery<IGetPatternPathsResponse>({
         queryKey: ["patternPaths"],
         queryFn: async () => {
             console.log("fetching pattern paths")
@@ -57,12 +76,20 @@ export const usePatternPaths = () => {
         enabled: useBaseData().isSuccess,
         staleTime: Infinity
     });
+
+    useEffect(() => {
+        if (query.error) {
+            Alert.alert("Error", "Something went wrong. Please try again later.");
+        }
+    }, [query.error])
+
+    return query
 };
 
 export const useRoutes = () => {
     const client = useQueryClient();
 
-    return useQuery<IMapRoute[]>({
+    const query = useQuery<IMapRoute[]>({
         queryKey: ["routes"],
         queryFn: async () => {
             console.log("fetching routes")
@@ -96,6 +123,14 @@ export const useRoutes = () => {
         enabled: usePatternPaths().isSuccess,
         staleTime: Infinity
     });
+
+    useEffect(() => {
+        if (query.error) {
+            Alert.alert("Error", "Something went wrong. Please try again later.");
+        }
+    }, [query.error])
+
+    return query;
 };
 
 export const useServiceInterruptions = () => {
@@ -123,6 +158,22 @@ export const useStopEstimate = (routeKey: string, directionKey: string, stopCode
             const response = await getNextDepartureTimes(routeKey, [directionKey], stopCode, authToken);
             GetNextDepartTimesResponseSchema.parse(response);
 
+            // dedup the stopTimes[].nextDeparts based on relative time
+            if (response.routeDirectionTimes[0]) {
+                const relatives = response.routeDirectionTimes[0].nextDeparts.map((item) => {
+                    const date = moment(item.estimatedDepartTimeUtc ?? item.scheduledDepartTimeUtc ?? "");
+                    const relative = date.diff(moment(), "minutes");
+
+                    return relative
+                })
+
+                const deduped = response.routeDirectionTimes[0].nextDeparts.filter((_, index) => {
+                    return relatives.indexOf(relatives[index] ?? 0) === index
+                })
+
+                response.routeDirectionTimes[0].nextDeparts = deduped;
+            }
+
             return response.routeDirectionTimes[0];
         },
         enabled: useAuthToken().isSuccess,
@@ -134,7 +185,7 @@ export const useStopEstimate = (routeKey: string, directionKey: string, stopCode
 export const useTimetableEstimate = (stopCode: string, date: Date) => {
     const client = useQueryClient();
 
-    return useQuery<IGetStopSchedulesResponse>({
+    return useQuery<IGetStopEstimatesResponse>({
         queryKey: ["timetableEstimate", stopCode, date],
         queryFn: async () => {
             const authToken: string = client.getQueryData(["authToken"])!;
@@ -157,7 +208,6 @@ export const useSchedule = (stopCode: string, date: Date) => {
         queryKey: ["schedule", stopCode, date],
         queryFn: async () => {
             console.log("fetching schedule")
-            console.log(stopCode, date)
             const authToken: string = client.getQueryData(["authToken"])!;
     
             const stopSchedulesResponse = await getStopSchedules(stopCode, date, authToken);

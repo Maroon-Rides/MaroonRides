@@ -6,7 +6,7 @@ import BusIcon from './BusIcon';
 import useAppStore from '../../stores/useAppStore';
 import moment from 'moment';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useTimetableEstimate } from 'app/stores/query';
+import { useTimetableEstimate } from 'app/stores/api_query';
 
 interface Props {
     item: IRouteStopSchedule
@@ -29,14 +29,11 @@ interface TableItemRow {
 }
 
 const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) => {
-
     const selectedTimetableDate = useAppStore((state) => state.selectedTimetableDate);
     const theme = useAppStore((state) => state.theme);
 
-    // const [estimate, setEstimate] = useState<RouteStopSchedule | null>(null);
     const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
     const { data: estimate, isLoading, isError } = useTimetableEstimate(stopCode, selectedTimetableDate || moment().toDate());
-    console.log("TIMETABLE!")
 
     useEffect(() => {
         const now = moment().toDate();
@@ -46,8 +43,11 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
         const sliceLength = 5;
 
         let processed = item.stopTimes.map((time) => {
-            const timeEstimateIndex = item?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId)
-            const timeEstimate = item?.stopTimes[timeEstimateIndex!];
+            const foundEstimate = estimate?.routeStopSchedules.find((schedule) => schedule.directionName === item.directionName && schedule.routeName === item.routeName);
+            
+            
+            const timeEstimateIndex = foundEstimate?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId)
+            const timeEstimate = foundEstimate?.stopTimes[timeEstimateIndex!];
 
             // have to check if it isnt undefined because if it is undefined, moment will default to current time
             const estimatedTime = timeEstimate && moment(timeEstimate?.estimatedDepartTimeUtc).isValid() ? moment(timeEstimate?.estimatedDepartTimeUtc) : null;
