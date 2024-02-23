@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { FlatList } from "react-native-gesture-handler";
-import { getStopSchedules } from "aggie-spirit-api";
 import { Ionicons } from "@expo/vector-icons";
-import useAppStore from "../../stores/useAppStore";
-import { GetStopSchedulesResponseSchema, IRouteStopSchedule, IStop } from "../../../utils/interfaces";
+import useAppStore from "../../data/app_state";
+import { IRouteStopSchedule, IStop } from "../../../utils/interfaces";
 import Timetable from "../ui/Timetable";
 import moment from "moment-strftime";
 import DateSelector from '../ui/DateSelector';
 import SheetHeader from "../ui/SheetHeader";
+import { useRoutes, useSchedule } from "app/data/api_query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -17,9 +17,6 @@ interface SheetProps {
 
 // Timtable with upcoming routes
 const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
-    const authToken = useAppStore((state) => state.authToken);
-    const routes = useAppStore((state) => state.routes);
-
     const selectedStop = useAppStore((state) => state.selectedStop);
     const setSelectedStop = useAppStore((state) => state.setSelectedStop);
 
@@ -35,8 +32,14 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     const [showNonRouteSchedules, setShowNonRouteSchedules] = useState<boolean>(false);
     const [nonRouteSchedules, setNonRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
     const [routeSchedules, setRouteSchedules] = useState<IRouteStopSchedule[] | null>(null);
-    const [error, setError] = useState(false);
     const theme = useAppStore((state) => state.theme);
+
+    const { data: routes } = useRoutes();
+    const { 
+        data: stopSchedule, 
+        isError: scheduleError, 
+        isLoading: scheduleLoading
+    } = useSchedule(selectedStop?.stopCode ?? "", selectedTimetableDate ?? moment().toDate());
 
     const dayDecrement = () => {
         // Decrease the date by one day
@@ -54,40 +57,27 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         setSelectedTimetableDate(nextDate);
     };
 
-    async function loadSchedule(newSelectedStop: IStop | null = null) {
+    useEffect(() => {
+        if (!stopSchedule) return;
 
-        if (!newSelectedStop || !authToken) return;
+        // find the schedules for the selected route
+        let routeStops = stopSchedule.routeStopSchedules.filter((schedule) => schedule.routeName === selectedRoute?.name && schedule.routeNumber === selectedRoute?.shortName)
 
-        try {
-            const stopSchedulesResponse = await getStopSchedules(newSelectedStop?.stopCode, selectedTimetableDate || moment().toDate(), authToken);
-            GetStopSchedulesResponseSchema.parse(stopSchedulesResponse);
+        // filter anything that is end of route
+        routeStops = routeStops.filter((schedule) => !schedule.isEndOfRoute);
+        setRouteSchedules(routeStops);
 
-            // find the schedules for the selected route
-            let routeStops = stopSchedulesResponse.routeStopSchedules.filter((schedule) => schedule.routeName === selectedRoute?.name && schedule.routeNumber === selectedRoute?.shortName)
+        // filter out non route schedules
+        let nonRouteStops = stopSchedule.routeStopSchedules.filter((schedule) => schedule.routeName !== selectedRoute?.name || schedule.routeNumber !== selectedRoute?.shortName)
 
-            // filter anything that is end of route
-            routeStops = routeStops.filter((schedule) => !schedule.isEndOfRoute);
-            setRouteSchedules(routeStops);
+        // filter anything that doesnt have stop times
+        nonRouteStops = nonRouteStops.filter((schedule) => schedule.stopTimes.length > 0);
+        setNonRouteSchedules(nonRouteStops)
 
-            // filter out non route schedules
-            let nonRouteStops = stopSchedulesResponse.routeStopSchedules.filter((schedule) => schedule.routeName !== selectedRoute?.name || schedule.routeNumber !== selectedRoute?.shortName)
-
-            // filter anything that doesnt have stop times
-            nonRouteStops = nonRouteStops.filter((schedule) => schedule.stopTimes.length > 0);
-            setNonRouteSchedules(nonRouteStops)
-
-        } catch (error) {
-            console.error(error);
-
-            setError(true);
-
-            // Make sure to return as if we don't the error state will be reset by the next line
-            return;
-        }
-    }
+    }, [stopSchedule]);
 
     function getLineColor(shortName: string) {
-        const route = routes.find((route) => route.shortName === shortName);
+        const route = routes?.find((route) => route.shortName === shortName);
         return route?.directionList[0]?.lineColor ?? "#500000";
     }
 
@@ -95,8 +85,9 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     useEffect(() => {
         if (!selectedStop) return;
 
+        if (!selectedTimetableDate) setSelectedTimetableDate(moment().toDate());
+
         setTempSelectedStop(selectedStop);
-        loadSchedule(selectedStop);
     }, [selectedStop, selectedTimetableDate])
 
     function closeModal() {
@@ -132,9 +123,9 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
             </BottomSheetView>
 
-            { error && <Text style={{ textAlign: 'center', marginTop: 10, color: theme.subtitle }}>Something went wrong. Please try again later</Text> }
+            { scheduleError && <Text style={{ textAlign: 'center', marginTop: 10, color: theme.subtitle }}>Something went wrong. Please try again later</Text> }
 
-            {!error && (
+            {!scheduleError && (
                 <BottomSheetScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 35, paddingTop: 4 }}>
                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 8}}>
                         <View style={{flex: 1}} />
@@ -147,7 +138,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                         <View style={{flex: 1}} />
                     </View>
 
-                    {!routeSchedules && !error && <ActivityIndicator style={{ marginBottom: 8 }} />}
+                    {scheduleLoading && <ActivityIndicator style={{ marginBottom: 8 }} />}
 
                     {routeSchedules && (
                         <FlatList
@@ -177,7 +168,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                                     return <Timetable 
                                         item={item} 
                                         dismissBack={() => {
-                                            const route = routes.find((route) => route.shortName === item.routeNumber);
+                                            const route = routes!.find((route) => route.shortName === item.routeNumber);
                                             
                                             if (route) {
                                                 closeModal()

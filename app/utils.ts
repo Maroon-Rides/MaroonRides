@@ -1,3 +1,6 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Appearance } from "react-native";
+
 // given a hex code without the #, return a lighter version of it
 export function getLighterColor(color: string): string {
     // remove the # from the beginning of the color
@@ -21,4 +24,18 @@ export function getLighterColor(color: string): string {
     );
 
     return "#" + lightenedColor;
+}
+
+export async function getColorScheme(): Promise<string> {
+    const colorScheme = Appearance.getColorScheme();
+    const themeIndex = await AsyncStorage.getItem('app-theme')
+
+    switch (themeIndex) {
+        case "1":
+            return "light"
+        case "2":
+            return "dark"
+        default:
+            return colorScheme == "dark" ? "dark" : "light"
+    }    
 }

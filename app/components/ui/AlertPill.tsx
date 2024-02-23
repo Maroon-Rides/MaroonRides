@@ -3,9 +3,9 @@
 import React, { memo, useEffect, useState } from 'react'
 import { TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons} from '@expo/vector-icons';
-
 import IconPill from './IconPill'
-import useAppStore from '../../stores/useAppStore';
+import useAppStore from '../../data/app_state';
+import { useRoutes, useServiceInterruptions } from 'app/data/api_query';
 
 interface Props {
     routeId?: string
@@ -13,13 +13,16 @@ interface Props {
 
 const AlertPill: React.FC<Props> = ({ routeId }) => {
     const presentSheet = useAppStore((state) => state.presentSheet);
-    const alerts = useAppStore((state) => state.mapServiceInterruption);
-    const routes = useAppStore((state) => state.routes);
     const theme = useAppStore((state) => state.theme);
     const [alertIcon, setAlertIcon] = useState<"bell-badge" | "bell-outline">("bell-outline");
 
+    const { data: alerts } = useServiceInterruptions();
+    const { data: routes } = useRoutes();
+
     // Update the alert icon when the alerts change
     useEffect(() => {
+        if (!alerts) return
+
         if (!routeId) {
             if (alerts.length > 0) {
                 setAlertIcon("bell-badge");
@@ -29,9 +32,8 @@ const AlertPill: React.FC<Props> = ({ routeId }) => {
             return;
         }
 
-
         // find the route that matches the routeId
-        const route = routes.find((route) => route.key === routeId);
+        const route = routes?.find((route) => route.key === routeId);
         let activeAlerts = false;
 
         if (route) {

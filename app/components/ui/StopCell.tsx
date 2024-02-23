@@ -1,43 +1,42 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, AppState } from 'react-native';
+import React, { useState, useEffect } from "react";
+import { View, Text, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { GetNextDepartTimesResponseSchema, IAmenity, IRouteDirectionTime, IStop } from "../../../utils/interfaces";
+import { IDirection, IMapRoute, IStop } from "../../../utils/interfaces";
 import TimeBubble from "./TimeBubble";
-import useAppStore from "../../stores/useAppStore";
+import useAppStore from "../../data/app_state";
 import AmenityRow from "./AmenityRow";
 import moment from "moment";
-import { getNextDepartureTimes } from "aggie-spirit-api";
+import { useStopEstimate } from "app/data/api_query";
 
 interface Props {
     stop: IStop
-    directionTimes: IRouteDirectionTime
+    route: IMapRoute
+    direction: IDirection
     color: string
     disabled: boolean
-    amenities: IAmenity[],
     setSheetPos: (pos: number) => void
 }
 
-const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amenities, setSheetPos }) => {
-    const authToken = useAppStore(state => state.authToken);
-    const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
-
+const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, setSheetPos }) => {
     const [status, setStatus] = useState('On Time');
+
     const presentSheet = useAppStore((state) => state.presentSheet);
     const setSelectedStop = useAppStore((state) => state.setSelectedStop);
-    const selectedRoute = useAppStore((state) => state.selectedRoute);
     const zoomToStopLatLng = useAppStore((state) => state.zoomToStopLatLng);
     const setPoppedUpStopCallout = useAppStore((state) => state.setPoppedUpStopCallout);
+    const selectedRoute = useAppStore((state) => state.selectedRoute);
     const theme = useAppStore((state) => state.theme);
 
-    const stopEstimates = useAppStore((state) => state.stopEstimates);
-    const updateStopEstimate = useAppStore(state => state.updateStopEstimate);
-
-    const [error, setError] = useState(false);
+    const { data: stopEstimate, isLoading, isError } = useStopEstimate(route.key, direction.key, stop.stopCode);
 
     useEffect(() => {
+        if (!stopEstimate) return
+
+        const estimate = stopEstimate.routeDirectionTimes[0]!;
+
         let totalDeviation = 0;
 
-        for (const departTime of directionTimes.nextDeparts) {
+        for (const departTime of estimate.nextDeparts) {
             const estimatedTime = moment(departTime.estimatedDepartTimeUtc ?? "");
             const scheduledTime = moment(departTime.scheduledDepartTimeUtc ?? "");
 
@@ -48,12 +47,12 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
             }
         }
 
-        const avgDeviation = totalDeviation / directionTimes.nextDeparts.length / (60);
+        const avgDeviation = totalDeviation / estimate.nextDeparts.length / (60);
         const roundedDeviation = Math.round(avgDeviation);
 
-        if (directionTimes.directionKey === "") {
+        if (estimate.directionKey === "") {
             setStatus('Loading');
-        } else if (directionTimes.nextDeparts.length === 0) {
+        } else if (estimate.nextDeparts.length === 0) {
             setStatus("No times to show");
         } else if (roundedDeviation > 0) {
             setStatus(`${roundedDeviation} ${roundedDeviation > 1 ? "minutes" : "minute"} late`);
@@ -62,7 +61,7 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
         } else {
             setStatus('On Time');
         }
-    }, [directionTimes, stopEstimates]);
+    }, [stopEstimate]);
 
     // when cell is tapped, open the stop timetable
     function toTimetable() {
@@ -82,85 +81,32 @@ const StopCell: React.FC<Props> = ({ stop, directionTimes, color, disabled, amen
         })
     }
 
-    // Refresh the eta every minute
-    const setupInterval = () => {
-        intervalIdRef.current = setInterval(async () => {
-            // Your interval logic here
-            if (!selectedRoute || !authToken) return;
-
-            try {
-                const directionKeys = selectedRoute?.patternPaths.map(direction => direction.directionKey);
-
-                const response = await getNextDepartureTimes(selectedRoute?.key, directionKeys, stop.stopCode, authToken);
-
-                GetNextDepartTimesResponseSchema.parse(response);
-
-                updateStopEstimate(response, response.stopCode);
-            } catch (error) {
-                console.error(error);
-
-                setError(true);
-
-                return;
-
-            }
-
-            setError(false);
-        }, 30000);
-    };
-
-    useEffect(() => {
-        // Set up the interval on mount
-        setupInterval();
-
-        const handleAppStateChange = (nextAppState: string) => {
-            if (nextAppState === 'background') {
-                // App is in the background, clear the interval
-                if (intervalIdRef.current !== null) {
-                    clearInterval(intervalIdRef.current);
-                }
-            } else if (nextAppState === 'active') {
-                // App is in the foreground, start or restart the interval
-                setupInterval();
-            }
-        };
-
-        // Subscribe to app state changes
-        const appStateListener = AppState.addEventListener('change', handleAppStateChange);
-
-        // Clear the interval when the component unmounts
-        return () => {
-            if (intervalIdRef.current !== null) {
-                clearInterval(intervalIdRef.current);
-            }
-            appStateListener.remove(); // Remove the event listener
-        };
-    }, []);
-
     return (
         <TouchableOpacity style={{ marginTop: 8 }} onPress={zoomToStop}>
             <View style={{ flexDirection: "row", alignContent: "flex-start" }}>
                 <Text style={{ fontSize: 22, fontWeight: "bold", width: "75%", color: theme.text }}>{stop.name}</Text>
                 <View style={{ flex: 1 }} />
-                <AmenityRow amenities={amenities} size={24} color={theme.subtitle} style={{ paddingRight: 16, alignSelf: "flex-start" }} />
+                <AmenityRow amenities={stopEstimate?.amenities ?? []} size={24} color={theme.subtitle} style={{ paddingRight: 16, alignSelf: "flex-start" }} />
             </View>
 
-            {error ? (
-                <Text style={{ color: theme.subtitle }}>Something went wrong. Please try again later</Text>
-            ) : status === "Loading" ? (
+            { isLoading ? (
                 <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 2 }}>
                     <ActivityIndicator style={{ justifyContent: "flex-start" }} />
                     <View style={{ flex: 1 }} />
                 </View>
             ) : (
-                <Text style={{ marginBottom: 12, marginTop: 4, color: theme.subtitle }}>{status}</Text>
+                <Text style={{ marginBottom: 12, marginTop: 4, color: theme.subtitle }}>
+                    { isError
+                        ? "Something went wrong. Please try again later."
+                        : status
+                    }</Text>
             )}
 
             <View style={{ flexDirection: "row", alignItems: "center", marginRight: 8, marginBottom: 8, marginTop: -4 }}>
                 <FlatList
                     horizontal
                     scrollEnabled={false}
-                    data={directionTimes.nextDeparts}
+                    data={stopEstimate?.routeDirectionTimes[0]?.nextDeparts ?? []}
                     keyExtractor={(_, index) => index.toString()}
                     renderItem={({ item: departureTime, index }) => {
                         const date = moment(departureTime.estimatedDepartTimeUtc ?? departureTime.scheduledDepartTimeUtc ?? "");

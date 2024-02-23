@@ -1,4 +1,4 @@
-import useAppStore from '../../stores/useAppStore';
+import useAppStore from '../../data/app_state';
 import React, { memo } from 'react'
 import { View, Text } from 'react-native'
 

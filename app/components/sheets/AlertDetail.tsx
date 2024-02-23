@@ -1,15 +1,14 @@
 import { BottomSheetModal, BottomSheetScrollView, BottomSheetView} from "@gorhom/bottom-sheet";
 import { View, TouchableOpacity, useWindowDimensions} from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import useAppStore from "../../stores/useAppStore";
+import useAppStore from "../../data/app_state";
 import SheetHeader from "../ui/SheetHeader";
 import RenderHtml from 'react-native-render-html';
 
 
 const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = ({ sheetRef }) => {
   const snapPoints = ['25%', '45%', '85%'];
-  const alert = useAppStore((state) => state.alertDetail);
-
+  const alert = useAppStore((state) => state.selectedAlert);
   const theme = useAppStore((state) => state.theme);
   
   const tagStyles = { 
