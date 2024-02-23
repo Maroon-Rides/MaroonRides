@@ -89,7 +89,6 @@ export const useRoutes = () => {
     const query = useQuery<IMapRoute[]>({
         queryKey: ["routes"],
         queryFn: async () => {
-            console.log("fetching routes")
             const baseData = client.getQueryData(["baseData"]) as IGetBaseDataResponse;
             const patternPaths = client.getQueryData(["patternPaths"]) as IGetPatternPathsResponse;
 

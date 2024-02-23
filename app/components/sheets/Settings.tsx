@@ -5,8 +5,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import SheetHeader from "../ui/SheetHeader";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import useAppStore from "../../stores/useAppStore";
-import { defaultGroupMutation, useDefaultRouteGroup } from "app/stores/storage_query";
+import useAppStore from "../../data/app_state";
+import { defaultGroupMutation, useDefaultRouteGroup } from "app/data/storage_query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>

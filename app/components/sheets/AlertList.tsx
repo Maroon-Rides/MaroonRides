@@ -3,10 +3,10 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import useAppStore from "../../stores/useAppStore";
+import useAppStore from "../../data/app_state";
 import SheetHeader from "../ui/SheetHeader";
 import { IMapServiceInterruption } from "utils/interfaces";
-import { useServiceInterruptions } from "app/stores/api_query";
+import { useServiceInterruptions } from "app/data/api_query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>

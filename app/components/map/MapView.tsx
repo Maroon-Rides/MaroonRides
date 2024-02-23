@@ -4,11 +4,11 @@ import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { IMapRoute } from "../../../utils/interfaces";
-import useAppStore from "../../stores/useAppStore";
+import useAppStore from "../../data/app_state";
 import BusMarker from "./markers/BusMarker";
 import StopMarker from "./markers/StopMarker";
 import { getLighterColor } from "../../utils";
-import { useVehicles } from "app/stores/api_query";
+import { useVehicles } from "../../data/api_query";
 
 const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);

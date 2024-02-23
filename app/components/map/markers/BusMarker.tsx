@@ -5,7 +5,7 @@ import BusCallout from '../BusCallout';
 import { getLighterColor } from '../../../utils';
 import { IVehicle } from 'utils/interfaces';
 
-import useAppStore from '../../../stores/useAppStore';
+import useAppStore from '../../../data/app_state';
 
 interface Props {
     bus: IVehicle,

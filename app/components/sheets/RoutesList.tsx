@@ -5,13 +5,13 @@ import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 
 import { IDirectionList, IMapRoute } from "../../../utils/interfaces";
-import useAppStore from "../../stores/useAppStore";
+import useAppStore from "../../data/app_state";
 import BusIcon from "../ui/BusIcon";
 import SheetHeader from "../ui/SheetHeader";
 import AlertPill from "../ui/AlertPill";
 import IconPill from "../ui/IconPill";
-import { useRoutes } from "app/stores/api_query";
-import { useDefaultRouteGroup, useFavorites } from "app/stores/storage_query";
+import { useRoutes } from "app/data/api_query";
+import { useDefaultRouteGroup, useFavorites } from "app/data/storage_query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>

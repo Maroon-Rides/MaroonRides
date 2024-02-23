@@ -3,10 +3,10 @@ import { ActivityIndicator, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { IRouteStopSchedule } from '../../../utils/interfaces';
 import BusIcon from './BusIcon';
-import useAppStore from '../../stores/useAppStore';
+import useAppStore from '../../data/app_state';
 import moment from 'moment';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useTimetableEstimate } from 'app/stores/api_query';
+import { useTimetableEstimate } from 'app/data/api_query';
 
 interface Props {
     item: IRouteStopSchedule

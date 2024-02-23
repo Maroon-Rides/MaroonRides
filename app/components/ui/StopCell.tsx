@@ -3,10 +3,10 @@ import { View, Text, ActivityIndicator, FlatList, TouchableOpacity } from 'react
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { IDirection, IMapRoute, IStop } from "../../../utils/interfaces";
 import TimeBubble from "./TimeBubble";
-import useAppStore from "../../stores/useAppStore";
+import useAppStore from "../../data/app_state";
 import AmenityRow from "./AmenityRow";
 import moment from "moment";
-import { useStopEstimate } from "app/stores/api_query";
+import { useStopEstimate } from "app/data/api_query";
 
 interface Props {
     stop: IStop

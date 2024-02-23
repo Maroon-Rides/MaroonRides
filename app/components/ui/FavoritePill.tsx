@@ -2,8 +2,8 @@ import React, { memo } from 'react'
 import {  TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import IconPill from './IconPill'
-import useAppStore from '../../stores/useAppStore';
-import { addFavoriteMutation, removeFavoriteMutation, useFavorite } from 'app/stores/storage_query';
+import useAppStore from '../../data/app_state';
+import { addFavoriteMutation, removeFavoriteMutation, useFavorite } from 'app/data/storage_query';
 
 interface Props {
     routeShortName: string

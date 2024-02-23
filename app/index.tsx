@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { View, Appearance } from 'react-native';
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import useAppStore from './stores/useAppStore';
+import useAppStore from './data/app_state';
 import MapView from './components/map/MapView';
 import RoutesList from './components/sheets/RoutesList';
 import AlertList from './components/sheets/AlertList';

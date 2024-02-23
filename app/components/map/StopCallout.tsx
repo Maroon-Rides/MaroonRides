@@ -4,7 +4,7 @@ import { Callout } from 'react-native-maps'
 import BusIcon from '../ui/BusIcon'
 import { IDirection, IMapRoute, IStop } from '../../../utils/interfaces'
 import AmenityRow from "../ui/AmenityRow";
-import { useStopEstimate } from 'app/stores/api_query'
+import { useStopEstimate } from 'app/data/api_query'
 
 interface Props {
     stop: IStop

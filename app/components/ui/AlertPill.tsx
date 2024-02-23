@@ -4,8 +4,8 @@ import React, { memo, useEffect, useState } from 'react'
 import { TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons} from '@expo/vector-icons';
 import IconPill from './IconPill'
-import useAppStore from '../../stores/useAppStore';
-import { useRoutes, useServiceInterruptions } from 'app/stores/api_query';
+import useAppStore from '../../data/app_state';
+import { useRoutes, useServiceInterruptions } from 'app/data/api_query';
 
 interface Props {
     routeId?: string

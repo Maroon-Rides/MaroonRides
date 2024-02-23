@@ -4,13 +4,13 @@ import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
 import { IMapRoute, IPatternPath, IStop } from "../../../utils/interfaces";
-import useAppStore from "../../stores/useAppStore";
+import useAppStore from "../../data/app_state";
 import StopCell from "../ui/StopCell";
 import BusIcon from "../ui/BusIcon";
 import FavoritePill from "../ui/FavoritePill";
 import AlertPill from "../ui/AlertPill";
 import { useQueryClient } from "@tanstack/react-query";
-import { useStopEstimate } from "app/stores/api_query";
+import { useStopEstimate } from "app/data/api_query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>

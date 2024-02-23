@@ -3,13 +3,13 @@ import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { FlatList } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
-import useAppStore from "../../stores/useAppStore";
+import useAppStore from "../../data/app_state";
 import { IRouteStopSchedule, IStop } from "../../../utils/interfaces";
 import Timetable from "../ui/Timetable";
 import moment from "moment-strftime";
 import DateSelector from '../ui/DateSelector';
 import SheetHeader from "../ui/SheetHeader";
-import { useRoutes, useSchedule } from "app/stores/api_query";
+import { useRoutes, useSchedule } from "app/data/api_query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
