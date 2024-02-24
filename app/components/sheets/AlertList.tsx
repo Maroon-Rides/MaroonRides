@@ -23,7 +23,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
     const setSelectedAlert = useAppStore((state) => state.setSelectedAlert);
     const [shownAlerts, setShownAlerts] = useState<IMapServiceInterruption[]>([]);
 
-    const { data: alerts } = useServiceInterruptions()
+    const { data: alerts, isError } = useServiceInterruptions()
 
     // If no route is selected, we're looking at all routes, therefore show all alerts
     // If a route is selected, only show the alerts for that route
@@ -70,11 +70,16 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
 
                 <View style={{ height: 1, backgroundColor: theme.divider, marginTop: 8 }} />
 
-                {shownAlerts.length === 0 &&
+                {isError ?
+                    <View style={{ alignItems: 'center', paddingTop: 16 }}>
+                        <Text style={{color: theme.subtitle}}>Error loading alerts. Please try again later.</Text>
+                    </View>
+                : (shownAlerts.length === 0 &&
                     <View style={{ alignItems: 'center', paddingTop: 16 }}>
                         <Text style={{color: theme.subtitle }}>There are no active alerts at this time.</Text>
-                    </View>
+                    </View>)
                 }
+
             </BottomSheetView>
 
 

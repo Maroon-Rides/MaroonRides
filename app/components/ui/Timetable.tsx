@@ -33,7 +33,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
     const theme = useAppStore((state) => state.theme);
 
     const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
-    const { data: estimate, isLoading, isError } = useTimetableEstimate(stopCode, selectedTimetableDate || moment().toDate());
+    const { data: estimate, isLoading } = useTimetableEstimate(stopCode, selectedTimetableDate || moment().toDate());
 
     useEffect(() => {
         const now = moment().toDate();
@@ -114,10 +114,6 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
 
         setTableRows(stopRows);
     }, [estimate, selectedTimetableDate])
-
-    if (isError) {
-        return <Text style={{ textAlign: 'center', marginTop: 10, color: theme.subtitle }}>Something went wrong. Please try again later</Text>
-    }
 
     return (
         <View style={{ marginLeft: 16, paddingTop: 8 }}>

@@ -1,7 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { Alert } from "react-native";
 import { IMapRoute } from "utils/interfaces";
 import { useRoutes } from "./api_query";
 
@@ -54,12 +52,6 @@ export const useFavorites = (allowUpdate: boolean = true) => {
         enabled: useRoutes().isSuccess && allowUpdate
     });
 
-    useEffect(() => {
-        if (query.error) {
-          Alert.alert("Error", "Something went wrong. Please try again later.");
-        }
-      }, [query.error])
-
     return query;
 }
 
@@ -76,12 +68,6 @@ export const useFavorite = (routeShortName: string) => {
         },
         staleTime: Infinity
     });
-
-    useEffect(() => {
-        if (query.error) {
-          Alert.alert("Error", "Something went wrong. Please try again later.");
-        }
-      }, [query.error])
 
     return query;
 }
@@ -144,12 +130,6 @@ export const useDefaultRouteGroup = (allowUpdate: boolean = true) => {
         staleTime: Infinity,
         enabled: allowUpdate
     });
-
-    useEffect(() => {
-        if (query.error) {
-          Alert.alert("Error", "Something went wrong. Please try again later.");
-        }
-      }, [query.error])
 
     return query;
 }
