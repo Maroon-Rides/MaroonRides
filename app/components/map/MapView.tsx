@@ -33,9 +33,9 @@ const Map: React.FC = () => {
         longitudeDelta: 0.01
     };
 
-    function selectRoute(route: IMapRoute) {
+    function selectRoute(route: IMapRoute, directionKey: string) {
         if (selectedRoute?.key === route.key) return;
-
+        console.log(directionKey)
         setSelectedRoute(route);
         setDrawnRoutes([route]);
         presentSheet("routeDetails");
@@ -168,7 +168,7 @@ const Map: React.FC = () => {
                                     strokeColor={active ? lineColor : lineColor + "60"}
                                     strokeWidth={5}
                                     tappable={true}
-                                    onPress={() => selectRoute(drawnRoute)}
+                                    onPress={() => selectRoute(drawnRoute, directionId)}
                                 />
                             )
                         })
