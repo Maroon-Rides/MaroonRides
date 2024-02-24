@@ -93,9 +93,8 @@ export const addFavoriteMutation = () => {
         mutationKey: ["addFavorite"],
         mutationFn: async (routeShortName: string) => {
             const favorites = await AsyncStorage.getItem('favorites')
-            if (!favorites) return;
 
-            var favoritesArray = JSON.parse(favorites);
+            var favoritesArray = JSON.parse(favorites ?? "[]");
 
             favoritesArray.push(routeShortName);
 
@@ -117,9 +116,8 @@ export const removeFavoriteMutation = () => {
         mutationKey: ["removeFavorite"],
         mutationFn: async (routeShortName: string) => {
             const favorites = await AsyncStorage.getItem('favorites')
-            if (!favorites) return;
 
-            var favoritesArray = JSON.parse(favorites);
+            var favoritesArray = JSON.parse(favorites ?? "[]");
 
             const newFavorites = favoritesArray.filter((fav: string) => fav !== routeShortName);
 
