@@ -10,6 +10,7 @@ import StopMarker from "./markers/StopMarker";
 import { getLighterColor } from "../../utils";
 import { useVehicles } from "../../data/api_query";
 
+
 const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
 
