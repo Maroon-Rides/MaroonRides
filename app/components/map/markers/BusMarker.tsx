@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 import { Marker } from 'react-native-maps';
 import BusMapIcon from '../BusMapIcon';
 import BusCallout from '../BusCallout';
-import { getLighterColor } from '../../../utils';
 import { IVehicle } from 'utils/interfaces';
 
 import useAppStore from '../../../data/app_state';
@@ -17,11 +16,6 @@ interface Props {
 const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
     const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
 
-    const busColor = selectedRouteDirection === bus.directionKey ? tintColor : tintColor+"70";
-    const borderColor = selectedRouteDirection === bus.directionKey ? getLighterColor(tintColor) : undefined;
-    const iconColor = selectedRouteDirection === bus.directionKey ? "white" : "#ffffffcc";
-
-    
     return (
         <Marker
             key={bus.key}
@@ -32,7 +26,12 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             style={{ zIndex: 100, elevation: 100 }}
         >
             {/* Bus Icon on Map*/}
-            <BusMapIcon color={busColor} borderColor={borderColor} heading={bus.location.heading} iconColor={iconColor} />
+            <BusMapIcon 
+                tintColor={tintColor}
+                heading={bus.location.heading} 
+                active={selectedRouteDirection === bus.directionKey} 
+            />
+
             <BusCallout 
                 directionName={bus.directionName} 
                 fullPercentage={Math.round((bus.passengersOnboard / bus.passengerCapacity)*100)}
