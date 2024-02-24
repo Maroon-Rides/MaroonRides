@@ -7,7 +7,6 @@ import { IMapRoute } from "../../../utils/interfaces";
 import useAppStore from "../../data/app_state";
 import BusMarker from "./markers/BusMarker";
 import StopMarker from "./markers/StopMarker";
-import { getLighterColor } from "../../utils";
 import { useVehicles } from "../../data/api_query";
 
 const Map: React.FC = () => {
@@ -160,13 +159,13 @@ const Map: React.FC = () => {
                     
                     return (
                         Object.keys(coordDirections).map((directionId) => {
+                            const active = directionId === selectedRouteDirection || selectedRouteDirection == null
 
-                            const directionColor = directionId === selectedRouteDirection || selectedRouteDirection == null ? lineColor : lineColor + "60";
                             return (
                                 <Polyline
                                     key={`${directionId}`}
                                     coordinates={coordDirections[directionId] ?? []}
-                                    strokeColor={directionColor}
+                                    strokeColor={active ? lineColor : lineColor + "60"}
                                     strokeWidth={5}
                                     tappable={true}
                                     onPress={() => selectRoute(drawnRoute)}
@@ -182,21 +181,12 @@ const Map: React.FC = () => {
                         const stop = patternPoint.stop
 
                         if (stop) {
-                            let fillColor = selectedRoute?.directionList[0]?.lineColor ?? "#FFFF";
-                            let stopBorderColor = getLighterColor(fillColor)
-
-                            if (patternPath.directionKey !== selectedRouteDirection) {
-                                stopBorderColor = fillColor + "60";
-                                fillColor = fillColor + "60";
-                            }
-
                             return (
                                 <StopMarker
                                     key={`${stop.stopCode}-${index1}-${index2}`}
                                     point={patternPoint}
                                     tintColor={selectedRoute?.directionList[0]?.lineColor ?? "#FFFF"}
-                                    fillColor={fillColor}
-                                    borderColor={stopBorderColor}
+                                    active={patternPath.directionKey === selectedRouteDirection}
                                     route={selectedRoute}
                                     direction={selectedRoute?.directionList[0]!.direction}
                                     isCalloutShown={poppedUpStopCallout?.stopCode === stop.stopCode}
