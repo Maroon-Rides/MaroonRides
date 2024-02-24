@@ -8,13 +8,13 @@ import { useRoutes } from "./api_query";
 export const useFavorites = (allowUpdate: boolean = true) => {
     const client = useQueryClient();
 
-    const query = useQuery({
+    const query = useQuery<IMapRoute[]>({
         queryKey: ["favorites"],
         queryFn: async () => {
             const routes = client.getQueryData(["routes"]) as IMapRoute[];
 
-            const favorites = await AsyncStorage.getItem('favorites')
-            if (!favorites) return;
+            const favorites = await AsyncStorage.getItem("favorites")
+            if (!favorites) return [] as IMapRoute[];
 
             var favoritesArray = JSON.parse(favorites);
 
@@ -41,7 +41,7 @@ export const useFavorites = (allowUpdate: boolean = true) => {
                 favoritesArray = favoritesArray.filter((el: string | undefined) => el !== null);
 
                 // deduplicate the array
-                favoritesArray = [...new Set(favoritesArray)];
+                favoritesArray = Array.from(new Set(favoritesArray));
 
                 // save the converted favorites to AsyncStorage
                 AsyncStorage.setItem('favorites', JSON.stringify(favoritesArray));
@@ -67,8 +67,8 @@ export const useFavorite = (routeShortName: string) => {
     const query = useQuery({
         queryKey: ["favorite", routeShortName],
         queryFn: async () => {
-            const favorites = await AsyncStorage.getItem('favorites')
-            if (!favorites) return;
+            const favorites = await AsyncStorage.getItem("favorites")
+            if (!favorites) return false;
 
             var favoritesArray = JSON.parse(favorites);
 
