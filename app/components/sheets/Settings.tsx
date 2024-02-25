@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Alert, NativeSyntheticEvent } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -33,6 +33,14 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
         // show alert to restart app
         Alert.alert("Restart App", "Please restart the app to see the changes.");
     }
+
+    useEffect(() => {
+        AsyncStorage.getItem('app-theme').then((value) => {
+            if (value) {
+                setTheme(Number(value));
+            }
+        })
+    }, [])
 
     return (
         <BottomSheetModal 
