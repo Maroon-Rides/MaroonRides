@@ -30,7 +30,9 @@ const BusMapIcon: React.FC<Props> = ({ heading, tintColor, active }) => {
       backgroundColor: active ? tintColor : tintColor + "70",
       borderColor: borderColor,
       borderWidth: borderColor ? 2 : 0,
-      transform: getRotationProp(heading)
+      transform: getRotationProp(heading),
+      zIndex: active ? 800 : 500,
+      elevation: active ? 800 : 500
     }}>
       <MaterialCommunityIcons name="bus" size={18} color={active ? "white" : "#ffffffcc"} style={{transform: getRotationProp(-heading-90)}} />
     </View>

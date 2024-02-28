@@ -133,7 +133,7 @@ const Map: React.FC = () => {
         <>
             <MapView
                 showsUserLocation={true}
-                style={{ width: "100%", height: "100%" }}
+                style={{ width: "100%", height: "100%", zIndex: 100, elevation: 100 }}
                 ref={mapViewRef} rotateEnabled={false}
                 initialRegion={defaultMapRegion}
                 onPanDrag={() => setIsViewCenteredOnUser(false)}
@@ -168,7 +168,9 @@ const Map: React.FC = () => {
                                     strokeColor={active ? lineColor : lineColor + "60"}
                                     strokeWidth={5}
                                     tappable={true}
-                                    onPress={() => selectRoute(drawnRoute, directionId)}
+                                    onPress={() => selectRoute(drawnRoute)}
+                                    style={{ zIndex: active ? 600 : 300,
+                                             elevation: active ? 600 : 300 }}
                                 />
                             )
                         })
@@ -222,7 +224,7 @@ const Map: React.FC = () => {
                     overflow: 'hidden', 
                     borderRadius: 8, 
                     backgroundColor: theme.background, 
-                    padding: 12 
+                    padding: 12, 
                 }} 
                 onPress={() => recenterView()}
             >
