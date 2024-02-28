@@ -141,7 +141,7 @@ const Map: React.FC = () => {
                 // userInterfaceStyle={colorScheme == "dark" ? "dark" : "light"}
             >
                 {/* Route Polylines */}
-                {drawnRoutes.map(function (drawnRoute) {
+                {drawnRoutes.map((drawnRoute) => {
                     const coordDirections: { [directionId: string]: LatLng[]; } = {};
 
                     drawnRoute.patternPaths.forEach((path) => {
@@ -168,7 +168,7 @@ const Map: React.FC = () => {
                                     strokeColor={active ? lineColor : lineColor + "60"}
                                     strokeWidth={5}
                                     tappable={true}
-                                    onPress={() => selectRoute(drawnRoute)}
+                                    onPress={() => selectRoute(drawnRoute, directionId)}
                                     style={{ zIndex: active ? 600 : 300,
                                              elevation: active ? 600 : 300 }}
                                 />
