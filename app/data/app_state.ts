@@ -23,8 +23,8 @@ interface AppState {
     setSelectedStop: (selectedStop: IStop | null) => void,
     
     // TODO: Switch to Provider Functions
-    presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail") => void
-    setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail") => void) => void
+    presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute") => void
+    setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute") => void) => void
 
     selectedAlert: IMapServiceInterruption | null,
     setSelectedAlert: (selectedAlert: IMapServiceInterruption | null) => void
