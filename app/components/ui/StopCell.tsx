@@ -97,7 +97,7 @@ const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, se
             ) : (
                 <Text style={{ marginBottom: 12, marginTop: 4, color: theme.subtitle }}>
                     { isError
-                        ? "Something went wrong. Please try again later."
+                        ? "Unable to load estimates. Please try again later."
                         : status
                     }</Text>
             )}

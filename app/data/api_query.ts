@@ -3,8 +3,6 @@ import { getAuthentication, getBaseData, getNextDepartureTimes, getPatternPaths,
 import { darkMode, lightMode } from "app/theme";
 import { getColorScheme } from "app/utils";
 import moment from "moment";
-import { useEffect } from "react";
-import { Alert } from "react-native";
 import { GetBaseDataResponseSchema, GetNextDepartTimesResponseSchema, GetPatternPathsResponseSchema, GetStopEstimatesResponseSchema, GetStopSchedulesResponseSchema, GetVehiclesResponseSchema, IGetBaseDataResponse, IGetNextDepartTimesResponse, IGetPatternPathsResponse, IGetStopEstimatesResponse, IGetStopSchedulesResponse, IGetVehiclesResponse, IMapRoute, IMapServiceInterruption, IVehicle } from "utils/interfaces";
 
 
@@ -16,12 +14,6 @@ export const useAuthToken = () => {
         },
         staleTime: Infinity
     });
-
-    useEffect(() => {
-        if (query.error) {
-          Alert.alert("Error", "Something went wrong. Please try again later.");
-        }
-      }, [query.error])
 
     return query;
 };
@@ -43,14 +35,8 @@ export const useBaseData = () => {
             return baseData;
         },
         enabled: useAuthToken().isSuccess,
-        staleTime: Infinity
+        staleTime: Infinity,
     });
-
-    useEffect(() => {
-        if (query.error) {
-            Alert.alert("Error", "Something went wrong. Please try again later.");
-        }
-    }, [query.error])
 
     return query;
 };
@@ -73,12 +59,6 @@ export const usePatternPaths = () => {
         enabled: useBaseData().isSuccess,
         staleTime: Infinity
     });
-
-    useEffect(() => {
-        if (query.error) {
-            Alert.alert("Error", "Something went wrong. Please try again later.");
-        }
-    }, [query.error])
 
     return query
 };
@@ -119,12 +99,6 @@ export const useRoutes = () => {
         enabled: usePatternPaths().isSuccess,
         staleTime: Infinity
     });
-
-    useEffect(() => {
-        if (query.error) {
-            Alert.alert("Error", "Something went wrong. Please try again later.");
-        }
-    }, [query.error])
 
     return query;
 };
@@ -182,7 +156,7 @@ export const useTimetableEstimate = (stopCode: string, date: Date) => {
     const client = useQueryClient();
 
     return useQuery<IGetStopEstimatesResponse>({
-        queryKey: ["timetableEstimate", stopCode, date],
+        queryKey: ["timetableEstimate", stopCode, moment(date).format("YYYY-MM-DD")],
         queryFn: async () => {
             const authToken: string = client.getQueryData(["authToken"])!;
     

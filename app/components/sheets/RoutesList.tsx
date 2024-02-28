@@ -10,7 +10,7 @@ import BusIcon from "../ui/BusIcon";
 import SheetHeader from "../ui/SheetHeader";
 import AlertPill from "../ui/AlertPill";
 import IconPill from "../ui/IconPill";
-import { useRoutes } from "app/data/api_query";
+import { useAuthToken, useBaseData, usePatternPaths, useRoutes } from "app/data/api_query";
 import { useDefaultRouteGroup, useFavorites } from "app/data/storage_query";
 
 interface SheetProps {
@@ -28,9 +28,12 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const [shouldUpdateData, setShouldUpdateData] = useState(false);
 
+
     const { data: routes, isLoading: isRoutesLoading } = useRoutes();
-    const { data: favorites, isLoading: isFavoritesLoading } = useFavorites(shouldUpdateData);
+    const { data: favorites, isLoading: isFavoritesLoading, isError: isFavoritesError } = useFavorites(shouldUpdateData);
     const { data: defaultGroup, refetch: refetchDefaultGroup } = useDefaultRouteGroup(shouldUpdateData);
+
+    const routeError = [useRoutes().isError, useAuthToken().isError, usePatternPaths().isError, useBaseData().isError].some((v) => v == true);
 
     const handleRouteSelected = (selectedRoute: IMapRoute) => {        
         // prevent the sheet from updating the data when it is closed, causes sheet to open :/
@@ -122,8 +125,19 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     </View>
                 )}
 
-                {/* Loading indicatior */}
-                { (isRoutesLoading || !routes) && <ActivityIndicator style={{ marginTop: 12 }} /> }
+                {/* Loading indicatior, only show if no error and either loading or there are no routes */}
+                { (!routeError && (isRoutesLoading || !routes)) && <ActivityIndicator style={{ marginTop: 12 }} /> }
+
+                {/* Error */}
+                { routeError ? 
+                    <View style={{ alignItems: 'center', marginTop: 16 }}>
+                        <Text style={{color: theme.subtitle}}>Error loading routes. Please try again later.</Text>
+                    </View>
+                : (isFavoritesError && selectedRouteCategory === "favorites") &&
+                    <View style={{ alignItems: 'center', marginTop: 16 }}>
+                        <Text style={{color: theme.subtitle}}>Error loading favorites. Please try again later.</Text>
+                    </View>
+                }
             </BottomSheetView>
 
             <BottomSheetFlatList

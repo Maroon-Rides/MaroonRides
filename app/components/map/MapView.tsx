@@ -33,9 +33,9 @@ const Map: React.FC = () => {
         longitudeDelta: 0.01
     };
 
-    function selectRoute(route: IMapRoute) {
+    function selectRoute(route: IMapRoute, directionKey: string) {
         if (selectedRoute?.key === route.key) return;
-
+        console.log(directionKey)
         setSelectedRoute(route);
         setDrawnRoutes([route]);
         presentSheet("routeDetails");
@@ -170,7 +170,7 @@ const Map: React.FC = () => {
                                     tappable={true}
                                     onPress={() => selectRoute(drawnRoute)}
                                     style={{ zIndex: active ? 600 : 300,
-                                             elevation: active ? 600 : 300 }} //made a change here ^
+                                             elevation: active ? 600 : 300 }}
                                 />
                             )
                         })
