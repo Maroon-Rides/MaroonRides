@@ -44,7 +44,7 @@ const StopMarker: React.FC<Props> = ({ point, tintColor, route, direction, isCal
                     borderRadius: 9999,
                     backgroundColor: active ? tintColor : tintColor + "60",
                     borderColor: active ? getLighterColor(tintColor) : getLighterColor(tintColor) + "60",
-                    zIndex: active ? 700 : 400, //made a change here
+                    zIndex: active ? 700 : 400,
                     elevation: active ? 700 : 400,
                 }}
             />

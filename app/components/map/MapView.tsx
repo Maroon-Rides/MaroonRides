@@ -133,7 +133,7 @@ const Map: React.FC = () => {
         <>
             <MapView
                 showsUserLocation={true}
-                style={{ width: "100%", height: "100%", zIndex: 100, elevation: 100 }} //made a change here
+                style={{ width: "100%", height: "100%", zIndex: 100, elevation: 100 }}
                 ref={mapViewRef} rotateEnabled={false}
                 initialRegion={defaultMapRegion}
                 onPanDrag={() => setIsViewCenteredOnUser(false)}
