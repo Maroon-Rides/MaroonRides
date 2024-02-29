@@ -256,3 +256,18 @@ export interface ICachedStopEstimate {
     stopCode: string,
     departureTimes: IGetNextDepartTimesResponse
 };
+
+// route planning
+export interface SearchSuggestion {
+    title: string
+    subtitle: string
+    id: string
+    type: "stop" | "map" | "my-location"
+}
+
+export const MyLocationSuggestion: SearchSuggestion = {
+    title: "My Location",
+    subtitle: "",
+    id: "my-location",
+    type: "my-location"
+}

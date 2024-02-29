@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { IMapRoute, IMapServiceInterruption, IStop } from "../../utils/interfaces";
+import { IMapRoute, IMapServiceInterruption, IStop, SearchSuggestion } from "../../utils/interfaces";
 import { Theme, lightMode } from "../theme";
 
 interface AppState {
@@ -38,6 +38,13 @@ interface AppState {
 
     poppedUpStopCallout: IStop | null,
     setPoppedUpStopCallout: (poppedUpStopCallout: IStop | null) => void
+
+    // route planning
+    suggestions: SearchSuggestion[]
+    setSuggestions: (suggestions: SearchSuggestion[]) => void
+
+    suggestionOutput: "start" | "end" | null
+    setSuggestionOutput: (suggestionOutput: "start" | "end" | null) => void
 }
 
 const useAppStore = create<AppState>()((set) => ({
@@ -74,7 +81,14 @@ const useAppStore = create<AppState>()((set) => ({
     setZoomToStopLatLng: (zoomToStopLatLng) => set(() => ({ zoomToStopLatLng })),
 
     poppedUpStopCallout: null,
-    setPoppedUpStopCallout: (poppedUpStopCallout) => set(() => ({ poppedUpStopCallout }))
+    setPoppedUpStopCallout: (poppedUpStopCallout) => set(() => ({ poppedUpStopCallout })),
+
+    // route planning
+    suggestions: [],
+    setSuggestions: (suggestions) => set(() => ({ suggestions })),
+
+    suggestionOutput: null,
+    setSuggestionOutput: (suggestionOutput) => set(() => ({ suggestionOutput }))
 }));
 
 export default useAppStore;
