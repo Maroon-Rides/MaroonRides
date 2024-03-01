@@ -225,6 +225,7 @@ const Map: React.FC = () => {
                     borderRadius: 8, 
                     backgroundColor: theme.background, 
                     padding: 12, 
+                    zIndex: 10000,
                 }} 
                 onPress={() => recenterView()}
             >
