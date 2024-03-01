@@ -396,13 +396,15 @@ export type ITripPlanResponse = z.infer<typeof GetTripPlanResponseSchema>
 export interface SearchSuggestion {
     title: string
     subtitle: string
-    id: string
+    lat?: number
+    lng?: number
+    stopCode?: string
+    placeId?: string
     type: "stop" | "map" | "my-location"
 }
 
 export const MyLocationSuggestion: SearchSuggestion = {
     title: "My Location",
     subtitle: "",
-    id: "my-location",
     type: "my-location"
 }

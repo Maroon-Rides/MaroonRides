@@ -32,7 +32,7 @@ export const lightMode: Theme = {
     timetableRowA: 'white',
     timetableRowB: '#efefef',
     pillBorder: 'lightgrey',
-    myLocation: "#007aff",
+    myLocation: "#007afe",
     busTints: {
         "47": "#2e8545",
     }
@@ -53,7 +53,7 @@ export const darkMode: Theme = {
     timetableRowA: '#1c1c1e',
     timetableRowB: '#2c2c2e',
     pillBorder: '#686867',
-    myLocation: "#007aff",
+    myLocation: "#0a84ff",
     busTints: {
         "01-04": "#fe453a",
         "03": "#03a8e4",

@@ -235,7 +235,8 @@ const Map: React.FC = () => {
                 overflow: 'hidden', 
                 borderRadius: 8, 
                 backgroundColor: theme.background, 
-                padding: 12 
+                padding: 12,
+                zIndex: 1000,
             }} >
 
                 <TouchableOpacity onPress={() => recenterView()}>

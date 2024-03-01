@@ -1,3 +1,4 @@
+import { useSearchSuggestion } from "app/data/api_query"
 import useAppStore from "app/data/app_state"
 import { memo, useEffect, useRef, useState } from "react"
 import { View, TextInput, Keyboard } from "react-native"
@@ -13,18 +14,33 @@ interface Props {
 const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName }) => {
     const theme = useAppStore((state) => state.theme);
     const setSuggestions = useAppStore((state) => state.setSuggestions);
+    const suggestionsOutput = useAppStore((state) => state.suggestionOutput);
     const setSuggestionsOutput = useAppStore((state) => state.setSuggestionOutput);
+
     const [searchTerm, setSearchTerm] = useState("");
+    
+    const { data: suggestions } = useSearchSuggestion(searchTerm);
 
 
     useEffect(() => {
+        console.log(location)
         if (location) {
             setSearchTerm(location.title);
+            setSuggestions([]);
             Keyboard.dismiss();
         } else {
             setSearchTerm("");
         }
     }, [location])
+
+
+    useEffect(() => {
+        if (searchTerm.trim() == "" && suggestionsOutput) {
+            setSuggestions([MyLocationSuggestion]);
+            return
+        }
+        suggestionsOutput && setSuggestions(suggestions ?? []);
+    }, [suggestions])
     
     return (
         <View 
@@ -52,7 +68,7 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName 
             <TextInput
                 style={{
                     backgroundColor: theme.tertiaryBackground,
-                    color: (location == MyLocationSuggestion) ? theme.myLocation : theme.text,
+                    color: (location?.type == "my-location") ? theme.myLocation : theme.text,
                     borderColor: theme.myLocation,
                     padding: 8,
                     borderRadius: 8,
@@ -72,18 +88,19 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName 
                 }}
                 onFocus={() => {
                     // clear search so user can start typing immediately
-                    if (location == MyLocationSuggestion) {
+                    if (location?.type == "my-location") {
                         setSearchTerm("");
+                        
+                        console.log("clearing search")
+                    }
+                    if (searchTerm.trim() == "") {
+                        setSuggestions([MyLocationSuggestion]);
+                    } else {
+                        setSuggestions(suggestions ?? [MyLocationSuggestion])
                     }
 
-                    setSuggestions([MyLocationSuggestion]);
                     setSuggestionsOutput(outputName);
                     onFocus()
-                }}
-
-                onBlur={() => {
-                    setSuggestions([]);
-                    setSuggestionsOutput(null);
                 }}
                 placeholder="Enter a location"
             />

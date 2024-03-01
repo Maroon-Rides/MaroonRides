@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useRef, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Keyboard } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
@@ -16,7 +16,7 @@ interface SheetProps {
 // AlertList (for all routes and current route)
 const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
-    const snapPoints = ['25%', '45%', '85%'];
+    const snapPoints = ['45%', '90%'];
 
     const theme = useAppStore((state) => state.theme);
 
@@ -26,14 +26,17 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     const searchSuggestions = useAppStore((state) => state.suggestions);
     const suggestionOutput = useAppStore((state) => state.suggestionOutput);
     const setSuggestions = useAppStore((state) => state.setSuggestions);
+    const setSuggesionOutput = useAppStore((state) => state.setSuggestionOutput);
     const [rotueInfoError, setRouteInfoError] = useState("");
+
+    const [snapIndex, setSnapIndex] = useState(1);
 
     const [routeLeaveArriveBy, setRouteLeaveArriveBy] = useState<"leave" | "arrive">("arrive");
 
     useEffect(() => {
         
         if (startLocation && endLocation) {
-            if (startLocation.id == endLocation.id) {
+            if (startLocation.title == endLocation.title) {
                 setRouteInfoError("Start and End locations cannot be the same");
                 return
             }
@@ -46,14 +49,17 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         <BottomSheetModal 
             ref={sheetRef} 
             snapPoints={snapPoints} 
-            index={1} 
+            index={snapIndex}
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
-            onAnimate={(from, _) => {
+            onAnimate={(from, to) => {
                 if (from == -1) {
                     setStartLocation(MyLocationSuggestion)
                     setEndLocation(null)
+                    setSuggesionOutput(null)
+                    sheetRef.current?.snapToIndex(0)
                 }
+                if (to != -1) setSnapIndex(to)
             }}
         >
             <BottomSheetView>
@@ -77,10 +83,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 outputName={"start"}
                                 location={startLocation}
                                 onFocus={() => {
-                                    sheetRef.current?.snapToIndex(2)
-                                    setStartLocation(null)
+                                    if (startLocation?.type == "my-location") setStartLocation(null)
+                                    sheetRef.current?.snapToIndex(1)
+                                    setSnapIndex(1)
                                 }}
-                                icon={(startLocation == MyLocationSuggestion) 
+                                icon={(startLocation?.type == "my-location") 
                                     ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
                                     : <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} />
                                 }
@@ -96,10 +103,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 outputName={"end"}
                                 location={endLocation}
                                 onFocus={() => {
-                                    sheetRef.current?.snapToIndex(2)
-                                    setEndLocation(null)
+                                    if (endLocation?.type == "my-location") setEndLocation(null)
+                                    sheetRef.current?.snapToIndex(1)
+                                    setSnapIndex(1)
                                 }}
-                                icon={(endLocation == MyLocationSuggestion) 
+                                icon={(endLocation?.type == "my-location") 
                                     ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
                                     : <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} />
                                 }
@@ -110,8 +118,9 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                         <TouchableOpacity 
                             style={{ marginLeft: 8 }}
                             onPress={() => {
+                                const temp = startLocation
                                 setStartLocation(endLocation)
-                                setEndLocation(startLocation)
+                                setEndLocation(temp)
                             }}>
                             <MaterialCommunityIcons name="swap-vertical" size={28} color={theme.subtitle} />
                         </TouchableOpacity>
@@ -151,8 +160,21 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             {/* Search Suggestions */}
             <BottomSheetFlatList
                 data={searchSuggestions}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(_, index) => index.toString()}
+                keyboardShouldPersistTaps={"handled"}
                 ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: theme.divider, marginLeft: 12}} />}
+                ListHeaderComponent={() => {
+                    if (searchSuggestions.length == 0 && suggestionOutput) {
+                        return (
+                            <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
+                                <Text style={{color: theme.subtitle, textAlign: "center"}}>No results found</Text>
+                            </View>
+                        ) 
+                    }
+
+                    return null
+                }}
+                onScrollBeginDrag={() => Keyboard.dismiss()}
                 renderItem={({item: suggestion}) => (
                     <TouchableOpacity 
                         style={{paddingVertical: 12, paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
@@ -160,6 +182,8 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             if (suggestionOutput == "start") setStartLocation(suggestion)
                             if (suggestionOutput == "end") setEndLocation(suggestion)
                             setSuggestions([])
+                            setSuggesionOutput(null)
+                            Keyboard.dismiss()
                         }}
                     >
                         <View
@@ -173,18 +197,18 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 paddingVertical: 2,
                             }}
                         >
-                            { suggestion.type == "my-location" 
-                                ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
-                                : <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} />
-                            }
+                            { suggestion.type == "my-location" && <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} /> }
+                            { suggestion.type == "stop" && <MaterialCommunityIcons name="bus-stop" size={24} color={theme.subtitle} /> }
+                            { suggestion.type == "map" && <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} /> }
                             
                         </View>
+                        <View style={{flex: 1, marginLeft: 12 }}>
+                            {/* Title */}
+                            <Text style={{ color: theme.text, fontSize: 16, fontWeight: "bold" }}>{suggestion.title}</Text>
 
-                        {/* Title */}
-                        <Text style={{ color: theme.text, fontSize: 16, flex: 1, marginLeft: 12, fontWeight: "bold" }}>{suggestion.title}</Text>
-
-                        {/* Subtitle */}
-                        <Text style={{ color: theme.subtitle, fontSize: 14 }}>{suggestion.subtitle}</Text>
+                            {/* Subtitle */}
+                            { suggestion.subtitle && <Text style={{ color: theme.subtitle, fontSize: 14 }}>{suggestion.subtitle}</Text> }
+                        </View>
                     </TouchableOpacity>
                 )}
             />

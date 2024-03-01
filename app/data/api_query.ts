@@ -1,9 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getAuthentication, getBaseData, getNextDepartureTimes, getPatternPaths, getStopEstimates, getStopSchedules, getVehicles } from "aggie-spirit-api";
+import { findBusStops, findLocations, getAuthentication, getBaseData, getNextDepartureTimes, getPatternPaths, getStopEstimates, getStopSchedules, getVehicles } from "aggie-spirit-api";
 import { darkMode, lightMode } from "app/theme";
 import { getColorScheme } from "app/utils";
 import moment from "moment";
-import { GetBaseDataResponseSchema, GetNextDepartTimesResponseSchema, GetPatternPathsResponseSchema, GetStopEstimatesResponseSchema, GetStopSchedulesResponseSchema, GetVehiclesResponseSchema, IGetBaseDataResponse, IGetNextDepartTimesResponse, IGetPatternPathsResponse, IGetStopEstimatesResponse, IGetStopSchedulesResponse, IGetVehiclesResponse, IMapRoute, IMapServiceInterruption, IVehicle } from "utils/interfaces";
+import { GetBaseDataResponseSchema, GetNextDepartTimesResponseSchema, GetPatternPathsResponseSchema, GetStopEstimatesResponseSchema, GetStopSchedulesResponseSchema, GetVehiclesResponseSchema, IFoundLocation, IFoundStop, IGetBaseDataResponse, IGetNextDepartTimesResponse, IGetPatternPathsResponse, IGetStopEstimatesResponse, IGetStopSchedulesResponse, IGetVehiclesResponse, IMapRoute, IMapServiceInterruption, IVehicle, SearchSuggestion } from "utils/interfaces";
 
 
 export const useAuthToken = () => {
@@ -219,4 +219,49 @@ export const useVehicles = (routeKey: string) => {
         staleTime: 10000,
         refetchInterval: 10000  
     })
+}
+
+// Route Planning
+export const useSearchSuggestion = (query: string) => {
+    const client = useQueryClient();
+
+    return useQuery<SearchSuggestion[]>({
+        queryKey: ["searchSuggestion", query],
+        queryFn: async () => {
+            const dataSources: Promise<any>[] = [
+                findBusStops(query, client.getQueryData(["authToken"])!),
+                findLocations(query, "AIzaSyA89ax74We8sxQcmzDgPTgEUoXMBsc3lG0")
+            ]
+
+            const responses = await Promise.all(dataSources);
+
+
+            // handle bus stops
+            const busStops: [SearchSuggestion] = responses[0].map((stop: IFoundStop) => {
+                return {
+                    type: "stop",
+                    title: stop.stopName,
+                    subtitle: "ID: " + stop.stopCode,
+                    code: stop.stopCode,
+                    lat: stop.latitude,
+                    lng: stop.longitude
+                }
+            });
+
+            // handle locations
+            const locations: [SearchSuggestion] = responses[1].map((location: IFoundLocation) => {
+                return {
+                    type: "map",
+                    title: location.structured_formatting.main_text,
+                    subtitle: location.structured_formatting.secondary_text,
+                    placeId: location.place_id,
+                }
+            });
+
+            return [...busStops, ...locations];
+        },
+        enabled: useAuthToken().isSuccess && query !== "",
+        throwOnError: true,
+        staleTime: Infinity
+    });
 }
