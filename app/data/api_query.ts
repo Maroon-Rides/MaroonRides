@@ -23,11 +23,13 @@ export const useBaseData = () => {
 
     const query = useQuery<IGetBaseDataResponse>({
         queryKey: ["baseData"],
+        // @ts-ignore: We are modifying the baseData object to add patternPaths
         queryFn: async () => {
             const authToken: string = client.getQueryData(["authToken"])!;
             const baseData = await getBaseData(authToken);
 
             // go through each route and add a empty arrain on patternPaths
+            // @ts-ignore: We are modifying the baseData object to add patternPaths
             baseData.routes.forEach(route => route.patternPaths = []);
 
             GetBaseDataResponseSchema.parse(baseData);
