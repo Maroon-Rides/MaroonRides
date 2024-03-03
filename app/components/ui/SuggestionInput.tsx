@@ -9,9 +9,10 @@ interface Props {
     icon: React.JSX.Element
     onFocus: () => void,
     outputName: "start" | "end" | null
+    setSuggestionLoading: (loading: boolean) => void
 }
 
-const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName }) => {
+const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName, setSuggestionLoading }) => {
     const theme = useAppStore((state) => state.theme);
     const setSuggestions = useAppStore((state) => state.setSuggestions);
     const suggestionsOutput = useAppStore((state) => state.suggestionOutput);
@@ -19,7 +20,11 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName 
 
     const [searchTerm, setSearchTerm] = useState("");
     
-    const { data: suggestions } = useSearchSuggestion(searchTerm);
+    const { data: suggestions, isLoading } = useSearchSuggestion(searchTerm);
+
+    useEffect(() => {
+        setSuggestionLoading(isLoading);
+    }, [isLoading])
 
 
     useEffect(() => {
@@ -89,18 +94,20 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName 
                 onFocus={() => {
                     // clear search so user can start typing immediately
                     if (location?.type == "my-location") {
-                        setSearchTerm("");
-                        
-                        console.log("clearing search")
+                        setSearchTerm("");                        
                     }
                     if (searchTerm.trim() == "") {
                         setSuggestions([MyLocationSuggestion]);
                     } else {
-                        setSuggestions(suggestions ?? [MyLocationSuggestion])
+                        setSuggestions(suggestions ?? [])
                     }
 
                     setSuggestionsOutput(outputName);
                     onFocus()
+                }}
+                onBlur={() => {
+                    setSuggestions([]);
+                    setSuggestionsOutput(null);
                 }}
                 placeholder="Enter a location"
             />
