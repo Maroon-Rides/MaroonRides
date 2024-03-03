@@ -28,7 +28,6 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
 
 
     useEffect(() => {
-        console.log(location)
         if (location) {
             setSearchTerm(location.title);
             setSuggestions([]);

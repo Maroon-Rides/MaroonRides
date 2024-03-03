@@ -9,6 +9,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import SuggestionInput from "app/components/ui/SuggestionInput";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import TimeInput from "app/components/ui/TimeInput";
+import { useTripPlan } from "app/data/api_query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -21,8 +22,13 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const theme = useAppStore((state) => state.theme);
 
+    // Planning Inputs
     const [startLocation, setStartLocation] = useState<SearchSuggestion | null>(null);
     const [endLocation, setEndLocation] = useState<SearchSuggestion | null>(null);
+    const [deadline, setDeadline] = useState<"leave" | "arrive">("arrive");
+    const [time, setTime] = useState<Date>(new Date());
+
+    const { data: tripPlan, isError, isLoading: tripPlanLoading } = useTripPlan(startLocation, endLocation, time, deadline);
 
     const searchSuggestions = useAppStore((state) => state.suggestions);
     const suggestionOutput = useAppStore((state) => state.suggestionOutput);
@@ -31,10 +37,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     const [rotueInfoError, setRouteInfoError] = useState("");
 
     const [snapIndex, setSnapIndex] = useState(1);
-
     const [searchSuggestionsLoading, setSearchSuggestionsLoading] = useState(false)
-
-    const [routeLeaveArriveBy, setRouteLeaveArriveBy] = useState<"leave" | "arrive">("arrive");
 
     useEffect(() => {
         
@@ -136,13 +139,13 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             values={['Arrive by', 'Leave by']}
                             selectedIndex={0}
                             onChange={(event) => {
-                                setRouteLeaveArriveBy(event.nativeEvent.selectedSegmentIndex == 0 ? "arrive" : "leave")
+                                setDeadline(event.nativeEvent.selectedSegmentIndex == 0 ? "arrive" : "leave")
                             }}
                             style={{flex: 1, marginRight: 8}}
                         />
 
                         <TimeInput 
-                            onTimeChange={(time) => console.log(time)}
+                            onTimeChange={(time) => setTime(time)}
                         />
                     </View>
 

@@ -332,12 +332,12 @@ export type IOptionBlock = z.infer<typeof OptionBlockSchema>
 
 export const InstructionStepSchema = z.object({
     className: z.string(),
-    duration: z.string(),
+    duration: z.string().nullable(),
     iconClassName: z.string().nullable(),
-    instructions: z.string(),
+    instructions: z.string().optional(),
     latitude: z.number(),
     longitude: z.number(),
-    polyline: z.string(),
+    polyline: z.string().nullable(),
     routeShortName: z.string().nullable(),
     startTime: z.string(),
     stepType: z.number(),
@@ -370,9 +370,15 @@ export const OptionDetailSchema = z.object({
     totalTime: z.string(),
     totalWalkingDistance: z.string(),
     totalWalkingTime: z.string(),
-    warning: z.array(z.string())
+    warnings: z.array(z.string())
 });
 export type IOptionDetail = z.infer<typeof OptionDetailSchema>
+
+export const OptionPositionSchema = z.object({
+    optionIndex: z.number(),
+    topPosition: z.number(),
+    optionSummary: z.string()
+});
 
 export const FindBusStopsResponseSchema = z.array(FoundStopSchema);
 export type IFindBusStopsResponse = z.infer<typeof FindBusStopsResponseSchema>
@@ -383,12 +389,13 @@ export type IFindLocationsResponse = z.infer<typeof FindLocationsResponseSchema>
 export const GetTripPlanResponseSchema = z.object({
     blocks: z.array(PlanBlockSchema),
     chartHeight: z.number(),
-    chartLinePositions: z.array(ChartLinePositionSchema),
+    chartLinePositions: z.array(ChartLinePositionSchema).nullable(),
     headerHeight: z.number(),
     optionBlocks: z.array(OptionBlockSchema),
     optionDetails: z.array(OptionDetailSchema),
     optionHeight: z.number(),
-    optionPositions: z.number()
+    optionPositions: z.array(OptionPositionSchema),
+    resultCount: z.number()
 });
 export type ITripPlanResponse = z.infer<typeof GetTripPlanResponseSchema>
 
@@ -397,7 +404,7 @@ export interface SearchSuggestion {
     title: string
     subtitle: string
     lat?: number
-    lng?: number
+    long?: number
     stopCode?: string
     placeId?: string
     type: "stop" | "map" | "my-location"
