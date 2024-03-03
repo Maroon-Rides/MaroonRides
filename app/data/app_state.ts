@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { IMapRoute, IMapServiceInterruption, IStop, SearchSuggestion } from "../../utils/interfaces";
+import { IMapRoute, IMapServiceInterruption, IOptionDetail, IStop, SearchSuggestion } from "../../utils/interfaces";
 import { Theme, lightMode } from "../theme";
 
 interface AppState {
@@ -23,8 +23,8 @@ interface AppState {
     setSelectedStop: (selectedStop: IStop | null) => void,
     
     // TODO: Switch to Provider Functions
-    presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute") => void
-    setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute") => void) => void
+    presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute" | "tripPlanDetail") => void
+    setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute" | "tripPlanDetail") => void) => void
 
     selectedAlert: IMapServiceInterruption | null,
     setSelectedAlert: (selectedAlert: IMapServiceInterruption | null) => void
@@ -45,6 +45,9 @@ interface AppState {
 
     suggestionOutput: "start" | "end" | null
     setSuggestionOutput: (suggestionOutput: "start" | "end" | null) => void
+
+    selectedRoutePlan: IOptionDetail | null,
+    setSelectedRoutePlan: (selectedRoutePlan: IOptionDetail | null) => void
 }
 
 const useAppStore = create<AppState>()((set) => ({
@@ -88,7 +91,10 @@ const useAppStore = create<AppState>()((set) => ({
     setSuggestions: (suggestions) => set(() => ({ suggestions })),
 
     suggestionOutput: null,
-    setSuggestionOutput: (suggestionOutput) => set(() => ({ suggestionOutput }))
+    setSuggestionOutput: (suggestionOutput) => set(() => ({ suggestionOutput })),
+
+    selectedRoutePlan: null,
+    setSelectedRoutePlan: (selectedRoutePlan) => set(() => ({ selectedRoutePlan })),
 }));
 
 export default useAppStore;

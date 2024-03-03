@@ -11,6 +11,7 @@ import SegmentedControl from "@react-native-segmented-control/segmented-control"
 import TimeInput from "app/components/ui/TimeInput";
 import { useTripPlan } from "app/data/api_query";
 import { useQueryClient } from "@tanstack/react-query";
+import TripPlanCell from "app/components/ui/TripPlanCell";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -234,16 +235,25 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             </TouchableOpacity>
                         )}
                     />
-                ) : ( tripPlanLoading ? (
+                ) : ( tripPlanLoading || isError ? (
                         // Show the Route Options
                         <BottomSheetView>
-                            <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
-                                <ActivityIndicator />
-                            </View>
+                            {(tripPlanLoading && !isError) && (
+                                <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
+                                    <ActivityIndicator />
+                                </View>
+                            )}
+
+                            {isError && (
+                                <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
+                                    <Text style={{color: theme.subtitle, textAlign: "center"}}>Unable to load routes. Please try again later.</Text>
+                                </View>
+                            )}
                         </BottomSheetView>
                     ) : (
                         <BottomSheetFlatList
-                            data={tripPlan?.optionDetails ?? []}
+                            // filter out plans that have already passed
+                            data={(tripPlan?.optionDetails ?? []).filter((p) => p.endTime > Math.floor(Date.now() / 1000))}
                             keyExtractor={(_, index) => index.toString()}
                             onRefresh={() => {
                                 client.invalidateQueries({
@@ -264,35 +274,13 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 return null
                             }}
                             onScrollBeginDrag={() => Keyboard.dismiss()}
-                            renderItem={({item: plan}) => (
-                                <TouchableOpacity 
-                                    style={{paddingVertical: 12, paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
-                                    onPress={() => {
-                                        console.log(plan.optionIndex)
-                                    }}
-                                >
-                                    <View
-                                        style={{
-                                            backgroundColor: theme.tertiaryBackground,
-                                            borderRadius: 999,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            height: 40,
-                                            width: 40,
-                                            paddingVertical: 2,
-                                        }}
-                                    >
-                                        <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} />
-                                    </View>
-                                    <View style={{flex: 1, marginLeft: 12 }}>
-                                        {/* Title */}
-                                        <Text style={{ color: theme.text, fontSize: 16, fontWeight: "bold" }}>{plan.startTimeText}</Text>
-            
-                                        {/* Subtitle */}
-                                        <Text style={{ color: theme.subtitle, fontSize: 14 }}>{plan.endTimeText}</Text>
-                                    </View>
-                                </TouchableOpacity>
-                            )}
+                            renderItem={({item: plan}) => {
+                                return (
+                                    <TripPlanCell
+                                        plan={plan}
+                                    />
+                                )
+                            }}
                         />
                     )
                 )

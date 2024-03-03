@@ -349,11 +349,14 @@ export const InstructionStepSchema = z.object({
 });
 export type IInstructionStep = z.infer<typeof InstructionStepSchema>
 
+export const Agency = z.object({
+    agencyName: z.string(),
+    agencyUrl: z.string().optional()
+});
+export type IAgency = z.infer<typeof Agency>
+
 export const OptionDetailSchema = z.object({
-    agencies: z.array(z.object({
-        agencyName: z.string(),
-        agencyUrl: z.string().optional()
-    })),
+    agencies: z.array(Agency),
     copyrights: z.string(),
     endTime: z.number(),
     endTimeText: z.string(),
