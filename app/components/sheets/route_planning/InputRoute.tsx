@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Keyboard } from "react-native";
+import { View, Text, TouchableOpacity, Keyboard, ActivityIndicator } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
@@ -10,6 +10,7 @@ import SuggestionInput from "app/components/ui/SuggestionInput";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import TimeInput from "app/components/ui/TimeInput";
 import { useTripPlan } from "app/data/api_query";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -38,6 +39,8 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const [snapIndex, setSnapIndex] = useState(1);
     const [searchSuggestionsLoading, setSearchSuggestionsLoading] = useState(false)
+
+    const client = useQueryClient()
 
     useEffect(() => {
         
@@ -226,17 +229,70 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             </TouchableOpacity>
                         )}
                     />
-                ) : (
-                    // Show the Route Options
-                    <BottomSheetView>
-                        <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
-                            <Text style={{color: theme.subtitle, textAlign: "center"}}>show me the options</Text>
-                        </View>
-                    </BottomSheetView>
+                ) : ( tripPlanLoading ? (
+                        // Show the Route Options
+                        <BottomSheetView>
+                            <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
+                                <ActivityIndicator />
+                            </View>
+                        </BottomSheetView>
+                    ) : (
+                        <BottomSheetFlatList
+                            data={tripPlan?.optionDetails ?? []}
+                            keyExtractor={(_, index) => index.toString()}
+                            onRefresh={() => {
+                                client.invalidateQueries({
+                                    queryKey: ["tripPlan", startLocation, endLocation, time, deadline]
+                                })
+                            }}
+                            refreshing={tripPlanLoading}
+                            keyboardShouldPersistTaps={"handled"}
+                            ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: theme.divider, marginLeft: 12}} />}
+                            ListHeaderComponent={() => {
+                                if (tripPlan?.resultCount == 0 && !tripPlanLoading) {
+                                    return (
+                                        <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
+                                            <Text style={{color: theme.subtitle, textAlign: "center"}}>No results found</Text>
+                                        </View>
+                                    ) 
+                                }
+                                return null
+                            }}
+                            onScrollBeginDrag={() => Keyboard.dismiss()}
+                            renderItem={({item: plan}) => (
+                                <TouchableOpacity 
+                                    style={{paddingVertical: 12, paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+                                    onPress={() => {
+                                        console.log(plan.optionIndex)
+                                    }}
+                                >
+                                    <View
+                                        style={{
+                                            backgroundColor: theme.tertiaryBackground,
+                                            borderRadius: 999,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            height: 40,
+                                            width: 40,
+                                            paddingVertical: 2,
+                                        }}
+                                    >
+                                        <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} />
+                                    </View>
+                                    <View style={{flex: 1, marginLeft: 12 }}>
+                                        {/* Title */}
+                                        <Text style={{ color: theme.text, fontSize: 16, fontWeight: "bold" }}>{plan.startTimeText}</Text>
+            
+                                        {/* Subtitle */}
+                                        <Text style={{ color: theme.subtitle, fontSize: 14 }}>{plan.endTimeText}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            )}
+                        />
+                    )
                 )
             )}
         </BottomSheetModal>
-
     )
 }
 

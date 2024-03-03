@@ -289,7 +289,7 @@ export const useTripPlan = (origin: SearchSuggestion | null, destination: Search
     const client = useQueryClient();
 
     return useQuery<TripPlan>({
-        queryKey: ["routePlanning", origin, destination, date, deadline],
+        queryKey: ["tripPlan", origin, destination, date, deadline],
         queryFn: async () => {
             const authToken: string = client.getQueryData(["authToken"])!;
             const response = await getTripPlan(
@@ -301,8 +301,6 @@ export const useTripPlan = (origin: SearchSuggestion | null, destination: Search
                                     );
 
             GetTripPlanResponseSchema.parse(response)
-
-            console.log(response.resultCount)
 
             return response;
         },
