@@ -44,6 +44,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
     useEffect(() => {
         
+        if (suggestionOutput) {
+            setRouteInfoError("");
+            return
+        }
+
         if (startLocation && endLocation) {
             if (startLocation.title == endLocation.title) {
                 setRouteInfoError("Start and End locations cannot be the same");
@@ -52,7 +57,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         }
 
         setRouteInfoError("");
-    }, [startLocation, endLocation])
+    }, [startLocation, endLocation, suggestionOutput])
 
     return (
         <BottomSheetModal 
