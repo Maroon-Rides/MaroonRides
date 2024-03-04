@@ -330,22 +330,26 @@ export const OptionBlockSchema = z.object({
 });
 export type IOptionBlock = z.infer<typeof OptionBlockSchema>
 
+export const WalkingInstructionSchema = z.object({
+    index: z.number(),
+    instruction: z.string(),
+    polyline: z.string()
+});
+export type IWalkingInstruction = z.infer<typeof WalkingInstructionSchema>
+
+
 export const InstructionStepSchema = z.object({
     className: z.string(),
     duration: z.string().nullable(),
     iconClassName: z.string().nullable(),
-    instructions: z.string().optional(),
+    instruction: z.string().optional(),
     latitude: z.number(),
     longitude: z.number(),
     polyline: z.string().nullable(),
     routeShortName: z.string().nullable(),
     startTime: z.string(),
     stepType: z.number(),
-    walkingInstructions: z.array(z.object({
-        index: z.number(),
-        instruction: z.string(),
-        polyline: z.string()
-    }))
+    walkingInstructions: z.array(WalkingInstructionSchema)
 });
 export type IInstructionStep = z.infer<typeof InstructionStepSchema>
 

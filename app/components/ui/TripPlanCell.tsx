@@ -17,8 +17,12 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
     const relativeTime = (time: number) => {
         const now = moment()
         const then = moment(time*1000)
-        const diff = then.diff(now, 'minutes')
-        return diff
+        const diffMin = then.diff(now, 'minutes')
+        const diffHrs = then.diff(now, 'hours')
+
+        if (diffHrs < 1) return `${diffMin} minutes`
+
+        return `${diffHrs}h ${diffMin - (diffHrs * 60)}m`
     }
 
     return (
@@ -31,7 +35,7 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
         >
             <View style={{flex: 1, marginLeft: 12 }}>
                 {/* Title */}
-                <Text style={{ color: theme.text, fontSize: 24, fontWeight: "bold" }}>{relativeTime(plan.endTime)} min</Text>
+                <Text style={{ color: theme.text, fontSize: 24, fontWeight: "bold" }}>{relativeTime(plan.endTime)}</Text>
 
                 {/* Subtitle */}
                 <Text style={{ color: theme.subtitle, fontSize: 14 }}>arrive at {plan.endTimeText}</Text>

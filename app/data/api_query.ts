@@ -292,7 +292,7 @@ export const useTripPlan = (origin: SearchSuggestion | null, destination: Search
         queryKey: ["tripPlan", origin, destination, date, deadline],
         queryFn: async () => {
             const authToken: string = client.getQueryData(["authToken"])!;
-            const response = await getTripPlan(
+            let response = await getTripPlan(
                                         origin!, 
                                         destination!, 
                                         deadline == "arrive" ? date : undefined,
@@ -301,6 +301,9 @@ export const useTripPlan = (origin: SearchSuggestion | null, destination: Search
                                     );
 
             GetTripPlanResponseSchema.parse(response)
+
+            // filter out expired options
+            // response.optionDetails = (response?.optionDetails ?? []).filter((p) => p.endTime > Math.floor(Date.now() / 1000))
 
             return response;
         },

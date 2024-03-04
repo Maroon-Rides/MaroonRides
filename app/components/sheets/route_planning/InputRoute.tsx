@@ -12,6 +12,7 @@ import TimeInput from "app/components/ui/TimeInput";
 import { useTripPlan } from "app/data/api_query";
 import { useQueryClient } from "@tanstack/react-query";
 import TripPlanCell from "app/components/ui/TripPlanCell";
+import * as Location from 'expo-location';
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -55,6 +56,28 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                 setRouteInfoError("Start and End locations cannot be the same");
                 return
             }
+        }
+
+        if (startLocation?.type == "my-location" || endLocation?.type == "my-location") {
+            // Request location permissions
+            Location.requestForegroundPermissionsAsync().then(async (status) => {
+                // Check if permission is granted
+                if (!status.granted) {
+                    setRouteInfoError("Cannot get current location. Please enable location services in your settings.") 
+                    return
+                }
+
+                // Get current location
+                const locationCoords = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced, timeInterval: 2 });
+
+                // Set the location coordinates
+                let location = MyLocationSuggestion
+                location.lat = locationCoords.coords.latitude
+                location.long = locationCoords.coords.longitude
+
+                if (startLocation?.type == "my-location") setStartLocation(location)
+                if (endLocation?.type == "my-location") setEndLocation(location)
+            })
         }
 
         setRouteInfoError("");
@@ -253,7 +276,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                     ) : (
                         <BottomSheetFlatList
                             // filter out plans that have already passed
-                            data={(tripPlan?.optionDetails ?? []).filter((p) => p.endTime > Math.floor(Date.now() / 1000))}
+                            data={tripPlan?.optionDetails}
                             keyExtractor={(_, index) => index.toString()}
                             onRefresh={() => {
                                 client.invalidateQueries({
@@ -264,7 +287,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             keyboardShouldPersistTaps={"handled"}
                             ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: theme.divider, marginLeft: 12}} />}
                             ListHeaderComponent={() => {
-                                if (tripPlan?.resultCount == 0 && !tripPlanLoading) {
+                                if (tripPlan?.optionDetails.length == 0 && !tripPlanLoading) {
                                     return (
                                         <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
                                             <Text style={{color: theme.subtitle, textAlign: "center"}}>No results found</Text>
