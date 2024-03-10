@@ -308,7 +308,7 @@ export const PlanBlockSchema = z.object({
     className: z.string(),
     iconString: z.string(),
     leftPosition: z.number(),
-    routeShortName: z.string(),
+    routeShortName: z.string().nullable(),
     stepType: z.number(),
     topPosition: z.number(),
     width: z.number()
