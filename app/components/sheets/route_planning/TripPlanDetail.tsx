@@ -1,12 +1,11 @@
 import React, { memo, useState } from "react";
-import { View, TouchableOpacity, Text, Dimensions, useWindowDimensions, Button } from "react-native";
-import { BottomSheetFlatList, BottomSheetModal, BottomSheetScrollView, BottomSheetView } from "@gorhom/bottom-sheet";
+import { View, TouchableOpacity, Text, useWindowDimensions } from "react-native";
+import { BottomSheetModal, BottomSheetScrollView, BottomSheetView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { LogBox } from 'react-native';
 import useAppStore from "../../../data/app_state";
 import SheetHeader from "../../ui/SheetHeader";
 import Timeline from "react-native-timeline-flatlist";
-import { IInstructionStep, IOptionDetail, IWalkingInstruction } from "utils/interfaces";
+import { IOptionDetail, IWalkingInstruction } from "utils/interfaces";
 import RenderHTML from "react-native-render-html";
 
 
@@ -23,6 +22,8 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
     const theme = useAppStore((state) => state.theme);
     const selectedRoutePlan = useAppStore((state) => state.selectedRoutePlan);
 
+    const dimensions = useWindowDimensions()
+    
     const htmlStyles = {
         titleBase: {
             color: theme.text,
@@ -54,7 +55,8 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
                 title: instruction.instruction?.replace("(ID:", " (ID:"),
                 description: instruction.walkingInstructions.map((step: IWalkingInstruction) => {
                     return `<p>${step.index}. ${step.instruction}</p>`
-                }).join('')
+                }).join(''),
+                icon: <Ionicons name="walk" size={24} color={theme.text} />
             }
         })
     }
@@ -84,18 +86,18 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
             <BottomSheetScrollView
                 style={{
                     flex: 1,
-                    padding: 20,
-                    paddingTop:24,
+                    paddingLeft: 16,
+                    paddingTop: 24,
                 }}
             >
                 <Timeline
                     isUsingFlatlist={false}
                     style={{paddingBottom: 45}}
-                    timeContainerStyle={{minWidth:52, marginTop: -5, marginRight: 5}}
+                    timeContainerStyle={{minWidth: 85, marginTop: -2, marginRight: 5}}
                     timeStyle={{
                         textAlign: 'center', 
                         backgroundColor: theme.tertiaryBackground, 
-                        color:'white', 
+                        color: theme.text, 
                         padding:5, 
                         paddingHorizontal: 8, 
                         borderRadius:13,
@@ -103,6 +105,25 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
                     }}
                     innerCircle={'dot'}
                     renderDetail={(data) => (<StepDetail step={data} styles={htmlStyles} />)}
+                    renderCircle={(rowData, sectionID, rowID) => {
+                        return (
+                            <View 
+                                style={{
+                                    backgroundColor: theme.tertiaryBackground, 
+                                    borderRadius: 12, 
+                                    borderWidth: 2,
+                                    borderColor: theme.pillBorder, 
+                                    width: 32, 
+                                    height: 32, 
+                                    justifyContent: 'center', 
+                                    alignItems: 'center',
+                                    right: (dimensions.width/2)-16,
+                                }}
+                            >
+                                {rowData.icon}
+                            </View>
+                        )
+                    }}
                     data={processRoutePlan(selectedRoutePlan!)}
                 />
             </BottomSheetScrollView>
@@ -125,13 +146,11 @@ interface StepDetailProps {
 const StepDetail: React.FC<StepDetailProps> = ({ step, styles:htmlStyles }) => {
     const theme = useAppStore((state) => state.theme);
     const [showInstructions, setShowInstructions] = useState(false)
-    console.log(step.description)
 
     return (
-        <View style={{flex: 1, marginTop: -13, marginBottom: 16}}>
+        <View style={{flex: 1, marginTop: -8, marginBottom: 16}}>
             <RenderHTML 
                 baseStyle={htmlStyles.titleBase}
-                // @ts-ignore: Werid errors with style typings, but it works
                 classesStyles={htmlStyles.titleClassStyle}
                 tagsStyles={htmlStyles.titleTagStyles}
                 source={{html: step.title}}
