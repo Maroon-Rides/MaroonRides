@@ -15,7 +15,24 @@ interface Props {
 // Bus Marker with icon and callout
 const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
     const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
+    const setSelectedDirection = useAppStore(state => state.setSelectedRouteDirection);
 
+<<<<<<< Updated upstream
+=======
+    const busColor = selectedRouteDirection === bus.directionKey ? tintColor : tintColor+"70";
+    const borderColor = selectedRouteDirection === bus.directionKey ? getLighterColor(tintColor) : undefined;
+    const iconColor = selectedRouteDirection === bus.directionKey ? "white" : "#ffffffcc";
+
+    //if direction is not selected and route is inactive, then call setSelectedDirection w/ parameter bus.directionKey
+    const busDefaultDirection = () => {
+        if (selectedRouteDirection !== bus.directionKey)
+    {
+        setSelectedDirection(bus.directionKey);
+    }
+    }
+    
+    
+>>>>>>> Stashed changes
     return (
         <Marker
             key={bus.key}
@@ -24,6 +41,7 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             anchor={{x: 1, y: 1}}
             pointerEvents="auto"
             style={{ zIndex: 100, elevation: 100 }}
+            onPress={() => busDefaultDirection()}
         >
             {/* Bus Icon on Map*/}
             <BusMapIcon 
