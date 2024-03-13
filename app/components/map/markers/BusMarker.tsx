@@ -5,6 +5,7 @@ import BusCallout from '../BusCallout';
 import { IVehicle } from 'utils/interfaces';
 
 import useAppStore from '../../../data/app_state';
+import { getLighterColor } from 'app/utils';
 
 interface Props {
     bus: IVehicle,
@@ -17,8 +18,6 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
     const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
     const setSelectedDirection = useAppStore(state => state.setSelectedRouteDirection);
 
-<<<<<<< Updated upstream
-=======
     const busColor = selectedRouteDirection === bus.directionKey ? tintColor : tintColor+"70";
     const borderColor = selectedRouteDirection === bus.directionKey ? getLighterColor(tintColor) : undefined;
     const iconColor = selectedRouteDirection === bus.directionKey ? "white" : "#ffffffcc";
@@ -32,7 +31,6 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
     }
     
     
->>>>>>> Stashed changes
     return (
         <Marker
             key={bus.key}
@@ -45,7 +43,7 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
         >
             {/* Bus Icon on Map*/}
             <BusMapIcon 
-                tintColor={tintColor}
+                tintColor={busColor}
                 heading={bus.location.heading} 
                 active={selectedRouteDirection === bus.directionKey} 
             />
@@ -53,7 +51,8 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             <BusCallout 
                 directionName={bus.directionName} 
                 fullPercentage={Math.round((bus.passengersOnboard / bus.passengerCapacity)*100)}
-                amenities={bus.amenities} tintColor={tintColor ?? "#500000"} 
+                amenities={bus.amenities} 
+                tintColor={busColor ?? "#500000"} 
                 routeName={routeName} 
                 busId={bus.name}
             />
