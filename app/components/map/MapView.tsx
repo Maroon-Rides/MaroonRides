@@ -33,6 +33,8 @@ const Map: React.FC = () => {
         longitudeDelta: 0.01
     };
 
+
+    
     function selectRoute(route: IMapRoute, directionKey: string) {
         if (selectedRoute?.key === route.key) return;
         console.log(directionKey)
