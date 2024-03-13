@@ -11,7 +11,7 @@ import { useVehicles } from "../../data/api_query";
 
 const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
-
+    const setSelectedDirection = useAppStore(state => state.setSelectedRouteDirection);
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
@@ -41,6 +41,10 @@ const Map: React.FC = () => {
         setSelectedRoute(route);
         setDrawnRoutes([route]);
         presentSheet("routeDetails");
+
+        if (selectedRouteDirection !== directionKey)
+            setSelectedDirection(route.key);
+        
     }
 
     // center the view on the drawn routes
