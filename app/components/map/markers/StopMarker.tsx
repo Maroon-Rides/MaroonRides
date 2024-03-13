@@ -25,6 +25,13 @@ const StopMarker: React.FC<Props> = ({ point, tintColor, route, direction, isCal
         }
     }, [isCalloutShown])
 
+    const defaultDirection = () => {
+        if (active == false)
+    {
+        setSelectedDirection(direction.key);
+    }
+    }
+
     return (
         <Marker
             ref={markerRef}
