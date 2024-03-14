@@ -40,34 +40,36 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
             elevation: 1000
         }}
         >
-        <View onLayout={handleLayout}>
-            <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", alignSelf: "flex-start" }}  >
+            <View onLayout={handleLayout}>
+                <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", alignSelf: "flex-start" }}  >
                     <BusIcon name={route.shortName} color={tintColor} isCallout={true} style={{ marginRight: 8 }} />
                     <Text style={{ maxWidth: 200, fontWeight: 'bold' }} numberOfLines={1}>{stop.name}</Text>
-            </View>
+                </View>
 
-            <View style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
-                alignSelf: "flex-start",
-                marginTop: 8
-            }}>
-                { estimate?.routeDirectionTimes[0]?.nextDeparts.map((departureTime, index) => {
-                    const date = moment(departureTime.estimatedDepartTimeUtc ?? departureTime.scheduledDepartTimeUtc ?? "");
-                    const relative = date.diff(moment(), "minutes");
-                    return (
-                            <CalloutTimeBubble
-                                key={index}
-                                time={relative <= 0 ? "Now" : relative.toString() + " min"}
-                                color={index == 0 ? tintColor + "60" : lightMode.nextStopBubble}
-                                textColor={index == 0 ? tintColor : lightMode.text}
-                                live={departureTime.estimatedDepartTimeUtc == null ? false : true}
-                            />
-                    )
-                })}
+                { estimate?.routeDirectionTimes[0]?.nextDeparts.length !== 0 &&
+                    <View style={{
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        alignSelf: "flex-start",
+                        marginTop: 8
+                    }}>
+                        { estimate?.routeDirectionTimes[0]?.nextDeparts.map((departureTime, index) => {
+                            const date = moment(departureTime.estimatedDepartTimeUtc ?? departureTime.scheduledDepartTimeUtc ?? "");
+                            const relative = date.diff(moment(), "minutes");
+                            return (
+                                    <CalloutTimeBubble
+                                        key={index}
+                                        time={relative <= 0 ? "Now" : relative.toString() + " min"}
+                                        color={index == 0 ? tintColor + "60" : lightMode.nextStopBubble}
+                                        textColor={index == 0 ? tintColor : lightMode.text}
+                                        live={departureTime.estimatedDepartTimeUtc == null ? false : true}
+                                    />
+                            )
+                        })}
+                    </View>
+                }
             </View>
-        </View>
         </Callout>
     )
 }
