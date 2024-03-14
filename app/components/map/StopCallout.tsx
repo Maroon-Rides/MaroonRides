@@ -31,14 +31,14 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
 
     return (
         <Callout
-        style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: contentSize[0],
-            height: contentSize[1],
-            zIndex: 1000,
-            elevation: 1000
-        }}
+            style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: contentSize[0],
+                height: contentSize[1],
+                zIndex: 1000,
+                elevation: 1000
+            }}
         >
             <View onLayout={handleLayout}>
                 <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", alignSelf: "flex-start" }}  >
