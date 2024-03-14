@@ -24,6 +24,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const setSelectedRouteDirection = useAppStore(state => state.setSelectedRouteDirection);
     const setSelectedStop = useAppStore(state => state.setSelectedStop);
     const setPoppedUpStopCallout = useAppStore(state => state.setPoppedUpStopCallout);
+    const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
     const theme = useAppStore(state => state.theme);
 
     const { data: stopEstimates } = useStopEstimate(
@@ -86,6 +87,18 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         setSelectedDirectionIndex(0);
 
     }, [currentSelectedRoute])
+
+
+    // update the segmented control when the selected direction changes
+    useEffect(() => {
+        if (!selectedRoute) return;
+
+        const directionIndex = selectedRoute.directionList.findIndex(direction => direction.direction.key === selectedRouteDirection);
+
+        if (directionIndex === -1) return;
+        
+        setSelectedDirectionIndex(directionIndex);
+    }, [selectedRouteDirection]);
 
     useEffect(() => {
         return () => setSelectedRouteDirection(null);

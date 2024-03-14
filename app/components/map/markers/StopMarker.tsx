@@ -5,6 +5,8 @@ import StopCallout from '../StopCallout';
 import { View } from 'react-native';
 import { getLighterColor } from 'app/utils';
 
+import useAppStore from '../../../data/app_state';
+
 interface Props {
     point: IPatternPoint
     tintColor: string
@@ -17,6 +19,7 @@ interface Props {
 // Stop marker with callout
 const StopMarker: React.FC<Props> = ({ point, tintColor, route, direction, isCalloutShown=false, active }) => {
     const markerRef = React.useRef<MapMarker>(null);
+    const setSelectedDirection = useAppStore(state => state.setSelectedRouteDirection);
 
     // If the global poppedUpStopCallout is the same as the current stop, show the callout on screen
     useEffect(() => {
@@ -24,6 +27,13 @@ const StopMarker: React.FC<Props> = ({ point, tintColor, route, direction, isCal
             markerRef.current?.showCallout();
         }
     }, [isCalloutShown])
+
+    const defaultDirection = () => {
+        if (active == false)
+    {
+        setSelectedDirection(direction.key);
+    }
+    }
 
     return (
         <Marker
@@ -35,6 +45,7 @@ const StopMarker: React.FC<Props> = ({ point, tintColor, route, direction, isCal
             tracksViewChanges={false}
             anchor={{x: 1, y: 1}}
             pointerEvents="auto"
+            onPress={() => defaultDirection()}
         >
             <View
                 style={{

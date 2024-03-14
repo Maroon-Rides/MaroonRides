@@ -3,7 +3,6 @@ import { Marker } from 'react-native-maps';
 import BusMapIcon from '../BusMapIcon';
 import BusCallout from '../BusCallout';
 import { IVehicle } from 'utils/interfaces';
-
 import useAppStore from '../../../data/app_state';
 
 interface Props {
@@ -15,7 +14,17 @@ interface Props {
 // Bus Marker with icon and callout
 const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
     const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
+    const setSelectedDirection = useAppStore(state => state.setSelectedRouteDirection);
 
+    //if direction is not selected and route is inactive, then call setSelectedDirection w/ parameter bus.directionKey
+    const busDefaultDirection = () => {
+        if (selectedRouteDirection !== bus.directionKey)
+    {
+        setSelectedDirection(bus.directionKey);
+    }
+    }
+    
+    
     return (
         <Marker
             key={bus.key}
@@ -24,6 +33,7 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             anchor={{x: 1, y: 1}}
             pointerEvents="auto"
             style={{ zIndex: 100, elevation: 100 }}
+            onPress={() => busDefaultDirection()}
         >
             {/* Bus Icon on Map*/}
             <BusMapIcon 
@@ -35,7 +45,8 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             <BusCallout 
                 directionName={bus.directionName} 
                 fullPercentage={Math.round((bus.passengersOnboard / bus.passengerCapacity)*100)}
-                amenities={bus.amenities} tintColor={tintColor ?? "#500000"} 
+                amenities={bus.amenities} 
+                tintColor={tintColor} 
                 routeName={routeName} 
                 busId={bus.name}
             />
