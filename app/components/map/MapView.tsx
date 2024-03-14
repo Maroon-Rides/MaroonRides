@@ -36,14 +36,17 @@ const Map: React.FC = () => {
 
     
     function selectRoute(route: IMapRoute, directionKey: string) {
+
+        if (selectedRouteDirection !== directionKey) {
+            setSelectedDirection(directionKey);
+            return;
+        }
+
         if (selectedRoute?.key === route.key) return;
-        console.log(directionKey)
+
         setSelectedRoute(route);
         setDrawnRoutes([route]);
         presentSheet("routeDetails");
-
-        if (selectedRouteDirection !== directionKey)
-            setSelectedDirection(route.key);
         
     }
 
