@@ -34,7 +34,7 @@ const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, se
 
         const estimate = stopEstimate.routeDirectionTimes[0]!;
 
-        let totalDeviation = 0;
+        let deviation = 0;
 
         for (const departTime of estimate.nextDeparts) {
             const estimatedTime = moment(departTime.estimatedDepartTimeUtc ?? "");
@@ -43,23 +43,23 @@ const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, se
             const delayLength = estimatedTime.diff(scheduledTime, "seconds");
 
             if (!isNaN(delayLength)) {
-                totalDeviation += delayLength;
+                deviation = delayLength;
+                break;
             }
         }
 
-        const avgDeviation = totalDeviation / estimate.nextDeparts.length / (60);
-        const roundedDeviation = Math.round(avgDeviation);
+        const roundedDeviation = Math.round(deviation / 60);
 
         if (estimate.directionKey === "") {
             setStatus('Loading');
         } else if (estimate.nextDeparts.length === 0) {
-            setStatus("No times to show");
+            setStatus("No upcoming departures");
         } else if (roundedDeviation > 0) {
             setStatus(`${roundedDeviation} ${roundedDeviation > 1 ? "minutes" : "minute"} late`);
         } else if (roundedDeviation < 0) {
             setStatus(`${Math.abs(roundedDeviation)} ${Math.abs(roundedDeviation) > 1 ? "minutes" : "minute"} early`);
         } else {
-            setStatus('On Time');
+            setStatus('On time');
         }
     }, [stopEstimate]);
 
