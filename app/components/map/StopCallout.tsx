@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { View, Text, ActivityIndicator } from 'react-native'
+import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native'
 import { Callout } from 'react-native-maps'
 import BusIcon from '../ui/BusIcon'
 import { IDirection, IMapRoute, IStop } from '../../../utils/interfaces'
@@ -8,6 +8,7 @@ import moment from 'moment'
 import CalloutTimeBubble from '../ui/CalloutTimeBubble'
 import { lightMode } from 'app/theme'
 import AmenityRow from '../ui/AmenityRow'
+import useAppStore from 'app/data/app_state'
 
 interface Props {
   stop: IStop
@@ -18,6 +19,8 @@ interface Props {
 
 // Stop callout with time bubbles
 const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => {
+
+    const scrollToStop = useAppStore(state => state.scrollToStop);
 
     const { data: estimate, isLoading } = useStopEstimate(route.key, direction.key, stop.stopCode);
 
@@ -33,11 +36,19 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
             }}
         >
             <View>
-                <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", alignSelf: "flex-start" }}  >
+                <TouchableOpacity 
+                    style={{ 
+                        flexDirection: "row", 
+                        justifyContent: "center", 
+                        alignItems: "center", 
+                        alignSelf: "flex-start" 
+                    }} 
+                    onPress={() => { scrollToStop(stop) }}
+                >
                     <BusIcon name={route.shortName} color={tintColor} isCallout={true} style={{ marginRight: 8 }} />
                     <Text style={{ flex: 1, fontWeight: 'bold' }} numberOfLines={1}>{stop.name}</Text>
                     <AmenityRow amenities={estimate?.amenities || []} color={lightMode.subtitle} size={18}/>
-                </View>
+                </TouchableOpacity>
 
                 { estimate?.routeDirectionTimes[0]?.nextDeparts.length !== 0 ?
                     <View style={{

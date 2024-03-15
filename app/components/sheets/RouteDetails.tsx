@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, NativeSyntheticEvent } from "react-native";
-import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetView, BottomSheetFlatList, BottomSheetFlatListMethods } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
 import { IMapRoute, IPatternPath, IStop } from "../../../utils/interfaces";
@@ -18,6 +18,9 @@ interface SheetProps {
 
 // Display details when a route is selected
 const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
+
+    const flatListRef = React.useRef<BottomSheetFlatListMethods>(null);
+
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
 
@@ -25,6 +28,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const setSelectedStop = useAppStore(state => state.setSelectedStop);
     const setPoppedUpStopCallout = useAppStore(state => state.setPoppedUpStopCallout);
     const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
+    const setScrollToStop = useAppStore(state => state.setScrollToStop);
     const theme = useAppStore(state => state.theme);
 
     const { data: stopEstimates } = useStopEstimate(
@@ -32,6 +36,15 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         currentSelectedRoute?.directionList[0]?.direction.key ?? "", 
         currentSelectedRoute?.patternPaths[0]?.patternPoints[0]?.stop?.stopCode ?? ""
     )
+
+    setScrollToStop((stop) => {
+        sheetRef.current?.snapToIndex(2);
+        const index = processedStops.findIndex(st => st.stopCode === stop.stopCode);
+        setTimeout(() => {
+            console.log("FADSFSA")
+            flatListRef.current?.scrollToIndex({ index, animated: true });
+        }, 450)
+    })
 
 
     // Controls SegmentedControl
@@ -158,6 +171,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
             { selectedRoute &&
                 <BottomSheetFlatList
+                    ref={flatListRef}
                     data={processedStops}
                     extraData={stopEstimates?.routeDirectionTimes[0]}
                     style={{ height: "100%" }}
