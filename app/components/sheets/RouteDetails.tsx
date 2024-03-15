@@ -41,7 +41,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         sheetRef.current?.snapToIndex(2);
         const index = processedStops.findIndex(st => st.stopCode === stop.stopCode);
         setTimeout(() => {
-            console.log("FADSFSA")
             flatListRef.current?.scrollToIndex({ index, animated: true });
         }, 450)
     })
