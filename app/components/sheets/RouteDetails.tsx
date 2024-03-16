@@ -24,6 +24,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
 
+    const [futurePosition, setFuturePosition] = useState(-1);
+
     const setSelectedRouteDirection = useAppStore(state => state.setSelectedRouteDirection);
     const setSelectedStop = useAppStore(state => state.setSelectedStop);
     const setPoppedUpStopCallout = useAppStore(state => state.setPoppedUpStopCallout);
@@ -40,9 +42,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     setScrollToStop((stop) => {
         sheetRef.current?.snapToIndex(2);
         const index = processedStops.findIndex(st => st.stopCode === stop.stopCode);
-        setTimeout(() => {
-            flatListRef.current?.scrollToIndex({ index, animated: true });
-        }, 450)
+
+        setFuturePosition(index);
     })
 
 
@@ -133,6 +134,12 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             enablePanDownToClose={false}
             backgroundStyle={{ backgroundColor:  theme.background }}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
+            onChange={() => {
+                if (futurePosition !== -1) {
+                    flatListRef.current?.scrollToIndex({ index: futurePosition, animated: true });
+                    setFuturePosition(-1);
+                }
+            }}
         >
             {selectedRoute &&
                 <BottomSheetView>
