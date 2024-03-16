@@ -226,19 +226,19 @@ const Map: React.FC = () => {
 
             {/* map buttons */}
             <View
-            style={{ 
-                top: 60, 
-                alignContent: 'center', 
-                justifyContent: 'center', 
-                position: 'absolute', 
-                right: 8, 
-                overflow: 'hidden', 
-                borderRadius: 8, 
-                backgroundColor: theme.background, 
-                padding: 12,
-                zIndex: 1000,
-            }} >
-
+                style={{ 
+                    top: 60, 
+                    alignContent: 'center', 
+                    justifyContent: 'center', 
+                    position: 'absolute', 
+                    right: 8, 
+                    overflow: 'hidden', 
+                    borderRadius: 8, 
+                    backgroundColor: theme.background, 
+                    padding: 12,
+                    zIndex: 1000,
+                }} 
+            >
                 <TouchableOpacity onPress={() => recenterView()}>
                     {isViewCenteredOnUser ?
                         <MaterialIcons name="my-location" size={24} color="gray" />
