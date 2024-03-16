@@ -46,7 +46,7 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                     onPress={() => { scrollToStop(stop) }}
                 >
                     <BusIcon name={route.shortName} color={tintColor} isCallout={true} style={{ marginRight: 8 }} />
-                    <Text style={{ flex: 1, fontWeight: 'bold' }} numberOfLines={1}>{stop.name}</Text>
+                    <Text style={{ flex: 1, fontWeight: 'bold' }} numberOfLines={2} >{stop.name}</Text>
                     <AmenityRow amenities={estimate?.amenities || []} color={lightMode.subtitle} size={18}/>
                 </TouchableOpacity>
 
