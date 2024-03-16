@@ -77,7 +77,7 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                   : ( isLoading ?
                     <ActivityIndicator style={{ marginTop: 8 }} />
                   :
-                    <Text style={{ marginTop: 8, alignSelf: "center", color: lightMode.subtitle }}>No upcoming departures</Text>
+                    <Text style={{ marginTop: 8, alignSelf: "center", color: lightMode.subtitle, fontSize: 12 }}>No upcoming departures</Text>
                   )
                 }
             </View>
