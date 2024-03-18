@@ -22,7 +22,7 @@ interface AppState {
     selectedStop: IStop | null,
     setSelectedStop: (selectedStop: IStop | null) => void,
     
-    // TODO: Switch to Provider Functions
+    // TODO: Switch to ContextProvider Functions
     presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail") => void
     setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail") => void) => void
 
@@ -32,12 +32,15 @@ interface AppState {
     selectedTimetableDate: Date | null,
     setSelectedTimetableDate: (selectedTimetableDate: Date | null) => void
 
-    // TODO: Switch to Provider Functions
+    // TODO: Switch to Context Provider Functions
     zoomToStopLatLng: (lat: number, lng: number) => void
     setZoomToStopLatLng: (zoomToStopLatLng: (lat: number, lng: number) => void) => void
 
     poppedUpStopCallout: IStop | null,
     setPoppedUpStopCallout: (poppedUpStopCallout: IStop | null) => void
+
+    scrollToStop: (stop: IStop) => void
+    setScrollToStop: (scrollToStop: (stop: IStop) => void) => void
 }
 
 const useAppStore = create<AppState>()((set) => ({
@@ -74,7 +77,10 @@ const useAppStore = create<AppState>()((set) => ({
     setZoomToStopLatLng: (zoomToStopLatLng) => set(() => ({ zoomToStopLatLng })),
 
     poppedUpStopCallout: null,
-    setPoppedUpStopCallout: (poppedUpStopCallout) => set(() => ({ poppedUpStopCallout }))
+    setPoppedUpStopCallout: (poppedUpStopCallout) => set(() => ({ poppedUpStopCallout })),
+
+    scrollToStop: (stop) => {console.log(stop)},
+    setScrollToStop: (scrollToStop) => set(() => ({ scrollToStop: scrollToStop }))
 }));
 
 export default useAppStore;
