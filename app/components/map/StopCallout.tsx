@@ -14,7 +14,7 @@ interface Props {
   stop: IStop
   tintColor: string
   route: IMapRoute
-  direction: IDirection
+  direction: string
 }
 
 // Stop callout with time bubbles
@@ -22,7 +22,7 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
 
     const scrollToStop = useAppStore(state => state.scrollToStop);
 
-    const { data: estimate, isLoading } = useStopEstimate(route.key, direction.key, stop.stopCode);
+    const { data: estimate, isLoading } = useStopEstimate(route.key, direction, stop.stopCode);
 
     return (
         <Callout
@@ -30,10 +30,11 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: 215,
-                height: 50,
+                height: 60,
                 zIndex: 1000,
                 elevation: 1000
             }}
+            onPress={() => { console.log(direction) }}
         >
             <View>
                 <TouchableOpacity 

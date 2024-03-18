@@ -11,7 +11,7 @@ interface Props {
     point: IPatternPoint
     tintColor: string
     route: IMapRoute
-    direction: IDirection
+    direction: string
     isCalloutShown?: boolean
     active: boolean
 }
@@ -29,10 +29,9 @@ const StopMarker: React.FC<Props> = ({ point, tintColor, route, direction, isCal
     }, [isCalloutShown])
 
     const defaultDirection = () => {
-        if (active == false)
-    {
-        setSelectedDirection(direction.key);
-    }
+        if (active == false) {
+            setSelectedDirection(direction);
+        }
     }
 
     return (
