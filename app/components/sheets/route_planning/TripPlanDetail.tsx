@@ -56,7 +56,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
                 description: instruction.walkingInstructions.map((step: IWalkingInstruction) => {
                     return `<p>${step.index}. ${step.instruction}</p>`
                 }).join(''),
-                icon: <Ionicons name="walk" size={24} color={theme.text} />
+                icon: <Ionicons name="walk" size={18} color={theme.text} />
             }
         })
     }
@@ -103,21 +103,21 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
                         borderRadius:13,
                         fontWeight: 'bold'
                     }}
-                    innerCircle={'dot'}
+                    // innerCircle={'dot'}
                     renderDetail={(data) => (<StepDetail step={data} styles={htmlStyles} />)}
                     renderCircle={(rowData, sectionID, rowID) => {
                         return (
                             <View 
                                 style={{
                                     backgroundColor: theme.tertiaryBackground, 
-                                    borderRadius: 12, 
+                                    borderRadius: 999, 
                                     borderWidth: 2,
                                     borderColor: theme.pillBorder, 
                                     width: 32, 
                                     height: 32, 
                                     justifyContent: 'center', 
                                     alignItems: 'center',
-                                    right: (dimensions.width/2)-16,
+                                    right: (dimensions.width/2)+54,
                                 }}
                             >
                                 {rowData.icon}

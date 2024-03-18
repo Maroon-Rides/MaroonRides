@@ -26,7 +26,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     const theme = useAppStore((state) => state.theme);
 
     // Planning Inputs
-    const [startLocation, setStartLocation] = useState<SearchSuggestion | null>(null);
+    const [startLocation, setStartLocation] = useState<SearchSuggestion | null>(MyLocationSuggestion);
     const [endLocation, setEndLocation] = useState<SearchSuggestion | null>(null);
     const [deadline, setDeadline] = useState<"leave" | "arrive">("arrive");
     const [time, setTime] = useState<Date>(new Date());
@@ -92,9 +92,6 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             handleIndicatorStyle={{backgroundColor: theme.divider}}
             onAnimate={(from, _) => {
                 if (from == -1) {
-                    setStartLocation(MyLocationSuggestion)
-                    setEndLocation(null)
-                    setSuggesionOutput(null)
                     sheetRef.current?.snapToIndex(0)
                 }
             }}
@@ -104,7 +101,18 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                 <SheetHeader
                     title="Plan a Route"
                     icon={
-                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => sheetRef.current?.dismiss()}>
+                        <TouchableOpacity 
+                            style={{ marginLeft: 10 }} 
+                            onPress={() => {
+                                sheetRef.current?.dismiss()
+
+                                setTimeout(() => {
+                                    setStartLocation(MyLocationSuggestion)
+                                    setEndLocation(null)
+                                    setSuggesionOutput(null)
+                                }, 500)
+                            }}
+                        >
                             <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>
                     }
