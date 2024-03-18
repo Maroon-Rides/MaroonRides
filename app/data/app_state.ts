@@ -32,12 +32,15 @@ interface AppState {
     selectedTimetableDate: Date | null,
     setSelectedTimetableDate: (selectedTimetableDate: Date | null) => void
 
-    // TODO: Switch to Provider Functions
+    // TODO: Switch to Context Provider Functions
     zoomToStopLatLng: (lat: number, lng: number) => void
     setZoomToStopLatLng: (zoomToStopLatLng: (lat: number, lng: number) => void) => void
 
     poppedUpStopCallout: IStop | null,
     setPoppedUpStopCallout: (poppedUpStopCallout: IStop | null) => void
+
+    scrollToStop: (stop: IStop) => void
+    setScrollToStop: (scrollToStop: (stop: IStop) => void) => void
 
     // route planning
     suggestions: SearchSuggestion[]
@@ -85,6 +88,9 @@ const useAppStore = create<AppState>()((set) => ({
 
     poppedUpStopCallout: null,
     setPoppedUpStopCallout: (poppedUpStopCallout) => set(() => ({ poppedUpStopCallout })),
+
+    scrollToStop: (stop) => {console.log(stop)},
+    setScrollToStop: (scrollToStop) => set(() => ({ scrollToStop: scrollToStop })),
 
     // route planning
     suggestions: [],
