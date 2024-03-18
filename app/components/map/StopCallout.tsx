@@ -34,7 +34,6 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                 zIndex: 1000,
                 elevation: 1000
             }}
-            onPress={() => { console.log(direction) }}
         >
             <View>
                 <TouchableOpacity 

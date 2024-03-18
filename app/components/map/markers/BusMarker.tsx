@@ -18,10 +18,9 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
 
     //if direction is not selected and route is inactive, then call setSelectedDirection w/ parameter bus.directionKey
     const busDefaultDirection = () => {
-        if (selectedRouteDirection !== bus.directionKey)
-    {
-        setSelectedDirection(bus.directionKey);
-    }
+        if (selectedRouteDirection !== bus.directionKey) {
+            setSelectedDirection(bus.directionKey);
+        }
     }
     
     
