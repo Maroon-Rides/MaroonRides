@@ -4,12 +4,15 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../data/app_state";
 import SheetHeader from "../ui/SheetHeader";
 import RenderHtml from 'react-native-render-html';
+import { useRoutes } from "app/data/api_query";
 
 
 const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = ({ sheetRef }) => {
   const snapPoints = ['25%', '45%', '85%'];
   const alert = useAppStore((state) => state.selectedAlert);
   const theme = useAppStore((state) => state.theme);
+  const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
+  const { data: routes } = useRoutes();
   
   const tagStyles = { 
     h3: { fontSize: 32, fontWeight: "bold", marginTop: 24, marginBottom: 8, color: theme.text },
@@ -26,6 +29,13 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
       index={1} 
       backgroundStyle={{backgroundColor: theme.background}}
       handleIndicatorStyle={{backgroundColor: theme.divider}}
+      onAnimate={(_, to) => {
+          if (to === 1) {
+              const affectedRoutes = routes?.filter(route => route.directionList.flatMap(direction => direction.serviceInterruptionKeys).includes(Number(alert?.key)));
+              setDrawnRoutes(affectedRoutes ?? [])
+              console.log(affectedRoutes?.length)
+          }
+      }}
     >
         <BottomSheetView>
             <SheetHeader
