@@ -50,7 +50,9 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                     <AmenityRow amenities={estimate?.amenities || []} color={lightMode.subtitle} size={18}/>
                 </TouchableOpacity>
 
-                { estimate?.routeDirectionTimes[0]?.nextDeparts.length !== 0 ?
+                { isLoading ?
+                    <ActivityIndicator style={{ marginTop: 8 }} />
+                  : ( estimate?.routeDirectionTimes[0]?.nextDeparts.length !== 0 ?
                     <View style={{
                         flexDirection: "row",
                         justifyContent: "center",
@@ -74,8 +76,6 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                         })}
                         <View style={{flex: 1}} />
                     </View>
-                  : ( isLoading ?
-                    <ActivityIndicator style={{ marginTop: 8 }} />
                   :
                     <Text style={{ marginTop: 8, alignSelf: "center", color: lightMode.subtitle, fontSize: 12 }}>No upcoming departures</Text>
                   )
