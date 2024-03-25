@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "format": "eslint --fix . && prettier '**/*.{json,yaml}' --write --ignore-path .gitignore",
     "check-types": "tsc --noEmit --pretty",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "ios-postbuild": "node ./fastlane/privacy/ios-postbuild.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
@@ -33,7 +34,7 @@
     "patch-package": "^8.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-native": "0.73.4",
+    "react-native": "0.73.6",
     "react-native-gesture-handler": "~2.14.0",
     "react-native-maps": "1.10.0",
     "react-native-reanimated": "~3.6.2",
@@ -69,6 +70,7 @@
     "eslint-plugin-testing-library": "^5.11.0",
     "eslint-plugin-unused-imports": "^3.0.0",
     "prettier": "^3.0.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "xcode": "^3.0.1"
   }
 }
