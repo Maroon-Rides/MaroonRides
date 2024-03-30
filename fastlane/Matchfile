@@ -1,4 +1,4 @@
-git_url("https://github.com/Reveille-Rides/credentials")
+git_url("https://github.com/Maroon-Rides/credentials")
 
 storage_mode("git")
 
