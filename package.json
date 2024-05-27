@@ -12,8 +12,7 @@
     "lint": "eslint .",
     "format": "eslint --fix . && prettier '**/*.{json,yaml}' --write --ignore-path .gitignore",
     "check-types": "tsc --noEmit --pretty",
-    "postinstall": "patch-package",
-    "ios-postbuild": "node ./fastlane/privacy/ios-postbuild.js"
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
@@ -70,7 +69,6 @@
     "eslint-plugin-testing-library": "^5.11.0",
     "eslint-plugin-unused-imports": "^3.0.0",
     "prettier": "^3.0.0",
-    "typescript": "^5.1.6",
-    "xcode": "^3.0.1"
+    "typescript": "^5.1.6"
   }
 }
