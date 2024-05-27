@@ -52,10 +52,6 @@ jobs:
         run: |
           npx expo prebuild --platform ios --npm
 
-      - name: Run Postbuild [iOS]
-        run: |
-          npm run ios-postbuild
-
       - name: Fastlane Beta [iOS]
         run: fastlane beta
         env:
