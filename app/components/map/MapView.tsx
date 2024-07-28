@@ -63,9 +63,11 @@ const Map: React.FC = () => {
     // Generate the path points for the selected route plan
     useEffect(() => {
         if (!selectedRoutePlan) {
+            setSelectedRoutePlanPath([]);
             setHighlightedRoutePlanPath([]);
             setFadedRoutePlanPath([]);
             setRoutePlanMapMarkers([]);
+            return;
         }
 
         var polyline: RoutePlanPolylinePoint[] = [];
@@ -110,6 +112,8 @@ const Map: React.FC = () => {
 
     // Adjust the zoom and the path to show the selected part of the route plan
     useEffect(() => {
+        if (!selectedRoutePlan) return;
+
         // filter the selected route plan path to only show the selected part
         var highlighted: RoutePlanPolylinePoint[] = [];
         if (selectedRoutePlanPathPart === -1) {
@@ -374,7 +378,7 @@ const Map: React.FC = () => {
                 ))}
 
                 {/* Route Plan Highlighted */}
-                {selectedRoutePlanPath &&
+                {selectedRoutePlan &&
                     <Polyline
                         key={"highlighted-route-plan"}
                         coordinates={highlightedRoutePlanPath}
@@ -383,8 +387,8 @@ const Map: React.FC = () => {
                     />
                 }
 
-                {/* Route Plan Highlighted */}
-                {selectedRoutePlanPath && fadedRoutePlanPath.map((path, index) => {
+                {/* Route Plan Faded */}
+                {selectedRoutePlan && fadedRoutePlanPath.map((path, index) => {
                     return <Polyline
                         key={`faded-route-plan-${index}`}
                         coordinates={path}
@@ -394,7 +398,7 @@ const Map: React.FC = () => {
                 })}
 
                 {/* Route Plan Markers */}
-                {routePlanMapMarkers.map((marker, index) => {
+                {selectedRoutePlan && routePlanMapMarkers.map((marker, index) => {
                     return (
                         <RoutePlanMarker
                             key={`route-plan-marker-${index}`}
