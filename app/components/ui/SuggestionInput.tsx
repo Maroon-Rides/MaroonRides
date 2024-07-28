@@ -104,10 +104,6 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
                     setSuggestionsOutput(outputName);
                     onFocus()
                 }}
-                onBlur={() => {
-                    setSuggestions([]);
-                    setSuggestionsOutput(null);
-                }}
                 placeholder="Enter a location"
             />
         </View>

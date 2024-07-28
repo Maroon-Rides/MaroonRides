@@ -292,6 +292,7 @@ export const useTripPlan = (origin: SearchSuggestion | null, destination: Search
         queryKey: ["tripPlan", origin, destination, date, deadline],
         queryFn: async () => {
             const authToken: string = client.getQueryData(["authToken"])!;
+            
             let response = await getTripPlan(
                                         origin!, 
                                         destination!, 
@@ -308,7 +309,7 @@ export const useTripPlan = (origin: SearchSuggestion | null, destination: Search
             return response;
         },
         enabled: useAuthToken().isSuccess && origin !== null && destination !== null && date !== null && deadline !== null,
-        staleTime: 120000, // 2 minutes
+        staleTime: 60000, // 2 minutes
         throwOnError: true
     });
 }

@@ -5,7 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
 import SheetHeader from "../../ui/SheetHeader";
 import { MyLocationSuggestion, SearchSuggestion } from "utils/interfaces";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { FontAwesome6, MaterialCommunityIcons } from "@expo/vector-icons";
 import SuggestionInput from "app/components/ui/SuggestionInput";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import TimeInput from "app/components/ui/TimeInput";
@@ -21,7 +21,7 @@ interface SheetProps {
 // AlertList (for all routes and current route)
 const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
-    const snapPoints = ['45%', '90%'];
+    const snapPoints = ['90%'];
 
     const theme = useAppStore((state) => state.theme);
 
@@ -37,12 +37,16 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     const suggestionOutput = useAppStore((state) => state.suggestionOutput);
     const setSuggestions = useAppStore((state) => state.setSuggestions);
     const setSuggesionOutput = useAppStore((state) => state.setSuggestionOutput);
-    const [rotueInfoError, setRouteInfoError] = useState("");
+    const [routeInfoError, setRouteInfoError] = useState("");
+    const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
 
-    const [snapIndex, setSnapIndex] = useState(1);
     const [searchSuggestionsLoading, setSearchSuggestionsLoading] = useState(false)
 
     const client = useQueryClient()
+
+    useEffect(() => {
+        setDrawnRoutes([])
+    }, [])
 
     useEffect(() => {
         
@@ -87,14 +91,8 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         <BottomSheetModal 
             ref={sheetRef} 
             snapPoints={snapPoints} 
-            index={snapIndex}
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
-            onAnimate={(from, _) => {
-                if (from == -1) {
-                    sheetRef.current?.snapToIndex(0)
-                }
-            }}
         >
             <BottomSheetView>
                 {/* header */}
@@ -129,8 +127,6 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 location={startLocation}
                                 onFocus={() => {
                                     if (startLocation?.type == "my-location") setStartLocation(null)
-                                    sheetRef.current?.snapToIndex(1)
-                                    setSnapIndex(1)
                                 }}
                                 icon={(startLocation?.type == "my-location") 
                                     ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
@@ -150,12 +146,10 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 location={endLocation}
                                 onFocus={() => {
                                     if (endLocation?.type == "my-location") setEndLocation(null)
-                                    sheetRef.current?.snapToIndex(1)
-                                    setSnapIndex(1)
                                 }}
                                 icon={(endLocation?.type == "my-location") 
                                     ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
-                                    : <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} />
+                                    : <FontAwesome6 name="flag-checkered" size={14} color={theme.subtitle} />
                                 }
                                 setSuggestionLoading={setSearchSuggestionsLoading}
                             />
@@ -194,13 +188,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                     <View style={{height: 1, backgroundColor: theme.divider, marginTop: 4}} />
 
                     {/* Error */}
-                    { rotueInfoError != "" && (
+                    { routeInfoError != "" && (
                         <View style={{marginTop: 8, justifyContent: "center", alignItems: "center"}}>
-                            {/* Warning Icon */}
-                            <Ionicons name="warning" size={24} color={theme.subtitle} />
-                                
+                            
                             {/* Error Text */}
-                            <Text style={{color: theme.subtitle,  textAlign:"center", marginLeft: 4 }}>{rotueInfoError}</Text>
+                            <Text style={{color: theme.subtitle,  textAlign:"center", marginLeft: 4 }}>{routeInfoError}</Text>
                         </View>
                     )}
 
@@ -210,7 +202,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             </BottomSheetView>
             
             {/* Flat lists when no error */}
-            {rotueInfoError == "" && (
+            {routeInfoError == "" && (
                 suggestionOutput ? (
                     /* Search Suggestions */
                     <BottomSheetFlatList
@@ -222,7 +214,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             if (searchSuggestions.length == 0 && suggestionOutput && !searchSuggestionsLoading) {
                                 return (
                                     <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
-                                        <Text style={{color: theme.subtitle, textAlign: "center"}}>No results found</Text>
+                                        <Text style={{color: theme.subtitle, textAlign: "center"}}>No locations found</Text>
                                     </View>
                                 ) 
                             }
@@ -290,6 +282,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 client.invalidateQueries({
                                     queryKey: ["tripPlan", startLocation, endLocation, time, deadline]
                                 })
+                                setSuggestions([])
                             }}
                             refreshing={tripPlanLoading}
                             keyboardShouldPersistTaps={"handled"}
@@ -298,7 +291,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 if (tripPlan?.optionDetails.length == 0 && !tripPlanLoading) {
                                     return (
                                         <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
-                                            <Text style={{color: theme.subtitle, textAlign: "center"}}>No results found</Text>
+                                            <Text style={{color: theme.subtitle, textAlign: "center"}}>No routes found</Text>
                                         </View>
                                     ) 
                                 }

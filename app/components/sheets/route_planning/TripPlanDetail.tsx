@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { View, TouchableOpacity, Text, useWindowDimensions } from "react-native";
 import { BottomSheetModal, BottomSheetScrollView, BottomSheetView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -7,6 +7,7 @@ import SheetHeader from "../../ui/SheetHeader";
 import Timeline from "react-native-timeline-flatlist";
 import { IOptionDetail, IWalkingInstruction } from "utils/interfaces";
 import RenderHTML from "react-native-render-html";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 
 interface SheetProps {
@@ -21,6 +22,9 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const theme = useAppStore((state) => state.theme);
     const selectedRoutePlan = useAppStore((state) => state.selectedRoutePlan);
+    const setSelectedRoutePlan = useAppStore((state) => state.setSelectedRoutePlan);
+    const setSelectedRoutePlanPathPart = useAppStore((state) => state.setSelectedRoutePlanPathPart);
+    const selectedRoutePlanPathPart = useAppStore((state) => state.selectedRoutePlanPathPart);
 
     const dimensions = useWindowDimensions()
     
@@ -28,6 +32,8 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
         titleBase: {
             color: theme.text,
             fontSize: 16,
+            paddingLeft: 6,
+            paddingTop: 2
         },
         titleClassStyle: {
             "location_label": { fontSize: 16, fontWeight: "bold" },
@@ -46,20 +52,48 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
 
     }
 
+    useEffect(() => {
+        setSelectedRoutePlanPathPart(-1)
+    }, [])
+
     function processRoutePlan(plan: IOptionDetail) {
         if (!plan) return []
 
-        return plan.instructions?.map((instruction) => {
+        return plan.instructions?.map((instruction, index) => {
+            var icon;
+            switch (instruction.className) {
+                case "bus":
+                    icon = <Ionicons name="bus" size={16} color={theme.text} />
+                    break;
+                case "walking":
+                    icon = <Ionicons name="walk" size={18} color={theme.text} />
+                    break;
+                case "end":
+                    icon = <FontAwesome6 name="flag-checkered" size={14} color={theme.text} />
+                    break;
+                case "waiting":
+                    icon = <Ionicons name="time-outline" size={18} color={theme.text} />
+                    break;
+                default:
+                    icon = <Ionicons name="walk" size={18} color={theme.text} />
+            }
+
             return {
                 time: instruction.startTime,
                 title: instruction.instruction?.replace("(ID:", " (ID:"),
                 description: instruction.walkingInstructions.map((step: IWalkingInstruction) => {
                     return `<p>${step.index}. ${step.instruction}</p>`
                 }).join(''),
-                icon: <Ionicons name="walk" size={18} color={theme.text} />
+                icon: icon,
+                index: index
             }
         })
     }
+
+    useEffect(() => {
+        if (selectedRoutePlanPathPart === -1) return;
+        sheetRef.current?.snapToIndex(1)
+    }, [selectedRoutePlanPathPart])
 
     return (
         <BottomSheetModal 
@@ -68,14 +102,22 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
             index={1} 
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
+            enablePanDownToClose={false}
         >
             <BottomSheetView>
                 {/* header */}
                 <SheetHeader
                     title="Trip Plan"
                     subtitle={"Arrive at " + selectedRoutePlan?.endTimeText}
+                    onTitlePress={() => setSelectedRoutePlanPathPart(-1)}
                     icon={
-                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => sheetRef.current?.dismiss()}>
+                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => {
+                            setSelectedRoutePlanPathPart(-1)
+                            setSelectedRoutePlan(null)
+
+
+                            sheetRef.current?.dismiss()
+                        }}>
                             <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>
                     }
@@ -87,25 +129,33 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
                 style={{
                     flex: 1,
                     paddingLeft: 16,
-                    paddingTop: 24,
                 }}
             >
                 <Timeline
                     isUsingFlatlist={false}
-                    style={{paddingBottom: 45}}
+                    style={{ paddingTop: 16 }}
                     timeContainerStyle={{minWidth: 85, marginTop: -2, marginRight: 5}}
                     timeStyle={{
                         textAlign: 'center', 
                         backgroundColor: theme.tertiaryBackground, 
                         color: theme.text, 
-                        padding:5, 
+                        padding: 6, 
+                        marginTop: 3,
                         paddingHorizontal: 8, 
-                        borderRadius:13,
+                        borderRadius: 16,
                         fontWeight: 'bold'
                     }}
-                    // innerCircle={'dot'}
-                    renderDetail={(data) => (<StepDetail step={data} styles={htmlStyles} />)}
-                    renderCircle={(rowData, sectionID, rowID) => {
+                    onEventPress={(e) => {
+                        // @ts-ignore: e is not actually an Event, 
+                        if (e.index === selectedRoutePlanPathPart) {
+                            setSelectedRoutePlanPathPart(-1)
+                        } else {
+                            // @ts-ignore: e is not actually an Event, 
+                            setSelectedRoutePlanPathPart(e.index)
+                        }
+                    }}
+                    renderDetail={(data) => (<StepDetail step={data} styles={htmlStyles}/>)}
+                    renderCircle={(rowData, _sectionID, _rowID) => {
                         return (
                             <View 
                                 style={{
@@ -126,6 +176,16 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
                     }}
                     data={processRoutePlan(selectedRoutePlan!)}
                 />
+                <Text
+                    style={{
+                        color: theme.subtitle,
+                        fontSize: 12,
+                        textAlign: 'center',
+                        marginVertical: 12,
+                        paddingBottom: 16,
+                        marginRight: 16 // to center the text
+                    }}
+                >Route Directions Provided by Google</Text>
             </BottomSheetScrollView>
         </BottomSheetModal>
     )
@@ -136,14 +196,12 @@ interface StepDetailProps {
         title: string,
         description: string
         time: string
+        index: number
     }
-
     styles: any
 }
 
-
-
-const StepDetail: React.FC<StepDetailProps> = ({ step, styles:htmlStyles }) => {
+const StepDetail: React.FC<StepDetailProps> = ({ step, styles: htmlStyles }) => {
     const theme = useAppStore((state) => state.theme);
     const [showInstructions, setShowInstructions] = useState(false)
 
@@ -160,11 +218,10 @@ const StepDetail: React.FC<StepDetailProps> = ({ step, styles:htmlStyles }) => {
                 <>
                     <TouchableOpacity
                         onPress={() => setShowInstructions(!showInstructions)}
-
                     >
                         <Text 
                             style={{
-                                color: theme.subtitle,
+                                color: theme.myLocation,
                                 textAlign: 'center',
                                 marginVertical: 8,
                             }}
@@ -183,7 +240,6 @@ const StepDetail: React.FC<StepDetailProps> = ({ step, styles:htmlStyles }) => {
                                 baseStyle={htmlStyles.descriptionBase}
                                 source={{html: step.description}}
                                 tagsStyles={htmlStyles.descriptionTagStyles}
-                                // classesStyles={{}}
                                 contentWidth={500}
                             />
                         </View>

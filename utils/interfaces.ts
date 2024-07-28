@@ -422,3 +422,16 @@ export const MyLocationSuggestion: SearchSuggestion = {
     subtitle: "",
     type: "my-location"
 }
+
+export interface RoutePlanPolylinePoint {
+    latitude: number
+    longitude: number
+    stepIndex: number
+    pathIndex: number
+}
+
+export interface RoutePlanMapMarker {
+    latitude: number
+    longitude: number
+    icon: React.JSX.Element
+}

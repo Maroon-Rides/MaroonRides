@@ -3,12 +3,14 @@ import { Dimensions, TouchableOpacity, View } from "react-native";
 import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { IMapRoute } from "../../../utils/interfaces";
+import { IMapRoute, RoutePlanMapMarker, RoutePlanPolylinePoint } from "../../../utils/interfaces";
 import useAppStore from "../../data/app_state";
 import BusMarker from "./markers/BusMarker";
 import StopMarker from "./markers/StopMarker";
 import { useVehicles } from "../../data/api_query";
-import { FontAwesome6 } from "@expo/vector-icons";
+import { FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { decode } from "@googlemaps/polyline-codec";
+import RoutePlanMarker from "./markers/RoutePlanMarker";
 
 const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
@@ -20,10 +22,17 @@ const Map: React.FC = () => {
     const drawnRoutes = useAppStore((state) => state.drawnRoutes);
     const setZoomToStopLatLng = useAppStore((state) => state.setZoomToStopLatLng);
     const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
+    const selectedRoutePlan = useAppStore(state => state.selectedRoutePlan);
+    const selectedRoutePlanPathPart = useAppStore(state => state.selectedRoutePlanPathPart);
     const theme = useAppStore((state) => state.theme);
     const poppedUpStopCallout = useAppStore((state) => state.poppedUpStopCallout);
 
     const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
+
+    const [selectedRoutePlanPath, setSelectedRoutePlanPath] = useState<RoutePlanPolylinePoint[]>([]);
+    const [highlightedRoutePlanPath, setHighlightedRoutePlanPath] = useState<RoutePlanPolylinePoint[]>([]);
+    const [fadedRoutePlanPath, setFadedRoutePlanPath] = useState<RoutePlanPolylinePoint[][]>([]);
+    const [routePlanMapMarkers, setRoutePlanMapMarkers] = useState<RoutePlanMapMarker[]>([]);
 
     const { data: buses } = useVehicles(selectedRoute?.key ?? "");
 
@@ -33,8 +42,6 @@ const Map: React.FC = () => {
         latitudeDelta: 0.10,
         longitudeDelta: 0.01
     };
-
-
     
     function selectRoute(route: IMapRoute, directionKey: string) {
 
@@ -51,7 +58,158 @@ const Map: React.FC = () => {
     // center the view on the drawn routes
     useEffect(() => {
         centerViewOnRoutes();
-    }, [drawnRoutes]);
+    }, [drawnRoutes, selectedRoutePlanPath]);
+
+    // Generate the path points for the selected route plan
+    useEffect(() => {
+        if (!selectedRoutePlan) {
+            setHighlightedRoutePlanPath([]);
+            setFadedRoutePlanPath([]);
+            setRoutePlanMapMarkers([]);
+        }
+
+        var polyline: RoutePlanPolylinePoint[] = [];
+        selectedRoutePlan?.instructions.forEach((instruction, index) => {
+            if (instruction.polyline) {
+                decode(instruction.polyline).forEach((point) => {
+                    polyline.push({ 
+                        latitude: point[0], 
+                        longitude: point[1],
+                        stepIndex: index,
+                        pathIndex: polyline.length
+                    });
+                });
+            }
+        })
+
+        setSelectedRoutePlanPath(polyline);
+
+        // clear the highlighted path if no route plan is selected
+        
+        setHighlightedRoutePlanPath(polyline);
+        setFadedRoutePlanPath([]);
+
+        if (polyline.length === 0) {
+            setRoutePlanMapMarkers([]);
+            return;
+        }
+
+        setRoutePlanMapMarkers([
+            {
+                icon: <FontAwesome6 name="flag-checkered" size={14} color="white" style={{transform: [{rotate: "-45deg"}]}} />,
+                latitude: polyline[polyline.length-1]!.latitude,
+                longitude: polyline[polyline.length-1]!.longitude
+            },
+            {
+                icon: <MaterialCommunityIcons name="circle" size={12} color="white" />,
+                latitude: polyline[0]!.latitude,
+                longitude: polyline[0]!.longitude
+            }
+        ]);
+    }, [selectedRoutePlan])
+
+    // Adjust the zoom and the path to show the selected part of the route plan
+    useEffect(() => {
+        // filter the selected route plan path to only show the selected part
+        var highlighted: RoutePlanPolylinePoint[] = [];
+        if (selectedRoutePlanPathPart === -1) {
+            highlighted = selectedRoutePlanPath;
+            setHighlightedRoutePlanPath(selectedRoutePlanPath);
+            setFadedRoutePlanPath([]);
+            centerViewOnRoutes();
+        }
+
+        // filter the selected route plan path to only show the selected part
+        if (selectedRoutePlanPathPart >= 0) {
+            highlighted = selectedRoutePlanPath.filter((point) => point.stepIndex === selectedRoutePlanPathPart);
+            setHighlightedRoutePlanPath(highlighted);
+
+            // break the path into two parts, before and after the selected part
+            var faded: RoutePlanPolylinePoint[][] = [[], []];
+            selectedRoutePlanPath.forEach((point) => {
+                if (point.stepIndex < selectedRoutePlanPathPart) {
+                    faded[0]!.push(point);
+                } else if (point.stepIndex > selectedRoutePlanPathPart) {
+                    faded[1]!.push(point);
+                }
+            });
+
+            setFadedRoutePlanPath(faded);
+        }
+
+        if (highlighted.length === 0) {
+            // get the last point of the path index - 1 and zoom to that point
+            // do this by finding the last point that has a stepIndex of selectedRoutePlanPathPart - 1
+            const lastPoint = [...selectedRoutePlanPath].reverse().find((point) => point.stepIndex === selectedRoutePlanPathPart - 1);
+           
+            if (lastPoint) {
+                // if its the last location, show the finish flag
+                if (lastPoint.pathIndex == selectedRoutePlanPath.length - 1) {
+                    setRoutePlanMapMarkers([
+                        {
+                            icon: <FontAwesome6 name="flag-checkered" size={14} color="white" style={{transform: [{rotate: "-45deg"}]}} />,
+                            latitude: lastPoint.latitude,
+                            longitude: lastPoint.longitude
+                        }
+                    ]);
+                } else {
+                    setRoutePlanMapMarkers([
+                        {
+                            icon: <Ionicons name="time-outline" size={16} color="white" style={{transform: [{rotate: "-45deg"}]}} />,
+                            latitude: lastPoint.latitude,
+                            longitude: lastPoint.longitude
+                        }
+                    ]);
+                }
+
+                mapViewRef.current?.animateToRegion({
+                    latitude: lastPoint.latitude - .002,
+                    longitude: lastPoint.longitude,
+                    latitudeDelta: 0.005,
+                    longitudeDelta: 0.005
+                });
+            }
+
+            return;
+        } else {
+            var icon = <MaterialCommunityIcons name="circle" size={12} color="white" />;
+            if (selectedRoutePlanPathPart != -1) {
+                if (selectedRoutePlan?.instructions[selectedRoutePlanPathPart]!.className === "bus") {
+                    icon = <MaterialCommunityIcons name="bus-stop" size={16} color="white" style={{transform: [{rotate: "-45deg"}]}} />
+                }
+                if (selectedRoutePlan?.instructions[selectedRoutePlanPathPart]!.className === "walking") {
+                    icon = <Ionicons name="walk" size={16} color="white" style={{transform: [{rotate: "-45deg"}]}} />
+                }
+                if (selectedRoutePlan?.instructions[selectedRoutePlanPathPart]!.className === "waiting") {
+                    icon = <Ionicons name="time-outline" size={16} color="white" style={{transform: [{rotate: "-45deg"}]}} />
+                }
+            }
+
+            setRoutePlanMapMarkers([
+                {
+                    icon: <FontAwesome6 name="flag-checkered" size={14} color="white" style={{transform: [{rotate: "-45deg"}]}} />,
+                    latitude: highlighted[highlighted.length-1]!.latitude,
+                    longitude: highlighted[highlighted.length-1]!.longitude
+                },
+                {
+                    icon: icon,
+                    latitude: highlighted[0]!.latitude,
+                    longitude: highlighted[0]!.longitude
+                }
+            ]);
+        }
+
+        // animate to the selected part of the route plan
+        mapViewRef.current?.fitToCoordinates(highlighted, {
+            edgePadding: {
+                top: Dimensions.get("window").height * 0.05,
+                right: 60,
+                bottom: Dimensions.get("window").height * 0.45 + 8,
+                left: 60
+            },
+            animated: true
+        });
+    }, [selectedRoutePlanPathPart])
 
     // handle weird edge case where map does not pick up on the initial region
     useEffect(() => {
@@ -98,13 +256,21 @@ const Map: React.FC = () => {
             })
         });
 
+        // add the selected route plan path to coords
+        selectedRoutePlanPath.forEach((point) => {
+            coords.push({
+                latitude: point.latitude,
+                longitude: point.longitude
+            });
+        })
+
         if (coords.length > 0) {
             mapViewRef.current?.fitToCoordinates(coords, {
                 edgePadding: {
                     top: Dimensions.get("window").height * 0.05,
-                    right: 20,
+                    right: 60,
                     bottom: Dimensions.get("window").height * 0.45 + 8,
-                    left: 20
+                    left: 60
                 },
                 animated: true
             });
@@ -206,6 +372,36 @@ const Map: React.FC = () => {
                         return null;
                     })
                 ))}
+
+                {/* Route Plan Highlighted */}
+                {selectedRoutePlanPath &&
+                    <Polyline
+                        key={"highlighted-route-plan"}
+                        coordinates={highlightedRoutePlanPath}
+                        strokeColor={theme.myLocation}
+                        strokeWidth={5}
+                    />
+                }
+
+                {/* Route Plan Highlighted */}
+                {selectedRoutePlanPath && fadedRoutePlanPath.map((path, index) => {
+                    return <Polyline
+                        key={`faded-route-plan-${index}`}
+                        coordinates={path}
+                        strokeColor={theme.myLocation + "60"}
+                        strokeWidth={5}
+                    />
+                })}
+
+                {/* Route Plan Markers */}
+                {routePlanMapMarkers.map((marker, index) => {
+                    return (
+                        <RoutePlanMarker
+                            key={`route-plan-marker-${index}`}
+                            marker={marker}
+                        />
+                    )
+                })}
 
                 {/* Buses */}
                 {selectedRoute && buses?.map((bus) => {

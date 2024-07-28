@@ -49,8 +49,11 @@ interface AppState {
     suggestionOutput: "start" | "end" | null
     setSuggestionOutput: (suggestionOutput: "start" | "end" | null) => void
 
-    selectedRoutePlan: IOptionDetail | null,
+    selectedRoutePlan: IOptionDetail | null
     setSelectedRoutePlan: (selectedRoutePlan: IOptionDetail | null) => void
+
+    selectedRoutePlanPathPart: number
+    setSelectedRoutePlanPathPart: (selectedRoutePlanPathPart: number) => void
 }
 
 const useAppStore = create<AppState>()((set) => ({
@@ -101,6 +104,11 @@ const useAppStore = create<AppState>()((set) => ({
 
     selectedRoutePlan: null,
     setSelectedRoutePlan: (selectedRoutePlan) => set(() => ({ selectedRoutePlan })),
+
+    // the index of what part of polyline to show
+    // -1 means show all parts
+    selectedRoutePlanPathPart: -1,
+    setSelectedRoutePlanPathPart: (selectedRoutePlanPathPart) => set(() => ({ selectedRoutePlanPathPart }))
 }));
 
 export default useAppStore;
