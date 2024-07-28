@@ -1,6 +1,6 @@
 import { useSearchSuggestion } from "app/data/api_query"
 import useAppStore from "app/data/app_state"
-import { memo, useEffect, useRef, useState } from "react"
+import { memo, useEffect, useState } from "react"
 import { View, TextInput, Keyboard } from "react-native"
 import { MyLocationSuggestion, SearchSuggestion } from "utils/interfaces"
 
