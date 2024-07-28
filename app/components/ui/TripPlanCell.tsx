@@ -18,7 +18,7 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
         const diffMin = Math.floor(time / 60)
         const diffHrs = Math.floor(diffMin / 60)
 
-        if (diffHrs < 1) return `${diffMin} minutes`
+        if (diffHrs < 1) return `${diffMin} minute${diffMin > 1 ? "s" : ""}`
 
         return `${diffHrs}h ${diffMin - (diffHrs * 60)}m`
     }
