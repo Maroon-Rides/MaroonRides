@@ -7,7 +7,7 @@ import SheetHeader from "../../ui/SheetHeader";
 import Timeline from "react-native-timeline-flatlist";
 import { IOptionDetail, IWalkingInstruction } from "utils/interfaces";
 import RenderHTML from "react-native-render-html";
-import { FontAwesome6 } from "@expo/vector-icons";
+import { FontAwesome6, MaterialCommunityIcons } from "@expo/vector-icons";
 
 
 interface SheetProps {
@@ -69,7 +69,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
                     icon = <Ionicons name="walk" size={18} color={theme.text} />
                     break;
                 case "end":
-                    icon = <FontAwesome6 name="flag-checkered" size={14} color={theme.text} />
+                    icon = <MaterialCommunityIcons name="map-marker" size={16} color={theme.text} />
                     break;
                 case "waiting":
                     icon = <Ionicons name="time-outline" size={18} color={theme.text} />

@@ -152,7 +152,7 @@ const Map: React.FC = () => {
                 if (lastPoint.pathIndex == selectedRoutePlanPath.length - 1) {
                     setRoutePlanMapMarkers([
                         {
-                            icon: <FontAwesome6 name="flag-checkered" size={14} color="white" style={{transform: [{rotate: "-45deg"}]}} />,
+                            icon: <MaterialCommunityIcons name="circle" size={14} color="white" />,
                             latitude: lastPoint.latitude,
                             longitude: lastPoint.longitude
                         }
@@ -356,7 +356,7 @@ const Map: React.FC = () => {
                                     tintColor={selectedRoute?.directionList[0]?.lineColor ?? "#FFFF"}
                                     active={patternPath.directionKey === selectedRouteDirection}
                                     route={selectedRoute}
-                                    direction={patternPath.directionKey}
+                                    direction={selectedRoute?.directionList[0]!.direction}
                                     isCalloutShown={poppedUpStopCallout?.stopCode === stop.stopCode}
                                 />
                             );
