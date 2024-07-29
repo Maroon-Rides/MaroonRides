@@ -7,7 +7,7 @@ import SheetHeader from "../../ui/SheetHeader";
 import Timeline from "react-native-timeline-flatlist";
 import { IOptionDetail, IWalkingInstruction } from "utils/interfaces";
 import RenderHTML from "react-native-render-html";
-import { FontAwesome6, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 
 interface SheetProps {
