@@ -130,7 +130,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 }}
                                 icon={(startLocation?.type == "my-location") 
                                     ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
-                                    : <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} />
+                                    : <MaterialCommunityIcons name="circle-outline" size={20} color={theme.subtitle} />
                                 }
                                 setSuggestionLoading={setSearchSuggestionsLoading}
                             />
@@ -149,7 +149,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 }}
                                 icon={(endLocation?.type == "my-location") 
                                     ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
-                                    : <FontAwesome6 name="flag-checkered" size={14} color={theme.subtitle} />
+                                    : <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} />
                                 }
                                 setSuggestionLoading={setSearchSuggestionsLoading}
                             />

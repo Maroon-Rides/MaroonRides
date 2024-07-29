@@ -98,14 +98,15 @@ const Map: React.FC = () => {
 
         setRoutePlanMapMarkers([
             {
-                icon: <FontAwesome6 name="flag-checkered" size={14} color="white" style={{transform: [{rotate: "-45deg"}]}} />,
+                icon: <MaterialCommunityIcons name="circle" size={14} color="white" />,
                 latitude: polyline[polyline.length-1]!.latitude,
                 longitude: polyline[polyline.length-1]!.longitude
             },
             {
-                icon: <MaterialCommunityIcons name="circle" size={12} color="white" />,
+                icon: <MaterialCommunityIcons name="circle" size={10} color="white" />,
                 latitude: polyline[0]!.latitude,
-                longitude: polyline[0]!.longitude
+                longitude: polyline[0]!.longitude,
+                isOrigin: true
             }
         ]);
     }, [selectedRoutePlan])
@@ -159,7 +160,7 @@ const Map: React.FC = () => {
                 } else {
                     setRoutePlanMapMarkers([
                         {
-                            icon: <Ionicons name="time-outline" size={16} color="white" style={{transform: [{rotate: "-45deg"}]}} />,
+                            icon: <Ionicons name="time" size={16} color="white" style={{transform: [{rotate: "-45deg"}]}} />,
                             latitude: lastPoint.latitude,
                             longitude: lastPoint.longitude
                         }
@@ -176,29 +177,17 @@ const Map: React.FC = () => {
 
             return;
         } else {
-            var icon = <MaterialCommunityIcons name="circle" size={12} color="white" />;
-            if (selectedRoutePlanPathPart != -1) {
-                if (selectedRoutePlan?.instructions[selectedRoutePlanPathPart]!.className === "bus") {
-                    icon = <MaterialCommunityIcons name="bus-stop" size={16} color="white" style={{transform: [{rotate: "-45deg"}]}} />
-                }
-                if (selectedRoutePlan?.instructions[selectedRoutePlanPathPart]!.className === "walking") {
-                    icon = <Ionicons name="walk" size={16} color="white" style={{transform: [{rotate: "-45deg"}]}} />
-                }
-                if (selectedRoutePlan?.instructions[selectedRoutePlanPathPart]!.className === "waiting") {
-                    icon = <Ionicons name="time-outline" size={16} color="white" style={{transform: [{rotate: "-45deg"}]}} />
-                }
-            }
-
             setRoutePlanMapMarkers([
                 {
-                    icon: <FontAwesome6 name="flag-checkered" size={14} color="white" style={{transform: [{rotate: "-45deg"}]}} />,
+                    icon:<MaterialCommunityIcons name="circle" size={14} color="white" />,
                     latitude: highlighted[highlighted.length-1]!.latitude,
                     longitude: highlighted[highlighted.length-1]!.longitude
                 },
                 {
-                    icon: icon,
+                    icon: <MaterialCommunityIcons name="circle" size={10} color="white" />,
                     latitude: highlighted[0]!.latitude,
-                    longitude: highlighted[0]!.longitude
+                    longitude: highlighted[0]!.longitude,
+                    isOrigin: true
                 }
             ]);
         }
@@ -207,9 +196,9 @@ const Map: React.FC = () => {
         mapViewRef.current?.fitToCoordinates(highlighted, {
             edgePadding: {
                 top: Dimensions.get("window").height * 0.05,
-                right: 60,
+                right: 40,
                 bottom: Dimensions.get("window").height * 0.45 + 8,
-                left: 60
+                left: 40
             },
             animated: true
         });
@@ -272,9 +261,9 @@ const Map: React.FC = () => {
             mapViewRef.current?.fitToCoordinates(coords, {
                 edgePadding: {
                     top: Dimensions.get("window").height * 0.05,
-                    right: 60,
+                    right: 40,
                     bottom: Dimensions.get("window").height * 0.45 + 8,
-                    left: 60
+                    left: 40
                 },
                 animated: true
             });

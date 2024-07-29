@@ -434,4 +434,5 @@ export interface RoutePlanMapMarker {
     latitude: number
     longitude: number
     icon: React.JSX.Element
+    isOrigin?: boolean
 }
