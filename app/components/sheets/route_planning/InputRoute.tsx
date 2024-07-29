@@ -5,7 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
 import SheetHeader from "../../ui/SheetHeader";
 import { MyLocationSuggestion, SearchSuggestion } from "utils/interfaces";
-import { FontAwesome6, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import SuggestionInput from "app/components/ui/SuggestionInput";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import TimeInput from "app/components/ui/TimeInput";
