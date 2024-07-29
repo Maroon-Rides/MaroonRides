@@ -6,10 +6,9 @@ import { IOptionDetail } from 'utils/interfaces';
 
 interface TripPlanCellProps {
     plan: IOptionDetail;
-    arriveByTime?: Date | false;
 }
 
-const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan, arriveByTime }) => {
+const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
     const theme = useAppStore((state) => state.theme);
     const setSelectedRoutePlan = useAppStore((state) => state.setSelectedRoutePlan);
     const presentSheet = useAppStore((state) => state.presentSheet);

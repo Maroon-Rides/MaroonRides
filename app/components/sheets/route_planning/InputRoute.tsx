@@ -307,7 +307,6 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 return (
                                     <TripPlanCell
                                         plan={plan}
-                                        arriveByTime={deadline == "arrive" && time}
                                     />
                                 )
                             }}
