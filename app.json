@@ -40,6 +40,9 @@
             "NSPrivacyAccessedAPITypeReasons": ["CA92.1"]
           }
         ]
+      },
+      "entitlements": {
+        "aps-environment": "development"
       }
     },
     "android": {
