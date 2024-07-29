@@ -24,11 +24,6 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan, arriveByTime }) => {
         return `${diffHrs}h ${diffMin - (diffHrs * 60)}m`
     }
 
-    const isPastTime = () => {
-        if (arriveByTime) return plan.endTime < (arriveByTime.getTime() / 1000)
-        return false
-    }
-
     const isOnOtherDay = () => {
         const now = new Date()
         const nowDay = now.getDate()
@@ -95,10 +90,7 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan, arriveByTime }) => {
                 <Text style={{ color: theme.text, fontSize: 24, fontWeight: "bold" }}>{relativeTime(plan.endTime - plan.startTime)}</Text>
 
                 {/* Subtitle */}
-                <Text style={{ 
-                    color: isPastTime() ? theme.error : theme.subtitle, 
-                    fontSize: 14 
-                }}>
+                <Text style={{ color: theme.subtitle,  fontSize: 14 }}>
                     Arrive at {plan.endTimeText} 
                     {isOnOtherDay() ? ` on ${arrivalDate()}` : ""}
                 </Text>
