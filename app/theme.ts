@@ -15,6 +15,7 @@ export interface Theme {
     pillBorder: string,
     myLocation: string,
     busTints: {[key: string] : string}
+    error: string
 }
 
 export const lightMode: Theme = {
@@ -33,6 +34,7 @@ export const lightMode: Theme = {
     timetableRowB: '#efefef',
     pillBorder: 'lightgrey',
     myLocation: "#007afe",
+    error: "#ff3b2f",
     busTints: {
         "47": "#2e8545",
     }
@@ -54,6 +56,7 @@ export const darkMode: Theme = {
     timetableRowB: '#2c2c2e',
     pillBorder: '#686867',
     myLocation: "#0a84ff",
+    error: "#fe453b",
     busTints: {
         "01-04": "#fe453a",
         "03": "#03a8e4",

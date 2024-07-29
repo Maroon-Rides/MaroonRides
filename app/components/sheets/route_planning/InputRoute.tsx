@@ -275,8 +275,12 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                         </BottomSheetView>
                     ) : (
                         <BottomSheetFlatList
-                            // filter out plans that have already passed
-                            data={tripPlan?.optionDetails}
+                            // filter out plans that have already passed, sort by end time
+                            data={
+                                tripPlan?.optionDetails
+                                    .filter((plan) => plan.startTime > Math.floor(Date.now() / 1000))
+                                    .sort((a, b) => a.endTime - b.endTime)
+                            }
                             keyExtractor={(_, index) => index.toString()}
                             onRefresh={() => {
                                 client.invalidateQueries({
@@ -288,7 +292,8 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             keyboardShouldPersistTaps={"handled"}
                             ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: theme.divider, marginLeft: 12}} />}
                             ListHeaderComponent={() => {
-                                if (tripPlan?.optionDetails.length == 0 && !tripPlanLoading) {
+                                const filtered = tripPlan?.optionDetails.filter((plan) => plan.startTime > Math.floor(Date.now() / 1000)) ?? []
+                                if (filtered.length == 0 && !tripPlanLoading) {
                                     return (
                                         <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
                                             <Text style={{color: theme.subtitle, textAlign: "center"}}>No routes found</Text>
@@ -302,6 +307,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 return (
                                     <TripPlanCell
                                         plan={plan}
+                                        arriveByTime={deadline == "arrive" && time}
                                     />
                                 )
                             }}

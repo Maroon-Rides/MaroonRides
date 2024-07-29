@@ -6,9 +6,10 @@ import { IOptionDetail } from 'utils/interfaces';
 
 interface TripPlanCellProps {
     plan: IOptionDetail;
+    arriveByTime?: Date | false;
 }
 
-const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
+const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan, arriveByTime }) => {
     const theme = useAppStore((state) => state.theme);
     const setSelectedRoutePlan = useAppStore((state) => state.setSelectedRoutePlan);
     const presentSheet = useAppStore((state) => state.presentSheet);
@@ -23,6 +24,25 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
         return `${diffHrs}h ${diffMin - (diffHrs * 60)}m`
     }
 
+    const isPastTime = () => {
+        if (arriveByTime) return plan.endTime < (arriveByTime.getTime() / 1000)
+        return false
+    }
+
+    const isOnOtherDay = () => {
+        const now = new Date()
+        const nowDay = now.getDate()
+        const nowMonth = now.getMonth()
+        const nowYear = now.getFullYear()
+
+        const endTime = new Date(plan.endTime * 1000)
+        const endTimeDay = endTime.getDate()
+        const endTimeMonth = endTime.getMonth()
+        const endTimeYear = endTime.getFullYear()
+
+        return nowDay !== endTimeDay || nowMonth !== endTimeMonth || nowYear !== endTimeYear
+    }
+
     const transportationFormat = () => {
         for (const instruction of plan.instructions) {
             if (instruction.className.includes("bus")) {
@@ -30,6 +50,12 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
             }
         }
         return "walking"
+    }
+
+    const arrivalDate = () => {
+        // get arrival date in format MM/DD/YYYY
+        const date = new Date(plan.endTime * 1000)
+        return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
     }
 
     return (
@@ -69,7 +95,13 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
                 <Text style={{ color: theme.text, fontSize: 24, fontWeight: "bold" }}>{relativeTime(plan.endTime - plan.startTime)}</Text>
 
                 {/* Subtitle */}
-                <Text style={{ color: theme.subtitle, fontSize: 14 }}>Arrive at {plan.endTimeText}</Text>
+                <Text style={{ 
+                    color: isPastTime() ? theme.error : theme.subtitle, 
+                    fontSize: 14 
+                }}>
+                    Arrive at {plan.endTimeText} 
+                    {isOnOtherDay() ? ` on ${arrivalDate()}` : ""}
+                </Text>
             </View>
 
             {/* caret */}
