@@ -356,7 +356,7 @@ const Map: React.FC = () => {
                                     tintColor={selectedRoute?.directionList[0]?.lineColor ?? "#FFFF"}
                                     active={patternPath.directionKey === selectedRouteDirection}
                                     route={selectedRoute}
-                                    direction={selectedRoute?.directionList[0]!.direction}
+                                    direction={patternPath.directionKey}
                                     isCalloutShown={poppedUpStopCallout?.stopCode === stop.stopCode}
                                 />
                             );

@@ -1,6 +1,6 @@
 import React, { memo, useEffect } from 'react';
 import { MapMarker, Marker } from 'react-native-maps';
-import { IDirection, IMapRoute, IPatternPoint } from 'utils/interfaces';
+import { IMapRoute, IPatternPoint } from 'utils/interfaces';
 import StopCallout from '../StopCallout';
 import { View } from 'react-native';
 import { getLighterColor } from 'app/utils';
@@ -11,7 +11,7 @@ interface Props {
     point: IPatternPoint
     tintColor: string
     route: IMapRoute
-    direction: IDirection
+    direction: string
     isCalloutShown?: boolean
     active: boolean
 }
@@ -30,7 +30,7 @@ const StopMarker: React.FC<Props> = ({ point, tintColor, route, direction, isCal
 
     const defaultDirection = () => {
         if (active == false) {
-            setSelectedDirection(direction.key);
+            setSelectedDirection(direction);
         }
     }
 

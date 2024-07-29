@@ -2,7 +2,7 @@ import React, { memo } from 'react'
 import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native'
 import { Callout } from 'react-native-maps'
 import BusIcon from '../ui/BusIcon'
-import { IDirection, IMapRoute, IStop } from '../../../utils/interfaces'
+import { IMapRoute, IStop } from '../../../utils/interfaces'
 import { useStopEstimate } from 'app/data/api_query'
 import moment from 'moment'
 import CalloutTimeBubble from '../ui/CalloutTimeBubble'
@@ -14,7 +14,7 @@ interface Props {
   stop: IStop
   tintColor: string
   route: IMapRoute
-  direction: IDirection
+  direction: string
 }
 
 // Stop callout with time bubbles
@@ -22,7 +22,7 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
 
     const scrollToStop = useAppStore(state => state.scrollToStop);
 
-    const { data: estimate, isLoading } = useStopEstimate(route.key, direction.key, stop.stopCode);
+    const { data: estimate, isLoading } = useStopEstimate(route.key, direction, stop.stopCode);
 
     return (
         <Callout
@@ -30,7 +30,7 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: 215,
-                height: 50,
+                height: 60,
                 zIndex: 1000,
                 elevation: 1000
             }}
@@ -50,7 +50,9 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                     <AmenityRow amenities={estimate?.amenities || []} color={lightMode.subtitle} size={18}/>
                 </TouchableOpacity>
 
-                { estimate?.routeDirectionTimes[0]?.nextDeparts.length !== 0 ?
+                { isLoading ?
+                    <ActivityIndicator style={{ marginTop: 8 }} />
+                  : ( estimate?.routeDirectionTimes[0]?.nextDeparts.length !== 0 ?
                     <View style={{
                         flexDirection: "row",
                         justifyContent: "center",
@@ -74,8 +76,6 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                         })}
                         <View style={{flex: 1}} />
                     </View>
-                  : ( isLoading ?
-                    <ActivityIndicator style={{ marginTop: 8 }} />
                   :
                     <Text style={{ marginTop: 8, alignSelf: "center", color: lightMode.subtitle, fontSize: 12 }}>No upcoming departures</Text>
                   )

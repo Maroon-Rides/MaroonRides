@@ -63,20 +63,20 @@ platform :ios do
     
         
     update_project_team(
-      path: "ios/ReveilleRides.xcodeproj",
+      path: "ios/MaroonRides.xcodeproj",
       teamid: TEAM_ID
     )
 
     update_project_provisioning(
-      xcodeproj: "ios/ReveilleRides.xcodeproj",
+      xcodeproj: "ios/MaroonRides.xcodeproj",
       profile: ENV["sigh_com.bwees.reveille-rides_appstore_profile-path"],
       build_configuration: "Release",
-      target_filter: "ReveilleRides",
+      target_filter: "MaroonRides",
     )
 
     update_code_signing_settings(
       use_automatic_signing: false,
-      path: "ios/ReveilleRides.xcodeproj",
+      path: "ios/MaroonRides.xcodeproj",
       team_id: TEAM_ID,
       bundle_identifier: "com.bwees.reveille-rides",
       code_sign_identity: "iPhone Distribution",
@@ -85,7 +85,7 @@ platform :ios do
 
     # set ITSAppUsesNonExemptEncryption to false, prevents Missing Compliance error in TF
     set_info_plist_value(
-      path: "ios/ReveilleRides/Info.plist",
+      path: "ios/MaroonRides/Info.plist",
       key: "ITSAppUsesNonExemptEncryption",
       value: false
     )
@@ -96,9 +96,9 @@ platform :ios do
     prebuild
 
     # get current build number app_store_build_number and increment it
-    increment_build_number(xcodeproj: "ios/ReveilleRides.xcodeproj", build_number: app_store_build_number() + 1)
+    increment_build_number(xcodeproj: "ios/MaroonRides.xcodeproj", build_number: app_store_build_number() + 1)
 
-    build_app(workspace: "ios/ReveilleRides.xcworkspace", scheme: "ReveilleRides")
+    build_app(workspace: "ios/MaroonRides.xcworkspace", scheme: "MaroonRides")
     
     upload_to_app_store(skip_metadata: true, skip_screenshots: true)
   end
@@ -107,9 +107,9 @@ platform :ios do
   lane :beta do
     prebuild
     
-    increment_build_number(xcodeproj: "ios/ReveilleRides.xcodeproj", build_number: app_store_build_number(live: false) + 1)
+    increment_build_number(xcodeproj: "ios/MaroonRides.xcodeproj", build_number: app_store_build_number(live: false) + 1)
     
-    build_app(workspace: "ios/ReveilleRides.xcworkspace", scheme: "ReveilleRides")
+    build_app(workspace: "ios/MaroonRides.xcworkspace", scheme: "MaroonRides")
     
     upload_to_testflight(
       notify_external_testers: true,

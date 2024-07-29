@@ -6,7 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../data/app_state";
 import SheetHeader from "../ui/SheetHeader";
 import { IMapServiceInterruption } from "utils/interfaces";
-import { useServiceInterruptions } from "app/data/api_query";
+import { useRoutes, useServiceInterruptions } from "app/data/api_query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -21,8 +21,10 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const presentSheet = useAppStore((state) => state.presentSheet);
     const setSelectedAlert = useAppStore((state) => state.setSelectedAlert);
+    const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     const [shownAlerts, setShownAlerts] = useState<IMapServiceInterruption[]>([]);
 
+    const { data: routes } = useRoutes();
     const { data: alerts, isError } = useServiceInterruptions()
 
     // If no route is selected, we're looking at all routes, therefore show all alerts
@@ -35,6 +37,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
 
         if (!selectedRoute) {
             setShownAlerts(alerts);
+
             return;
         }
 
@@ -55,6 +58,14 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
             index={1} 
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
+            onAnimate={(_, to) => {
+                if (!selectedRoute && to == 1) {        
+                    const affectedRoutes = routes?.filter(route => route.directionList.flatMap(direction => direction.serviceInterruptionKeys).length > 0)
+                    setDrawnRoutes(affectedRoutes ?? [])
+        
+                    return;
+                }
+            }}
         >
             <BottomSheetView>
                 {/* header */}
