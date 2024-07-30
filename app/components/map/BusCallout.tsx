@@ -47,35 +47,29 @@ const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities,
                 </View>
                 
                 { directionName != "" &&
-                    <Text style={{ flexDirection: "row", justifyContent: "center", alignSelf: "flex-start" }}>
+                    <Text style={{ flexDirection: "row", justifyContent: "center", alignSelf: "flex-start", marginBottom: 4, marginTop: 2 }}>
                         <Text style={{ fontWeight: '700', color: tintColor }}>To: </Text>
                         <Text style={{ fontSize: 14, marginLeft: 2 }}>{directionName}</Text>
                     </Text>
                 }
-                <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 2}}>
+                <View style={{flexDirection: "row", justifyContent: "space-between" }}>
                     <Text style={{ 
                         fontWeight: 'bold',
                         color: '#6B7280',
                         fontSize: 11,
-                        lineHeight: 16,
                         marginTop: 4 
                     }}>
-                        {fullPercentage}% full
+                        {fullPercentage}% Full
                     </Text>
 
-                    <View style={{
-                        backgroundColor: tintColor,
-                        padding: 2, 
-                        paddingHorizontal: 5,
-                        borderRadius: 4, 
+                    <Text style={{ 
+                        fontWeight: 'bold',
+                        color: '#6B7280',
+                        fontSize: 11,
+                        marginTop: 4 
                     }}>
-                        <Text style={{ 
-                            fontWeight: 'bold', 
-                            color: "white", 
-                            fontSize: 10, 
-                            lineHeight: 16, 
-                        }}>{speed.toFixed(0)} MPH</Text>
-                    </View>
+                        {speed.toFixed(0)} MPH
+                    </Text>
                 </View>
             </View>
         </Callout>
