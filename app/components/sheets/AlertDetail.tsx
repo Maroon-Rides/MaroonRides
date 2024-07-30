@@ -33,7 +33,6 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
           if (to === 1) {
               const affectedRoutes = routes?.filter(route => route.directionList.flatMap(direction => direction.serviceInterruptionKeys).includes(Number(alert?.key)));
               setDrawnRoutes(affectedRoutes ?? [])
-              console.log(affectedRoutes?.length)
           }
       }}
     >
