@@ -68,7 +68,7 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                                     <CalloutTimeBubble
                                         key={index}
                                         time={relative <= 0 ? "Now" : relative.toString() + " min"}
-                                        color={index == 0 ? tintColor + "60" : lightMode.nextStopBubble}
+                                        color={index == 0 ? tintColor + "50" : lightMode.nextStopBubble}
                                         textColor={index == 0 ? tintColor : lightMode.text}
                                         live={departureTime.estimatedDepartTimeUtc == null ? false : true}
                                     />
