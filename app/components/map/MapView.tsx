@@ -8,7 +8,7 @@ import useAppStore from "../../data/app_state";
 import BusMarker from "./markers/BusMarker";
 import StopMarker from "./markers/StopMarker";
 import { useVehicles } from "../../data/api_query";
-import { FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { decode } from "@googlemaps/polyline-codec";
 import RoutePlanMarker from "./markers/RoutePlanMarker";
 
