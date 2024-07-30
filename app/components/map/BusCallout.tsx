@@ -52,14 +52,14 @@ const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities,
                         <Text style={{ fontSize: 14, marginLeft: 2 }}>{directionName}</Text>
                     </Text>
                 }
-                <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                <View style={{flexDirection: "row", justifyContent: "space-between", marginTop: 2}}>
                     <Text style={{ 
                         fontWeight: 'bold',
                         color: '#6B7280',
                         fontSize: 11,
                         lineHeight: 16,
-                        marginTop: 4 }}
-                    >
+                        marginTop: 4 
+                    }}>
                         {fullPercentage}% full
                     </Text>
 
