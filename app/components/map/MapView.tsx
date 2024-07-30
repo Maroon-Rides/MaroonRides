@@ -98,7 +98,7 @@ const Map: React.FC = () => {
 
         setRoutePlanMapMarkers([
             {
-                icon: <MaterialCommunityIcons name="circle" size={14} color="white" />,
+                icon: <MaterialCommunityIcons name="circle" size={12} color="white" />,
                 latitude: polyline[polyline.length-1]!.latitude,
                 longitude: polyline[polyline.length-1]!.longitude
             },
@@ -179,7 +179,7 @@ const Map: React.FC = () => {
         } else {
             setRoutePlanMapMarkers([
                 {
-                    icon:<MaterialCommunityIcons name="circle" size={14} color="white" />,
+                    icon:<MaterialCommunityIcons name="circle" size={12} color="white" />,
                     latitude: highlighted[highlighted.length-1]!.latitude,
                     longitude: highlighted[highlighted.length-1]!.longitude
                 },
