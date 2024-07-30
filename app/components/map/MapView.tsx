@@ -432,13 +432,6 @@ const Map: React.FC = () => {
                         <MaterialIcons name="location-searching" size={24} color="gray" />
                     }
                 </TouchableOpacity>
-
-                {/* Divider */}
-                <View style={{ height: 1, backgroundColor: theme.divider, marginVertical: 8, marginHorizontal: -2 }} />
-
-                <TouchableOpacity onPress={() => presentSheet("inputRoute")}>
-                    <FontAwesome6 name="diamond-turn-right" size={24} color="gray" />
-                </TouchableOpacity>
             </View>
             
         </>

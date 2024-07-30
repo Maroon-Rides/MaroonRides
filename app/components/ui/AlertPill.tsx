@@ -9,9 +9,10 @@ import { useRoutes, useServiceInterruptions } from 'app/data/api_query';
 
 interface Props {
     routeId?: string
+    showText?: boolean
 }
 
-const AlertPill: React.FC<Props> = ({ routeId }) => {
+const AlertPill: React.FC<Props> = ({ routeId, showText }) => {
     const presentSheet = useAppStore((state) => state.presentSheet);
     const theme = useAppStore((state) => state.theme);
     const [alertIcon, setAlertIcon] = useState<"bell-badge" | "bell-outline">("bell-outline");
@@ -54,10 +55,9 @@ const AlertPill: React.FC<Props> = ({ routeId }) => {
 
     return (
         <TouchableOpacity onPress={() => presentSheet("alerts")}>
-
                 <IconPill 
                     icon={<MaterialCommunityIcons name={alertIcon} size={16} color={theme.text} />}
-                    text="Alerts" 
+                    text={showText ? "Alerts" : ""}
                 />
         </TouchableOpacity>
     )

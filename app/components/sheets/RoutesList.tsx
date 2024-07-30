@@ -2,13 +2,12 @@ import React, { memo, useEffect, useState } from "react";
 import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent } from "react-native";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 
 import { IDirectionList, IMapRoute } from "../../../utils/interfaces";
 import useAppStore from "../../data/app_state";
 import BusIcon from "../ui/BusIcon";
 import SheetHeader from "../ui/SheetHeader";
-import AlertPill from "../ui/AlertPill";
 import IconPill from "../ui/IconPill";
 import { useAuthToken, useBaseData, usePatternPaths, useRoutes } from "app/data/api_query";
 import { useDefaultRouteGroup, useFavorites } from "app/data/storage_query";
@@ -99,8 +98,19 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     title="Routes" 
                     icon={
                     <View style={{flexDirection: "row", alignContent: "center"}}>
-                        <AlertPill />
-                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={ () => {
+                        {/* Route Planning */}
+                        <TouchableOpacity onPress={() => presentSheet("inputRoute")} >
+                                <IconPill 
+                                    icon={<FontAwesome6 name="diamond-turn-right" size={16} color="white" />}
+                                    text="Plan Route"
+                                />
+                        </TouchableOpacity>
+
+                        {/* Alerts */}
+                        {/* <AlertPill /> */}
+
+                        {/* Settings */}
+                        <TouchableOpacity style={{ marginLeft: 8 }} onPress={ () => {
                             setShouldUpdateData(false);
                             presentSheet("settings")
                         }}>
