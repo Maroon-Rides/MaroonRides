@@ -64,7 +64,7 @@ const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities,
                     </Text>
 
                     <View style={{
-                        backgroundColor: "grey",
+                        backgroundColor: tintColor,
                         padding: 2, 
                         paddingHorizontal: 5,
                         borderRadius: 4, 
