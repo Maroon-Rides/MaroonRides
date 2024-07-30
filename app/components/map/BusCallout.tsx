@@ -11,10 +11,11 @@ interface Props {
     tintColor: string
     routeName: string
     busId: string
+    speed: number
 }
 
 // Bus callout with amentities
-const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities, tintColor, routeName, busId }) => {    
+const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities, tintColor, routeName, busId, speed }) => {    
 
     return (
         <Callout
@@ -51,8 +52,31 @@ const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities,
                         <Text style={{ fontSize: 14, marginLeft: 2 }}>{directionName}</Text>
                     </Text>
                 }
-                
-                <Text style={{ fontWeight: 'bold', color: '#6B7280', fontSize: 10, lineHeight: 16, marginTop: 4 }}>{fullPercentage}% full</Text>
+                <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                    <Text style={{ 
+                        fontWeight: 'bold',
+                        color: '#6B7280',
+                        fontSize: 11,
+                        lineHeight: 16,
+                        marginTop: 4 }}
+                    >
+                        {fullPercentage}% full
+                    </Text>
+
+                    <View style={{
+                        backgroundColor: "grey",
+                        padding: 2, 
+                        paddingHorizontal: 5,
+                        borderRadius: 4, 
+                    }}>
+                        <Text style={{ 
+                            fontWeight: 'bold', 
+                            color: "white", 
+                            fontSize: 10, 
+                            lineHeight: 16, 
+                        }}>{speed.toFixed(0)} MPH</Text>
+                    </View>
+                </View>
             </View>
         </Callout>
     )

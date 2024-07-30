@@ -48,6 +48,7 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
                 tintColor={tintColor} 
                 routeName={routeName} 
                 busId={bus.name}
+                speed={bus.location.speed}
             />
         </Marker>
     );
