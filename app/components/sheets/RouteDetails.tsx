@@ -163,14 +163,14 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
                     { selectedRoute?.directionList.length > 1 && 
                         <SegmentedControl
-                            style={{ marginHorizontal: 16 }}
+                            style={{ marginHorizontal: 16, marginBottom: 8 }}
                             values={selectedRoute?.directionList.map(direction => "to " + direction.destination) ?? []}
                             selectedIndex={selectedDirectionIndex}
                             onChange={handleSetSelectedDirection}
                         />
                     }
                     
-                    <View style={{ height: 1, backgroundColor: theme.divider, marginTop: 8 }} />
+                    <View style={{ height: 1, backgroundColor: theme.divider }} />
                 </BottomSheetView>
             }
             
