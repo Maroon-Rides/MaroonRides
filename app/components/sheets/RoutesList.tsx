@@ -101,7 +101,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                         {/* Route Planning */}
                         <TouchableOpacity onPress={() => presentSheet("inputRoute")} >
                                 <IconPill 
-                                    icon={<FontAwesome6 name="diamond-turn-right" size={16} color="white" />}
+                                    icon={<FontAwesome6 name="diamond-turn-right" size={16} color={theme.text} />}
                                     text="Plan Route"
                                 />
                         </TouchableOpacity>
