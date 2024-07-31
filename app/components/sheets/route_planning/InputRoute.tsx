@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Keyboard, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, Keyboard, ActivityIndicator, Button } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
@@ -13,6 +13,7 @@ import { useTripPlan } from "app/data/api_query";
 import { useQueryClient } from "@tanstack/react-query";
 import TripPlanCell from "app/components/ui/TripPlanCell";
 import * as Location from 'expo-location';
+import { Linking } from "react-native";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -67,7 +68,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             Location.requestForegroundPermissionsAsync().then(async (status) => {
                 // Check if permission is granted
                 if (!status.granted) {
-                    setRouteInfoError("Cannot get current location. Please enable location services in your settings.") 
+                    setRouteInfoError("Location Unavailable, enable location in Settings.") 
                     return
                 }
 
@@ -192,8 +193,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                         <View style={{marginTop: 8, justifyContent: "center", alignItems: "center"}}>
                             
                             {/* Error Text */}
-                            <Text style={{color: theme.subtitle,  textAlign:"center", marginLeft: 4 }}>{routeInfoError}</Text>
+                            <Text style={{color: theme.subtitle,  textAlign:"center", marginLeft: 4, paddingHorizontal: 24 }}>{routeInfoError}</Text>
                         </View>
+                    )}
+                    { routeInfoError == "Location Unavailable, enable location in Settings." && (
+                        <Button title="Open Settings" onPress={() => Linking.openSettings()} />
                     )}
 
                     {/* Search Button */}
