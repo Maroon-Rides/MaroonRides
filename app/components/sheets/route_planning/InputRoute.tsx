@@ -170,10 +170,10 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                     {/* Leave by/Arrive By */}
                     <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 12, paddingHorizontal: 16 }}>
                         <SegmentedControl
-                            values={['Arrive by', 'Leave by']}
+                            values={['Leave by', 'Arrive by']}
                             selectedIndex={0}
                             onChange={(event) => {
-                                setDeadline(event.nativeEvent.selectedSegmentIndex == 0 ? "arrive" : "leave")
+                                setDeadline(event.nativeEvent.selectedSegmentIndex == 0 ? "leave" : "arrive")
                             }}
                             style={{flex: 1, marginRight: 8}}
                         />

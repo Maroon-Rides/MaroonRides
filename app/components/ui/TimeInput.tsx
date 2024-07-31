@@ -56,10 +56,10 @@ const TimeInput: React.FC<Props> = ({ onTimeChange }) => {
         onTimeChange(date);
     }, [time, meridiem])
 
-    // set initial time to current time +15 minutes
+    // set initial time to current time 
     useEffect(() => {
         let date = new Date();
-        date.setMinutes(date.getMinutes() + 15);
+        date.setMinutes(date.getMinutes());
         let hours = date.getHours();
         let minutes = date.getMinutes();
         let meridiem = hours >= 12 ? 'PM' : 'AM';
