@@ -47,7 +47,10 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
     useEffect(() => {
         setDrawnRoutes([])
+        setSuggesionOutput(null)
     }, [])
+
+    console.log(startLocation, endLocation)
 
     useEffect(() => {
         
@@ -163,6 +166,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 const temp = startLocation
                                 setStartLocation(endLocation)
                                 setEndLocation(temp)
+                                setSuggesionOutput(null)
                             }}>
                             <MaterialCommunityIcons name="swap-vertical" size={28} color={theme.subtitle} />
                         </TouchableOpacity>
@@ -297,7 +301,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: theme.divider, marginLeft: 12}} />}
                             ListHeaderComponent={() => {
                                 const filtered = tripPlan?.optionDetails.filter((plan) => plan.startTime > Math.floor(Date.now() / 1000)) ?? []
-                                if (filtered.length == 0 && !tripPlanLoading) {
+                                if (filtered.length == 0 && !tripPlanLoading && startLocation && endLocation) {
                                     return (
                                         <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
                                             <Text style={{color: theme.subtitle, textAlign: "center"}}>No routes found</Text>
