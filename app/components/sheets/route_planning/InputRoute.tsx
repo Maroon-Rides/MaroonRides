@@ -22,14 +22,14 @@ interface SheetProps {
 // AlertList (for all routes and current route)
 const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
-    const snapPoints = ['90%'];
+    const snapPoints = ['85%'];
 
     const theme = useAppStore((state) => state.theme);
 
     // Planning Inputs
     const [startLocation, setStartLocation] = useState<SearchSuggestion | null>(MyLocationSuggestion);
     const [endLocation, setEndLocation] = useState<SearchSuggestion | null>(null);
-    const [deadline, setDeadline] = useState<"leave" | "arrive">("arrive");
+    const [deadline, setDeadline] = useState<"leave" | "arrive">("leave");
     const [time, setTime] = useState<Date>(new Date());
 
     const { data: tripPlan, isError, isLoading: tripPlanLoading } = useTripPlan(startLocation, endLocation, time, deadline);
@@ -49,8 +49,6 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         setDrawnRoutes([])
         setSuggesionOutput(null)
     }, [])
-
-    console.log(startLocation, endLocation)
 
     useEffect(() => {
         
@@ -286,7 +284,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             // filter out plans that have already passed, sort by end time
                             data={
                                 tripPlan?.optionDetails
-                                    .filter((plan) => plan.startTime > Math.floor(Date.now() / 1000))
+                                    .filter((plan) => plan.startTime > Math.floor(Date.now() / 1000) - 300)
                                     .sort((a, b) => a.endTime - b.endTime)
                             }
                             keyExtractor={(_, index) => index.toString()}
@@ -300,7 +298,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             keyboardShouldPersistTaps={"handled"}
                             ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: theme.divider, marginLeft: 12}} />}
                             ListHeaderComponent={() => {
-                                const filtered = tripPlan?.optionDetails.filter((plan) => plan.startTime > Math.floor(Date.now() / 1000)) ?? []
+                                const filtered = tripPlan?.optionDetails.filter((plan) => plan.startTime > Math.floor(Date.now() / 1000) - 300) ?? []
                                 if (filtered.length == 0 && !tripPlanLoading && startLocation && endLocation) {
                                     return (
                                         <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
