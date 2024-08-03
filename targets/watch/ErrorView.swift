@@ -1,6 +1,6 @@
 //
 //  ErrorView.swift
-//  ReveilleRides
+//  MaroonRides
 //
 //  Created by Brandon Wees on 8/2/24.
 //
