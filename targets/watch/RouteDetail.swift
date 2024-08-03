@@ -16,13 +16,15 @@ struct RouteDetail: View {
   @State var selectedPath: PatternPath?
   @State var favorited: Bool = false
   
+  @State var error: Error?
+  
   func updatePathData() {
     apiManager.getPatternPaths(
       routeKeys: [route.key]
     )
       .sink(receiveCompletion: { completion in
         if case .failure(let error) = completion {
-            apiManager.error = error
+          self.error = error
         }
       }, receiveValue: { data in
           patternPaths = data
@@ -44,10 +46,14 @@ struct RouteDetail: View {
           .background(Color(hex: route.directionList[0].lineColor))
           .clipShape(.rect(cornerSize: CGSize(width: 8, height: 8)))
         
-        Text(route.name)
-          .font(.headline)
-          .frame(alignment: .leading)
-          .lineLimit(1)
+        MarqueeText(
+          text: route.name,
+          font: UIFont.preferredFont(forTextStyle: .headline),
+          leftFade: 8,
+          rightFade: 8,
+          startDelay: 1
+        )
+          .padding([.leading], 2)
         
         Spacer()
         
@@ -90,10 +96,17 @@ struct RouteDetail: View {
           selectedDirection = newSelected
           selectedPath = patternPaths[0].patternPaths.filter({$0.directionKey == route.directionList[selectedDirection].direction.key}).first
         }) {
-          HStack {
+          HStack(alignment: .center) {
             Image(systemName: "chevron.up.chevron.down")
-            Text("to " + route.directionList[selectedDirection].destination)
-              .lineLimit(1)
+            
+            MarqueeText(
+              text: "to " + route.directionList[selectedDirection].destination,
+              font: UIFont.systemFont(ofSize: 16),
+              leftFade: 8,
+              rightFade: 8,
+              startDelay: 1
+            )
+              .padding([.leading], 2)
           }
           .padding([.vertical], 4)
           .padding([.horizontal], 8)
@@ -103,8 +116,8 @@ struct RouteDetail: View {
           .buttonStyle(.plain)
       }
       
-      
-      if (patternPaths.count > 0) {
+
+      if (patternPaths.count > 0 && (error == nil)) {
         Divider()
         ForEach(selectedPath!.patternPoints, id: \.key) { point in
           if (point.stop != nil) {
@@ -115,9 +128,14 @@ struct RouteDetail: View {
         
 
       } else {
-        ProgressView()
-          .progressViewStyle(.circular)
-          .scaleEffect(1)
+        if (error != nil) {
+          ErrorView(text: "There was an error loading the route")
+            .padding(.top, 16)
+        } else {
+          ProgressView()
+            .progressViewStyle(.circular)
+            .scaleEffect(1)
+        }
       }
     }.onAppear(perform: {
       updatePathData()

@@ -15,6 +15,19 @@ enum NetworkError: Error {
   case invalidResponse
 }
 
+class SSLBypassDelegate: NSObject, URLSessionDelegate {
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
+           let serverTrust = challenge.protectionSpace.serverTrust {
+            // Allow any certificate
+            let credential = URLCredential(trust: serverTrust)
+            completionHandler(.useCredential, credential)
+        } else {
+            completionHandler(.performDefaultHandling, nil)
+        }
+    }
+}
+
 class APIManager: ObservableObject {
   @Published var baseData: GetBaseDataResponse?
   @Published var error: Error?
@@ -22,6 +35,8 @@ class APIManager: ObservableObject {
   
   private var authKey: String = ""
   var cancellables = Set<AnyCancellable>()
+  let session = URLSession(configuration: .default, delegate: SSLBypassDelegate(), delegateQueue: nil)
+
   
   func fetchData() {
     getAuthentication()
@@ -49,7 +64,9 @@ class APIManager: ObservableObject {
     request.httpMethod = "GET"
     request.httpShouldHandleCookies = false
     
-    return URLSession.shared.dataTaskPublisher(for: request)
+    
+    
+    return session.dataTaskPublisher(for: request)
       .tryMap { data, response in
         guard let httpResponse = response as? HTTPURLResponse,
               httpResponse.statusCode == 200,
@@ -76,7 +93,7 @@ class APIManager: ObservableObject {
     request.httpMethod = "POST"
     request.addValue(auth, forHTTPHeaderField: "cookie")
     
-    return URLSession.shared.dataTaskPublisher(for: request)
+    return session.dataTaskPublisher(for: request)
       .map(\.data)
       .decode(type: GetBaseDataResponse.self, decoder: JSONDecoder())
       .receive(on: RunLoop.main)
@@ -84,6 +101,7 @@ class APIManager: ObservableObject {
   }
   
   func getPatternPaths(routeKeys: [String]) -> AnyPublisher<[GetPatternPathsResponse], Error> {
+
     let bodyData = routeKeys.map { "routeKeys%5B%5D=\($0)" }.joined(separator: "&")
     guard let url = URL(string: "https://aggiespirit.ts.tamu.edu/RouteMap/GetPatternPaths") else {
       return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
@@ -96,7 +114,7 @@ class APIManager: ObservableObject {
     
     request.httpBody = bodyData.data(using: .utf8)
     
-    return URLSession.shared.dataTaskPublisher(for: request)
+    return session.dataTaskPublisher(for: request)
       .tryMap { data, response in
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
           throw NetworkError.invalidResponse
@@ -109,6 +127,7 @@ class APIManager: ObservableObject {
   }
   
   func getNextDepartureTimes(routeId: String, directionIds: [String], stopCode: String) -> AnyPublisher<GetNextDepartTimesResponse, Error> {
+    
       var bodyData = [String]()
       for (i, directionId) in directionIds.enumerated() {
           let directionData = "routeDirectionKeys[\(i)][routeKey]=\(routeId)&routeDirectionKeys[\(i)][directionKey]=\(directionId)&stopCode=\(stopCode)"
@@ -126,7 +145,7 @@ class APIManager: ObservableObject {
       request.setValue("application/x-www-form-urlencoded; charset=UTF-8", forHTTPHeaderField: "Content-Type")
       request.httpBody = bodyString.data(using: .utf8)
 
-      return URLSession.shared.dataTaskPublisher(for: request)
+      return session.dataTaskPublisher(for: request)
           .tryMap { data, response in
               guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
                   throw NetworkError.invalidResponse

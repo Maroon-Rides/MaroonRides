@@ -44,7 +44,7 @@ struct PatternPath: Codable {
     let patternKey: String
     let directionKey: String
     let patternPoints: [PatternPoint]
-    let segmentPaths: [String] // Always blank... leaving as Any for now
+//    let segmentPaths: [Any] // Always blank... leaving as Any for now
 }
 
 struct MapRoute: Codable {

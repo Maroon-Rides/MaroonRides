@@ -13,6 +13,7 @@ struct StopCell: View {
   var route: MapRoute
   
   @State var estimates: GetNextDepartTimesResponse?
+  @State var error: Error?
   
   @EnvironmentObject var apiManager: APIManager
   
@@ -20,7 +21,7 @@ struct StopCell: View {
     apiManager.getNextDepartureTimes(routeId: route.key, directionIds: [direction.key], stopCode: stop.stopCode)
       .sink(receiveCompletion: { completion in
         if case .failure(let error) = completion {
-            apiManager.error = error
+            self.error = error
         }
       }, receiveValue: { data in
           estimates = data
@@ -37,10 +38,15 @@ struct StopCell: View {
         Text(stop.name)
         Spacer()
       }
-      if estimates == nil {
-        ProgressView()
-          .progressViewStyle(.circular)
-          .padding()
+      if estimates == nil || error != nil {
+        if error != nil {
+          Text("Error loading stop times")
+            .foregroundStyle(.gray)
+        } else {
+          ProgressView()
+            .progressViewStyle(.circular)
+            .padding()
+        }
       } else {
         if (estimates?.routeDirectionTimes[0].nextDeparts.count == 0) {
           HStack {
@@ -77,7 +83,6 @@ struct StopCell: View {
 
     }
     .onReceive(timer, perform: { _ in
-      print("update")
       updateStopEstimates()
     })
     .onAppear(perform: {

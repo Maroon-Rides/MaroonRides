@@ -13,45 +13,56 @@ struct RouteCell: View {
   var color: Color
   var subtitle: String
 
+  @State var showNextLine = false
+  @State var rowHeight: CGFloat = 84
+  
+  let titleFont = UIFont.preferredFont(forTextStyle: .headline)
+  
   var body: some View {
-      HStack {
-        VStack {
+    HStack {
+      VStack {
+        HStack(alignment: .center) {
+          Text(number)
+            .frame(height: 22)
+            .padding([.horizontal], 6)
+            .font(.system(size: 16).bold())
+            .minimumScaleFactor(0.1)
+            .lineLimit(1)
+            .background(color)
+            .clipShape(.rect(cornerSize: CGSize(width: 8, height: 8)))
+          
+          MarqueeText(
+            text: name,
+            font: titleFont,
+            leftFade: 8,
+            rightFade: 8,
+            startDelay: 1
+          )
+          .padding([.leading], 2)
+        }
+        
+        if subtitle != "" {
           HStack {
-            Text(number)
-              .padding([.vertical], 2)
-              .padding([.horizontal], 6)
-              .font(.system(size: 16).bold())
-              .minimumScaleFactor(0.1)
-              .lineLimit(1)
-              .background(color)
-              .clipShape(.rect(cornerSize: CGSize(width: 8, height: 8)))
-            Text(name)
-              .font(.headline)
-              .frame(alignment: .leading)
-              .lineLimit(1)
+            MarqueeText(
+              text: subtitle,
+              font: UIFont.systemFont(ofSize: 12),
+              leftFade: 8,
+              rightFade: 8,
+              startDelay: 2
+            )
+            .padding([.leading], 4)
             Spacer()
           }
-          if subtitle != "" {
-            HStack {
-              Text(subtitle)
-                .font(.system(size: 12))
-                .frame(alignment: .leading)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-
-              Spacer()
-            }
-          }
         }
-        .padding([.leading], 4)
-        
-        Spacer()
-        
-        Image(systemName: "chevron.right")
-          .foregroundStyle(.tertiary)
       }
-      .padding([.vertical], 8)
-
+//      .padding([.leading], 4)
+      
+      Spacer()
+      
+      Image(systemName: "chevron.right")
+        .foregroundStyle(.tertiary)
+    }
+    .padding([.vertical], 8)
   }
 }
 
