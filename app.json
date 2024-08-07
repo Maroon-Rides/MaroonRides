@@ -72,7 +72,9 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow location for map display and route planning"
+          "locationAlwaysAndWhenInUsePermission": "Allow location for map display and route planning",
+          "locationAlwaysPermission": "Allow location for map display and route planning",
+          "locationWhenInUsePermission": "Allow location for map display and route planning"
         }
       ]
     ]
