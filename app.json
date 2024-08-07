@@ -66,6 +66,15 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "plugins": ["@config-plugins/detox", "expo-router", "expo-location"]
+    "plugins": [
+      "@config-plugins/detox", 
+      "expo-router", 
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow location for map display and route planning"
+        }
+      ]
+    ]
   }
 }
