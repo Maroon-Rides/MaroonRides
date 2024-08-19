@@ -28,7 +28,7 @@ export const useBaseData = () => {
             const authToken: string = client.getQueryData(["authToken"])!;
             const baseData = await getBaseData(authToken);
 
-            // go through each route and add a empty arrain on patternPaths
+            // go through each route and add a empty array on patternPaths
             // @ts-ignore: We are modifying the baseData object to add patternPaths
             baseData.routes.forEach(route => route.patternPaths = []);
 
@@ -228,47 +228,23 @@ export const useSearchSuggestion = (query: string) => {
     return useQuery<SearchSuggestion[]>({
         queryKey: ["searchSuggestion", query],
         queryFn: async () => {
-            const dataSources: Promise<any>[] = [
-                findBusStops(query, client.getQueryData(["authToken"])!),
+            let dataSources: Promise<any>[] = [
                 findLocations(query, "AIzaSyA89ax74We8sxQcmzDgPTgEUoXMBsc3lG0")
             ]
 
+            // we need data from pattern paths to get the stop GPS locations
+            // This is limitation of the API where we can't get the GPS location of a stop directly
+            // we can just ignore the bus stops if we don't have the pattern paths 
+            // since Google already has most buildings in their search
+            if (client.getQueryState(["patternPaths"])?.status === "success" &&
+                client.getQueryState(["baseData"])?.status === "success") {
+                dataSources.push(findBusStops(query, client.getQueryData(["authToken"])!))
+            }
+
             const responses = await Promise.all(dataSources);
 
-            const baseData = client.getQueryData(["baseData"]) as IGetBaseDataResponse;
-
-            // handle bus stops
-            const busStops: [SearchSuggestion] = responses[0].map((stop: IFoundStop) => {
-                // find the stop location (lat/long) in baseData patternPaths
-                // TODO: convert this processing to be on the BaseData loading
-                let foundLocation: IPatternPoint | undefined = undefined;
-                for (let route of baseData.routes) {
-                    for (let path of route.patternPaths) {
-                        const stops = path.patternPoints.filter(point => point.stop != null)
-                        for (let point of stops) {
-                            if (point.stop?.stopCode === stop.stopCode) {
-                                foundLocation = point;
-                                break;
-                            }
-                        }
-                        if (foundLocation) break;
-                    }
-
-                    if (foundLocation) break;
-                }
-
-                return {
-                    type: "stop",
-                    title: stop.stopName,
-                    subtitle: "ID: " + stop.stopCode,
-                    code: stop.stopCode,
-                    lat: foundLocation?.latitude,
-                    long: foundLocation?.longitude
-                }
-            });
-
             // handle locations
-            const locations: [SearchSuggestion] = responses[1].map((location: IFoundLocation) => {
+            const locations: [SearchSuggestion] = responses[0].map((location: IFoundLocation) => {
                 return {
                     type: "map",
                     title: location.structured_formatting.main_text,
@@ -277,9 +253,46 @@ export const useSearchSuggestion = (query: string) => {
                 }
             });
 
+            
+            // handle bus stops
+            let busStops: SearchSuggestion[] = []
+            if (responses.length > 1) {
+                // we need the baseData to get the stop GPS locations
+                const baseData = client.getQueryData(["baseData"]) as IGetBaseDataResponse;
+
+                busStops = responses[1].map((stop: IFoundStop) => {
+                    // find the stop location (lat/long) in baseData patternPaths
+                    // TODO: convert this processing to be on the BaseData loading
+                    let foundLocation: IPatternPoint | undefined = undefined;
+                    for (let route of baseData.routes) {
+                        for (let path of route.patternPaths) {
+                            const stops = path.patternPoints.filter(point => point.stop != null)
+                            for (let point of stops) {
+                                if (point.stop?.stopCode === stop.stopCode) {
+                                    foundLocation = point;
+                                    break;
+                                }
+                            }
+                            if (foundLocation) break;
+                        }
+
+                        if (foundLocation) break;
+                    }
+
+                    return {
+                        type: "stop",
+                        title: stop.stopName,
+                        subtitle: "ID: " + stop.stopCode,
+                        code: stop.stopCode,
+                        lat: foundLocation?.latitude,
+                        long: foundLocation?.longitude
+                    }
+                });
+            }
+
             return [...busStops, ...locations];
         },
-        enabled: useAuthToken().isSuccess && useBaseData().isSuccess && query !== "" ,
+        enabled: useAuthToken().isSuccess && query !== "" ,
         throwOnError: true,
         staleTime: Infinity
     });
