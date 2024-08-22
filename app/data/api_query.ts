@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { TripPlan, findBusStops, findLocations, getAuthentication, getBaseData, getNextDepartureTimes, getPatternPaths, getStopEstimates, getStopSchedules, getTripPlan, getVehicles } from "aggie-spirit-api";
 import { darkMode, lightMode } from "app/theme";
 import { getColorScheme } from "app/utils";
@@ -19,16 +19,15 @@ export const useAuthToken = () => {
 };
 
 export const useBaseData = () => {
-    const client = useQueryClient();
+    const authTokenQuery = useAuthToken();
 
     const query = useQuery<IGetBaseDataResponse>({
         queryKey: ["baseData"],
         // @ts-ignore: We are modifying the baseData object to add patternPaths
         queryFn: async () => {
-            const authToken: string = client.getQueryData(["authToken"])!;
-            const baseData = await getBaseData(authToken);
+            const baseData = await getBaseData(authTokenQuery.data!);
 
-            // go through each route and add a empty arrain on patternPaths
+            // go through each route and add a empty array on patternPaths
             // @ts-ignore: We are modifying the baseData object to add patternPaths
             baseData.routes.forEach(route => route.patternPaths = []);
 
@@ -36,7 +35,7 @@ export const useBaseData = () => {
 
             return baseData;
         },
-        enabled: useAuthToken().isSuccess,
+        enabled: authTokenQuery.isSuccess,
         staleTime: Infinity,
     });
 
@@ -44,21 +43,21 @@ export const useBaseData = () => {
 };
 
 export const usePatternPaths = () => {
-    const client = useQueryClient();
+    const authTokenQuery = useAuthToken();
+    const baseDataQuery = useBaseData();
 
     const query = useQuery<IGetPatternPathsResponse>({
         queryKey: ["patternPaths"],
         queryFn: async () => {
-            const authToken: string = client.getQueryData(["authToken"])!;
-            const baseData = client.getQueryData(["baseData"]) as IGetBaseDataResponse;
+            const baseData = baseDataQuery.data as IGetBaseDataResponse;
 
-            const patternPaths = await getPatternPaths(baseData.routes.map(route => route.key), authToken);
+            const patternPaths = await getPatternPaths(baseData.routes.map(route => route.key), authTokenQuery.data!);
 
             GetPatternPathsResponseSchema.parse(patternPaths);
 
             return patternPaths;
         },
-        enabled: useBaseData().isSuccess,
+        enabled: baseDataQuery.isSuccess,
         staleTime: Infinity
     });
 
@@ -66,13 +65,14 @@ export const usePatternPaths = () => {
 };
 
 export const useRoutes = () => {
-    const client = useQueryClient();
+    const baseDataQuery = useBaseData();
+    const patternPathsQuery = usePatternPaths();
 
     const query = useQuery<IMapRoute[]>({
         queryKey: ["routes"],
         queryFn: async () => {
-            const baseData = client.getQueryData(["baseData"]) as IGetBaseDataResponse;
-            const patternPaths = client.getQueryData(["patternPaths"]) as IGetPatternPathsResponse;
+            const baseData = baseDataQuery.data as IGetBaseDataResponse;
+            const patternPaths = patternPathsQuery.data as IGetPatternPathsResponse;
 
             function addPatternPathsToRoutes(baseDataRoutes: IMapRoute[], patternPathsResponse: IGetPatternPathsResponse) {
                 for (let elm of patternPathsResponse) {
@@ -98,7 +98,7 @@ export const useRoutes = () => {
 
             return routes;
         },
-        enabled: usePatternPaths().isSuccess,
+        enabled: patternPathsQuery.isSuccess && baseDataQuery.isSuccess,
         staleTime: Infinity
     });
 
@@ -106,28 +106,26 @@ export const useRoutes = () => {
 };
 
 export const useServiceInterruptions = () => {
-    const client = useQueryClient();
+    const baseDataQuery = useBaseData()
 
     return useQuery<IMapServiceInterruption[]>({
         queryKey: ["serviceInterruptions"],
         queryFn: async () => {
-            const baseData = client.getQueryData(["baseData"]) as IGetBaseDataResponse;
+            const baseData = baseDataQuery.data as IGetBaseDataResponse;
             return baseData.serviceInterruptions;
         },
-        enabled: useBaseData().isSuccess,
+        enabled: baseDataQuery.isSuccess,
         staleTime: Infinity
     });
 };
 
 export const useStopEstimate = (routeKey: string, directionKey: string, stopCode: string) => {
-    const client = useQueryClient();
+    const authTokenQuery = useAuthToken();
 
     return useQuery<IGetNextDepartTimesResponse>({
         queryKey: ["stopEstimate", routeKey, directionKey, stopCode],
-        queryFn: async () => {
-            const authToken: string = client.getQueryData(["authToken"])!;
-    
-            const response = await getNextDepartureTimes(routeKey, [directionKey], stopCode, authToken);
+        queryFn: async () => {    
+            const response = await getNextDepartureTimes(routeKey, [directionKey], stopCode, authTokenQuery.data!);
             GetNextDepartTimesResponseSchema.parse(response);
 
             // dedup the stopTimes[].nextDeparts based on relative time
@@ -148,58 +146,55 @@ export const useStopEstimate = (routeKey: string, directionKey: string, stopCode
 
             return response
         },
-        enabled: useAuthToken().isSuccess,
+        enabled: authTokenQuery.isSuccess,
         staleTime: 30000,
         refetchInterval: 30000  
     })
 }
 
 export const useTimetableEstimate = (stopCode: string, date: Date) => {
-    const client = useQueryClient();
+    const authTokenQuery = useAuthToken();
 
     return useQuery<IGetStopEstimatesResponse>({
         queryKey: ["timetableEstimate", stopCode, moment(date).format("YYYY-MM-DD")],
-        queryFn: async () => {
-            const authToken: string = client.getQueryData(["authToken"])!;
-    
-            const response = await getStopEstimates(stopCode, date, authToken);
+        queryFn: async () => {    
+            const response = await getStopEstimates(stopCode, date, authTokenQuery.data!);
             GetStopEstimatesResponseSchema.parse(response);
 
             return response
         },
-        enabled: useAuthToken().isSuccess,
+        enabled: authTokenQuery.isSuccess,
         staleTime: 30000,
         refetchInterval: 30000  
     })
 }
 
 export const useSchedule = (stopCode: string, date: Date) => {
-    const client = useQueryClient();
+    const authTokenQuery = useAuthToken();
 
     return useQuery<IGetStopSchedulesResponse>({
         queryKey: ["schedule", stopCode, date],
         queryFn: async () => {
-            const authToken: string = client.getQueryData(["authToken"])!;
-    
-            const stopSchedulesResponse = await getStopSchedules(stopCode, date, authToken);
+            const stopSchedulesResponse = await getStopSchedules(stopCode, date, authTokenQuery.data!);
             GetStopSchedulesResponseSchema.parse(stopSchedulesResponse);
 
             return stopSchedulesResponse
         },
-        enabled: useAuthToken().isSuccess && stopCode !== "" && date !== null,
+        enabled:
+            authTokenQuery.isSuccess && 
+            stopCode !== "" && 
+            date !== null,
         staleTime: Infinity
     })
 }
 
 export const useVehicles = (routeKey: string) => {
-    const client = useQueryClient();
+    const authTokenQuery = useAuthToken();
 
     return useQuery<IVehicle[]>({
         queryKey: ["vehicles", routeKey],
         queryFn: async () => {
-            const authToken: string = client.getQueryData(["authToken"])!;
-    
-            let busesResponse = await getVehicles([routeKey], authToken) as IGetVehiclesResponse;
+            let busesResponse = await getVehicles([routeKey], authTokenQuery.data!) as IGetVehiclesResponse;
             GetVehiclesResponseSchema.parse(busesResponse);
 
             if (busesResponse.length == 0 || !busesResponse[0]?.vehiclesByDirections) {
@@ -215,7 +210,9 @@ export const useVehicles = (routeKey: string) => {
 
             return extracted;
         },
-        enabled: useAuthToken().isSuccess && routeKey !== "",
+        enabled: 
+            authTokenQuery.isSuccess && 
+            routeKey !== "",
         staleTime: 10000,
         refetchInterval: 10000  
     })
@@ -223,52 +220,29 @@ export const useVehicles = (routeKey: string) => {
 
 // Route Planning
 export const useSearchSuggestion = (query: string) => {
-    const client = useQueryClient();
+    const authTokenQuery = useAuthToken();
+    const baseDataQuery = useBaseData();
+    const patternPathsQuery = usePatternPaths();
 
     return useQuery<SearchSuggestion[]>({
         queryKey: ["searchSuggestion", query],
         queryFn: async () => {
-            const dataSources: Promise<any>[] = [
-                findBusStops(query, client.getQueryData(["authToken"])!),
+            let dataSources: Promise<any>[] = [
                 findLocations(query, "AIzaSyA89ax74We8sxQcmzDgPTgEUoXMBsc3lG0")
             ]
 
+            // we need data from pattern paths to get the stop GPS locations
+            // This is limitation of the API where we can't get the GPS location of a stop directly
+            // we can just ignore the bus stops if we don't have the pattern paths 
+            // since Google already has most buildings in their search
+            if (patternPathsQuery.isSuccess && baseDataQuery.isSuccess) {
+                dataSources.push(findBusStops(query, authTokenQuery.data!))
+            }
+
             const responses = await Promise.all(dataSources);
 
-            const baseData = client.getQueryData(["baseData"]) as IGetBaseDataResponse;
-
-            // handle bus stops
-            const busStops: [SearchSuggestion] = responses[0].map((stop: IFoundStop) => {
-                // find the stop location (lat/long) in baseData patternPaths
-                // TODO: convert this processing to be on the BaseData loading
-                let foundLocation: IPatternPoint | undefined = undefined;
-                for (let route of baseData.routes) {
-                    for (let path of route.patternPaths) {
-                        const stops = path.patternPoints.filter(point => point.stop != null)
-                        for (let point of stops) {
-                            if (point.stop?.stopCode === stop.stopCode) {
-                                foundLocation = point;
-                                break;
-                            }
-                        }
-                        if (foundLocation) break;
-                    }
-
-                    if (foundLocation) break;
-                }
-
-                return {
-                    type: "stop",
-                    title: stop.stopName,
-                    subtitle: "ID: " + stop.stopCode,
-                    code: stop.stopCode,
-                    lat: foundLocation?.latitude,
-                    long: foundLocation?.longitude
-                }
-            });
-
             // handle locations
-            const locations: [SearchSuggestion] = responses[1].map((location: IFoundLocation) => {
+            const locations: [SearchSuggestion] = responses[0].map((location: IFoundLocation) => {
                 return {
                     type: "map",
                     title: location.structured_formatting.main_text,
@@ -277,28 +251,66 @@ export const useSearchSuggestion = (query: string) => {
                 }
             });
 
+            
+            // handle bus stops
+            let busStops: SearchSuggestion[] = []
+            if (responses.length > 1) {
+                // we need the baseData to get the stop GPS locations
+                const baseData = baseDataQuery.data as IGetBaseDataResponse;
+
+                busStops = responses[1].map((stop: IFoundStop) => {
+                    // find the stop location (lat/long) in baseData patternPaths
+                    // TODO: convert this processing to be on the BaseData loading
+                    let foundLocation: IPatternPoint | undefined = undefined;
+                    for (let route of baseData.routes) {
+                        for (let path of route.patternPaths) {
+                            const stops = path.patternPoints.filter(point => point.stop != null)
+                            for (let point of stops) {
+                                if (point.stop?.stopCode === stop.stopCode) {
+                                    foundLocation = point;
+                                    break;
+                                }
+                            }
+                            if (foundLocation) break;
+                        }
+
+                        if (foundLocation) break;
+                    }
+
+                    return {
+                        type: "stop",
+                        title: stop.stopName,
+                        subtitle: "ID: " + stop.stopCode,
+                        code: stop.stopCode,
+                        lat: foundLocation?.latitude,
+                        long: foundLocation?.longitude
+                    }
+                });
+            }
+
             return [...busStops, ...locations];
         },
-        enabled: useAuthToken().isSuccess && useBaseData().isSuccess && query !== "" ,
+        enabled: 
+            authTokenQuery.isSuccess && 
+            query !== "" ,
         throwOnError: true,
         staleTime: Infinity
     });
 }
 
 export const useTripPlan = (origin: SearchSuggestion | null, destination: SearchSuggestion | null, date: Date, deadline: "leave" | "arrive") => {
-    const client = useQueryClient();
+    const authTokenQuery = useAuthToken();
 
     return useQuery<TripPlan>({
         queryKey: ["tripPlan", origin, destination, date, deadline],
         queryFn: async () => {
-            const authToken: string = client.getQueryData(["authToken"])!;
             
             let response = await getTripPlan(
                                         origin!, 
                                         destination!, 
                                         deadline == "arrive" ? date : undefined,
                                         deadline == "leave" ? date : undefined,
-                                        authToken
+                                        authTokenQuery.data!
                                     );
 
             GetTripPlanResponseSchema.parse(response)
@@ -308,7 +320,12 @@ export const useTripPlan = (origin: SearchSuggestion | null, destination: Search
 
             return response;
         },
-        enabled: useAuthToken().isSuccess && origin !== null && destination !== null && date !== null && deadline !== null,
+        enabled: 
+            authTokenQuery.isSuccess &&
+            origin !== null &&
+            destination !== null &&
+            date !== null &&
+            deadline !== null,
         staleTime: 60000, // 2 minutes
         throwOnError: true
     });

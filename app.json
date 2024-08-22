@@ -2,7 +2,7 @@
   "expo": {
     "name": "Maroon Rides",
     "slug": "Maroon Rides",
-    "version": "1.5.0",
+    "version": "1.5.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -68,14 +68,19 @@
     },
     "plugins": [
       "@config-plugins/detox", 
-      "expo-router", 
-      "expo-location", 
       ["@bacons/apple-targets",
         {
           "appleTeamId": "65AMD2STXG"
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow location for map display and route planning",
+          "locationAlwaysPermission": "Allow location for map display and route planning",
+          "locationWhenInUsePermission": "Allow location for map display and route planning"
+        }
       ]
     ]
-    
   }
 }

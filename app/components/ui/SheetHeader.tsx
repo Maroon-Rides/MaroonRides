@@ -15,18 +15,15 @@ const SheetHeader: React.FC<Props> = ({ title, subtitle, icon, onTitlePress }) =
     const theme = useAppStore((state) => state.theme);
 
     return (
-        <View style={{ marginBottom: 8, marginHorizontal: 16 }}>
-            <View style={{ flexDirection: "row", alignItems: 'center'}}>
-
-            <TouchableOpacity onPress={onTitlePress} disabled={!onTitlePress}>
+        <View style={{ marginBottom: 8, marginHorizontal: 16, flexDirection: "row", justifyContent: "space-between", alignContent: "center"}}>
+            <TouchableOpacity onPress={onTitlePress} disabled={!onTitlePress} >
                 <Text style={{ fontWeight: 'bold', fontSize: 32, color: theme.text}}>{title}</Text>
+                { subtitle && <Text style={{ fontSize: 16, color: theme.subtitle }}>{subtitle}</Text>}
             </TouchableOpacity>
 
-
-            <View style={{ flex: 1 }} />
+            <View style={{marginTop: 6}}>
                 {icon}
             </View>
-            { subtitle && <Text style={{ fontSize: 16, color: theme.subtitle }}>{subtitle}</Text>}
         </View>
     )
 }
