@@ -30,7 +30,7 @@ const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, se
     const { data: stopEstimate, isLoading, isError } = useStopEstimate(route.key, direction.key, stop.stopCode);
 
     useEffect(() => {
-        if (!stopEstimate) return
+        if (!stopEstimate || stopEstimate.routeDirectionTimes.length == 0) return
 
         const estimate = stopEstimate.routeDirectionTimes[0]!;
 

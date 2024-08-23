@@ -52,7 +52,7 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
 
                 { isLoading ?
                     <ActivityIndicator style={{ marginTop: 8 }} />
-                  : ( estimate?.routeDirectionTimes[0]?.nextDeparts.length !== 0 ?
+                  : (  estimate?.routeDirectionTimes.length != 0 && estimate?.routeDirectionTimes[0]?.nextDeparts.length !== 0 ?
                     <View style={{
                         flexDirection: "row",
                         justifyContent: "center",
