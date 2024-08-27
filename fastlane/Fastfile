@@ -104,8 +104,8 @@ platform :android do
   lane :build_apk do
     gradle(
       task: "assembleRelease",
-      build_type: "Release"
-      project_dir: "android/",
+      build_type: "Release",
+      project_dir: "android/"
     )
   end
 

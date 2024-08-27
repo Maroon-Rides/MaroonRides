@@ -66,7 +66,7 @@ jobs:
         run: |
           npx expo prebuild --platform ios --npm
 
-      - name: Fastlane Beta [iOS]
+      - name: Fastlane Build [iOS]
         run: fastlane ios build
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -112,7 +112,7 @@ jobs:
         run: |
           npx expo prebuild --platform android --npm
 
-      - name: Fastlane Beta [iOS]
+      - name: Fastlane Build [Android]
         run: fastlane android build
         env:
           GOOGLE_PLAY_KEY: ${{ secrets.GOOGLE_PLAY_KEY }}
