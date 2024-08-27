@@ -104,7 +104,8 @@ platform :android do
   lane :build_apk do
     gradle(
       task: "assembleRelease",
-      build_type: "Release",
+      build_type: "Release"
+      project_dir: "android/",
     )
   end
 
@@ -112,7 +113,7 @@ platform :android do
   lane :build do
     build_apk
 
-    upload_to_play_store(track: 'internal', apk: './build/outputs/apk/release/app-release.apk') # Adjust if using AAB
+    upload_to_play_store(track: 'internal', apk: './app/android/build/outputs/apk/release/app-release.apk') # Adjust if using AAB
   end
 
 

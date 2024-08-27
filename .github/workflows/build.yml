@@ -114,7 +114,6 @@ jobs:
 
       - name: Fastlane Beta [iOS]
         run: fastlane android build
-        working-directory: ./android
         env:
           GOOGLE_PLAY_KEY: ${{ secrets.GOOGLE_PLAY_KEY }}
           PACKAGE_NAME: "com.maroonrides.maroonrides"
