@@ -113,7 +113,11 @@ platform :android do
   lane :build do
     build_apk
 
-    upload_to_play_store(track: 'internal', apk: './app/android/build/outputs/apk/release/app-release.apk') # Adjust if using AAB
+    upload_to_play_store(
+      track: 'internal', 
+      apk: './app/android/build/outputs/apk/release/app-release.apk'
+      flags: "--no-daemon"
+      ) # Adjust if using AAB
   end
 
 
