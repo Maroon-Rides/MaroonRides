@@ -116,7 +116,7 @@ platform :android do
 
     upload_to_play_store(
       track: 'internal', 
-      apk: './app/android/build/outputs/apk/release/app-release.apk'
+      apk: './android/app/build/outputs/apk/release/app-release.apk'
     )
   end
 
