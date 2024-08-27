@@ -60,7 +60,7 @@
              "backgroundColor": "#191919"
         }
       },
-      "package": "com.anonymous.reactnativeboilerplate"
+      "package": "com.maroonrides.maroonrides"
     },
     "web": {
       "favicon": "./assets/favicon.png",

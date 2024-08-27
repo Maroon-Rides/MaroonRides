@@ -4,6 +4,16 @@ on:
   # manual trigger but change to any supported event
   # see addl: https://www.andrewhoog.com/post/how-to-build-react-native-android-app-with-github-actions/#3-run-build-workflow
   workflow_dispatch:
+    inputs:
+      buildPlatform:
+        description: 'Platform to Build'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - ios
+        - android
 
   release:
     types: [published]
@@ -12,6 +22,10 @@ on:
 jobs:
   build_ios:
     runs-on: macos-13
+
+    # build for ios if platform is ios or all, or if triggered by a release
+    if: github.event_name == 'release' || inputs.buildPlatform == 'all' || inputs.buildPlatform == 'ios'
+
     steps:
       - name: List Xcode Installs
         run: sudo ls -1 /Applications | grep "Xcode"
@@ -43,7 +57,7 @@ jobs:
           path: '**/node_modules'
           key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node_modules-
+            ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
   
       - name: Install dependencies
         run: npm install
@@ -53,7 +67,7 @@ jobs:
           npx expo prebuild --platform ios --npm
 
       - name: Fastlane Beta [iOS]
-        run: fastlane beta
+        run: fastlane ios build
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
@@ -61,3 +75,46 @@ jobs:
           ASC_KEY_BASE64: ${{ secrets.ASC_KEY_BASE64 }}
           GIT_AUTHORIZATION: ${{ secrets.GIT_AUTHORIZATION }}
           CHANGELOG: ${{ github.event.release.body }}
+
+  build_android:
+    runs-on: ubuntu-latest
+    
+    # build for android if platform is android or all, or if triggered by a release
+    if: github.event_name == 'release' || inputs.buildPlatform == 'all' || inputs.buildPlatform == 'android'
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3  
+
+      - name: Install Fastlane
+        run: |
+          gem install fastlane -NV
+          fastlane --version
+          
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v2
+        id: cache
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Expo Prebuild [Android]
+        run: |
+          npx expo prebuild --platform android --npm
+
+      - name: Fastlane Beta [iOS]
+        run: fastlane android build
+        working-directory: ./android
+        env:
+          GOOGLE_PLAY_KEY: ${{ secrets.GOOGLE_PLAY_KEY }}
+          PACKAGE_NAME: "com.maroonrides.maroonrides"
