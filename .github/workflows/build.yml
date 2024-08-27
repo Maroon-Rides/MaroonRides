@@ -129,12 +129,13 @@ jobs:
           fi
 
       - name: Fastlane Build [Android]
-        run: fastlane android build
+        run: |
+          fastlane android build
       
       - uses: actions/upload-artifact@v4
         with:
           name: app-bundle.aab
-          path: ./android/app/build/outputs/bundles/debug/mobile-debug.aab
+          path: ./android/app/build/outputs/bundle/release/app-release.aab
       
       - name: Upload to Play Store [Android]
         run: fastlane android upload
