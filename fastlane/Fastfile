@@ -101,7 +101,7 @@ default_platform(:android)
 
 platform :android do
   desc "Build APK with Gradle"
-  lane :build_apk do
+  lane :build do
     gradle(
       task: "assemble",
       build_type: "Release",
@@ -111,9 +111,7 @@ platform :android do
   end
 
   desc "Push a new build to Google Play Store"
-  lane :build do
-    build_apk
-
+  lane :upload do
     upload_to_play_store(
       track: 'internal', 
       apk: './android/app/build/outputs/apk/release/app-release.apk',
