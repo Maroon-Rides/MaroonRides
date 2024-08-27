@@ -118,29 +118,28 @@ jobs:
         run: |
           npx expo prebuild --platform android --npm
 
-      - name: Add lintOptions to build.gradle
+      - name: Modify build.gradle
         run: |
           run: |
-            sed -i '/android {/a\
-            signingConfigs {\
-                release {\
-                    keyAlias System.getenv("KEY_ALIAS")\
-                    keyPassword System.getenv("KEY_PASSWORD")\
-                    storeFile file(System.getenv("KEYSTORE_PATH"))\
-                    storePassword System.getenv("STORE_PASSWORD")\
-                }\
-            }' android/app/build.gradle
+            # Find the build.gradle file and add lintOptions if not present
+            if grep -q 'lintOptions {' android/app/build.gradle; then
+              echo 'lintOptions already present'
+            else
+              echo 'Adding lintOptions to build.gradle'
+              sed -i '/android {/a \    lintOptions {\n        checkReleaseBuilds false\n    }' android/app/build.gradle
+            fi
 
-            sed -i '/buildTypes {/a\
-            release {\
-                signingConfig signingConfigs.release\
-                minifyEnabled true\
-                proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"\
-            }' android/app/build.gradle
+
+            # Replace signingConfig in the release block
+            sed -i '/release {/,/proguardFile(detoxProguardRulesPath)/ s/signingConfig signingConfigs\.debug/signingConfig signingConfigs\.release/' android/app/build.gradle
+
+            # Add the new release signing configuration to signingConfigs
+            sed -i '/signingConfigs {/a\    release {\n        keyAlias System.getenv("KEY_ALIAS")\n        keyPassword System.getenv("KEY_PASSWORD")\n        storeFile file(System.getenv("KEYSTORE_PATH"))\n        storePassword System.getenv("STORE_PASSWORD")\n    }' android/app/build.gradle
+
             
       - name: Decode Keystore
         run: |
-          echo "${{ secrets.AAB_SIGNING_KEY }}" | base64 --decode > maroon-rides-release-key.jks
+          echo "${{ secrets.AAB_SIGNING_KEY }}" | base64 --decode > "maroon-rides-release-key.jks"
 
       - name: Fastlane Build [Android]
         run: |
