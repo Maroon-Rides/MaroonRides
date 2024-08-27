@@ -103,7 +103,7 @@ platform :android do
   desc "Build APK with Gradle"
   lane :build_apk do
     gradle(
-      task: "assembleRelease",
+      task: "assemble",
       build_type: "Release",
       project_dir: "android/",
       flags: "--no-daemon"
