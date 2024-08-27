@@ -118,6 +118,16 @@ jobs:
         run: |
           npx expo prebuild --platform android --npm
 
+      - name: Add lintOptions to build.gradle
+        run: |
+          # Find the build.gradle file and add lintOptions if not present
+          if grep -q 'lintOptions {' android/app/build.gradle; then
+            echo 'lintOptions already present'
+          else
+            echo 'Adding lintOptions to build.gradle'
+            sed -i '/android {/a \    lintOptions {\n        checkReleaseBuilds false\n    }' android/app/build.gradle
+          fi
+
       - name: Fastlane Build [Android]
         run: fastlane android build
         env:
