@@ -103,7 +103,7 @@ platform :android do
   desc "Build APK with Gradle"
   lane :build do
     gradle(
-      task: "assemble",
+      task: "bundle",
       build_type: "Release",
       project_dir: "android/",
       flags: "--no-daemon"
@@ -114,7 +114,7 @@ platform :android do
   lane :upload do
     upload_to_play_store(
       track: 'internal', 
-      apk: './android/app/build/outputs/apk/release/app-release.apk',
+      apk: './android/app/build/outputs/bundles/debug/mobile-debug.aab',
       json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY']),
       package_name: ENV['PACKAGE_NAME']
     )
