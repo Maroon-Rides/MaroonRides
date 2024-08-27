@@ -117,7 +117,7 @@ platform :android do
     upload_to_play_store(
       track: 'internal', 
       apk: './android/app/build/outputs/apk/release/app-release.apk',
-      json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY_BASE64']),
+      json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY']),
       package_name: ENV['PACKAGE_NAME']
     )
   end
