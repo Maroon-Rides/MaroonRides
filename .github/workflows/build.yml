@@ -134,7 +134,7 @@ jobs:
             sed -i '/release {/,/proguardFile(detoxProguardRulesPath)/ s/signingConfig signingConfigs\.debug/signingConfig signingConfigs\.release/' android/app/build.gradle
 
             # Add the new release signing configuration to signingConfigs
-            sed -i '/signingConfigs {/a\    release {\n        keyAlias System.getenv("KEY_ALIAS")\n        keyPassword System.getenv("KEY_PASSWORD")\n        storeFile file(System.getenv("KEYSTORE_PATH"))\n        storePassword System.getenv("STORE_PASSWORD")\n    }' android/app/build.gradle
+            sed -i '/signingConfigs {/a\    release {\n        keyAlias System.getenv("KEY_ALIAS")\n        keyPassword System.getenv("KEY_PASSWORD")\n        storeFile file("maroon-rides-release-key.jks")\n        storePassword System.getenv("STORE_PASSWORD")\n    }' android/app/build.gradle
 
             
       - name: Decode Keystore
