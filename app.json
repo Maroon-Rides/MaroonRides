@@ -2,7 +2,7 @@
   "expo": {
     "name": "Maroon Rides",
     "slug": "Maroon Rides",
-    "version": "1.5.2",
+    "version": "1.5.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
