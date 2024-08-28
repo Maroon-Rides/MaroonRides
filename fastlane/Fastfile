@@ -138,7 +138,8 @@ platform :android do
       track: 'internal', 
       aab: './android/app/build/outputs/bundle/release/app-release.aab',
       json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY']),
-      package_name: ENV['PACKAGE_NAME']
+      package_name: ENV['PACKAGE_NAME'],
+      release_status: "draft" # can remove after we start releasing
     )
   end
 
