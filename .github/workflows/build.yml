@@ -130,11 +130,11 @@ jobs:
             fi
 
 
-            # Replace signingConfig in the release block
-            sed -i '/release {/,/proguardFile(detoxProguardRulesPath)/ s/signingConfig signingConfigs\.debug/signingConfig signingConfigs\.release/' android/app/build.gradle
+            # # Replace signingConfig in the release block
+            # sed -i '/release {/,/proguardFile(detoxProguardRulesPath)/ s/signingConfig signingConfigs\.debug/signingConfig signingConfigs\.release/' android/app/build.gradle
 
-            # Add the new release signing configuration to signingConfigs
-            sed -i '/signingConfigs {/a\    release {\n        keyAlias System.getenv("KEY_ALIAS")\n        keyPassword System.getenv("KEY_PASSWORD")\n        storeFile file("maroon-rides-release-key.jks")\n        storePassword System.getenv("STORE_PASSWORD")\n    }' android/app/build.gradle
+            # # Add the new release signing configuration to signingConfigs
+            # sed -i '/signingConfigs {/a\    release {\n        keyAlias System.getenv("KEY_ALIAS")\n        keyPassword System.getenv("KEY_PASSWORD")\n        storeFile file("maroon-rides-release-key.jks")\n        storePassword System.getenv("STORE_PASSWORD")\n    }' android/app/build.gradle
 
             
       - name: Decode Keystore
@@ -152,7 +152,6 @@ jobs:
         env:
           KEY_ALIAS: ${{ secrets.AAB_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.AAB_PASSWORD }}
-          KEYSTORE_PATH: "maroon-rides-release-key.jks"
           STORE_PASSWORD: ${{ secrets.AAB_PASSWORD }}
       
       - name: Upload to Play Store [Android]

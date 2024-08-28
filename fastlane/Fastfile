@@ -106,7 +106,13 @@ platform :android do
       task: "bundle",
       build_type: "Release",
       project_dir: "android/",
-      flags: "--no-daemon"
+      flags: "--no-daemon",
+      properties: {
+        "android.injected.signing.store.file" => "maroon-rides-release-key.jks",
+        "android.injected.signing.store.password" => ENV['STORE_PASSWORD'],
+        "android.injected.signing.key.alias" => ENV['KEY_ALIAS'],
+        "android.injected.signing.key.password" => ENV['KEY_PASSWORD'],
+      }
     )
   end
 
