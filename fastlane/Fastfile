@@ -108,7 +108,7 @@ platform :android do
       project_dir: "android/",
       flags: "--no-daemon",
       properties: {
-        "android.injected.signing.store.file" => "maroon-rides-release-key.jks",
+        "android.injected.signing.store.file" => ENV['KEY_PATH'],
         "android.injected.signing.store.password" => ENV['STORE_PASSWORD'],
         "android.injected.signing.key.alias" => ENV['KEY_ALIAS'],
         "android.injected.signing.key.password" => ENV['KEY_PASSWORD'],

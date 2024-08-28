@@ -153,6 +153,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.AAB_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.AAB_PASSWORD }}
           STORE_PASSWORD: ${{ secrets.AAB_PASSWORD }}
+          KEY_PATH: ${{ github.workspace }}/android/app/maroon-rides-release-key.jks
       
       - name: Upload to Play Store [Android]
         run: fastlane android upload
