@@ -50,6 +50,11 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "config": {
+        "googleMaps": {
+          "apiKey": "{{GOOGLE_MAPS_KEY}}" 
+        }
+      },
       "splash": {
         "image": "./assets/splash.png",
         "resizeMode": "cover",
