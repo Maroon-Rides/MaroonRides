@@ -106,7 +106,8 @@ platform :android do
     # Fetch the latest version code from the Google Play Store for the 'internal' track
     latest_version_code = google_play_track_version_codes(
         track: 'internal',
-        json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY'])
+        json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY']),
+        package_name: ENV['PACKAGE_NAME']
       ).max || 1
 
     # Increment the version code
