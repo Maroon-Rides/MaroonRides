@@ -113,6 +113,11 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+
+      - name: Write Google Maps API Key to app.json
+        run: sed -i "s/{{GOOGLE_MAPS_KEY}}/$GOOGLE_MAPS_KEY/g" app.json
+        env:
+          GOOGLE_MAPS_KEY: ${{ secrets.GOOGLE_MAPS_KEY }}
       
       - name: Expo Prebuild [Android]
         run: |
@@ -135,11 +140,6 @@ jobs:
 
             # # Add the new release signing configuration to signingConfigs
             # sed -i '/signingConfigs {/a\    release {\n        keyAlias System.getenv("KEY_ALIAS")\n        keyPassword System.getenv("KEY_PASSWORD")\n        storeFile file("maroon-rides-release-key.jks")\n        storePassword System.getenv("STORE_PASSWORD")\n    }' android/app/build.gradle
-
-      - name: Write Google Maps API Key to app.json
-        run: sed -i "s/{{GOOGLE_MAPS_KEY}}/$GOOGLE_MAPS_KEY/g" app.json
-        env:
-          GOOGLE_MAPS_KEY: ${{ secrets.GOOGLE_MAPS_KEY }}
 
       - name: Decode Keystore
         run: |
