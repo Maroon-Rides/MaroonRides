@@ -21,6 +21,7 @@ interface Props {
 const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => {
 
     const scrollToStop = useAppStore(state => state.scrollToStop);
+    const setSelectedRouteDirection = useAppStore(state => state.setSelectedRouteDirection)
 
     const { data: estimate, isLoading } = useStopEstimate(route.key, direction, stop.stopCode);
 
@@ -43,7 +44,10 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                         alignItems: "center", 
                         alignSelf: "flex-start" 
                     }} 
-                    onPress={() => { scrollToStop(stop) }}
+                    onPress={() => {
+                        setSelectedRouteDirection(direction)
+                        scrollToStop(stop) 
+                    }}
                 >
                     <BusIcon name={route.shortName} color={tintColor} isCallout={true} style={{ marginRight: 8 }} />
                     <Text style={{ flex: 1, fontWeight: 'bold' }} numberOfLines={2} >{stop.name}</Text>
