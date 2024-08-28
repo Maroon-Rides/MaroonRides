@@ -102,6 +102,22 @@ default_platform(:android)
 platform :android do
   desc "Build APK with Gradle"
   lane :build do
+
+    # Fetch the latest version code from the Google Play Store for the 'internal' track
+    latest_version_code = google_play_track_version_codes(
+        track: 'internal',
+        json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY'])
+      ).max || 1
+
+    # Increment the version code
+    new_version_code = latest_version_code + 1
+    UI.message("New Version Code: #{new_version_code}")
+
+    # Update the versionCode in the build.gradle file
+    gradle_file = "./android/app/build.gradle"
+    new_gradle_content = File.read(gradle_file).gsub(/versionCode \d+/, "versionCode #{new_version_code}")
+    File.write(gradle_file, new_gradle_content)
+
     gradle(
       task: "bundle",
       build_type: "Release",

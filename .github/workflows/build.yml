@@ -153,7 +153,8 @@ jobs:
           KEY_PASSWORD: ${{ secrets.AAB_PASSWORD }}
           STORE_PASSWORD: ${{ secrets.AAB_PASSWORD }}
           KEY_PATH: ${{ github.workspace }}/android/app/maroon-rides-release-key.jks
-      
+          GOOGLE_PLAY_KEY: ${{ secrets.GOOGLE_PLAY_KEY }}
+
       - uses: actions/upload-artifact@v4
         with:
           name: app-bundle.aab
