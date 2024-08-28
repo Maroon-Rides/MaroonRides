@@ -43,22 +43,25 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         presentSheet("routeDetails");
     }
 
+    function filterRoutes(): IMapRoute[] {
+        if (!routes) return [];
+
+        switch(selectedRouteCategory) {
+            case "All Routes":
+                return routes;
+            case "Gameday":
+                return routes.filter((route) => route.name.includes("Gameday"))
+            case "Favorites":
+                return favorites ?? []
+        }
+    }
+
     useEffect(() => {
-        setSelectedRouteCategory(defaultGroup === 0 ? "all" : "favorites");
+        setSelectedRouteCategory(defaultGroup === 0 ? "All Routes" : "Favorites");
     }, [defaultGroup]);
 
     // Update the shown routes when the selectedRouteCategory changes
-    useEffect(() => {
-        if (!routes) return;
-
-        if (selectedRouteCategory === "all") {
-            setDrawnRoutes(routes);
-        } else {
-            setDrawnRoutes(favorites ?? []);
-        }
-    }, [selectedRouteCategory, routes, favorites]);
-
-
+    useEffect(() => setDrawnRoutes(filterRoutes()), [selectedRouteCategory, routes, favorites]);
 
     // Update the favorites when the view is focused
     function onAnimate(from: number, _: number) {
@@ -67,17 +70,21 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             setShouldUpdateData(true);
             refetchDefaultGroup()
 
-            // match the selectedRouteCategory on the map
-            if (selectedRouteCategory === "all") {
-                setDrawnRoutes(routes ?? []);
-            } else {
-                setDrawnRoutes(favorites ?? []);
-            }
+            setDrawnRoutes(filterRoutes());
         }
     }
 
+    function getRouteCategories(): Array<"All Routes" | "Gameday" | "Favorites"> {
+        // if gameday routes are available
+        if (routes && routes.some((element) => element.name.includes("Gameday"))) {
+            return ["All Routes", "Gameday", "Favorites"]
+        }
+
+        return ["All Routes", "Favorites"]
+    }
+
     const handleSetSelectedRouteCategory = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
-        setSelectedRouteCategory(evt.nativeEvent.selectedSegmentIndex === 0 ? "all" : "favorites");
+        setSelectedRouteCategory(getRouteCategories()[evt.nativeEvent.selectedSegmentIndex] ?? "All Routes")
     }
 
     const snapPoints = ['25%', '45%', '85%'];
@@ -122,14 +129,14 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                 />
 
                 <SegmentedControl
-                    values={['All Routes', 'Favorites']}
-                    selectedIndex={selectedRouteCategory === 'all' ? 0 : 1}
+                    values={getRouteCategories()}
+                    selectedIndex={getRouteCategories().indexOf(selectedRouteCategory)}
                     style={{ marginHorizontal: 16 }}
                     onChange={handleSetSelectedRouteCategory}
                 />
                 <View style={{height: 1, backgroundColor: theme.divider, marginTop: 8}} />
 
-                { (!isFavoritesLoading) && selectedRouteCategory === "favorites" && favorites?.length === 0 && routes?.length != 0 && (
+                { (!isFavoritesLoading) && selectedRouteCategory === "Favorites" && favorites?.length === 0 && routes?.length != 0 && (
                     <View style={{ alignItems: 'center', marginTop: 16 }}>
                         <Text style={{color: theme.text}}>You have no favorited routes.</Text>
                     </View>
@@ -143,7 +150,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     <View style={{ alignItems: 'center', marginTop: 16 }}>
                         <Text style={{color: theme.subtitle}}>Error loading routes. Please try again later.</Text>
                     </View>
-                : (isFavoritesError && selectedRouteCategory === "favorites") &&
+                : (isFavoritesError && selectedRouteCategory === "Favorites") &&
                     <View style={{ alignItems: 'center', marginTop: 16 }}>
                         <Text style={{color: theme.subtitle}}>Error loading favorites. Please try again later.</Text>
                     </View>
@@ -152,7 +159,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
             <BottomSheetFlatList
                 contentContainerStyle={{ paddingBottom: 35 }}
-                data={routes?.filter(route => selectedRouteCategory === "all" || favorites?.includes(route)) ?? []}
+                data={filterRoutes()}
                 keyExtractor={(route: IMapRoute) => route.key}
                 style={{ marginLeft: 16 }}
                 renderItem={({item: route}) => {
