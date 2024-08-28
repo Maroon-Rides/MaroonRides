@@ -134,14 +134,7 @@ jobs:
               sed -i '/android {/a \    lintOptions {\n        checkReleaseBuilds false\n    }' android/app/build.gradle
             fi
 
-
-            # # Replace signingConfig in the release block
-            # sed -i '/release {/,/proguardFile(detoxProguardRulesPath)/ s/signingConfig signingConfigs\.debug/signingConfig signingConfigs\.release/' android/app/build.gradle
-
-            # # Add the new release signing configuration to signingConfigs
-            # sed -i '/signingConfigs {/a\    release {\n        keyAlias System.getenv("KEY_ALIAS")\n        keyPassword System.getenv("KEY_PASSWORD")\n        storeFile file("maroon-rides-release-key.jks")\n        storePassword System.getenv("STORE_PASSWORD")\n    }' android/app/build.gradle
-
-      - name: Decode Keystore
+      - name: Decode Signing Keystore
         run: |
           echo "${{ secrets.AAB_SIGNING_KEY }}" | base64 --decode > "./android/app/maroon-rides-release-key.jks"
 
