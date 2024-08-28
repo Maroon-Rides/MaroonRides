@@ -21,6 +21,7 @@ CHANGELOG = ENV['CHANGELOG'] || "Howdy! This update includes some bug fixes and 
 platform :ios do
   desc "Setup generated Xcode project for build"
   lane :prebuild do
+    setup_ci if ENV['CI']
 
     ASC_KEY_ID = ENV['ASC_KEY_ID']
     ASC_ISSUER_ID = ENV['ASC_ISSUER_ID']
