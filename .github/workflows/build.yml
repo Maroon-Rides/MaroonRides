@@ -156,7 +156,7 @@ jobs:
           
           GOOGLE_PLAY_KEY: ${{ secrets.GOOGLE_PLAY_KEY }}
           PACKAGE_NAME: "com.maroonrides.maroonrides"
-          BUILD_FILE: ${{ github.workspace }}/android/app/build.gradle
+          APP_GRADLE_FILE: ${{ github.workspace }}/android/app/build.gradle
       
       - uses: actions/upload-artifact@v4
         with:

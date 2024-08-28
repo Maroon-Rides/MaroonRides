@@ -115,8 +115,8 @@ platform :android do
     UI.message("New Version Code: #{new_version_code}")
 
     # Update the versionCode in the build.gradle file
-    new_gradle_content = File.read(ENV['BUILD_FILE']).gsub(/versionCode \d+/, "versionCode #{new_version_code}")
-    File.write(gradle_file, new_gradle_content)
+    new_gradle_content = File.read(ENV['APP_GRADLE_FILE']).gsub(/versionCode \d+/, "versionCode #{new_version_code}")
+    File.write(ENV['APP_GRADLE_FILE'], new_gradle_content)
 
     gradle(
       task: "bundle",
