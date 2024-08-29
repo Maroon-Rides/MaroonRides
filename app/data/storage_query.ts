@@ -4,12 +4,12 @@ import { IMapRoute } from "utils/interfaces";
 import { useRoutes } from "./api_query";
 
 export const useFavorites = (allowUpdate: boolean = true) => {
-    const client = useQueryClient();
+    const routesQuery = useRoutes();
 
     const query = useQuery<IMapRoute[]>({
         queryKey: ["favorites"],
         queryFn: async () => {
-            const routes = client.getQueryData(["routes"]) as IMapRoute[];
+            const routes = routesQuery.data as IMapRoute[];
 
             const favorites = await AsyncStorage.getItem("favorites")
             if (!favorites) return [] as IMapRoute[];
@@ -49,7 +49,7 @@ export const useFavorites = (allowUpdate: boolean = true) => {
             return routes.filter(route => favoritesArray.includes(route.shortName));
         },
         staleTime: Infinity,
-        enabled: useRoutes().isSuccess && allowUpdate
+        enabled: routesQuery.isSuccess && allowUpdate
     });
 
     return query;
