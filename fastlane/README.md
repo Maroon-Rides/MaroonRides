@@ -23,21 +23,34 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Setup generated Xcode project for build
 
-### ios release
+### ios build
 
 ```sh
-[bundle exec] fastlane ios release
+[bundle exec] fastlane ios build
 ```
 
-Push a new release build to the App Store
+Push a new build to TestFlight
 
-### ios beta
+----
+
+
+## Android
+
+### android build
 
 ```sh
-[bundle exec] fastlane ios beta
+[bundle exec] fastlane android build
 ```
 
-Push a new beta build to TestFlight
+Build APK with Gradle
+
+### android upload
+
+```sh
+[bundle exec] fastlane android upload
+```
+
+Push a new build to Google Play Store
 
 ----
 

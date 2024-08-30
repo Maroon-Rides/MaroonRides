@@ -38,14 +38,14 @@ platform :ios do
 
     match(
       type: 'development',
-      app_identifier: 'com.bwees.reveille-rides',
+      app_identifier: ['com.bwees.reveille-rides', 'com.bwees.reveille-rides.watch'],
       readonly: true,
       git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
     )
 
     match(
       type: 'appstore',
-      app_identifier: 'com.bwees.reveille-rides',
+      app_identifier: ['com.bwees.reveille-rides', 'com.bwees.reveille-rides.watch'],
       readonly: true,
       git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
     )
@@ -55,6 +55,7 @@ platform :ios do
       teamid: TEAM_ID
     )
 
+    # iOS App
     update_project_provisioning(
       xcodeproj: "ios/MaroonRides.xcodeproj",
       profile: ENV["sigh_com.bwees.reveille-rides_appstore_profile-path"],
@@ -68,6 +69,15 @@ platform :ios do
       profile: ENV["sigh_com.bwees.reveille-rides_appstore_profile-path"],
       build_configuration: "Release",
       target_filter: "Maroon Rides",
+    )
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "ios/MaroonRides.xcodeproj",
+      team_id: TEAM_ID,
+      bundle_identifier: "com.bwees.reveille-rides",
+      code_sign_identity: "iPhone Distribution",
+      sdk: "iphoneos*",
     )
 
     update_code_signing_settings(
