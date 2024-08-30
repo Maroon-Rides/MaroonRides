@@ -85,7 +85,7 @@ platform :ios do
       use_automatic_signing: false,
       path: "ios/MaroonRides.xcodeproj",
       team_id: TEAM_ID,
-      profile: profile: ENV["sigh_com.bwees.reveille-rides.watch_appstore_profile-path"],
+      profile: ENV["sigh_com.bwees.reveille-rides.watch_appstore_profile-path"],
       targets: "Maroon Rides"
     )
 
