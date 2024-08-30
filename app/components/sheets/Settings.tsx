@@ -79,7 +79,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
                         selectedIndex={defaultGroup}
                         style={{ marginTop: 8 }}
                         onChange={setDefaultGroupValue}
-                        backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground as string : undefined}
+                        backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
                     />
                 </View>
 
@@ -91,7 +91,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
                         selectedIndex={themeSetting}
                         style={{ marginTop: 8 }}
                         onChange={setAppThemeValue}
-                        backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground as string : undefined}
+                        backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
                     />
                 </View>
             </BottomSheetScrollView>

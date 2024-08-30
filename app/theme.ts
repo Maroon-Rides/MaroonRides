@@ -1,25 +1,24 @@
-import { ColorValue } from "react-native"
 
 export interface Theme {
     mode: 'light' | 'dark',
-    text: ColorValue,
-    subtitle: ColorValue,
-    background: ColorValue,
-    divider: ColorValue,
-    exitButton: ColorValue,
-    nextStopBubble: ColorValue,
-    secondaryBackground: ColorValue,
-    tertiaryBackground: ColorValue,
-    alertSymbol: ColorValue,
-    starColor: ColorValue,
-    timetableRowA: ColorValue,
-    timetableRowB: ColorValue,
-    pillBorder: ColorValue,
-    myLocation: ColorValue,
-    busTints: {[key: ColorValue] : ColorValue}
-    error: ColorValue
-    androidSegmentedBackground: ColorValue
-    androidTextPlaceholderColor: ColorValue
+    text: string,
+    subtitle: string,
+    background: string,
+    divider: string,
+    exitButton: string,
+    nextStopBubble: string,
+    secondaryBackground: string,
+    tertiaryBackground: string,
+    alertSymbol: string,
+    starColor: string,
+    timetableRowA: string,
+    timetableRowB: string,
+    pillBorder: string,
+    myLocation: string,
+    busTints: {[key: string] : string}
+    error: string
+    androidSegmentedBackground: string
+    androidTextPlaceholderColor: string
 }
 
 export const lightMode: Theme = {

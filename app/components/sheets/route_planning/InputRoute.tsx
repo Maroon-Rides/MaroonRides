@@ -179,7 +179,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 setDeadline(event.nativeEvent.selectedSegmentIndex == 0 ? "leave" : "arrive")
                             }}
                             style={{flex: 1, marginRight: 8}}
-                            backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground as string : undefined}
+                            backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
                         />
 
                         <TimeInput 

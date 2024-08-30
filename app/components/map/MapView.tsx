@@ -373,7 +373,7 @@ const Map: React.FC = () => {
                     <Polyline
                         key={"highlighted-route-plan"}
                         coordinates={highlightedRoutePlanPath}
-                        strokeColor={theme.myLocation as string}
+                        strokeColor={theme.myLocation}
                         strokeWidth={5}
                     />
                 }
@@ -383,7 +383,7 @@ const Map: React.FC = () => {
                     return <Polyline
                         key={`faded-route-plan-${index}`}
                         coordinates={path}
-                        strokeColor={theme.myLocation as string + "60"}
+                        strokeColor={theme.myLocation + "60"}
                         strokeWidth={5}
                     />
                 })}

@@ -167,7 +167,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                             values={selectedRoute?.directionList.map(direction => "to " + direction.destination) ?? []}
                             selectedIndex={selectedDirectionIndex}
                             onChange={handleSetSelectedDirection}
-                            backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground as string : undefined}
+                            backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
                         />
                     }
                     

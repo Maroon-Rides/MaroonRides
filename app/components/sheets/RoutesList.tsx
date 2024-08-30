@@ -130,7 +130,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     values={getRouteCategories()}
                     selectedIndex={getRouteCategories().indexOf(selectedRouteCategory)}
                     style={{ marginHorizontal: 16 }}
-                    backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground as string : undefined}
+                    backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
                     onChange={handleSetSelectedRouteCategory}
                 />
                 <View style={{height: 1, backgroundColor: theme.divider, marginTop: 8}} />
