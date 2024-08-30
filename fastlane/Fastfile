@@ -68,17 +68,8 @@ platform :ios do
       xcodeproj: "ios/MaroonRides.xcodeproj",
       profile: ENV["sigh_com.bwees.reveille-rides.watch_appstore_profile-path"],
       build_configuration: "Release",
-      target_filter: "Maroon Rides",
+      target_filter: "Maroon Rides Watch App",
     )
-
-    # update_code_signing_settings(
-    #   use_automatic_signing: false,
-    #   path: "ios/MaroonRides.xcodeproj",
-    #   team_id: TEAM_ID,
-    #   bundle_identifier: "com.bwees.reveille-rides",
-    #   code_sign_identity: "iPhone Distribution",
-    #   sdk: "iphoneos*",
-    # )
 
     # Watch App
     update_code_signing_settings(
@@ -95,7 +86,7 @@ platform :ios do
       path: "ios/MaroonRides.xcodeproj",
       team_id: TEAM_ID,
       profile_name: "match AppStore com.bwees.reveille-rides.watch",
-      targets: "Maroon Rides"
+      targets: "Maroon Rides Watch App"
     )
 
 
