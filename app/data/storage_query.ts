@@ -88,6 +88,7 @@ export const addFavoriteMutation = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["favorites"] });
+            queryClient.invalidateQueries({ queryKey: ["favorite"] });
         }
     });
 
