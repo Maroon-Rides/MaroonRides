@@ -127,7 +127,11 @@ jobs:
 
       - name: Add Google Maps API Key File
         run: |
-          echo '<resources>\n  <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">${GOOGLE_MAPS_KEY}</string>\n</resources>' > android/app/src/main/res/values/strings.xml 
+          echo "<resources>
+            <string name=\"google_maps_key\" templateMergeStrategy=\"preserve\" translatable=\"false\">${GOOGLE_MAPS_KEY}</string>
+          </resources>" > android/app/src/main/res/values/strings.xml
+
+          cat android/app/src/main/res/values/strings.xml
         env:
             GOOGLE_MAPS_KEY: ${{ secrets.GOOGLE_MAPS_KEY }}
 
