@@ -80,6 +80,15 @@ platform :ios do
       sdk: "iphoneos*",
     )
 
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "ios/MaroonRides.xcodeproj",
+      team_id: TEAM_ID,
+      bundle_identifier: "com.bwees.reveille-rides.watch",
+      code_sign_identity: "iPhone Distribution",
+      sdk: "iphoneos*",
+    )
+
     # set ITSAppUsesNonExemptEncryption to false, prevents Missing Compliance error in TF
     set_info_plist_value(
       path: "ios/MaroonRides/Info.plist",
