@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Marker } from 'react-native-maps';
-import BusMapIcon from '../BusMapIcon';
+import BusMapIcon from '../mapIcons/BusMapIcon';
 import BusCallout from '../BusCallout';
 import { IVehicle } from 'utils/interfaces';
 import useAppStore from '../../../data/app_state';

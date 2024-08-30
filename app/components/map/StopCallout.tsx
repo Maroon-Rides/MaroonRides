@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native'
+import { View, Text, ActivityIndicator, TouchableOpacity, Platform } from 'react-native'
 import { Callout } from 'react-native-maps'
 import BusIcon from '../ui/BusIcon'
 import { IMapRoute, IStop } from '../../../utils/interfaces'
@@ -31,12 +31,15 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: 215,
-                height: 60,
+                height: Platform.OS == "android" ? 60+18 : 60,
                 zIndex: 1000,
                 elevation: 1000
             }}
         >
-            <View>
+            <View style={[
+            Platform.OS == "android" && {
+                padding: 4,
+            }]}>
                 <TouchableOpacity 
                     style={{ 
                         flexDirection: "row", 

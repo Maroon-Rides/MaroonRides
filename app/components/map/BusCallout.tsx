@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, Platform } from 'react-native'
 import { Callout } from 'react-native-maps'
 import { IAmenity } from '../../../utils/interfaces';
 import BusIcon from '../ui/BusIcon'
@@ -21,7 +21,13 @@ const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities,
         <Callout
             style={{ zIndex: 1000, elevation: 1000 }}
         >
-            <View style={{ width: 170 }}>
+            <View style={[
+                { width: 170 }, 
+                Platform.OS == "android" && {
+                    padding: 4,
+                    paddingVertical: 8,
+                }
+            ]}>
                 <View style={{ 
                     flexDirection: 'row', 
                     justifyContent: 'center', 
