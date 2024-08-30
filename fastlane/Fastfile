@@ -94,7 +94,16 @@ platform :ios do
     
     increment_build_number(xcodeproj: "ios/MaroonRides.xcodeproj", build_number: app_store_build_number(live: false) + 1)
     
-    build_app(workspace: "ios/MaroonRides.xcworkspace", scheme: "MaroonRides")
+    build_app(
+      workspace: "ios/MaroonRides.xcworkspace", 
+      scheme: "MaroonRides",
+      export_options: {
+        provisioningProfiles: {
+          "com.bwees.reveille-rides" => "match AppStore com.bwees.reveille-rides",
+          "com.bwees.reveille-rides.watch" => "match AppStore com.bwees.reveille-rides.watch"
+        }
+      }
+    )
     
     upload_to_testflight(
       notify_external_testers: true,
