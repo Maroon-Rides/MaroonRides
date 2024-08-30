@@ -305,7 +305,10 @@ const Map: React.FC = () => {
                 rotateEnabled={false}
                 region={defaultMapRegion}
                 onPanDrag={() => setIsViewCenteredOnUser(false)}
+                // this deprcation is ok, we only use it on android
+                maxZoomLevel={Platform.OS == "android" ? 18 : undefined}
                 showsMyLocationButton={false} // we have our own
+                // fix dark mode android map syling
                 customMapStyle={Platform.OS == "android" && theme.mode == "dark" ? DarkGoogleMaps : undefined}
             >
                 {/* Route Polylines */}

@@ -4,6 +4,7 @@ import BusMapIcon from '../BusMapIcon';
 import BusCallout from '../BusCallout';
 import { IVehicle } from 'utils/interfaces';
 import useAppStore from '../../../data/app_state';
+import { Platform } from 'react-native';
 
 interface Props {
     bus: IVehicle,
@@ -31,7 +32,16 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             tracksViewChanges={false}
             anchor={{x: 0.5, y: 0.5}}
             pointerEvents="auto"
-            style={{ zIndex: 100, elevation: 100 }}
+            style={[
+                { zIndex: 100, elevation: 100}, 
+
+                Platform.OS == "android" && {
+                    width: 42, 
+                    height: 42,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }
+            ]}
             onPress={() => busDefaultDirection()}
         >
             {/* Bus Icon on Map*/}

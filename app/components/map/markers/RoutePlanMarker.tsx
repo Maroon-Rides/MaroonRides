@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { MapMarker, Marker } from 'react-native-maps';
 import { RoutePlanMapMarker } from 'utils/interfaces';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { getLighterColor } from 'app/utils';
 import useAppStore from 'app/data/app_state';
 
@@ -21,6 +21,13 @@ const RoutePlanMarker: React.FC<Props> = ({ marker }) => {
                 latitude: marker.latitude,
                 longitude: marker.longitude
             }}
+            style={[
+                Platform.OS == "android" && {
+                    height: 72,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }
+            ]}
             tracksViewChanges={false}
             anchor={{x: 0.5, y: 0.5}}
             pointerEvents="auto"
