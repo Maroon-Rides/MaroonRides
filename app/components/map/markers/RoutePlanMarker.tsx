@@ -22,7 +22,7 @@ const RoutePlanMarker: React.FC<Props> = ({ marker }) => {
                 longitude: marker.longitude
             }}
             tracksViewChanges={false}
-            anchor={{x: 1, y: 1}}
+            anchor={{x: 0.5, y: 0.5}}
             pointerEvents="auto"
         >
             { marker.isOrigin ? (

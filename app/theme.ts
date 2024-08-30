@@ -1,21 +1,25 @@
+import { ColorValue } from "react-native"
+
 export interface Theme {
     mode: 'light' | 'dark',
-    text: string,
-    subtitle: string,
-    background: string,
-    divider: string,
-    exitButton: string,
-    nextStopBubble: string,
-    secondaryBackground: string,
-    tertiaryBackground: string,
-    alertSymbol: string,
-    starColor: string,
-    timetableRowA: string,
-    timetableRowB: string,
-    pillBorder: string,
-    myLocation: string,
-    busTints: {[key: string] : string}
-    error: string
+    text: ColorValue,
+    subtitle: ColorValue,
+    background: ColorValue,
+    divider: ColorValue,
+    exitButton: ColorValue,
+    nextStopBubble: ColorValue,
+    secondaryBackground: ColorValue,
+    tertiaryBackground: ColorValue,
+    alertSymbol: ColorValue,
+    starColor: ColorValue,
+    timetableRowA: ColorValue,
+    timetableRowB: ColorValue,
+    pillBorder: ColorValue,
+    myLocation: ColorValue,
+    busTints: {[key: ColorValue] : ColorValue}
+    error: ColorValue
+    androidSegmentedBackground: ColorValue
+    androidTextPlaceholderColor: ColorValue
 }
 
 export const lightMode: Theme = {
@@ -35,6 +39,10 @@ export const lightMode: Theme = {
     pillBorder: 'lightgrey',
     myLocation: "#007afe",
     error: "#ff3b2f",
+
+    androidSegmentedBackground: "#eeeef0",
+    androidTextPlaceholderColor: "#525254",
+
     busTints: {
         "47": "#2e8545",
     }
@@ -57,6 +65,10 @@ export const darkMode: Theme = {
     pillBorder: '#686867',
     myLocation: "#0a84ff",
     error: "#fe453b",
+
+    androidSegmentedBackground: "#323137",
+    androidTextPlaceholderColor: "#58585a",
+
     busTints: {
         "01-04": "#fe453a",
         "03": "#03a8e4",
@@ -85,3 +97,189 @@ export const darkMode: Theme = {
     }
 }
 
+export const DarkGoogleMaps = [
+    {
+        "elementType": "geometry",
+        "stylers": [
+        {
+            "color": "#212121"
+        }
+        ]
+    },
+    {
+        "elementType": "labels.icon",
+        "stylers": [
+        {
+            "visibility": "off"
+        }
+        ]
+    },
+    {
+        "elementType": "labels.text.fill",
+        "stylers": [
+        {
+            "color": "#757575"
+        }
+        ]
+    },
+    {
+        "elementType": "labels.text.stroke",
+        "stylers": [
+        {
+            "color": "#212121"
+        }
+        ]
+    },
+    {
+        "featureType": "administrative",
+        "elementType": "geometry",
+        "stylers": [
+        {
+            "color": "#757575"
+        }
+        ]
+    },
+    {
+        "featureType": "administrative.country",
+        "elementType": "labels.text.fill",
+        "stylers": [
+        {
+            "color": "#9e9e9e"
+        }
+        ]
+    },
+    {
+        "featureType": "administrative.land_parcel",
+        "stylers": [
+        {
+            "visibility": "off"
+        }
+        ]
+    },
+    {
+        "featureType": "administrative.locality",
+        "elementType": "labels.text.fill",
+        "stylers": [
+        {
+            "color": "#bdbdbd"
+        }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "labels.text.fill",
+        "stylers": [
+        {
+            "color": "#757575"
+        }
+        ]
+    },
+    {
+        "featureType": "poi.park",
+        "elementType": "geometry",
+        "stylers": [
+        {
+            "color": "#181818"
+        }
+        ]
+    },
+    {
+        "featureType": "poi.park",
+        "elementType": "labels.text.fill",
+        "stylers": [
+        {
+            "color": "#616161"
+        }
+        ]
+    },
+    {
+        "featureType": "poi.park",
+        "elementType": "labels.text.stroke",
+        "stylers": [
+        {
+            "color": "#1b1b1b"
+        }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "geometry.fill",
+        "stylers": [
+        {
+            "color": "#2c2c2c"
+        }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "labels.text.fill",
+        "stylers": [
+        {
+            "color": "#8a8a8a"
+        }
+        ]
+    },
+    {
+        "featureType": "road.arterial",
+        "elementType": "geometry",
+        "stylers": [
+        {
+            "color": "#373737"
+        }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "geometry",
+        "stylers": [
+        {
+            "color": "#3c3c3c"
+        }
+        ]
+    },
+    {
+        "featureType": "road.highway.controlled_access",
+        "elementType": "geometry",
+        "stylers": [
+        {
+            "color": "#4e4e4e"
+        }
+        ]
+    },
+    {
+        "featureType": "road.local",
+        "elementType": "labels.text.fill",
+        "stylers": [
+        {
+            "color": "#616161"
+        }
+        ]
+    },
+    {
+        "featureType": "transit",
+        "elementType": "labels.text.fill",
+        "stylers": [
+        {
+            "color": "#757575"
+        }
+        ]
+    },
+    {
+        "featureType": "water",
+        "elementType": "geometry",
+        "stylers": [
+        {
+            "color": "#000000"
+        }
+        ]
+    },
+    {
+        "featureType": "water",
+        "elementType": "labels.text.fill",
+        "stylers": [
+        {
+            "color": "#3d3d3d"
+        }
+        ]
+    }
+]

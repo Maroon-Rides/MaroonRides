@@ -1,7 +1,7 @@
 import { useSearchSuggestion } from "app/data/api_query"
 import useAppStore from "app/data/app_state"
 import { memo, useEffect, useState } from "react"
-import { View, TextInput, Keyboard } from "react-native"
+import { View, TextInput, Keyboard, Platform } from "react-native"
 import { MyLocationSuggestion, SearchSuggestion } from "utils/interfaces"
 
 interface Props {
@@ -105,6 +105,7 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
                     onFocus()
                 }}
                 placeholder="Enter a location"
+                placeholderTextColor={Platform.OS == "android" ? theme.androidTextPlaceholderColor : undefined}
             />
         </View>
     )

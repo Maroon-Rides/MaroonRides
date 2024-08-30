@@ -1,8 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Appearance } from "react-native";
+import { Appearance, ColorValue } from "react-native";
 
 // given a hex code without the #, return a lighter version of it
-export function getLighterColor(color: string): string {
+export function getLighterColor(color: ColorValue): ColorValue {
+    color = color as string
+    
     // remove the # from the beginning of the color
     color = color.substring(1);
 

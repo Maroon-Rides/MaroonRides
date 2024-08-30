@@ -29,7 +29,7 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             key={bus.key}
             coordinate={{ latitude: bus.location.latitude, longitude: bus.location.longitude }}
             tracksViewChanges={false}
-            anchor={{x: 1, y: 1}}
+            anchor={{x: 0.5, y: 0.5}}
             pointerEvents="auto"
             style={{ zIndex: 100, elevation: 100 }}
             onPress={() => busDefaultDirection()}

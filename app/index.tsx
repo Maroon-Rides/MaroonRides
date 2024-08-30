@@ -79,7 +79,7 @@ const Home = () => {
             <GestureHandlerRootView style={{ flex: 1 }}>
                 <BottomSheetModalProvider>
                     <View style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                        <MapView />
+                        
 
                         <Settings sheetRef={settingsSheetRef} />
                         <RouteDetails sheetRef={routeDetailSheetRef} />
@@ -91,6 +91,8 @@ const Home = () => {
                         {/* Route Planning */}
                         <InputRoute sheetRef={inputRouteSheetRef} />
                         <TripPlanDetail sheetRef={tripPlanDetailSheetRef} />
+
+                        <MapView />
                     </View>
                 </BottomSheetModalProvider>
             </GestureHandlerRootView>

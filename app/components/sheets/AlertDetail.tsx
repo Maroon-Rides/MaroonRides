@@ -5,6 +5,7 @@ import useAppStore from "../../data/app_state";
 import SheetHeader from "../ui/SheetHeader";
 import RenderHtml from 'react-native-render-html';
 import { useRoutes } from "app/data/api_query";
+import { useState } from "react";
 
 
 const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = ({ sheetRef }) => {
@@ -22,11 +23,13 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
     div: {paddingBottom: 0, marginBottom: 0, color: theme.text}
   };
 
+  const [snap, _] = useState(1)
+
   return (
     <BottomSheetModal 
       ref={sheetRef} 
       snapPoints={snapPoints} 
-      index={1} 
+      index={snap} 
       backgroundStyle={{backgroundColor: theme.background}}
       handleIndicatorStyle={{backgroundColor: theme.divider}}
       onAnimate={(_, to) => {

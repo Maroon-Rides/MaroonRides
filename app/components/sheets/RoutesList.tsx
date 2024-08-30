@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent } from "react-native";
+import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent, Platform } from "react-native";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { FontAwesome, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
@@ -18,6 +18,9 @@ interface SheetProps {
 
 // Display routes list for all routes and favorite routes
 const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
+    const snapPoints = ['25%', '45%', '85%'];
+    const [snap, setSnap] = useState(1)
+    
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
     const setSelectedRouteCategory = useAppStore(state => state.setSelectedRouteCategory);
@@ -26,7 +29,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const theme = useAppStore((state) => state.theme);
 
     const [shouldUpdateData, setShouldUpdateData] = useState(false);
-
 
     const { data: routes, isLoading: isRoutesLoading } = useRoutes();
     const { data: favorites, isLoading: isFavoritesLoading, isError: isFavoritesError } = useFavorites(shouldUpdateData);
@@ -64,7 +66,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     useEffect(() => setDrawnRoutes(filterRoutes()), [selectedRouteCategory, routes, favorites]);
 
     // Update the favorites when the view is focused
-    function onAnimate(from: number, _: number) {
+    function onAnimate(from: number, to: number) {
+        setSnap(to)
         if (from === -1) {
             // update the favorites when the view is focused
             setShouldUpdateData(true);
@@ -87,13 +90,11 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         setSelectedRouteCategory(getRouteCategories()[evt.nativeEvent.selectedSegmentIndex] ?? "All Routes")
     }
 
-    const snapPoints = ['25%', '45%', '85%'];
-
     return (
         <BottomSheetModal 
             ref={sheetRef} 
             snapPoints={snapPoints} 
-            index={1} 
+            index={snap} 
             enableDismissOnClose={false}
             enablePanDownToClose={false}
             onAnimate={onAnimate}
@@ -113,9 +114,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                                 />
                         </TouchableOpacity>
 
-                        {/* Alerts */}
-                        {/* <AlertPill /> */}
-
                         {/* Settings */}
                         <TouchableOpacity style={{ marginLeft: 8 }} onPress={ () => {
                             setShouldUpdateData(false);
@@ -132,6 +130,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     values={getRouteCategories()}
                     selectedIndex={getRouteCategories().indexOf(selectedRouteCategory)}
                     style={{ marginHorizontal: 16 }}
+                    backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground as string : undefined}
                     onChange={handleSetSelectedRouteCategory}
                 />
                 <View style={{height: 1, backgroundColor: theme.divider, marginTop: 8}} />

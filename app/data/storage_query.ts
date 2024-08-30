@@ -135,10 +135,13 @@ export const useDefaultRouteGroup = (allowUpdate: boolean = true) => {
 }
 
 export const defaultGroupMutation = () => {
+    const queryClient = useQueryClient();
+
     const mutation = useMutation({
         mutationKey: ["defaultGroup"],
         mutationFn: async (group: number) => {
             await AsyncStorage.setItem('default-group', group.toString());
+            queryClient.invalidateQueries({ queryKey: ["defaultRouteGroup"] });
         }
     });
 

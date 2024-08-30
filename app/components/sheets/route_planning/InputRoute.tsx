@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Keyboard, ActivityIndicator, Button } from "react-native";
+import { View, Text, TouchableOpacity, Keyboard, ActivityIndicator, Button, Platform } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
@@ -179,6 +179,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 setDeadline(event.nativeEvent.selectedSegmentIndex == 0 ? "leave" : "arrive")
                             }}
                             style={{flex: 1, marginRight: 8}}
+                            backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground as string : undefined}
                         />
 
                         <TimeInput 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, NativeSyntheticEvent } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent, Platform } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList, BottomSheetFlatListMethods } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
@@ -124,13 +124,13 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     }
 
     const snapPoints = ['25%', '45%', '85%'];
-
+    const [snap, _] = useState(1)
     
     return (
         <BottomSheetModal
             ref={sheetRef}
             snapPoints={snapPoints}
-            index={1}
+            index={snap}
             enablePanDownToClose={false}
             backgroundStyle={{ backgroundColor:  theme.background }}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
@@ -167,6 +167,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                             values={selectedRoute?.directionList.map(direction => "to " + direction.destination) ?? []}
                             selectedIndex={selectedDirectionIndex}
                             onChange={handleSetSelectedDirection}
+                            backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground as string : undefined}
                         />
                     }
                     
