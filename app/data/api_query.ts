@@ -12,7 +12,7 @@ export const useAuthToken = () => {
         queryFn: async () => {
             return await getAuthentication();
         },
-        staleTime: Infinity
+        staleTime: 2 * 3600 * 1000, // keep for 2 hours
     });
 
     return query;
@@ -36,7 +36,10 @@ export const useBaseData = () => {
             return baseData;
         },
         enabled: authTokenQuery.isSuccess,
-        staleTime: Infinity,
+        staleTime: 8 * 3600 * 1000, // persist for 8 hours
+        meta: {
+            persist: true
+        }
     });
 
     return query;
@@ -58,7 +61,10 @@ export const usePatternPaths = () => {
             return patternPaths;
         },
         enabled: baseDataQuery.isSuccess,
-        staleTime: Infinity
+        staleTime: 8 * 3600 * 1000, // persist for 8 hours
+        meta: {
+            persist: true
+        }
     });
 
     return query
@@ -99,7 +105,10 @@ export const useRoutes = () => {
             return routes;
         },
         enabled: patternPathsQuery.isSuccess && baseDataQuery.isSuccess,
-        staleTime: Infinity
+        staleTime: 8 * 3600 * 1000, // persist for 8 hours
+        meta: {
+            persist: true
+        }
     });
 
     return query;

@@ -11,6 +11,7 @@ import SheetHeader from "../ui/SheetHeader";
 import IconPill from "../ui/IconPill";
 import { useAuthToken, useBaseData, usePatternPaths, useRoutes } from "app/data/api_query";
 import { useDefaultRouteGroup, useFavorites } from "app/data/storage_query";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -30,7 +31,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const [shouldUpdateData, setShouldUpdateData] = useState(false);
 
-    const { data: routes, isLoading: isRoutesLoading } = useRoutes();
+    const queryClient = useQueryClient();
+    const { data: routes, isLoading: isRoutesLoading, isRefetching: isRefreshing } = useRoutes();
     const { data: favorites, isLoading: isFavoritesLoading, isError: isFavoritesError } = useFavorites(shouldUpdateData);
     const { data: defaultGroup, refetch: refetchDefaultGroup } = useDefaultRouteGroup(shouldUpdateData);
 
@@ -161,6 +163,12 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                 data={filterRoutes()}
                 keyExtractor={(route: IMapRoute) => route.key}
                 style={{ marginLeft: 16 }}
+                refreshing={isRefreshing}
+                onRefresh={() => {
+                    queryClient.invalidateQueries({ queryKey: ["baseData"] });
+                    queryClient.invalidateQueries({ queryKey: ["patternPaths"] });
+                    queryClient.invalidateQueries({ queryKey: ["routes"] });
+                }}
                 renderItem={({item: route}) => {
                     return (
                         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} onPress={() => handleRouteSelected(route)}>

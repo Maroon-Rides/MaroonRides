@@ -11,10 +11,13 @@ import StopTimetable from './components/sheets/StopTimetable';
 import Settings from './components/sheets/Settings';
 import { darkMode, lightMode } from './theme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Query, QueryClient } from '@tanstack/react-query';
 import { getColorScheme } from './utils';
 import InputRoute from './components/sheets/route_planning/InputRoute';
 import TripPlanDetail from './components/sheets/route_planning/TripPlanDetail';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 
 const Home = () => {
     const setPresentSheet = useAppStore((state) => state.setPresentSheet);
@@ -73,9 +76,23 @@ const Home = () => {
     }, [])
 
     const queryClient = new QueryClient()
+    const asyncStoragePersister = createAsyncStoragePersister({
+        storage: AsyncStorage,
+    })
 
     return (
-        <QueryClientProvider client={queryClient}>
+        <PersistQueryClientProvider 
+            client={queryClient}
+            persistOptions={{
+                persister: asyncStoragePersister,
+                dehydrateOptions: {
+                    shouldDehydrateQuery: (query: Query): boolean => {
+                        // only persist queries who ask for it and are successful
+                        return query.meta?.persist as boolean && query.state.status === 'success'
+                    },
+                }
+            }}
+        >
             <GestureHandlerRootView style={{ flex: 1 }}>
                 <BottomSheetModalProvider>
                     <View style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -96,7 +113,7 @@ const Home = () => {
                     </View>
                 </BottomSheetModalProvider>
             </GestureHandlerRootView>
-        </QueryClientProvider>
+        </PersistQueryClientProvider>
     )
 }
 
