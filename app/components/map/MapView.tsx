@@ -303,9 +303,7 @@ const Map: React.FC = () => {
                 style={{ width: "100%", height: "100%" }}
                 ref={mapViewRef} 
                 rotateEnabled={false}
-                initialRegion={defaultMapRegion}
-                mapType='standard'
-                provider={Platform.OS == "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
+                region={defaultMapRegion}
                 onPanDrag={() => setIsViewCenteredOnUser(false)}
                 showsMyLocationButton={false} // we have our own
                 customMapStyle={Platform.OS == "android" && theme.mode == "dark" ? DarkGoogleMaps : undefined}
