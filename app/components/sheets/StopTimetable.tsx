@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, BackHandler, Text, TouchableOpacity, View } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { FlatList } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
@@ -101,6 +101,11 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const snapPoints = ['25%', '45%', '85%'];
     const [snap, _] = useState(2)
+
+    BackHandler.addEventListener('hardwareBackPress', () => {
+        sheetRef.current?.dismiss()
+        return false
+    })
 
     return (
         <BottomSheetModal

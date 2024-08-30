@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, NativeSyntheticEvent, Platform } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent, Platform, BackHandler } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList, BottomSheetFlatListMethods } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
@@ -125,6 +125,11 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const snapPoints = ['25%', '45%', '85%'];
     const [snap, _] = useState(1)
+
+    BackHandler.addEventListener('hardwareBackPress', () => {
+        sheetRef.current?.dismiss()
+        return false
+    })
     
     return (
         <BottomSheetModal

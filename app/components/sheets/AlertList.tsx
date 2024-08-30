@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, BackHandler } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -52,6 +52,11 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
         setSelectedAlert(alert);
         presentSheet("alertsDetail");
     }
+
+    BackHandler.addEventListener('hardwareBackPress', () => {
+        sheetRef.current?.dismiss()
+        return false
+    })
 
     return (
         <BottomSheetModal 

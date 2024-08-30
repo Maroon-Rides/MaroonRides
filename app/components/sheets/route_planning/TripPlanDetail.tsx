@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, useWindowDimensions, Platform } from "react-native";
+import { View, TouchableOpacity, Text, useWindowDimensions, Platform, BackHandler } from "react-native";
 import { BottomSheetModal, BottomSheetScrollView, BottomSheetView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
@@ -95,6 +95,11 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
         if (selectedRoutePlanPathPart === -1) return;
         sheetRef.current?.snapToIndex(1)
     }, [selectedRoutePlanPathPart])
+
+    BackHandler.addEventListener('hardwareBackPress', () => {
+        sheetRef.current?.dismiss()
+        return false
+    })
 
     return (
         <BottomSheetModal 

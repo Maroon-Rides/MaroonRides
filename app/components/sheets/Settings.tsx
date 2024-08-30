@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Alert, NativeSyntheticEvent, Platform } from "react-native";
+import { View, Text, TouchableOpacity, Alert, NativeSyntheticEvent, Platform, BackHandler } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SheetHeader from "../ui/SheetHeader";
@@ -43,6 +43,11 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
             }
         })
     }, [])
+
+    BackHandler.addEventListener('hardwareBackPress', () => {
+        sheetRef.current?.dismiss()
+        return false
+    })
 
     return (
         <BottomSheetModal 

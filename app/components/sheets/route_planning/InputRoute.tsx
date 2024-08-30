@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Keyboard, ActivityIndicator, Button, Platform } from "react-native";
+import { View, Text, TouchableOpacity, Keyboard, ActivityIndicator, Button, Platform, BackHandler } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
@@ -49,6 +49,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         setDrawnRoutes([])
         setSuggesionOutput(null)
     }, [])
+
+    BackHandler.addEventListener('hardwareBackPress', () => {
+        sheetRef.current?.dismiss()
+        return false
+    })
 
     useEffect(() => {
         
