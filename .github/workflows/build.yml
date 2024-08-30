@@ -125,6 +125,12 @@ jobs:
         run: |
           npx expo prebuild --platform android --npm
 
+      - name: Add Google Maps API Key File
+        run: |
+          echo '<resources>\n  <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">${GOOGLE_MAPS_KEY}</string>\n</resources>' > android/app/src/main/res/values/strings.xml 
+        env:
+            GOOGLE_MAPS_KEY: ${{ secrets.GOOGLE_MAPS_KEY }}
+
       - name: Modify build.gradle
         run: |
           run: |
