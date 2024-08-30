@@ -71,13 +71,22 @@ platform :ios do
       target_filter: "Maroon Rides",
     )
 
+    # update_code_signing_settings(
+    #   use_automatic_signing: false,
+    #   path: "ios/MaroonRides.xcodeproj",
+    #   team_id: TEAM_ID,
+    #   bundle_identifier: "com.bwees.reveille-rides",
+    #   code_sign_identity: "iPhone Distribution",
+    #   sdk: "iphoneos*",
+    # )
+
+    # Watch App
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "ios/MaroonRides.xcodeproj",
       team_id: TEAM_ID,
-      bundle_identifier: "com.bwees.reveille-rides",
-      code_sign_identity: "iPhone Distribution",
-      sdk: "iphoneos*",
+      profile_name: "match AppStore com.bwees.reveille-rides",
+      targets: "MaroonRides"
     )
 
     # Watch App
@@ -107,7 +116,9 @@ platform :ios do
     build_app(
       workspace: "ios/MaroonRides.xcworkspace", 
       scheme: "MaroonRides",
+      code_signing_identity: "iPhone Distribution",
       export_options: {
+        signing_style: "manual",
         provisioningProfiles: {
           "com.bwees.reveille-rides" => "match AppStore com.bwees.reveille-rides",
           "com.bwees.reveille-rides.watch" => "match AppStore com.bwees.reveille-rides.watch"
