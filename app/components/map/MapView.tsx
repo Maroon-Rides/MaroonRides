@@ -426,11 +426,10 @@ const Map: React.FC = () => {
                     overflow: 'hidden', 
                     borderRadius: 8, 
                     backgroundColor: theme.background, 
-                    padding: 12,
                     zIndex: 1000,
                 }} 
             >
-                <TouchableOpacity onPress={() => recenterView()}>
+                <TouchableOpacity onPress={() => recenterView()} style={{ padding: 12 }}>
                     {isViewCenteredOnUser ?
                         <MaterialIcons name="my-location" size={24} color="gray" />
                         :
