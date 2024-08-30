@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, useWindowDimensions } from "react-native";
+import { View, TouchableOpacity, Text, useWindowDimensions, Platform } from "react-native";
 import { BottomSheetModal, BottomSheetScrollView, BottomSheetView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
@@ -168,7 +168,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
                                     height: 32, 
                                     justifyContent: 'center', 
                                     alignItems: 'center',
-                                    right: (dimensions.width/2)+54,
+                                    right: Platform.OS == "android" ? (dimensions.width/2)+49 : (dimensions.width/2)+54,
                                 }}
                             >
                                 {rowData.icon}
