@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Dimensions, Platform, TouchableOpacity, View } from "react-native";
-import MapView, { LatLng, Polyline, PROVIDER_DEFAULT, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { IMapRoute, RoutePlanMapMarker, RoutePlanPolylinePoint } from "../../../utils/interfaces";
