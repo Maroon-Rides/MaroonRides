@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Alert, NativeSyntheticEvent } from "react-native";
+import { View, Text, TouchableOpacity, Alert, NativeSyntheticEvent, Platform } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SheetHeader from "../ui/SheetHeader";
@@ -15,12 +15,14 @@ interface SheetProps {
 // Settings (for all routes and current route)
 const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
     const snapPoints = ['25%', '45%', '85%'];
+    const [snap, _] = useState(1)
 
     const [themeSetting, setTheme] = useState(0);
     const theme = useAppStore((state) => state.theme);
 
     const { data: defaultGroup } = useDefaultRouteGroup();
     const setDefaultGroup = defaultGroupMutation();
+
 
     function setDefaultGroupValue(evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) {
         setDefaultGroup.mutate(evt.nativeEvent.selectedSegmentIndex);
@@ -46,7 +48,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
         <BottomSheetModal 
             ref={sheetRef} 
             snapPoints={snapPoints} 
-            index={1} 
+            index={snap} 
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{ backgroundColor: theme.divider }}
         >
@@ -77,6 +79,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
                         selectedIndex={defaultGroup}
                         style={{ marginTop: 8 }}
                         onChange={setDefaultGroupValue}
+                        backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
                     />
                 </View>
 
@@ -88,6 +91,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
                         selectedIndex={themeSetting}
                         style={{ marginTop: 8 }}
                         onChange={setAppThemeValue}
+                        backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
                     />
                 </View>
             </BottomSheetScrollView>

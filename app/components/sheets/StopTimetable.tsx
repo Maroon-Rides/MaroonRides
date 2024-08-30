@@ -100,12 +100,13 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     }
 
     const snapPoints = ['25%', '45%', '85%'];
+    const [snap, _] = useState(2)
 
     return (
         <BottomSheetModal
             ref={sheetRef}
             snapPoints={snapPoints}
-            index={2}
+            index={snap}
             enablePanDownToClose={false}
             backgroundStyle={{ backgroundColor: theme.background }}
             handleIndicatorStyle={{ backgroundColor: theme.divider }}

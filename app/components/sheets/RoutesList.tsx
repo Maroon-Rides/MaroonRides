@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent } from "react-native";
+import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent, Platform } from "react-native";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { FontAwesome, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
@@ -11,6 +11,7 @@ import SheetHeader from "../ui/SheetHeader";
 import IconPill from "../ui/IconPill";
 import { useAuthToken, useBaseData, usePatternPaths, useRoutes } from "app/data/api_query";
 import { useDefaultRouteGroup, useFavorites } from "app/data/storage_query";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -18,6 +19,9 @@ interface SheetProps {
 
 // Display routes list for all routes and favorite routes
 const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
+    const snapPoints = ['25%', '45%', '85%'];
+    const [snap, setSnap] = useState(1)
+    
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
     const setSelectedRouteCategory = useAppStore(state => state.setSelectedRouteCategory);
@@ -27,8 +31,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const [shouldUpdateData, setShouldUpdateData] = useState(false);
 
-
-    const { data: routes, isLoading: isRoutesLoading } = useRoutes();
+    const queryClient = useQueryClient();
+    const { data: routes, isLoading: isRoutesLoading, isRefetching: isRefreshing } = useRoutes();
     const { data: favorites, isLoading: isFavoritesLoading, isError: isFavoritesError } = useFavorites(shouldUpdateData);
     const { data: defaultGroup, refetch: refetchDefaultGroup } = useDefaultRouteGroup(shouldUpdateData);
 
@@ -43,50 +47,56 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         presentSheet("routeDetails");
     }
 
+    function filterRoutes(): IMapRoute[] {
+        if (!routes) return [];
+
+        switch(selectedRouteCategory) {
+            case "All Routes":
+                return routes;
+            case "Gameday":
+                return routes.filter((route) => route.name.includes("Gameday"))
+            case "Favorites":
+                return favorites ?? []
+        }
+    }
+
     useEffect(() => {
-        setSelectedRouteCategory(defaultGroup === 0 ? "all" : "favorites");
+        setSelectedRouteCategory(defaultGroup === 0 ? "All Routes" : "Favorites");
     }, [defaultGroup]);
 
     // Update the shown routes when the selectedRouteCategory changes
-    useEffect(() => {
-        if (!routes) return;
-
-        if (selectedRouteCategory === "all") {
-            setDrawnRoutes(routes);
-        } else {
-            setDrawnRoutes(favorites ?? []);
-        }
-    }, [selectedRouteCategory, routes, favorites]);
-
-
+    useEffect(() => setDrawnRoutes(filterRoutes()), [selectedRouteCategory, routes, favorites]);
 
     // Update the favorites when the view is focused
-    function onAnimate(from: number, _: number) {
+    function onAnimate(from: number, to: number) {
+        setSnap(to)
         if (from === -1) {
             // update the favorites when the view is focused
             setShouldUpdateData(true);
             refetchDefaultGroup()
 
-            // match the selectedRouteCategory on the map
-            if (selectedRouteCategory === "all") {
-                setDrawnRoutes(routes ?? []);
-            } else {
-                setDrawnRoutes(favorites ?? []);
-            }
+            setDrawnRoutes(filterRoutes());
         }
     }
 
-    const handleSetSelectedRouteCategory = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
-        setSelectedRouteCategory(evt.nativeEvent.selectedSegmentIndex === 0 ? "all" : "favorites");
+    function getRouteCategories(): Array<"All Routes" | "Gameday" | "Favorites"> {
+        // if gameday routes are available
+        if (routes && routes.some((element) => element.name.includes("Gameday"))) {
+            return ["All Routes", "Gameday", "Favorites"]
+        }
+
+        return ["All Routes", "Favorites"]
     }
 
-    const snapPoints = ['25%', '45%', '85%'];
+    const handleSetSelectedRouteCategory = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
+        setSelectedRouteCategory(getRouteCategories()[evt.nativeEvent.selectedSegmentIndex] ?? "All Routes")
+    }
 
     return (
         <BottomSheetModal 
             ref={sheetRef} 
             snapPoints={snapPoints} 
-            index={1} 
+            index={snap} 
             enableDismissOnClose={false}
             enablePanDownToClose={false}
             onAnimate={onAnimate}
@@ -106,9 +116,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                                 />
                         </TouchableOpacity>
 
-                        {/* Alerts */}
-                        {/* <AlertPill /> */}
-
                         {/* Settings */}
                         <TouchableOpacity style={{ marginLeft: 8 }} onPress={ () => {
                             setShouldUpdateData(false);
@@ -122,14 +129,15 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                 />
 
                 <SegmentedControl
-                    values={['All Routes', 'Favorites']}
-                    selectedIndex={selectedRouteCategory === 'all' ? 0 : 1}
+                    values={getRouteCategories()}
+                    selectedIndex={getRouteCategories().indexOf(selectedRouteCategory)}
                     style={{ marginHorizontal: 16 }}
+                    backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
                     onChange={handleSetSelectedRouteCategory}
                 />
                 <View style={{height: 1, backgroundColor: theme.divider, marginTop: 8}} />
 
-                { (!isFavoritesLoading) && selectedRouteCategory === "favorites" && favorites?.length === 0 && routes?.length != 0 && (
+                { (!isFavoritesLoading) && selectedRouteCategory === "Favorites" && favorites?.length === 0 && routes?.length != 0 && (
                     <View style={{ alignItems: 'center', marginTop: 16 }}>
                         <Text style={{color: theme.text}}>You have no favorited routes.</Text>
                     </View>
@@ -143,7 +151,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     <View style={{ alignItems: 'center', marginTop: 16 }}>
                         <Text style={{color: theme.subtitle}}>Error loading routes. Please try again later.</Text>
                     </View>
-                : (isFavoritesError && selectedRouteCategory === "favorites") &&
+                : (isFavoritesError && selectedRouteCategory === "Favorites") &&
                     <View style={{ alignItems: 'center', marginTop: 16 }}>
                         <Text style={{color: theme.subtitle}}>Error loading favorites. Please try again later.</Text>
                     </View>
@@ -152,9 +160,15 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
             <BottomSheetFlatList
                 contentContainerStyle={{ paddingBottom: 35 }}
-                data={routes?.filter(route => selectedRouteCategory === "all" || favorites?.includes(route)) ?? []}
+                data={filterRoutes()}
                 keyExtractor={(route: IMapRoute) => route.key}
                 style={{ marginLeft: 16 }}
+                refreshing={isRefreshing}
+                onRefresh={() => {
+                    queryClient.invalidateQueries({ queryKey: ["baseData"] });
+                    queryClient.invalidateQueries({ queryKey: ["patternPaths"] });
+                    queryClient.invalidateQueries({ queryKey: ["routes"] });
+                }}
                 renderItem={({item: route}) => {
                     return (
                         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} onPress={() => handleRouteSelected(route)}>

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, TouchableOpacity, View } from "react-native";
+import { Dimensions, Platform, TouchableOpacity, View } from "react-native";
 import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -11,6 +11,7 @@ import { useVehicles } from "../../data/api_query";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { decode } from "@googlemaps/polyline-codec";
 import RoutePlanMarker from "./markers/RoutePlanMarker";
+import { DarkGoogleMaps } from "app/theme";
 
 const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
@@ -299,12 +300,16 @@ const Map: React.FC = () => {
         <>
             <MapView
                 showsUserLocation={true}
-                style={{ width: "100%", height: "100%", zIndex: 100, elevation: 100 }}
-                ref={mapViewRef} rotateEnabled={false}
-                initialRegion={defaultMapRegion}
+                style={{ width: "100%", height: "100%" }}
+                ref={mapViewRef} 
+                rotateEnabled={false}
+                region={defaultMapRegion}
                 onPanDrag={() => setIsViewCenteredOnUser(false)}
+                // this deprcation is ok, we only use it on android
+                maxZoomLevel={Platform.OS == "android" ? 18 : undefined}
                 showsMyLocationButton={false} // we have our own
-                // userInterfaceStyle={colorScheme == "dark" ? "dark" : "light"}
+                // fix dark mode android map syling
+                customMapStyle={Platform.OS == "android" && theme.mode == "dark" ? DarkGoogleMaps : undefined}
             >
                 {/* Route Polylines */}
                 {drawnRoutes.map((drawnRoute) => {
@@ -356,7 +361,7 @@ const Map: React.FC = () => {
                                     tintColor={selectedRoute?.directionList[0]?.lineColor ?? "#FFFF"}
                                     active={patternPath.directionKey === selectedRouteDirection}
                                     route={selectedRoute}
-                                    direction={selectedRoute?.directionList[0]!.direction.key}
+                                    direction={patternPath.directionKey}
                                     isCalloutShown={poppedUpStopCallout?.stopCode === stop.stopCode}
                                 />
                             );
@@ -421,11 +426,10 @@ const Map: React.FC = () => {
                     overflow: 'hidden', 
                     borderRadius: 8, 
                     backgroundColor: theme.background, 
-                    padding: 12,
                     zIndex: 1000,
                 }} 
             >
-                <TouchableOpacity onPress={() => recenterView()}>
+                <TouchableOpacity onPress={() => recenterView()} style={{ padding: 12 }}>
                     {isViewCenteredOnUser ?
                         <MaterialIcons name="my-location" size={24} color="gray" />
                         :

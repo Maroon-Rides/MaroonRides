@@ -19,6 +19,7 @@ interface SheetProps {
 const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const snapPoints = ['25%', '45%', '85%'];
+    const [snap, _] = useState(1)
 
     const theme = useAppStore((state) => state.theme);
     const selectedRoutePlan = useAppStore((state) => state.selectedRoutePlan);
@@ -99,7 +100,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
         <BottomSheetModal 
             ref={sheetRef} 
             snapPoints={snapPoints} 
-            index={1} 
+            index={snap} 
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
             enablePanDownToClose={false}

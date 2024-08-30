@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native'
+import { View, Text, ActivityIndicator, TouchableOpacity, Platform } from 'react-native'
 import { Callout } from 'react-native-maps'
 import BusIcon from '../ui/BusIcon'
 import { IMapRoute, IStop } from '../../../utils/interfaces'
@@ -21,6 +21,7 @@ interface Props {
 const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => {
 
     const scrollToStop = useAppStore(state => state.scrollToStop);
+    const setSelectedRouteDirection = useAppStore(state => state.setSelectedRouteDirection)
 
     const { data: estimate, isLoading } = useStopEstimate(route.key, direction, stop.stopCode);
 
@@ -30,12 +31,15 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: 215,
-                height: 60,
+                height: Platform.OS == "android" ? 60+18 : 60,
                 zIndex: 1000,
                 elevation: 1000
             }}
         >
-            <View>
+            <View style={[
+            Platform.OS == "android" && {
+                padding: 4,
+            }]}>
                 <TouchableOpacity 
                     style={{ 
                         flexDirection: "row", 
@@ -43,7 +47,10 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                         alignItems: "center", 
                         alignSelf: "flex-start" 
                     }} 
-                    onPress={() => { scrollToStop(stop) }}
+                    onPress={() => {
+                        setSelectedRouteDirection(direction)
+                        scrollToStop(stop) 
+                    }}
                 >
                     <BusIcon name={route.shortName} color={tintColor} isCallout={true} style={{ marginRight: 8 }} />
                     <Text style={{ flex: 1, fontWeight: 'bold' }} numberOfLines={2} >{stop.name}</Text>
@@ -52,7 +59,7 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
 
                 { isLoading ?
                     <ActivityIndicator style={{ marginTop: 8 }} />
-                  : ( estimate?.routeDirectionTimes[0]?.nextDeparts.length !== 0 ?
+                  : (  estimate?.routeDirectionTimes.length != 0 && estimate?.routeDirectionTimes[0]?.nextDeparts.length !== 0 ?
                     <View style={{
                         flexDirection: "row",
                         justifyContent: "center",

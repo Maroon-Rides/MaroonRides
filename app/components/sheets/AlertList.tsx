@@ -16,6 +16,7 @@ interface SheetProps {
 const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const snapPoints = ['25%', '45%', '85%'];
+    const [snap, _] = useState(1)
 
     const theme = useAppStore((state) => state.theme);
     const selectedRoute = useAppStore((state) => state.selectedRoute);
@@ -51,11 +52,12 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
         setSelectedAlert(alert);
         presentSheet("alertsDetail");
     }
+
     return (
         <BottomSheetModal 
             ref={sheetRef} 
             snapPoints={snapPoints} 
-            index={1} 
+            index={snap} 
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
             onAnimate={(_, to) => {

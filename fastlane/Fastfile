@@ -15,38 +15,27 @@
 
 default_platform(:ios)
 
-ASC_KEY_ID = ENV['ASC_KEY_ID']
-ASC_ISSUER_ID = ENV['ASC_ISSUER_ID']
-ASC_KEY_BASE64 = ENV['ASC_KEY_BASE64']
-TEAM_ID = ENV['TEAM_ID']
-
 # use changelog env var if set, otherwise use default
 CHANGELOG = ENV['CHANGELOG'] || "Howdy! This update includes some bug fixes and performance improvements. Please let us know if you have any feedback or questions through TestFlight! Thanks and Gig 'Em!"
 
-# setup app store connect api key on local machine 
-app_store_connect_api_key(
-  key_id: ASC_KEY_ID,
-  issuer_id: ASC_ISSUER_ID,
-  key_content: ASC_KEY_BASE64,
-  is_key_content_base64: true
-)
-
-
 platform :ios do
-  lane :setup_keychain do
-    setup_keychain(
-      keychain_name: "fastlane_tmp_keychain",
-      keychain_password: "fastlane_tmp_keychain",
-      default_keychain: true,
-      unlock: true
-    )
-  end
-
   desc "Setup generated Xcode project for build"
   lane :prebuild do
     setup_ci if ENV['CI']
 
-    
+    ASC_KEY_ID = ENV['ASC_KEY_ID']
+    ASC_ISSUER_ID = ENV['ASC_ISSUER_ID']
+    ASC_KEY_BASE64 = ENV['ASC_KEY_BASE64']
+    TEAM_ID = ENV['TEAM_ID']
+
+    # setup app store connect api key on local machine 
+    app_store_connect_api_key(
+      key_id: ASC_KEY_ID,
+      issuer_id: ASC_ISSUER_ID,
+      key_content: ASC_KEY_BASE64,
+      is_key_content_base64: true
+    )
+
     match(
       type: 'development',
       app_identifier: 'com.bwees.reveille-rides',
@@ -61,7 +50,6 @@ platform :ios do
       git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
     )
     
-        
     update_project_team(
       path: "ios/MaroonRides.xcodeproj",
       teamid: TEAM_ID
@@ -90,21 +78,9 @@ platform :ios do
       value: false
     )
   end
-
-  desc "Push a new release build to the App Store"
-  lane :release do
-    prebuild
-
-    # get current build number app_store_build_number and increment it
-    increment_build_number(xcodeproj: "ios/MaroonRides.xcodeproj", build_number: app_store_build_number() + 1)
-
-    build_app(workspace: "ios/MaroonRides.xcworkspace", scheme: "MaroonRides")
-    
-    upload_to_app_store(skip_metadata: true, skip_screenshots: true)
-  end
   
-  desc "Push a new beta build to TestFlight"
-  lane :beta do
+  desc "Push a new build to TestFlight"
+  lane :build do
     prebuild
     
     increment_build_number(xcodeproj: "ios/MaroonRides.xcodeproj", build_number: app_store_build_number(live: false) + 1)
@@ -119,4 +95,54 @@ platform :ios do
       ]
     )
   end
+end
+
+# fastlane/Fastfile
+default_platform(:android)
+
+platform :android do
+  desc "Build APK with Gradle"
+  lane :build do
+
+    # Fetch the latest version code from the Google Play Store for the 'internal' track
+    latest_version_code = google_play_track_version_codes(
+        track: 'internal',
+        json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY']),
+        package_name: ENV['PACKAGE_NAME']
+      ).max || 1
+
+    # Increment the version code
+    new_version_code = latest_version_code + 1
+    UI.message("New Version Code: #{new_version_code}")
+
+    # Update the versionCode in the build.gradle file
+    new_gradle_content = File.read(ENV['APP_GRADLE_FILE']).gsub(/versionCode \d+/, "versionCode #{new_version_code}")
+    File.write(ENV['APP_GRADLE_FILE'], new_gradle_content)
+
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      project_dir: "android/",
+      flags: "--no-daemon",
+      properties: {
+        "android.injected.signing.store.file" => ENV['KEY_PATH'],
+        "android.injected.signing.store.password" => ENV['STORE_PASSWORD'],
+        "android.injected.signing.key.alias" => ENV['KEY_ALIAS'],
+        "android.injected.signing.key.password" => ENV['KEY_PASSWORD'],
+      }
+    )
+  end
+
+  desc "Push a new build to Google Play Store"
+  lane :upload do
+    upload_to_play_store(
+      track: 'internal', 
+      aab: './android/app/build/outputs/bundle/release/app-release.aab',
+      json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY']),
+      package_name: ENV['PACKAGE_NAME'],
+      release_status: "draft" # can remove after we start releasing
+    )
+  end
+
+
 end

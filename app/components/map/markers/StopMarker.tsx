@@ -42,7 +42,7 @@ const StopMarker: React.FC<Props> = ({ point, tintColor, route, direction, isCal
                 longitude: point.longitude
             }}
             tracksViewChanges={false}
-            anchor={{x: 1, y: 1}}
+            anchor={{x: 0.5, y: 0.5}}
             pointerEvents="auto"
             onPress={() => defaultDirection()}
         >

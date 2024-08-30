@@ -2,7 +2,7 @@
   "expo": {
     "name": "Maroon Rides",
     "slug": "Maroon Rides",
-    "version": "1.5.2",
+    "version": "1.6.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -50,6 +50,11 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "config": {
+        "googleMaps": {
+          "apiKey": "{{GOOGLE_MAPS_KEY}}" 
+        }
+      },
       "splash": {
         "image": "./assets/splash.png",
         "resizeMode": "cover",
@@ -60,7 +65,7 @@
              "backgroundColor": "#191919"
         }
       },
-      "package": "com.anonymous.reactnativeboilerplate"
+      "package": "com.maroonrides.maroonrides"
     },
     "web": {
       "favicon": "./assets/favicon.png",

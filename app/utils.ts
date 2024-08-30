@@ -3,6 +3,8 @@ import { Appearance } from "react-native";
 
 // given a hex code without the #, return a lighter version of it
 export function getLighterColor(color: string): string {
+    color = color
+    
     // remove the # from the beginning of the color
     color = color.substring(1);
 
