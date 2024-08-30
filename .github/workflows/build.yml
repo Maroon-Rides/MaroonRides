@@ -115,7 +115,9 @@ jobs:
         run: npm install
 
       - name: Write Google Maps API Key to app.json
-        run: sed -i "s/{{GOOGLE_MAPS_KEY}}/$GOOGLE_MAPS_KEY/g" app.json
+        run: |
+          sed -i "s/{{GOOGLE_MAPS_KEY}}/$GOOGLE_MAPS_KEY/g" app.json
+          cat app.json
         env:
           GOOGLE_MAPS_KEY: ${{ secrets.GOOGLE_MAPS_KEY }}
       
