@@ -15,19 +15,6 @@ enum NetworkError: Error {
   case invalidResponse
 }
 
-class SSLBypassDelegate: NSObject, URLSessionDelegate {
-    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
-           let serverTrust = challenge.protectionSpace.serverTrust {
-            // Allow any certificate
-            let credential = URLCredential(trust: serverTrust)
-            completionHandler(.useCredential, credential)
-        } else {
-            completionHandler(.performDefaultHandling, nil)
-        }
-    }
-}
-
 class APIManager: ObservableObject {
   @Published var baseData: GetBaseDataResponse?
   @Published var error: Error?
@@ -35,7 +22,7 @@ class APIManager: ObservableObject {
   
   private var authKey: String = ""
   var cancellables = Set<AnyCancellable>()
-  let session = URLSession(configuration: .default, delegate: SSLBypassDelegate(), delegateQueue: nil)
+  let session = URLSession.shared
 
   
   func fetchData() {
