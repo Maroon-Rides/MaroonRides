@@ -62,6 +62,14 @@ platform :ios do
       target_filter: "MaroonRides",
     )
 
+    # Watch App
+    update_project_provisioning(
+      xcodeproj: "ios/MaroonRides.xcodeproj",
+      profile: ENV["sigh_com.bwees.reveille-rides_appstore_profile-path"],
+      build_configuration: "Release",
+      target_filter: "Maroon Rides",
+    )
+
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "ios/MaroonRides.xcodeproj",
