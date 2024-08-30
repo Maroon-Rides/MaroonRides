@@ -73,7 +73,11 @@
     },
     "plugins": [
       "@config-plugins/detox", 
-      "expo-router", 
+      ["@bacons/apple-targets",
+        {
+          "appleTeamId": "65AMD2STXG"
+        }
+      ],
       [
         "expo-location",
         {
