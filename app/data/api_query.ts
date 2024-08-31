@@ -79,7 +79,7 @@ export const useRoutes = () => {
         queryFn: async () => {
             const baseData = baseDataQuery.data as IGetBaseDataResponse;
             const patternPaths = patternPathsQuery.data as IGetPatternPathsResponse;
-
+            
             function addPatternPathsToRoutes(baseDataRoutes: IMapRoute[], patternPathsResponse: IGetPatternPathsResponse) {
                 for (let elm of patternPathsResponse) {
                     const foundObject = baseDataRoutes.find(route => route.key === elm.routeKey) as IMapRoute;
@@ -105,10 +105,7 @@ export const useRoutes = () => {
             return routes;
         },
         enabled: patternPathsQuery.isSuccess && baseDataQuery.isSuccess,
-        staleTime: 8 * 3600 * 1000, // persist for 8 hours
-        meta: {
-            persist: true
-        }
+        staleTime: Infinity
     });
 
     return query;
@@ -267,7 +264,7 @@ export const useSearchSuggestion = (query: string) => {
                 // we need the baseData to get the stop GPS locations
                 const baseData = baseDataQuery.data as IGetBaseDataResponse;
 
-                busStops = responses[1].map((stop: IFoundStop) => {
+                busStops = responses[1].map((stop: IFoundStop): SearchSuggestion => {
                     // find the stop location (lat/long) in baseData patternPaths
                     // TODO: convert this processing to be on the BaseData loading
                     let foundLocation: IPatternPoint | undefined = undefined;
@@ -290,7 +287,7 @@ export const useSearchSuggestion = (query: string) => {
                         type: "stop",
                         title: stop.stopName,
                         subtitle: "ID: " + stop.stopCode,
-                        code: stop.stopCode,
+                        stopCode: stop.stopCode,
                         lat: foundLocation?.latitude,
                         long: foundLocation?.longitude
                     }
