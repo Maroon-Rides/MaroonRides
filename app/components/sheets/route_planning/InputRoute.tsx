@@ -5,7 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
 import SheetHeader from "../../ui/SheetHeader";
 import { MyLocationSuggestion, SearchSuggestion } from "utils/interfaces";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import SuggestionInput from "app/components/ui/SuggestionInput";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import TimeInput from "app/components/ui/TimeInput";
@@ -14,6 +14,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import TripPlanCell from "app/components/ui/TripPlanCell";
 import * as Location from 'expo-location';
 import { Linking } from "react-native";
+import { addFavoriteLocationMutation, removeFavoriteLocationMutation, useFavoriteLocations } from "app/data/storage_query";
+import { suggestionEqual } from "app/utils";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -54,6 +56,21 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         sheetRef.current?.dismiss()
         return false
     })
+
+    // Favorite Location
+    const { data: favoriteLocations } = useFavoriteLocations();
+    const addLocationFavorite = addFavoriteLocationMutation();
+    const removeLocationFavorite = removeFavoriteLocationMutation();
+
+    function toggleFavoriteLocation(location: SearchSuggestion) {
+        if (favoriteLocations && 
+            (favoriteLocations as SearchSuggestion[]).find((item) => suggestionEqual(item, location))) 
+        {
+            removeLocationFavorite.mutate(location)
+        } else {
+            addLocationFavorite.mutate(location)
+        }
+    }
 
     useEffect(() => {
         
@@ -267,6 +284,24 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                     {/* Subtitle */}
                                     { suggestion.subtitle && <Text style={{ color: theme.subtitle, fontSize: 14 }}>{suggestion.subtitle}</Text> }
                                 </View>
+
+                                {/* Favorite Location */}
+                                { suggestion.type != "my-location" &&
+                                    <TouchableOpacity 
+                                        onPress={(e) => {
+                                            e.stopPropagation()
+                                            toggleFavoriteLocation(suggestion)
+                                        }} 
+                                        style={{ paddingLeft: 16, zIndex: 10000 }}
+                                    >
+                                        { (favoriteLocations as SearchSuggestion[]).find((item) => suggestionEqual(item, suggestion)) ?
+                                            <FontAwesome name="star" size={24} color="#ffcc01" />
+                                        :
+                                            <FontAwesome name="star-o" size={24} color={theme.subtitle} />
+                                        }
+                                    </TouchableOpacity>
+                                }
+
                             </TouchableOpacity>
                         )}
                     />

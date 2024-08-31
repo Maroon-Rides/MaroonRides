@@ -1,7 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { IMapRoute } from "utils/interfaces";
+import { IMapRoute, SearchSuggestion } from "utils/interfaces";
 import { useRoutes } from "./api_query";
+import { suggestionEqual } from "app/utils";
 
 export const useFavorites = (allowUpdate: boolean = true) => {
     const routesQuery = useRoutes();
@@ -142,6 +143,64 @@ export const defaultGroupMutation = () => {
         mutationFn: async (group: number) => {
             await AsyncStorage.setItem('default-group', group.toString());
             queryClient.invalidateQueries({ queryKey: ["defaultRouteGroup"] });
+        }
+    });
+
+    return mutation;
+}
+
+export const useFavoriteLocations = () => {
+    const query = useQuery({
+        queryKey: ["favoriteLocations"],
+        queryFn: async () => {
+            const favorites = await AsyncStorage.getItem("favoriteLocations")
+            if (!favorites) return [];
+
+            return JSON.parse(favorites);
+        },
+        staleTime: Infinity
+    });
+
+    return query;
+}
+
+export const addFavoriteLocationMutation = () => {
+    const queryClient = useQueryClient();
+
+    const mutation = useMutation({
+        mutationKey: ["addFavoriteLocation"],
+        mutationFn: async (location: SearchSuggestion) => {
+            const favorites = await AsyncStorage.getItem('favoriteLocations')
+
+            var favoritesArray = JSON.parse(favorites ?? "[]");
+
+            favoritesArray.push(location);
+            console.log(favoritesArray.length)
+
+            await AsyncStorage.setItem('favoriteLocations', JSON.stringify(favoritesArray));
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["favoriteLocations"] });
+        }
+    });
+
+    return mutation;
+}
+
+export const removeFavoriteLocationMutation = () => {
+    const queryClient = useQueryClient();
+
+    const mutation = useMutation({
+        mutationKey: ["removeFavoriteLocations"],
+        mutationFn: async (location: SearchSuggestion) => {
+            const favorites = await AsyncStorage.getItem('favoriteLocations')
+
+            var favoritesArray = JSON.parse(favorites ?? "[]");
+            const newFavorites = favoritesArray.filter((fav: SearchSuggestion) => !suggestionEqual(fav, location));
+            await AsyncStorage.setItem('favoriteLocations', JSON.stringify(newFavorites));
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["favoriteLocations"] });
         }
     });
 

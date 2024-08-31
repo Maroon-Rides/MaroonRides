@@ -1,5 +1,6 @@
 import { useSearchSuggestion } from "app/data/api_query"
 import useAppStore from "app/data/app_state"
+import { useFavoriteLocations } from "app/data/storage_query"
 import { memo, useEffect, useState } from "react"
 import { View, TextInput, Keyboard, Platform } from "react-native"
 import { MyLocationSuggestion, SearchSuggestion } from "utils/interfaces"
@@ -21,6 +22,7 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
     const [searchTerm, setSearchTerm] = useState("");
     
     const { data: suggestions, isLoading } = useSearchSuggestion(searchTerm);
+    const { data: favoriteLocations } = useFavoriteLocations();
 
     useEffect(() => {
         setSuggestionLoading(isLoading);
@@ -40,11 +42,12 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
 
     useEffect(() => {
         if (searchTerm.trim() == "" && suggestionsOutput) {
-            setSuggestions([MyLocationSuggestion]);
+            setSuggestions([MyLocationSuggestion, ...favoriteLocations]);
             return
         }
+        
         suggestionsOutput && setSuggestions(suggestions ?? []);
-    }, [suggestions])
+    }, [suggestions, favoriteLocations])
     
     return (
         <View 
@@ -85,7 +88,7 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
                     setSearchTerm(text);
                     setSuggestionsOutput(outputName);
                     if (text.trim() == "") {
-                        setSuggestions([MyLocationSuggestion]);
+                        setSuggestions([MyLocationSuggestion, ...favoriteLocations]);
                         return
                     }
                     setSuggestions([]);
@@ -96,7 +99,7 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
                         setSearchTerm("");                        
                     }
                     if (searchTerm.trim() == "") {
-                        setSuggestions([MyLocationSuggestion]);
+                        setSuggestions([MyLocationSuggestion, ...favoriteLocations]);
                     } else {
                         setSuggestions(suggestions ?? [])
                     }
