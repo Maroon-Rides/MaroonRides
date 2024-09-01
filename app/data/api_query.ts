@@ -80,7 +80,8 @@ export const useRoutes = () => {
             const baseData = baseDataQuery.data as IGetBaseDataResponse;
             const patternPaths = patternPathsQuery.data as IGetPatternPathsResponse;
             
-            function addPatternPathsToRoutes(baseDataRoutes: IMapRoute[], patternPathsResponse: IGetPatternPathsResponse) {
+            // Merge Pattern Paths with Base Data
+            function mergeBaseAndPaths(baseDataRoutes: IMapRoute[], patternPathsResponse: IGetPatternPathsResponse) {
                 for (let elm of patternPathsResponse) {
                     const foundObject = baseDataRoutes.find(route => route.key === elm.routeKey) as IMapRoute;
                     if (foundObject) {
@@ -90,9 +91,9 @@ export const useRoutes = () => {
                 return baseDataRoutes as IMapRoute[];
             }
 
-            const routes = addPatternPathsToRoutes([...baseData.routes], patternPaths);
+            const routes = mergeBaseAndPaths([...baseData.routes], patternPaths);
             
-            // convert colors based on theme
+            // convert colors of routes based on theme
             const colorTheme = (await getColorScheme()) == "dark" ? darkMode : lightMode
             routes.forEach(route => {
                 if (colorTheme.busTints[route.shortName]) {
@@ -134,6 +135,9 @@ export const useStopEstimate = (routeKey: string, directionKey: string, stopCode
             const response = await getNextDepartureTimes(routeKey, [directionKey], stopCode, authTokenQuery.data!);
             GetNextDepartTimesResponseSchema.parse(response);
 
+            return response
+        },
+        select: (response) => {
             // dedup the stopTimes[].nextDeparts based on relative time
             if (response.routeDirectionTimes[0]) {
                 const relatives = response.routeDirectionTimes[0].nextDeparts.map((item) => {
@@ -197,18 +201,21 @@ export const useSchedule = (stopCode: string, date: Date) => {
 export const useVehicles = (routeKey: string) => {
     const authTokenQuery = useAuthToken();
 
-    return useQuery<IVehicle[]>({
+    return useQuery<IGetVehiclesResponse, Error, IVehicle[]>({
         queryKey: ["vehicles", routeKey],
         queryFn: async () => {
             let busesResponse = await getVehicles([routeKey], authTokenQuery.data!) as IGetVehiclesResponse;
             GetVehiclesResponseSchema.parse(busesResponse);
 
-            if (busesResponse.length == 0 || !busesResponse[0]?.vehiclesByDirections) {
+            return busesResponse
+        },
+        select: (data: IGetVehiclesResponse): IVehicle[] => {
+            if (data.length == 0 || !data[0]?.vehiclesByDirections) {
                 return []
             }
 
             let extracted: IVehicle[] = []
-            for (let direction of busesResponse[0]?.vehiclesByDirections) {
+            for (let direction of data[0]?.vehiclesByDirections) {
                 for (let bus of direction.vehicles) {
                     extracted.push(bus)
                 }
@@ -230,7 +237,7 @@ export const useSearchSuggestion = (query: string) => {
     const baseDataQuery = useBaseData();
     const patternPathsQuery = usePatternPaths();
 
-    return useQuery<SearchSuggestion[]>({
+    return useQuery<any, Error, SearchSuggestion[]>({
         queryKey: ["searchSuggestion", query],
         queryFn: async () => {
             let dataSources: Promise<any>[] = [
@@ -245,8 +252,9 @@ export const useSearchSuggestion = (query: string) => {
                 dataSources.push(findBusStops(query, authTokenQuery.data!))
             }
 
-            const responses = await Promise.all(dataSources);
-
+            return await Promise.all(dataSources);
+        },
+        select: (responses) => {
             // handle locations
             const locations: [SearchSuggestion] = responses[0].map((location: IFoundLocation) => {
                 return {
@@ -320,9 +328,6 @@ export const useTripPlan = (origin: SearchSuggestion | null, destination: Search
                                     );
 
             GetTripPlanResponseSchema.parse(response)
-
-            // filter out expired options
-            // response.optionDetails = (response?.optionDetails ?? []).filter((p) => p.endTime > Math.floor(Date.now() / 1000))
 
             return response;
         },
