@@ -158,8 +158,13 @@ jobs:
           name: app-bundle.aab
           path: ./android/app/build/outputs/bundle/release/app-release.aab
         
+      - name: Set outputs
+        id: git_sha
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
       - name: Upload to Play Store [Android]
         run: fastlane android upload
         env:
           GOOGLE_PLAY_KEY: ${{ secrets.GOOGLE_PLAY_KEY }}
+          RELEASE_NAME: ${{ github.event.release.tag_name || steps.git_sha.outputs.sha_short }}
           PACKAGE_NAME: "com.maroonrides.maroonrides"
