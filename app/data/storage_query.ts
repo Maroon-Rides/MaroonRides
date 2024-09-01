@@ -175,7 +175,6 @@ export const addFavoriteLocationMutation = () => {
             var favoritesArray = JSON.parse(favorites ?? "[]");
 
             favoritesArray.push(location);
-            console.log(favoritesArray.length)
 
             await AsyncStorage.setItem('favoriteLocations', JSON.stringify(favoritesArray));
         },

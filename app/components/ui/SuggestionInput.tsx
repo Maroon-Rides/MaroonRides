@@ -19,10 +19,10 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
     const suggestionsOutput = useAppStore((state) => state.suggestionOutput);
     const setSuggestionsOutput = useAppStore((state) => state.setSuggestionOutput);
 
-    const [searchTerm, setSearchTerm] = useState("");
-    
-    const { data: suggestions, isLoading } = useSearchSuggestion(searchTerm);
     const { data: favoriteLocations } = useFavoriteLocations();
+    
+    const [searchTerm, setSearchTerm] = useState("");
+    const { data: suggestions, isLoading } = useSearchSuggestion(searchTerm);
 
     useEffect(() => {
         setSuggestionLoading(isLoading);
@@ -39,7 +39,6 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
         }
     }, [location])
 
-
     useEffect(() => {
         if (searchTerm.trim() == "" && suggestionsOutput) {
             setSuggestions([MyLocationSuggestion, ...favoriteLocations]);
@@ -47,7 +46,7 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
         }
         
         suggestionsOutput && setSuggestions(suggestions ?? []);
-    }, [suggestions, favoriteLocations])
+    }, [suggestions])
     
     return (
         <View 
@@ -91,12 +90,11 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
                         setSuggestions([MyLocationSuggestion, ...favoriteLocations]);
                         return
                     }
-                    setSuggestions([]);
                 }}
                 onFocus={() => {
                     // clear search so user can start typing immediately
                     if (location?.type == "my-location") {
-                        setSearchTerm("");                        
+                        setSearchTerm("");      
                     }
                     if (searchTerm.trim() == "") {
                         setSuggestions([MyLocationSuggestion, ...favoriteLocations]);
