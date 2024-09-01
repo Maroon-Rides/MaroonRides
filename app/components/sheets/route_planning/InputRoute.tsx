@@ -41,16 +41,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     const setSuggestions = useAppStore((state) => state.setSuggestions);
     const setSuggesionOutput = useAppStore((state) => state.setSuggestionOutput);
     const [routeInfoError, setRouteInfoError] = useState("");
-    const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
 
     const [searchSuggestionsLoading, setSearchSuggestionsLoading] = useState(false)
 
     const client = useQueryClient()
 
-    useEffect(() => {
-        setDrawnRoutes([])
-        setSuggesionOutput(null)
-    }, [])
 
     BackHandler.addEventListener('hardwareBackPress', () => {
         sheetRef.current?.dismiss()
