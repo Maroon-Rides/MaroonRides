@@ -90,7 +90,8 @@ const Home = () => {
                         // only persist queries who ask for it and are successful
                         return query.meta?.persist as boolean && query.state.status === 'success'
                     },
-                }
+                },
+                maxAge: 2 * 3600 * 1000
             }}
         >
             <GestureHandlerRootView style={{ flex: 1 }}>
