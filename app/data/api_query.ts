@@ -36,10 +36,7 @@ export const useBaseData = () => {
             return baseData;
         },
         enabled: authTokenQuery.isSuccess,
-        meta: {
-            persist: true
-        },
-        staleTime: 2 * 3600 * 1000 // 2 hours
+        staleTime: Infinity
     });
 
     return query;
@@ -50,18 +47,24 @@ export const usePatternPaths = () => {
     const baseDataQuery = useBaseData();
 
     const query = useQuery<IGetPatternPathsResponse>({
-        queryKey: ["patternPaths"],
+        queryKey: [
+            "patternPaths", 
+            (baseDataQuery.data as IGetBaseDataResponse)
+                .routes.map((route) => [
+                    route.key, 
+                    route.directionList.map((d) => d.direction.key)
+                ])
+        ],
         queryFn: async () => {
             const baseData = baseDataQuery.data as IGetBaseDataResponse;
-
             const patternPaths = await getPatternPaths(baseData.routes.map(route => route.key), authTokenQuery.data!);
-
             GetPatternPathsResponseSchema.parse(patternPaths);
 
             return patternPaths;
         },
         enabled: baseDataQuery.isSuccess,
         staleTime: 2 * 3600 * 1000, // 2 hours
+        refetchInterval: 2 * 3600 * 1000, // 2 hours
         meta: {
             persist: true
         }
