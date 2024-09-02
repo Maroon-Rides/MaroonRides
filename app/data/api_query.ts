@@ -49,14 +49,14 @@ export const usePatternPaths = () => {
     const query = useQuery<IGetPatternPathsResponse>({
         queryKey: [
             "patternPaths", 
-            (baseDataQuery.data as IGetBaseDataResponse)
-                .routes.map((route) => [
+            (baseDataQuery.data as IGetBaseDataResponse)?.routes.map((route) => [
                     route.key, 
                     route.directionList.map((d) => d.direction.key)
                 ])
         ],
         queryFn: async () => {
             const baseData = baseDataQuery.data as IGetBaseDataResponse;
+            
             const patternPaths = await getPatternPaths(baseData.routes.map(route => route.key), authTokenQuery.data!);
             GetPatternPathsResponseSchema.parse(patternPaths);
 
