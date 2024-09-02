@@ -4,7 +4,7 @@ import { View, Text, ViewProps } from 'react-native'
 
 interface Props extends ViewProps {
     text?: string
-    icon: any
+    icon: React.ReactNode
 }
 
 const IconPill: React.FC<Props> = ({text, icon, style}) => {
