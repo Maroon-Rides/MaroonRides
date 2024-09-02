@@ -74,7 +74,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
                     icon = <StepIcon icon={<Ionicons name="time-outline" size={18} color={theme.text} />}/>
                     break;
                 default:
-                    icon = <StepIcon icon={<Ionicons name="walk" size={18} color={theme.text} style={{marginLeft: 4}}/>}/>
+                    icon = <StepIcon icon={<Ionicons name="walk" size={18} color={theme.text} style={{marginLeft: 1}}/>}/>
             }
 
             return {
