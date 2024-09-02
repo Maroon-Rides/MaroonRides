@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Appearance } from "react-native";
+import { SearchSuggestion } from "utils/interfaces";
 
 // given a hex code without the #, return a lighter version of it
 export function getLighterColor(color: string): string {
@@ -40,4 +41,13 @@ export async function getColorScheme(): Promise<string> {
         default:
             return colorScheme == "dark" ? "dark" : "light"
     }    
+}
+
+export function suggestionEqual(lhs: SearchSuggestion, rhs: SearchSuggestion) {
+    if (lhs.type != rhs.type) return false
+
+    if (lhs.type == "map") return rhs.placeId == lhs.placeId
+    if (lhs.type == "stop") return rhs.stopCode == lhs.stopCode
+
+    return false
 }

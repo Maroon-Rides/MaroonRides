@@ -1,5 +1,6 @@
 import { useSearchSuggestion } from "app/data/api_query"
 import useAppStore from "app/data/app_state"
+import { useFavoriteLocations } from "app/data/storage_query"
 import { memo, useEffect, useState } from "react"
 import { View, TextInput, Keyboard, Platform } from "react-native"
 import { MyLocationSuggestion, SearchSuggestion } from "utils/interfaces"
@@ -18,8 +19,9 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
     const suggestionsOutput = useAppStore((state) => state.suggestionOutput);
     const setSuggestionsOutput = useAppStore((state) => state.setSuggestionOutput);
 
-    const [searchTerm, setSearchTerm] = useState("");
+    const { data: favoriteLocations } = useFavoriteLocations();
     
+    const [searchTerm, setSearchTerm] = useState("");
     const { data: suggestions, isLoading } = useSearchSuggestion(searchTerm);
 
     useEffect(() => {
@@ -37,12 +39,12 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
         }
     }, [location])
 
-
     useEffect(() => {
         if (searchTerm.trim() == "" && suggestionsOutput) {
-            setSuggestions([MyLocationSuggestion]);
+            setSuggestions([MyLocationSuggestion, ...favoriteLocations]);
             return
         }
+        
         suggestionsOutput && setSuggestions(suggestions ?? []);
     }, [suggestions])
     
@@ -85,18 +87,17 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
                     setSearchTerm(text);
                     setSuggestionsOutput(outputName);
                     if (text.trim() == "") {
-                        setSuggestions([MyLocationSuggestion]);
+                        setSuggestions([MyLocationSuggestion, ...favoriteLocations]);
                         return
                     }
-                    setSuggestions([]);
                 }}
                 onFocus={() => {
                     // clear search so user can start typing immediately
                     if (location?.type == "my-location") {
-                        setSearchTerm("");                        
+                        setSearchTerm("");      
                     }
                     if (searchTerm.trim() == "") {
-                        setSuggestions([MyLocationSuggestion]);
+                        setSuggestions([MyLocationSuggestion, ...favoriteLocations]);
                     } else {
                         setSuggestions(suggestions ?? [])
                     }

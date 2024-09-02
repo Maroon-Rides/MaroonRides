@@ -119,10 +119,15 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
         <View style={{ marginLeft: 16, paddingTop: 8 }}>
             <TouchableOpacity onPress={dismissBack} disabled={dismissBack == null} style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
                 <BusIcon name={item.routeNumber} color={tintColor} style={{ marginRight: 8 }} />
-                <View>
-                    <View style={{ flexDirection: "row", alignItems: "center", flex: 1}}>
-                        <Text style={{ fontWeight: "bold", fontSize: 24, paddingRight: 8, color: theme.text }}>{item.routeName}</Text>
-                        { isLoading && <ActivityIndicator /> }
+                <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <Text
+                            style={{ fontWeight: "bold", fontSize: 24, color: theme.text, flexShrink: 1 }}
+                            numberOfLines={1}
+                        >
+                            {item.routeName}
+                        </Text>
+                        {isLoading && <ActivityIndicator />}
                     </View>
                     <Text style={{color: theme.subtitle}}>{item.directionName}</Text>
                 </View>

@@ -152,9 +152,10 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                             scrollEnabled={false}
                             keyExtractor={(_, index) => index.toString()}
                             ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: theme.divider, marginVertical: 8 }} />}
+                            style={{marginRight: 16}}
                             renderItem={({ item, index }) => {
                                 return (
-                                    <View key={index}>
+                                    <View key={index} style={{flex: 1}}>
                                         <Timetable item={item} tintColor={getLineColor(item.routeNumber)} stopCode={selectedStop?.stopCode ?? ""} />
                                     </View>
                                 );

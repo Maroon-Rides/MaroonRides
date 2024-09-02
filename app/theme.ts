@@ -43,6 +43,7 @@ export const lightMode: Theme = {
     androidTextPlaceholderColor: "#525254",
 
     busTints: {
+        "G26": "#2e8545",
         "47": "#2e8545",
     }
 }

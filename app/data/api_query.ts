@@ -12,7 +12,7 @@ export const useAuthToken = () => {
         queryFn: async () => {
             return await getAuthentication();
         },
-        staleTime: 2 * 3600 * 1000, // keep for 2 hours
+        refetchInterval: 2 * 3600 * 1000
     });
 
     return query;
@@ -36,10 +36,7 @@ export const useBaseData = () => {
             return baseData;
         },
         enabled: authTokenQuery.isSuccess,
-        staleTime: 8 * 3600 * 1000, // persist for 8 hours
-        meta: {
-            persist: true
-        }
+        staleTime: Infinity
     });
 
     return query;
@@ -50,18 +47,24 @@ export const usePatternPaths = () => {
     const baseDataQuery = useBaseData();
 
     const query = useQuery<IGetPatternPathsResponse>({
-        queryKey: ["patternPaths"],
+        queryKey: [
+            "patternPaths", 
+            (baseDataQuery.data as IGetBaseDataResponse)?.routes.map((route) => [
+                    route.key, 
+                    route.directionList.map((d) => d.direction.key)
+                ])
+        ],
         queryFn: async () => {
             const baseData = baseDataQuery.data as IGetBaseDataResponse;
-
+            
             const patternPaths = await getPatternPaths(baseData.routes.map(route => route.key), authTokenQuery.data!);
-
             GetPatternPathsResponseSchema.parse(patternPaths);
 
             return patternPaths;
         },
         enabled: baseDataQuery.isSuccess,
-        staleTime: 8 * 3600 * 1000, // persist for 8 hours
+        staleTime: 2 * 3600 * 1000, // 2 hours
+        refetchInterval: 2 * 3600 * 1000, // 2 hours
         meta: {
             persist: true
         }
@@ -79,8 +82,9 @@ export const useRoutes = () => {
         queryFn: async () => {
             const baseData = baseDataQuery.data as IGetBaseDataResponse;
             const patternPaths = patternPathsQuery.data as IGetPatternPathsResponse;
-
-            function addPatternPathsToRoutes(baseDataRoutes: IMapRoute[], patternPathsResponse: IGetPatternPathsResponse) {
+            
+            // Merge Pattern Paths with Base Data
+            function mergeBaseAndPaths(baseDataRoutes: IMapRoute[], patternPathsResponse: IGetPatternPathsResponse) {
                 for (let elm of patternPathsResponse) {
                     const foundObject = baseDataRoutes.find(route => route.key === elm.routeKey) as IMapRoute;
                     if (foundObject) {
@@ -90,9 +94,9 @@ export const useRoutes = () => {
                 return baseDataRoutes as IMapRoute[];
             }
 
-            const routes = addPatternPathsToRoutes([...baseData.routes], patternPaths);
+            const routes = mergeBaseAndPaths([...baseData.routes], patternPaths);
             
-            // convert colors based on theme
+            // convert colors of routes based on theme
             const colorTheme = (await getColorScheme()) == "dark" ? darkMode : lightMode
             routes.forEach(route => {
                 if (colorTheme.busTints[route.shortName]) {
@@ -105,10 +109,7 @@ export const useRoutes = () => {
             return routes;
         },
         enabled: patternPathsQuery.isSuccess && baseDataQuery.isSuccess,
-        staleTime: 8 * 3600 * 1000, // persist for 8 hours
-        meta: {
-            persist: true
-        }
+        staleTime: Infinity
     });
 
     return query;
@@ -137,6 +138,9 @@ export const useStopEstimate = (routeKey: string, directionKey: string, stopCode
             const response = await getNextDepartureTimes(routeKey, [directionKey], stopCode, authTokenQuery.data!);
             GetNextDepartTimesResponseSchema.parse(response);
 
+            return response
+        },
+        select: (response) => {
             // dedup the stopTimes[].nextDeparts based on relative time
             if (response.routeDirectionTimes[0]) {
                 const relatives = response.routeDirectionTimes[0].nextDeparts.map((item) => {
@@ -200,18 +204,21 @@ export const useSchedule = (stopCode: string, date: Date) => {
 export const useVehicles = (routeKey: string) => {
     const authTokenQuery = useAuthToken();
 
-    return useQuery<IVehicle[]>({
+    return useQuery<IGetVehiclesResponse, Error, IVehicle[]>({
         queryKey: ["vehicles", routeKey],
         queryFn: async () => {
             let busesResponse = await getVehicles([routeKey], authTokenQuery.data!) as IGetVehiclesResponse;
             GetVehiclesResponseSchema.parse(busesResponse);
 
-            if (busesResponse.length == 0 || !busesResponse[0]?.vehiclesByDirections) {
+            return busesResponse
+        },
+        select: (data: IGetVehiclesResponse): IVehicle[] => {
+            if (data.length == 0 || !data[0]?.vehiclesByDirections) {
                 return []
             }
 
             let extracted: IVehicle[] = []
-            for (let direction of busesResponse[0]?.vehiclesByDirections) {
+            for (let direction of data[0]?.vehiclesByDirections) {
                 for (let bus of direction.vehicles) {
                     extracted.push(bus)
                 }
@@ -233,7 +240,7 @@ export const useSearchSuggestion = (query: string) => {
     const baseDataQuery = useBaseData();
     const patternPathsQuery = usePatternPaths();
 
-    return useQuery<SearchSuggestion[]>({
+    return useQuery<any, Error, SearchSuggestion[]>({
         queryKey: ["searchSuggestion", query],
         queryFn: async () => {
             let dataSources: Promise<any>[] = [
@@ -248,8 +255,9 @@ export const useSearchSuggestion = (query: string) => {
                 dataSources.push(findBusStops(query, authTokenQuery.data!))
             }
 
-            const responses = await Promise.all(dataSources);
-
+            return await Promise.all(dataSources);
+        },
+        select: (responses) => {
             // handle locations
             const locations: [SearchSuggestion] = responses[0].map((location: IFoundLocation) => {
                 return {
@@ -267,7 +275,7 @@ export const useSearchSuggestion = (query: string) => {
                 // we need the baseData to get the stop GPS locations
                 const baseData = baseDataQuery.data as IGetBaseDataResponse;
 
-                busStops = responses[1].map((stop: IFoundStop) => {
+                busStops = responses[1].map((stop: IFoundStop): SearchSuggestion => {
                     // find the stop location (lat/long) in baseData patternPaths
                     // TODO: convert this processing to be on the BaseData loading
                     let foundLocation: IPatternPoint | undefined = undefined;
@@ -290,7 +298,7 @@ export const useSearchSuggestion = (query: string) => {
                         type: "stop",
                         title: stop.stopName,
                         subtitle: "ID: " + stop.stopCode,
-                        code: stop.stopCode,
+                        stopCode: stop.stopCode,
                         lat: foundLocation?.latitude,
                         long: foundLocation?.longitude
                     }
@@ -323,9 +331,6 @@ export const useTripPlan = (origin: SearchSuggestion | null, destination: Search
                                     );
 
             GetTripPlanResponseSchema.parse(response)
-
-            // filter out expired options
-            // response.optionDetails = (response?.optionDetails ?? []).filter((p) => p.endTime > Math.floor(Date.now() / 1000))
 
             return response;
         },

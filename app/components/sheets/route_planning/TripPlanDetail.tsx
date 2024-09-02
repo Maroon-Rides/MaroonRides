@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, useWindowDimensions, Platform, BackHandler } from "react-native";
+import { View, TouchableOpacity, Text, BackHandler } from "react-native";
 import { BottomSheetModal, BottomSheetScrollView, BottomSheetView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
@@ -26,8 +26,6 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
     const setSelectedRoutePlan = useAppStore((state) => state.setSelectedRoutePlan);
     const setSelectedRoutePlanPathPart = useAppStore((state) => state.setSelectedRoutePlanPathPart);
     const selectedRoutePlanPathPart = useAppStore((state) => state.selectedRoutePlanPathPart);
-
-    const dimensions = useWindowDimensions()
     
     const htmlStyles = {
         titleBase: {
@@ -64,19 +62,19 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
             var icon;
             switch (instruction.className) {
                 case "bus":
-                    icon = <Ionicons name="bus" size={16} color={theme.text} />
+                    icon = <StepIcon icon={<Ionicons name="bus" size={16} color={theme.text} />}/>
                     break;
                 case "walking":
-                    icon = <Ionicons name="walk" size={18} color={theme.text} />
+                    icon = <StepIcon icon={<Ionicons name="walk" size={18} color={theme.text} style={{marginLeft: 1}}/>}/>
                     break;
                 case "end":
-                    icon = <MaterialCommunityIcons name="map-marker" size={16} color={theme.text} />
+                    icon = <StepIcon icon={<MaterialCommunityIcons name="map-marker" size={16} color={theme.text} />}/>
                     break;
                 case "waiting":
-                    icon = <Ionicons name="time-outline" size={18} color={theme.text} />
+                    icon = <StepIcon icon={<Ionicons name="time-outline" size={18} color={theme.text} />}/>
                     break;
                 default:
-                    icon = <Ionicons name="walk" size={18} color={theme.text} />
+                    icon = <StepIcon icon={<Ionicons name="walk" size={18} color={theme.text} style={{marginLeft: 4}}/>}/>
             }
 
             return {
@@ -134,20 +132,18 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
             <BottomSheetScrollView
                 style={{
                     flex: 1,
-                    paddingLeft: 16,
                 }}
             >
                 <Timeline
                     isUsingFlatlist={false}
-                    style={{ paddingTop: 16 }}
-                    timeContainerStyle={{minWidth: 85, marginTop: -2, marginRight: 5}}
+                    style={{ marginTop: 16, marginHorizontal: 8 }}
+                    timeContainerStyle={{minWidth: 100}}
                     timeStyle={{
                         textAlign: 'center', 
                         backgroundColor: theme.tertiaryBackground, 
                         color: theme.text, 
                         padding: 6, 
-                        marginTop: 3,
-                        paddingHorizontal: 8, 
+                        marginHorizontal: 8, 
                         borderRadius: 16,
                         fontWeight: 'bold'
                     }}
@@ -161,25 +157,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
                         }
                     }}
                     renderDetail={(data) => (<StepDetail step={data} styles={htmlStyles}/>)}
-                    renderCircle={(rowData, _sectionID, _rowID) => {
-                        return (
-                            <View 
-                                style={{
-                                    backgroundColor: theme.tertiaryBackground, 
-                                    borderRadius: 999, 
-                                    borderWidth: 2,
-                                    borderColor: theme.pillBorder, 
-                                    width: 32, 
-                                    height: 32, 
-                                    justifyContent: 'center', 
-                                    alignItems: 'center',
-                                    right: Platform.OS == "android" ? (dimensions.width/2)+49 : (dimensions.width/2)+54,
-                                }}
-                            >
-                                {rowData.icon}
-                            </View>
-                        )
-                    }}
+                    innerCircle={'icon'}
                     data={processRoutePlan(selectedRoutePlan!)}
                 />
                 <Text
@@ -239,7 +217,7 @@ const StepDetail: React.FC<StepDetailProps> = ({ step, styles: htmlStyles }) => 
                             backgroundColor: theme.tertiaryBackground,
                             borderRadius: 8, 
                             paddingTop: 16, 
-                            marginLeft: 16,
+                            marginRight: 16,
                             paddingHorizontal: 16
                         }}>
                             <RenderHTML 
@@ -252,6 +230,32 @@ const StepDetail: React.FC<StepDetailProps> = ({ step, styles: htmlStyles }) => 
                     }
                 </>
             )}
+        </View>
+    )
+}
+
+interface StepIconProps {
+    icon: React.ReactNode
+}
+
+const StepIcon: React.FC<StepIconProps> = ({ icon }) => {
+    const theme = useAppStore((state) => state.theme);
+
+    return (
+        <View 
+            style={{
+                backgroundColor: theme.tertiaryBackground, 
+                borderRadius: 999, 
+                borderWidth: 2,
+                borderColor: theme.pillBorder, 
+                width: 32, 
+                height: 32, 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                marginTop: 12
+            }}
+        >
+            {icon}
         </View>
     )
 }
