@@ -167,7 +167,7 @@ platform :android do
   lane :upload do
     upload_to_play_store(
       track: 'internal', 
-      version_name: ENV('RELEASE_NAME')
+      version_name: ENV('RELEASE_NAME'),
       aab: './android/app/build/outputs/bundle/release/app-release.aab',
       json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY']),
       package_name: ENV['PACKAGE_NAME'],
