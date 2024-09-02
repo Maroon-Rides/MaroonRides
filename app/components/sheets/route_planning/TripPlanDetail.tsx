@@ -252,7 +252,7 @@ const StepIcon: React.FC<StepIconProps> = ({ icon }) => {
                 height: 32, 
                 justifyContent: 'center', 
                 alignItems: 'center',
-                marginTop: 12
+                marginTop: 14
             }}
         >
             {icon}
