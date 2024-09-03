@@ -170,24 +170,27 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                                 data={nonRouteSchedules}
                                 keyExtractor={(_, index) => index.toString()}
                                 scrollEnabled={false}
+                                style={{marginRight: 16}}
                                 ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: theme.divider, marginVertical: 8 }} />}
-                                renderItem={({ item }) => {
-                                    return <Timetable 
-                                        item={item} 
-                                        dismissBack={() => {
-                                            const route = routes!.find((route) => route.shortName === item.routeNumber);
-                                            
-                                            if (route) {
-                                                closeModal()
+                                renderItem={({ item, index }) => {
+                                    return <View key={index} style={{flex: 1}}>
+                                        <Timetable 
+                                            item={item} 
+                                            dismissBack={() => {
+                                                const route = routes!.find((route) => route.shortName === item.routeNumber);
+                                                
+                                                if (route) {
+                                                    closeModal()
 
-                                                setSelectedRoute(route);
-                                                setDrawnRoutes([route]);
-                                                presentSheet("routeDetails");
-                                            }
-                                        }}
-                                        tintColor={getLineColor(item.routeNumber)} 
-                                        stopCode={selectedStop?.stopCode ?? ""} 
-                                    />;
+                                                    setSelectedRoute(route);
+                                                    setDrawnRoutes([route]);
+                                                    presentSheet("routeDetails");
+                                                }
+                                            }}
+                                            tintColor={getLineColor(item.routeNumber)} 
+                                            stopCode={selectedStop?.stopCode ?? ""} 
+                                        />
+                                    </View>
                                 }}
                             />
                         </View>

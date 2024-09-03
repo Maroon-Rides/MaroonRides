@@ -135,7 +135,6 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
 
             <View style={{
                 marginBottom: 8,
-                marginRight: 16,
             }}>
                     {tableRows.map((row, rowIndex) => {
                         return (
@@ -154,7 +153,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
                                     return (
                                         <View style={{
                                             flexBasis: "20%",
-                                            marginLeft: colIndex == 0 ? 16 : 0,
+                                            justifyContent: "center",
                                             flexDirection: "row",
                                         }}
                                             key={colIndex}>
