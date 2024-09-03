@@ -143,7 +143,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
                 { (!isFavoritesLoading) && selectedRouteCategory === "Favorites" && favorites?.length === 0 && routes?.length != 0 && (
                     <View style={{ alignItems: 'center', marginTop: 16 }}>
-                        <Text style={{color: theme.text}}>You have no favorited routes.</Text>
+                        <Text style={{color: theme.text}}>You don't have any favorite routes.</Text>
                     </View>
                 )}
 
