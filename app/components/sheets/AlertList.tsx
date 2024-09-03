@@ -55,7 +55,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     BackHandler.addEventListener('hardwareBackPress', () => {
         sheetRef.current?.dismiss()
-        return false
+        return true
     })
 
     return (

@@ -128,7 +128,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
     BackHandler.addEventListener('hardwareBackPress', () => {
         sheetRef.current?.dismiss()
-        return false
+        console.log("dismissed")
+        return true
     })
     
     return (
@@ -156,10 +157,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         />
                         <Text style={{ fontWeight: 'bold', fontSize: 28, flex: 1, color: theme.text }}>{selectedRoute?.name ?? "Something went wrong"}</Text>
 
-                        <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end', zIndex: 100 }} onPress={closeModal}>
-                            <View style = {{width: 50, height: 50, alignItems: 'center', justifyContent: 'center'}}>
-                                <Ionicons name="close-circle" size={32} color="grey" />
-                            </View>
+                        <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }} onPress={closeModal}>
+                            <Ionicons name="close-circle" size={32} color="grey" />
                         </TouchableOpacity>
                     </View>
 

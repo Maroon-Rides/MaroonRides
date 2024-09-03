@@ -27,7 +27,7 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
 
     BackHandler.addEventListener('hardwareBackPress', () => {
         sheetRef.current?.dismiss()
-        return false
+        return true
     })
 
     return (
