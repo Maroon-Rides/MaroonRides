@@ -65,7 +65,13 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     }, [defaultGroup]);
 
     // Update the shown routes when the selectedRouteCategory changes
-    useEffect(() => setDrawnRoutes(filterRoutes()), [selectedRouteCategory, routes, favorites]);
+    useEffect(() => {
+        setDrawnRoutes(filterRoutes())
+    }, [selectedRouteCategory, routes, favorites]);
+
+    useEffect(() => {
+        console.log("route changes")
+    }, [routes])
 
     // Update the favorites when the view is focused
     function onAnimate(from: number, to: number) {

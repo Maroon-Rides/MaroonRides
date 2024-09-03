@@ -27,6 +27,8 @@ export const useBaseData = () => {
         queryFn: async () => {
             const baseData = await getBaseData(authTokenQuery.data!);
 
+            console.log("baseData")
+
             // go through each route and add a empty array on patternPaths
             // @ts-ignore: We are modifying the baseData object to add patternPaths
             baseData.routes.forEach(route => route.patternPaths = []);
@@ -56,6 +58,7 @@ export const usePatternPaths = () => {
         ],
         queryFn: async () => {
             const baseData = baseDataQuery.data as IGetBaseDataResponse;
+            console.log("patternpats")
             
             const patternPaths = await getPatternPaths(baseData.routes.map(route => route.key), authTokenQuery.data!);
             GetPatternPathsResponseSchema.parse(patternPaths);
@@ -94,19 +97,22 @@ export const useRoutes = () => {
                 return baseDataRoutes as IMapRoute[];
             }
 
-            const routes = mergeBaseAndPaths([...baseData.routes], patternPaths);
+            let mergedRoutes = JSON.parse(JSON.stringify(mergeBaseAndPaths([...baseData.routes], patternPaths))) as IMapRoute[];
             
             // convert colors of routes based on theme
             const colorTheme = (await getColorScheme()) == "dark" ? darkMode : lightMode
-            routes.forEach(route => {
-                if (colorTheme.busTints[route.shortName]) {
-                    route.directionList.forEach(direction => {
-                        direction.lineColor = colorTheme.busTints[route.shortName]!;
-                    })
-                }
+
+            mergedRoutes = mergedRoutes.map((route) => {
+                const originalColor = baseData.routes.find((bRoute) => bRoute.key == route.key)!.directionList[0]?.lineColor!
+                route.directionList.forEach(direction => {
+                    direction.lineColor = colorTheme.busTints[route.shortName] ?? originalColor;
+                })
+               
+
+                return route
             });
 
-            return routes;
+            return mergedRoutes;
         },
         enabled: patternPathsQuery.isSuccess && baseDataQuery.isSuccess,
         staleTime: Infinity

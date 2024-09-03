@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Alert, NativeSyntheticEvent, Platform, BackHandler } from "react-native";
+import { View, Text, TouchableOpacity, Alert, NativeSyntheticEvent, Platform, BackHandler, Appearance } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SheetHeader from "../ui/SheetHeader";
@@ -7,6 +7,9 @@ import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-n
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useAppStore from "../../data/app_state";
 import { defaultGroupMutation, useDefaultRouteGroup } from "app/data/storage_query";
+import { getColorScheme } from "app/utils";
+import { darkMode, lightMode } from "app/theme";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -19,10 +22,11 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const [themeSetting, setTheme] = useState(0);
     const theme = useAppStore((state) => state.theme);
+    const setAppTheme = useAppStore((state) => state.setTheme);
 
     const { data: defaultGroup } = useDefaultRouteGroup();
     const setDefaultGroup = defaultGroupMutation();
-
+    const client = useQueryClient();
 
     function setDefaultGroupValue(evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) {
         setDefaultGroup.mutate(evt.nativeEvent.selectedSegmentIndex);
@@ -32,8 +36,15 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
         setTheme(evt.nativeEvent.selectedSegmentIndex);
         AsyncStorage.setItem('app-theme', evt.nativeEvent.selectedSegmentIndex.toString());
 
-        // show alert to restart app
-        Alert.alert("Restart App", "Please restart the app to see the changes.");
+        getColorScheme().then((newTheme) => {
+            const t = newTheme == "dark" ? darkMode : lightMode
+            
+            setAppTheme(t);
+            Appearance.setColorScheme(t.mode);
+
+            client.invalidateQueries({ queryKey: ["routes"] })
+            client.refetchQueries({ queryKey: ["routes"] })
+        })
     }
 
     useEffect(() => {
