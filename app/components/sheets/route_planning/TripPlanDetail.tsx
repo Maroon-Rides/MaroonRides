@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, BackHandler } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import { BottomSheetModal, BottomSheetScrollView, BottomSheetView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
@@ -24,9 +24,11 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
     const theme = useAppStore((state) => state.theme);
     const selectedRoutePlan = useAppStore((state) => state.selectedRoutePlan);
     const setSelectedRoutePlan = useAppStore((state) => state.setSelectedRoutePlan);
+    const setSheetCloseCallback = useAppStore((state) => state.setSheetCloseCallback);
     const setSelectedRoutePlanPathPart = useAppStore((state) => state.setSelectedRoutePlanPathPart);
     const selectedRoutePlanPathPart = useAppStore((state) => state.selectedRoutePlanPathPart);
-    
+    const dismissSheet = useAppStore((state) => state.dismissSheet);
+
     const htmlStyles = {
         titleBase: {
             color: theme.text,
@@ -53,6 +55,11 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
 
     useEffect(() => {
         setSelectedRoutePlanPathPart(-1)
+
+        setSheetCloseCallback(() => {
+            setSelectedRoutePlanPathPart(-1)
+            setSelectedRoutePlan(null)
+        }, "tripPlanDetail")    
     }, [])
 
     function processRoutePlan(plan: IOptionDetail) {
@@ -94,20 +101,6 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
         sheetRef.current?.snapToIndex(1)
     }, [selectedRoutePlanPathPart])
 
-    function closeModal() {
-        setSelectedRoutePlanPathPart(-1)
-        setSelectedRoutePlan(null)
-
-        sheetRef.current?.dismiss()
-    }
-
-    const [sheetOpen, setSheetOpen] = useState(false);
-    BackHandler.addEventListener('hardwareBackPress', () => {
-        if (!sheetOpen) return false
-
-        closeModal()
-        return true
-    })
 
     return (
         <BottomSheetModal 
@@ -117,7 +110,6 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
             enablePanDownToClose={false}
-            onChange={(to) => setSheetOpen(to != -1)}
         >
             <BottomSheetView>
                 {/* header */}
@@ -126,7 +118,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
                     subtitle={"Arrive at " + selectedRoutePlan?.endTimeText}
                     onTitlePress={() => setSelectedRoutePlanPathPart(-1)}
                     icon={
-                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={closeModal}>
+                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => dismissSheet("tripPlanDetail")}>
                             <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>
                     }

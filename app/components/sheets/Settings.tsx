@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, NativeSyntheticEvent, Platform, BackHandler, Appearance } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent, Platform, Appearance } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SheetHeader from "../ui/SheetHeader";
@@ -23,6 +23,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
     const [themeSetting, setTheme] = useState(0);
     const theme = useAppStore((state) => state.theme);
     const setAppTheme = useAppStore((state) => state.setTheme);
+    const dismissSheet = useAppStore((state) => state.dismissSheet);
 
     const { data: defaultGroup } = useDefaultRouteGroup();
     const setDefaultGroup = defaultGroupMutation();
@@ -55,29 +56,21 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
         })
     }, [])
 
-    const [sheetOpen, setSheetOpen] = useState(false);
-    BackHandler.addEventListener('hardwareBackPress', () => {
-        if (!sheetOpen) return false
-
-        sheetRef.current?.dismiss()
-        return true
-    })
-
     return (
         <BottomSheetModal 
             ref={sheetRef} 
             snapPoints={snapPoints} 
             index={snap} 
-            onChange={(to) => setSheetOpen(to != -1)}
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{ backgroundColor: theme.divider }}
+            enablePanDownToClose={false}
         >
             <BottomSheetView>
                 {/* header */}
                 <SheetHeader
                     title="Settings"
                     icon={
-                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => sheetRef.current?.dismiss()}>
+                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => dismissSheet("settings")}>
                             <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>
                     }

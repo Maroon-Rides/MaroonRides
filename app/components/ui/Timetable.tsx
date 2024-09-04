@@ -127,7 +127,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
                         >
                             {item.routeName}
                         </Text>
-                        {isLoading && <ActivityIndicator />}
+                        {isLoading && <ActivityIndicator style={{marginLeft: 8}}/>}
                     </View>
                     <Text style={{color: theme.subtitle}}>{item.directionName}</Text>
                 </View>

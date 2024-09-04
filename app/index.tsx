@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { View, Appearance } from 'react-native';
+import { View, Appearance, BackHandler } from 'react-native';
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import useAppStore from './data/app_state';
 import MapView from './components/map/MapView';
@@ -19,9 +19,16 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 
+// this needs to be out of component and not a state
+// weird stuff happens if it is a state
+var sheetStack: ("routeList" | "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute" | "tripPlanDetail")[] = [];
+
 const Home = () => {
     const setPresentSheet = useAppStore((state) => state.setPresentSheet);
+    const setDismissSheet = useAppStore((state) => state.setDismissSheet);
+    const dismissSheet = useAppStore((state) => state.dismissSheet);
     const setTheme = useAppStore((state) => state.setTheme);   
+    const sheetCloseCallback = useAppStore((state) => state.sheetCloseCallback);   
 
     const routesListSheetRef = useRef<BottomSheetModal>(null);
     const alertListSheetRef = useRef<BottomSheetModal>(null);
@@ -34,32 +41,12 @@ const Home = () => {
     const inputRouteSheetRef = useRef<BottomSheetModal>(null);
     const tripPlanDetailSheetRef = useRef<BottomSheetModal>(null);
 
-    setPresentSheet((sheet) => {
-        switch (sheet) {
-            case "alerts":
-                alertListSheetRef.current?.present();
-                break;
-            case "routeDetails":
-                routeDetailSheetRef.current?.present();
-                break;
-            case "stopTimetable":
-                stopTimetableSheetRef.current?.present();
-                break;
-            case "settings":
-                settingsSheetRef.current?.present();
-                break;
-            case "alertsDetail":
-                alertDetailSheetRef.current?.present();
-                break;
-            case "inputRoute":
-                inputRouteSheetRef.current?.present();
-                break;
-            case "tripPlanDetail":
-                tripPlanDetailSheetRef.current?.present();
-                break;
-            default:
-                break;
-        }
+    BackHandler.addEventListener("hardwareBackPress", () => {
+        const currentSheet = sheetStack.at(-1)
+        if (!currentSheet || currentSheet == "routeList") return false
+        
+        dismissSheet(currentSheet)
+        return true
     })
 
     // set the theme based on the user's preference
@@ -73,6 +60,70 @@ const Home = () => {
         })
 
         routesListSheetRef.current?.present();
+        sheetStack = ["routeList"]
+
+        setPresentSheet((sheet) => {
+            switch (sheet) {
+                case "alerts":
+                    alertListSheetRef.current?.present();
+                    break;
+                case "routeDetails":
+                    routeDetailSheetRef.current?.present();
+                    break;
+                case "stopTimetable":
+                    stopTimetableSheetRef.current?.present();
+                    break;
+                case "settings":
+                    settingsSheetRef.current?.present();
+                    break;
+                case "alertsDetail":
+                    alertDetailSheetRef.current?.present();
+                    break;
+                case "inputRoute":
+                    inputRouteSheetRef.current?.present();
+                    break;
+                case "tripPlanDetail":
+                    tripPlanDetailSheetRef.current?.present();
+                    break;
+                default:
+                    return;
+            }
+
+            sheetStack.push(sheet)
+        })
+    
+        setDismissSheet((sheet) => {
+            switch (sheet) {
+                case "alerts":
+                    alertListSheetRef.current?.dismiss();
+                    break;
+                case "routeDetails":
+                    routeDetailSheetRef.current?.dismiss();
+                    break;
+                case "stopTimetable":
+                    stopTimetableSheetRef.current?.dismiss();
+                    break;
+                case "settings":
+                    settingsSheetRef.current?.dismiss();
+                    break;
+                case "alertsDetail":
+                    alertDetailSheetRef.current?.dismiss();
+                    break;
+                case "inputRoute":
+                    inputRouteSheetRef.current?.dismiss();
+                    break;
+                case "tripPlanDetail":
+                    tripPlanDetailSheetRef.current?.dismiss();
+                    break;
+                default:
+                    return;
+            }
+
+            // run any defined close sheet steps
+            if (sheetCloseCallback[sheet]) sheetCloseCallback[sheet]();
+
+            sheetStack = sheetStack.slice(0, -1)
+        })
     }, [])
 
     const queryClient = new QueryClient()
@@ -97,21 +148,21 @@ const Home = () => {
             <GestureHandlerRootView style={{ flex: 1 }}>
                 <BottomSheetModalProvider>
                     <View style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                        
-
-                        <Settings sheetRef={settingsSheetRef} />
-                        <RouteDetails sheetRef={routeDetailSheetRef} />
-                        <RoutesList sheetRef={routesListSheetRef} />
-                        <AlertList sheetRef={alertListSheetRef} />
-                        <AlertDetail sheetRef={alertDetailSheetRef} />
-                        <StopTimetable sheetRef={stopTimetableSheetRef} />
-
-                        {/* Route Planning */}
-                        <InputRoute sheetRef={inputRouteSheetRef} />
-                        <TripPlanDetail sheetRef={tripPlanDetailSheetRef} />
-
                         <MapView />
                     </View>
+
+                    {/* Sheets */}
+                    <RoutesList sheetRef={routesListSheetRef} />
+                    <RouteDetails sheetRef={routeDetailSheetRef} />
+                    <StopTimetable sheetRef={stopTimetableSheetRef} />
+                    <AlertList sheetRef={alertListSheetRef} />
+                    <AlertDetail sheetRef={alertDetailSheetRef} />
+                    <Settings sheetRef={settingsSheetRef} />
+
+                    {/* Route Planning Sheets*/}
+                    <InputRoute sheetRef={inputRouteSheetRef} />
+                    <TripPlanDetail sheetRef={tripPlanDetailSheetRef} />
+
                 </BottomSheetModalProvider>
             </GestureHandlerRootView>
         </PersistQueryClientProvider>

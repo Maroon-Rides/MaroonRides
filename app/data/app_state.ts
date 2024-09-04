@@ -25,6 +25,13 @@ interface AppState {
     // TODO: Switch to Provider Functions
     presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute" | "tripPlanDetail") => void
     setPresentSheet: (presentSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute" | "tripPlanDetail") => void) => void
+    
+    // TODO: Switch to Provider Functions
+    dismissSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute" | "tripPlanDetail") => void
+    setDismissSheet: (dismissSheet: (sheet: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute" | "tripPlanDetail") => void) => void
+
+    sheetCloseCallback: { [key in "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute" | "tripPlanDetail"]: () => void };
+    setSheetCloseCallback: (fn: () => void, key: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute" | "tripPlanDetail") => void;
 
     selectedAlert: IMapServiceInterruption | null,
     setSelectedAlert: (selectedAlert: IMapServiceInterruption | null) => void
@@ -83,6 +90,39 @@ const useAppStore = create<AppState>()((set) => ({
     presentSheet: (sheet) => {console.log(sheet)},
     setPresentSheet: (presentSheet) => set(() => ({ presentSheet })),
 
+    dismissSheet: (sheet) => {console.log(sheet)},
+    setDismissSheet: (dismissSheet) => set(() => ({ dismissSheet })),
+
+    sheetCloseCallback: {
+        routeDetails: function (): void {
+            return
+        },
+        alerts: function (): void {
+            return
+        },
+        stopTimetable: function (): void {
+            return
+        },
+        settings: function (): void {
+            return
+        },
+        alertsDetail: function (): void {
+            return
+        },
+        inputRoute: function (): void {
+            return
+        },
+        tripPlanDetail: function (): void {
+            return
+        }
+    },
+    setSheetCloseCallback: (fn, key) => set((state) => ({
+        sheetCloseCallback: {
+        ...state.sheetCloseCallback,
+        [key]: fn,
+        }
+    })),
+    
     selectedAlert: null,
     setSelectedAlert: (selectedAlert) => set(() => ({ selectedAlert })),
     

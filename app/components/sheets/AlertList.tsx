@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, BackHandler } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -23,6 +23,8 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
     const presentSheet = useAppStore((state) => state.presentSheet);
     const setSelectedAlert = useAppStore((state) => state.setSelectedAlert);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
+    const dismissSheet = useAppStore((state) => state.dismissSheet);
+
     const [shownAlerts, setShownAlerts] = useState<IMapServiceInterruption[]>([]);
 
     const { data: routes } = useRoutes();
@@ -53,15 +55,6 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
         presentSheet("alertsDetail");
     }
 
-    const [sheetOpen, setSheetOpen] = useState(false);
-    BackHandler.addEventListener('hardwareBackPress', () => {
-
-        if (!sheetOpen) return false
-
-        sheetRef.current?.dismiss()
-        return true
-    })
-
     return (
         <BottomSheetModal 
             ref={sheetRef} 
@@ -69,13 +62,13 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
             index={snap} 
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
-            onChange={(to) => setSheetOpen(to != -1)}
             onAnimate={(_, to) => {
                 if (!selectedRoute && to == 1) {        
                     const affectedRoutes = routes?.filter(route => route.directionList.flatMap(direction => direction.serviceInterruptionKeys).length > 0)
                     setDrawnRoutes(affectedRoutes ?? [])
                 }
             }}
+            enablePanDownToClose={false}
         >
             <BottomSheetView>
                 {/* header */}
@@ -83,7 +76,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                     title="Alerts"
                     subtitle={selectedRoute ? selectedRoute.name : "All Routes"}
                     icon={
-                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => sheetRef.current?.dismiss()}>
+                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => dismissSheet("alerts")}>
                             <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>
                     }

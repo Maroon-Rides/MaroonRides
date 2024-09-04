@@ -27,8 +27,6 @@ export const useBaseData = () => {
         queryFn: async () => {
             const baseData = await getBaseData(authTokenQuery.data!);
 
-            console.log("baseData")
-
             // go through each route and add a empty array on patternPaths
             // @ts-ignore: We are modifying the baseData object to add patternPaths
             baseData.routes.forEach(route => route.patternPaths = []);
@@ -58,7 +56,6 @@ export const usePatternPaths = () => {
         ],
         queryFn: async () => {
             const baseData = baseDataQuery.data as IGetBaseDataResponse;
-            console.log("patternpats")
             
             const patternPaths = await getPatternPaths(baseData.routes.map(route => route.key), authTokenQuery.data!);
             GetPatternPathsResponseSchema.parse(patternPaths);

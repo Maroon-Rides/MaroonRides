@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, BackHandler, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { FlatList } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
@@ -24,6 +24,8 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     const presentSheet = useAppStore((state) => state.presentSheet);
+    const dismissSheet = useAppStore((state) => state.dismissSheet);
+    const setSheetCloseCallback = useAppStore((state) => state.setSheetCloseCallback);
 
     const selectedTimetableDate = useAppStore((state) => state.selectedTimetableDate);
     const setSelectedTimetableDate = useAppStore((state) => state.setSelectedTimetableDate);
@@ -90,33 +92,25 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         setTempSelectedStop(selectedStop);
     }, [selectedStop, selectedTimetableDate])
 
-    function closeModal() {
-        sheetRef.current?.dismiss();
-        setRouteSchedules(null);
-        setNonRouteSchedules(null);
-        setSelectedStop(null);
-        setShowNonRouteSchedules(false);
-        setSelectedTimetableDate(null);
-    }
+    useEffect(() => {
+        setSheetCloseCallback(() => {
+            setRouteSchedules(null);
+            setNonRouteSchedules(null);
+            setSelectedStop(null);
+            setShowNonRouteSchedules(false);
+            setSelectedTimetableDate(null);
+        }, "stopTimetable")
+    }, [])
+
 
     const snapPoints = ['25%', '45%', '85%'];
     const [snap, _] = useState(2)
-
-    const [sheetOpen, setSheetOpen] = useState(false);
-    BackHandler.addEventListener('hardwareBackPress', () => {
-        if (!sheetOpen) return false
-
-        closeModal()
-
-        return true
-    })
 
     return (
         <BottomSheetModal
             ref={sheetRef}
             snapPoints={snapPoints}
             index={snap}
-            onChange={(to) => setSheetOpen(to != -1)}
             enablePanDownToClose={false}
             backgroundStyle={{ backgroundColor: theme.background }}
             handleIndicatorStyle={{ backgroundColor: theme.divider }}
@@ -125,7 +119,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                 <SheetHeader
                     title={tempSelectedStop?.name ?? "Something went wrong"}
                     icon={
-                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={closeModal}>
+                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => dismissSheet("stopTimetable")}>
                             <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>
                     }
@@ -185,7 +179,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                                                 const route = routes!.find((route) => route.shortName === item.routeNumber);
                                                 
                                                 if (route) {
-                                                    closeModal()
+                                                    dismissSheet("stopTimetable")
 
                                                     setSelectedRoute(route);
                                                     setDrawnRoutes([route]);

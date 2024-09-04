@@ -1,5 +1,5 @@
 import { BottomSheetModal, BottomSheetScrollView, BottomSheetView } from "@gorhom/bottom-sheet";
-import { View, TouchableOpacity, useWindowDimensions, BackHandler } from "react-native";
+import { View, TouchableOpacity, useWindowDimensions } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../data/app_state";
 import SheetHeader from "../ui/SheetHeader";
@@ -13,6 +13,8 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
     const alert = useAppStore((state) => state.selectedAlert);
     const theme = useAppStore((state) => state.theme);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
+    const dismissSheet = useAppStore((state) => state.dismissSheet);
+
     const { data: routes } = useRoutes();
 
     const tagStyles = {
@@ -25,15 +27,6 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
 
     const [snap, _] = useState(1)
 
-    const [sheetOpen, setSheetOpen] = useState(false);
-    BackHandler.addEventListener('hardwareBackPress', () => {
-
-        if (!sheetOpen) return false
-
-        sheetRef.current?.dismiss()
-        return true
-    })
-
     return (
         <BottomSheetModal
             ref={sheetRef}
@@ -41,19 +34,19 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
             index={snap}
             backgroundStyle={{ backgroundColor: theme.background }}
             handleIndicatorStyle={{ backgroundColor: theme.divider }}
-            onChange={(to) => setSheetOpen(to != -1)}
             onAnimate={(_, to) => {
                 if (to === 1) {
                     const affectedRoutes = routes?.filter(route => route.directionList.flatMap(direction => direction.serviceInterruptionKeys).includes(Number(alert?.key)));
                     setDrawnRoutes(affectedRoutes ?? [])
                 }
             }}
+            enablePanDownToClose={false}
         >
             <BottomSheetView>
                 <SheetHeader
                     title="Alert Details"
                     icon={
-                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => sheetRef.current?.dismiss()}>
+                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => dismissSheet("alertsDetail")}>
                             <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>
                     }

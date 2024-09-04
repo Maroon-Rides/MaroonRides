@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Keyboard, ActivityIndicator, Button, Platform, BackHandler } from "react-native";
+import { View, Text, TouchableOpacity, Keyboard, ActivityIndicator, Button, Platform } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
@@ -41,29 +41,12 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     const setSuggestions = useAppStore((state) => state.setSuggestions);
     const setSuggesionOutput = useAppStore((state) => state.setSuggestionOutput);
     const [routeInfoError, setRouteInfoError] = useState("");
+    const dismissSheet = useAppStore((state) => state.dismissSheet);
+    const setSheetCloseCallback = useAppStore((state) => state.setSheetCloseCallback);
 
     const [searchSuggestionsLoading, setSearchSuggestionsLoading] = useState(false)
 
     const client = useQueryClient()
-
-
-    const [sheetOpen, setSheetOpen] = useState(false);
-    BackHandler.addEventListener('hardwareBackPress', () => {
-        if (!sheetOpen) return false
-
-        closeModal()
-        return true
-    })
-
-    function closeModal() {
-        sheetRef.current?.dismiss()
-
-        setTimeout(() => {
-            setStartLocation(MyLocationSuggestion)
-            setEndLocation(null)
-            setSuggesionOutput(null)
-        }, 500)
-    }
 
     // Favorite Location
     const { data: favoriteLocations } = useFavoriteLocations();
@@ -79,6 +62,16 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             addLocationFavorite.mutate(location)
         }
     }
+
+    useEffect(() => {
+        setSheetCloseCallback(() => {
+            setTimeout(() => {
+                setStartLocation(MyLocationSuggestion)
+                setEndLocation(null)
+                setSuggesionOutput(null)
+            }, 500)
+        }, "inputRoute")
+    }, [])
 
     useEffect(() => {
         
@@ -125,7 +118,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             snapPoints={snapPoints} 
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
-            onChange={(to) => setSheetOpen(to != -1)}
+            enablePanDownToClose={false}
         >
             <BottomSheetView>
                 {/* header */}
@@ -134,7 +127,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                     icon={
                         <TouchableOpacity 
                             style={{ marginLeft: 10 }} 
-                            onPress={closeModal}
+                            onPress={() => dismissSheet("inputRoute")}
                         >
                             <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>

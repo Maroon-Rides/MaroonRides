@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, NativeSyntheticEvent, Platform, BackHandler } from "react-native";
+import { View, Text, TouchableOpacity, NativeSyntheticEvent, Platform } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList, BottomSheetFlatListMethods } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
@@ -29,8 +29,10 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const setSelectedRouteDirection = useAppStore(state => state.setSelectedRouteDirection);
     const setSelectedStop = useAppStore(state => state.setSelectedStop);
     const setPoppedUpStopCallout = useAppStore(state => state.setPoppedUpStopCallout);
+    const setSheetCloseCallback = useAppStore(state => state.setSheetCloseCallback);
     const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
     const setScrollToStop = useAppStore(state => state.setScrollToStop);
+    const dismissSheet = useAppStore((state) => state.dismissSheet);
     const theme = useAppStore(state => state.theme);
 
     const { data: stopEstimates } = useStopEstimate(
@@ -54,19 +56,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const [selectedRoute, setSelectedRoute] = useState<IMapRoute | null>(null);
 
     const client = useQueryClient();
-
-    // cleanup this view when the sheet is closed
-    const closeModal = () => {
-        sheetRef.current?.dismiss();
-        clearSelectedRoute();
-        setSelectedRouteDirection(null);
-
-        setSelectedStop(null);
-        setPoppedUpStopCallout(null);
-
-        // reset direction selector
-        setSelectedDirectionIndex(0);
-    }
 
     // Filters patternPaths for only the selected route from all patternPaths
     function getPatternPathForSelectedRoute(): IPatternPath | undefined {
@@ -114,6 +103,17 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     }, [selectedRouteDirection]);
 
     useEffect(() => {
+        setSheetCloseCallback(() => {
+            clearSelectedRoute();
+            setSelectedRouteDirection(null);
+    
+            setSelectedStop(null);
+            setPoppedUpStopCallout(null);
+    
+            // reset direction selector
+            setSelectedDirectionIndex(0);
+        }, "routeDetails")
+        
         return () => setSelectedRouteDirection(null);
     }, []);
 
@@ -126,13 +126,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const snapPoints = ['25%', '45%', '85%'];
     const [snap, _] = useState(1)
 
-    const [sheetOpen, setSheetOpen] = useState(false);
-    BackHandler.addEventListener('hardwareBackPress', () => {
-        if (!sheetOpen) return false
-
-        closeModal()
-        return true
-    })
     
     return (
         <BottomSheetModal
@@ -142,8 +135,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             enablePanDownToClose={false}
             backgroundStyle={{ backgroundColor:  theme.background }}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
-            onChange={(to) => {
-                setSheetOpen(to != -1)
+            onChange={() => {
                 if (futurePosition !== -1) {
                     flatListRef.current?.scrollToIndex({ index: futurePosition, animated: true });
                     setFuturePosition(-1);
@@ -160,7 +152,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         />
                         <Text style={{ fontWeight: 'bold', fontSize: 28, flex: 1, color: theme.text }}>{selectedRoute?.name ?? "Something went wrong"}</Text>
 
-                        <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }} onPress={closeModal}>
+                        <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }} onPress={() => dismissSheet("routeDetails")}>
                             <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>
                     </View>
