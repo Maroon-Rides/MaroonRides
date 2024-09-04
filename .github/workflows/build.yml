@@ -37,7 +37,7 @@ jobs:
         run: /usr/bin/xcodebuild -version
 
       - name: Checkout Repository
-        uses: actions/checkout@v3  
+        uses: actions/checkout@v4 
 
       - name: Install Fastlane and Fix CocoaPods
         run: |
@@ -46,7 +46,7 @@ jobs:
           fastlane --version
           
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20.x'
 
