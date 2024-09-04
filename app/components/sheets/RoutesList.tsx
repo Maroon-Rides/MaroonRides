@@ -163,10 +163,9 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             </BottomSheetView>
 
             <BottomSheetFlatList
-                contentContainerStyle={{ paddingBottom: 35 }}
+                contentContainerStyle={{ paddingBottom: 35, marginLeft: 16 }}
                 data={filterRoutes()}
                 keyExtractor={(route: IMapRoute) => route.key}
-                style={{ marginLeft: 16 }}
                 refreshing={isRefreshing}
                 onRefresh={() => {
                     queryClient.invalidateQueries({ queryKey: ["baseData"] });
@@ -175,7 +174,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                 }}
                 renderItem={({item: route}) => {
                     return (
-                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8, marginLeft: Platform.OS == "android" ? 16 : 0 }} onPress={() => handleRouteSelected(route)}>
+                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} onPress={() => handleRouteSelected(route)}>
                             <BusIcon name={route.shortName} color={route.directionList[0]?.lineColor ?? "#000"} style={{ marginRight: 12 }} />
                             <View>                                
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
