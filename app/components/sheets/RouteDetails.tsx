@@ -113,7 +113,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             // reset direction selector
             setSelectedDirectionIndex(0);
         }, "routeDetails")
-        
+
         return () => setSelectedRouteDirection(null);
     }, []);
 

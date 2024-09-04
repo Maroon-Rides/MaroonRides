@@ -32,6 +32,7 @@ interface AppState {
 
     sheetCloseCallback: { [key in "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute" | "tripPlanDetail"]: () => void };
     setSheetCloseCallback: (fn: () => void, key: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute" | "tripPlanDetail") => void;
+    callSheetCloseCallback: (key: "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute" | "tripPlanDetail") => void;
 
     selectedAlert: IMapServiceInterruption | null,
     setSelectedAlert: (selectedAlert: IMapServiceInterruption | null) => void
@@ -63,7 +64,7 @@ interface AppState {
     setSelectedRoutePlanPathPart: (selectedRoutePlanPathPart: number) => void
 }
 
-const useAppStore = create<AppState>()((set) => ({
+const useAppStore = create<AppState>()((set, get) => ({
 
     theme: lightMode,
     setTheme: (theme) => set(() => ({ theme })),
@@ -95,25 +96,25 @@ const useAppStore = create<AppState>()((set) => ({
 
     sheetCloseCallback: {
         routeDetails: function (): void {
-            return
+            console.log("not implemented")
         },
         alerts: function (): void {
-            return
+            console.log("not implemented")
         },
         stopTimetable: function (): void {
-            return
+            console.log("not implemented")
         },
         settings: function (): void {
-            return
+            console.log("not implemented")
         },
         alertsDetail: function (): void {
-            return
+            console.log("not implemented")
         },
         inputRoute: function (): void {
-            return
+            console.log("not implemented")
         },
         tripPlanDetail: function (): void {
-            return
+            console.log("not implemented")
         }
     },
     setSheetCloseCallback: (fn, key) => set((state) => ({
@@ -122,6 +123,14 @@ const useAppStore = create<AppState>()((set) => ({
         [key]: fn,
         }
     })),
+    callSheetCloseCallback: (key) => {
+        const callback = get().sheetCloseCallback[key];
+        if (callback) {
+          callback();
+        } else {
+          console.warn(`No callback found for key: ${key}`);
+        }
+      },
     
     selectedAlert: null,
     setSelectedAlert: (selectedAlert) => set(() => ({ selectedAlert })),

@@ -28,7 +28,7 @@ const Home = () => {
     const setDismissSheet = useAppStore((state) => state.setDismissSheet);
     const dismissSheet = useAppStore((state) => state.dismissSheet);
     const setTheme = useAppStore((state) => state.setTheme);   
-    const sheetCloseCallback = useAppStore((state) => state.sheetCloseCallback);   
+    const callSheetCloseCallback = useAppStore((state) => state.callSheetCloseCallback);   
 
     const routesListSheetRef = useRef<BottomSheetModal>(null);
     const alertListSheetRef = useRef<BottomSheetModal>(null);
@@ -93,6 +93,9 @@ const Home = () => {
         })
     
         setDismissSheet((sheet) => {
+            // run any defined close sheet steps
+            callSheetCloseCallback(sheet)
+
             switch (sheet) {
                 case "alerts":
                     alertListSheetRef.current?.dismiss();
@@ -118,9 +121,6 @@ const Home = () => {
                 default:
                     return;
             }
-
-            // run any defined close sheet steps
-            if (sheetCloseCallback[sheet]) sheetCloseCallback[sheet]();
 
             sheetStack = sheetStack.slice(0, -1)
         })
