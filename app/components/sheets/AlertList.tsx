@@ -74,8 +74,6 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                 if (!selectedRoute && to == 1) {        
                     const affectedRoutes = routes?.filter(route => route.directionList.flatMap(direction => direction.serviceInterruptionKeys).length > 0)
                     setDrawnRoutes(affectedRoutes ?? [])
-        
-                    return;
                 }
             }}
         >
