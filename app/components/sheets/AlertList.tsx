@@ -53,9 +53,13 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
         presentSheet("alertsDetail");
     }
 
+    const [sheetOpen, setSheetOpen] = useState(false);
     BackHandler.addEventListener('hardwareBackPress', () => {
+
+        if (!sheetOpen) return false
+
         sheetRef.current?.dismiss()
-        return false
+        return true
     })
 
     return (
@@ -65,12 +69,11 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
             index={snap} 
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
+            onChange={(to) => setSheetOpen(to != -1)}
             onAnimate={(_, to) => {
                 if (!selectedRoute && to == 1) {        
                     const affectedRoutes = routes?.filter(route => route.directionList.flatMap(direction => direction.serviceInterruptionKeys).length > 0)
                     setDrawnRoutes(affectedRoutes ?? [])
-        
-                    return;
                 }
             }}
         >

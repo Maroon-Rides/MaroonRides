@@ -25,9 +25,13 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
 
     const [snap, _] = useState(1)
 
+    const [sheetOpen, setSheetOpen] = useState(false);
     BackHandler.addEventListener('hardwareBackPress', () => {
+
+        if (!sheetOpen) return false
+
         sheetRef.current?.dismiss()
-        return false
+        return true
     })
 
     return (
@@ -37,6 +41,7 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
             index={snap}
             backgroundStyle={{ backgroundColor: theme.background }}
             handleIndicatorStyle={{ backgroundColor: theme.divider }}
+            onChange={(to) => setSheetOpen(to != -1)}
             onAnimate={(_, to) => {
                 if (to === 1) {
                     const affectedRoutes = routes?.filter(route => route.directionList.flatMap(direction => direction.serviceInterruptionKeys).includes(Number(alert?.key)));

@@ -55,9 +55,12 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
         })
     }, [])
 
+    const [sheetOpen, setSheetOpen] = useState(false);
     BackHandler.addEventListener('hardwareBackPress', () => {
+        if (!sheetOpen) return false
+
         sheetRef.current?.dismiss()
-        return false
+        return true
     })
 
     return (
@@ -65,6 +68,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
             ref={sheetRef} 
             snapPoints={snapPoints} 
             index={snap} 
+            onChange={(to) => setSheetOpen(to != -1)}
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{ backgroundColor: theme.divider }}
         >

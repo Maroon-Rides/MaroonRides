@@ -102,9 +102,13 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     const snapPoints = ['25%', '45%', '85%'];
     const [snap, _] = useState(2)
 
+    const [sheetOpen, setSheetOpen] = useState(false);
     BackHandler.addEventListener('hardwareBackPress', () => {
-        sheetRef.current?.dismiss()
-        return false
+        if (!sheetOpen) return false
+
+        closeModal()
+
+        return true
     })
 
     return (
@@ -112,6 +116,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
             ref={sheetRef}
             snapPoints={snapPoints}
             index={snap}
+            onChange={(to) => setSheetOpen(to != -1)}
             enablePanDownToClose={false}
             backgroundStyle={{ backgroundColor: theme.background }}
             handleIndicatorStyle={{ backgroundColor: theme.divider }}
