@@ -92,10 +92,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         setSelectedRouteCategory(getRouteCategories()[evt.nativeEvent.selectedSegmentIndex] ?? "All Routes")
     }
 
-    BackHandler.addEventListener('hardwareBackPress', () => {
-        return false
-    })
-
     return (
         <BottomSheetModal 
             ref={sheetRef} 

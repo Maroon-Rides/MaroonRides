@@ -47,10 +47,23 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     const client = useQueryClient()
 
 
+    const [sheetOpen, setSheetOpen] = useState(false);
     BackHandler.addEventListener('hardwareBackPress', () => {
-        sheetRef.current?.dismiss()
-        return false
+        if (!sheetOpen) return false
+
+        closeModal()
+        return true
     })
+
+    function closeModal() {
+        sheetRef.current?.dismiss()
+
+        setTimeout(() => {
+            setStartLocation(MyLocationSuggestion)
+            setEndLocation(null)
+            setSuggesionOutput(null)
+        }, 500)
+    }
 
     // Favorite Location
     const { data: favoriteLocations } = useFavoriteLocations();
@@ -112,6 +125,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             snapPoints={snapPoints} 
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
+            onChange={(to) => setSheetOpen(to != -1)}
         >
             <BottomSheetView>
                 {/* header */}
@@ -120,15 +134,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                     icon={
                         <TouchableOpacity 
                             style={{ marginLeft: 10 }} 
-                            onPress={() => {
-                                sheetRef.current?.dismiss()
-
-                                setTimeout(() => {
-                                    setStartLocation(MyLocationSuggestion)
-                                    setEndLocation(null)
-                                    setSuggesionOutput(null)
-                                }, 500)
-                            }}
+                            onPress={closeModal}
                         >
                             <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>

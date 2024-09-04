@@ -126,9 +126,11 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const snapPoints = ['25%', '45%', '85%'];
     const [snap, _] = useState(1)
 
+    const [sheetOpen, setSheetOpen] = useState(false);
     BackHandler.addEventListener('hardwareBackPress', () => {
-        sheetRef.current?.dismiss()
-        console.log("dismissed")
+        if (!sheetOpen) return false
+
+        closeModal()
         return true
     })
     
@@ -140,7 +142,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             enablePanDownToClose={false}
             backgroundStyle={{ backgroundColor:  theme.background }}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
-            onChange={() => {
+            onChange={(to) => {
+                setSheetOpen(to != -1)
                 if (futurePosition !== -1) {
                     flatListRef.current?.scrollToIndex({ index: futurePosition, animated: true });
                     setFuturePosition(-1);
@@ -158,7 +161,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         <Text style={{ fontWeight: 'bold', fontSize: 28, flex: 1, color: theme.text }}>{selectedRoute?.name ?? "Something went wrong"}</Text>
 
                         <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }} onPress={closeModal}>
-                            <Ionicons name="close-circle" size={32} color="grey" />
+                            <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>
                     </View>
 
