@@ -33,7 +33,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const queryClient = useQueryClient();
     const { data: routes, isLoading: isRoutesLoading, isRefetching: isRefreshing } = useRoutes();
-    const { data: favorites, isLoading: isFavoritesLoading, isError: isFavoritesError } = useFavorites(shouldUpdateData);
+    const { data: favorites, isLoading: isFavoritesLoading, isError: isFavoritesError, refetch: refetchFavorites } = useFavorites(shouldUpdateData);
     const { data: defaultGroup, refetch: refetchDefaultGroup } = useDefaultRouteGroup(shouldUpdateData);
 
     const routeError = [useRoutes().isError, useAuthToken().isError, usePatternPaths().isError, useBaseData().isError].some((v) => v == true);
@@ -73,9 +73,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     function onAnimate(from: number, to: number) {
         setSnap(to)
         if (from === -1) {
-            // update the favorites when the view is focused
-            setShouldUpdateData(true);
             refetchDefaultGroup()
+            refetchFavorites()
 
             setDrawnRoutes(filterRoutes());
         }
@@ -177,7 +176,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                             <View>                                
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                     <Text style={{ fontWeight: 'bold', fontSize: 20, lineHeight: 28, color: theme.text }}>{route.name}</Text>
-                                    {favorites?.includes(route) && 
+                                    {favorites?.some((fav) => fav.shortName == route.shortName) && 
                                         <FontAwesome name="star" size={16} color={theme.starColor} style={{marginLeft: 4}} />
                                     }
                                 </View>
