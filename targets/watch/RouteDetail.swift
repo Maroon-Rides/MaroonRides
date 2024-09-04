@@ -77,7 +77,7 @@ struct RouteDetail: View {
           } else {
             Image(systemName: "star")
               .font(.system(size: 24))
-              .foregroundColor(.yellow)
+              .foregroundColor(.gray)
           }
           
         }

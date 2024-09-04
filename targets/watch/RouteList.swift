@@ -22,13 +22,15 @@ struct RouteList: View {
   }
   
   var body: some View {
-    if apiManager.baseData?.routes.count == 0  || apiManager.error != nil {
+    if (apiManager.baseData?.routes ?? []).count == 0  || apiManager.error != nil {
       if (apiManager.error != nil) {
         ErrorView(text: "There was an error loading the routes.")
       } else {
-        ProgressView()
-          .progressViewStyle(.circular)
-          .scaleEffect(1)
+        VStack {
+          ProgressView()
+            .progressViewStyle(.circular)
+            .scaleEffect(1)
+        }
       }
     } else {
       List {
