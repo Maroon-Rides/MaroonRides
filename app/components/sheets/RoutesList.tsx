@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent, Platform, BackHandler } from "react-native";
+import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent, Platform } from "react-native";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { FontAwesome, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
