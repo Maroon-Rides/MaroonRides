@@ -309,7 +309,7 @@ const Map: React.FC = () => {
                 maxZoomLevel={Platform.OS == "android" ? 18 : undefined}
                 showsMyLocationButton={false} // we have our own
                 // fix dark mode android map syling
-                customMapStyle={Platform.OS == "android" && theme.mode == "dark" ? DarkGoogleMaps : undefined}
+                customMapStyle={Platform.OS == "android" && theme.mode == "dark" ? DarkGoogleMaps : []}
             >
                 {/* Route Polylines */}
                 {drawnRoutes.map((drawnRoute) => {
