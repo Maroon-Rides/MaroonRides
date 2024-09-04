@@ -39,3 +39,16 @@ index 99bdc2e..a14854a 100644
        }}>
        {!backgroundColor && !tintColor && (
          <SegmentsSeparators
+diff --git a/node_modules/@react-native-segmented-control/segmented-control/js/SegmentedControlTab.js b/node_modules/@react-native-segmented-control/segmented-control/js/SegmentedControlTab.js
+index 7a29d1c..cd12dbf 100644
+--- a/node_modules/@react-native-segmented-control/segmented-control/js/SegmentedControlTab.js
++++ b/node_modules/@react-native-segmented-control/segmented-control/js/SegmentedControlTab.js
+@@ -99,7 +99,7 @@ export const SegmentedControlTab = ({
+         ) : isBase64(value) ? (
+           <Image source={{uri: value}} style={styles.segmentImage} />
+         ) : (
+-          <Text style={[idleStyle, selected && activeStyle]}>{value}</Text>
++          <Text style={[idleStyle, selected && activeStyle]} numberOfLines={1}>{value}</Text>
+         )}
+       </View>
+     </TouchableOpacity>
