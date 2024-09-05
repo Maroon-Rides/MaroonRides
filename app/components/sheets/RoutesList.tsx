@@ -32,7 +32,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const [shouldUpdateData, setShouldUpdateData] = useState(false);
 
     const queryClient = useQueryClient();
-    const { data: routes, isLoading: isRoutesLoading, isRefetching: isRefreshing } = useRoutes();
+    const { data: routes, isLoading: isRoutesLoading, isRefetching: isRefreshing, refetch: refetchRoutes } = useRoutes();
     const { data: favorites, isLoading: isFavoritesLoading, isError: isFavoritesError, refetch: refetchFavorites } = useFavorites(shouldUpdateData);
     const { data: defaultGroup, refetch: refetchDefaultGroup } = useDefaultRouteGroup(shouldUpdateData);
 
@@ -63,6 +63,10 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     useEffect(() => {
         setSelectedRouteCategory(defaultGroup === 0 ? "All Routes" : "Favorites");
     }, [defaultGroup]);
+
+    useEffect(() => {
+        refetchRoutes();
+    }, [theme])
 
     // Update the shown routes when the selectedRouteCategory changes
     useEffect(() => {
