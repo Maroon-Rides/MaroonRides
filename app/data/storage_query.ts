@@ -4,7 +4,7 @@ import { IMapRoute, SearchSuggestion } from "utils/interfaces";
 import { useRoutes } from "./api_query";
 import { suggestionEqual } from "app/utils";
 
-export const useFavorites = (allowUpdate: boolean = true) => {
+export const useFavorites = () => {
     const routesQuery = useRoutes();
 
     const query = useQuery<IMapRoute[]>({
@@ -50,7 +50,7 @@ export const useFavorites = (allowUpdate: boolean = true) => {
             return routes.filter(route => favoritesArray.includes(route.shortName));
         },
         staleTime: Infinity,
-        enabled: routesQuery.isSuccess && allowUpdate
+        enabled: routesQuery.isSuccess
     });
 
     return query;
@@ -119,7 +119,7 @@ export const removeFavoriteMutation = () => {
     return mutation;
 }
 
-export const useDefaultRouteGroup = (allowUpdate: boolean = true) => {
+export const useDefaultRouteGroup = () => {
     const query = useQuery({
         queryKey: ["defaultRouteGroup"],
         queryFn: async () => {
@@ -129,7 +129,6 @@ export const useDefaultRouteGroup = (allowUpdate: boolean = true) => {
             return Number(defaultGroup);
         },
         staleTime: Infinity,
-        enabled: allowUpdate
     });
 
     return query;

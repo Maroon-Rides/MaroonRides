@@ -29,19 +29,14 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const presentSheet = useAppStore((state) => state.presentSheet);
     const theme = useAppStore((state) => state.theme);
 
-    const [shouldUpdateData, setShouldUpdateData] = useState(false);
-
     const queryClient = useQueryClient();
     const { data: routes, isLoading: isRoutesLoading, isRefetching: isRefreshing, refetch: refetchRoutes } = useRoutes();
-    const { data: favorites, isLoading: isFavoritesLoading, isError: isFavoritesError, refetch: refetchFavorites } = useFavorites(shouldUpdateData);
-    const { data: defaultGroup, refetch: refetchDefaultGroup } = useDefaultRouteGroup(shouldUpdateData);
+    const { data: favorites, isLoading: isFavoritesLoading, isError: isFavoritesError, refetch: refetchFavorites } = useFavorites();
+    const { data: defaultGroup, refetch: refetchDefaultGroup } = useDefaultRouteGroup();
 
     const routeError = [useRoutes().isError, useAuthToken().isError, usePatternPaths().isError, useBaseData().isError].some((v) => v == true);
 
     const handleRouteSelected = (selectedRoute: IMapRoute) => {        
-        // prevent the sheet from updating the data when it is closed, causes sheet to open :/
-        setShouldUpdateData(false);
-
         setSelectedRoute(selectedRoute);
         setDrawnRoutes([selectedRoute]);
         presentSheet("routeDetails");
@@ -122,10 +117,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                         </TouchableOpacity>
 
                         {/* Settings */}
-                        <TouchableOpacity style={{ marginLeft: 8 }} onPress={ () => {
-                            setShouldUpdateData(false);
-                            presentSheet("settings")
-                        }}>
+                        <TouchableOpacity style={{ marginLeft: 8 }} onPress={() => presentSheet("settings")}>
                             <IconPill 
                                 icon={<MaterialIcons name="settings" size={16} color={theme.text} />}
                             />
