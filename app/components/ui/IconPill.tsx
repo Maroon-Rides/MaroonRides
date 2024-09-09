@@ -11,17 +11,22 @@ const IconPill: React.FC<Props> = ({text, icon, style}) => {
     const theme = useAppStore((state) => state.theme);
 
     return (
-        <View style={[{ 
+        <View 
+            onLayout={(layout) => console.log(layout.nativeEvent.layout.height)}
+        
+            style={[{ 
                 // backgroundColor: color, 
                 borderColor: theme.pillBorder,
                 borderWidth: 1,
                 borderRadius: 1000, 
                 alignItems: 'center', 
                 justifyContent: "center", 
+                alignContent: "center",
                 flexDirection: 'row',
                 paddingHorizontal: 8,
                 paddingVertical: 2,
                 padding: 4,
+                height: 34
             }, style]}>
 
             {icon}
@@ -30,13 +35,14 @@ const IconPill: React.FC<Props> = ({text, icon, style}) => {
                 <Text 
                     adjustsFontSizeToFit={true} 
                     numberOfLines={1} 
+                    minimumFontScale={1}
                     style={{
                         fontSize: 16,
                         textAlign: 'center',
                         fontWeight: '600',
                         color: theme.text,
-                        padding: 4,
-                        paddingLeft: 6
+                        paddingRight: 4,
+                        paddingLeft: 6,
                     }}>
                     {text}
                 </Text>
