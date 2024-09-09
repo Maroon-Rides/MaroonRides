@@ -188,11 +188,20 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                     refreshing={false}
                     ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: theme.divider, marginVertical: 4 }} />}
                     renderItem={({ item: stop, index }) => {
+
+                        // handle the last cell showing No upcoming departures
+                        var direction;
+                        if (index == processedStops.length-1 && selectedRoute?.directionList.length > 1) {
+                            direction = selectedRoute?.directionList[selectedDirectionIndex == 0 ? 1 : 0]?.direction!
+                        } else {
+                            direction = selectedRoute?.directionList[selectedDirectionIndex]?.direction!
+                        }
+
                         return (
                             <StopCell
                                 stop={stop}
                                 route={selectedRoute}
-                                direction={selectedRoute?.directionList[selectedDirectionIndex]?.direction!}
+                                direction={direction}
                                 color={selectedRoute?.directionList[0]?.lineColor ?? "#909090"}
                                 disabled={index === processedStops.length - 1}
                                 setSheetPos={(pos) => sheetRef.current?.snapToIndex(pos)}

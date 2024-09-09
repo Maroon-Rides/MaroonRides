@@ -353,6 +353,9 @@ const Map: React.FC = () => {
                     patternPath.patternPoints.map((patternPoint, index2) => {
                         const stop = patternPoint.stop
 
+                        // if it is the end of the route, dont put a marker
+                        if (index2 == patternPath.patternPoints.length-1) return
+
                         if (stop) {
                             return (
                                 <StopMarker
