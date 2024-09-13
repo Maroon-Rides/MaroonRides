@@ -7,7 +7,6 @@ import useAppStore from "../../data/app_state";
 import AmenityRow from "./AmenityRow";
 import moment from "moment";
 import { useStopEstimate } from "app/data/api_query";
-import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
     stop: IStop
