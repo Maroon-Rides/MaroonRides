@@ -11,9 +11,7 @@ const IconPill: React.FC<Props> = ({text, icon, style}) => {
     const theme = useAppStore((state) => state.theme);
 
     return (
-        <View 
-            onLayout={(layout) => console.log(layout.nativeEvent.layout.height)}
-        
+        <View         
             style={[{ 
                 // backgroundColor: color, 
                 borderColor: theme.pillBorder,

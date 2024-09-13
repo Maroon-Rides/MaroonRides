@@ -7,6 +7,7 @@ import useAppStore from "../../data/app_state";
 import AmenityRow from "./AmenityRow";
 import moment from "moment";
 import { useStopEstimate } from "app/data/api_query";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
     stop: IStop
@@ -26,11 +27,19 @@ const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, se
     const setPoppedUpStopCallout = useAppStore((state) => state.setPoppedUpStopCallout);
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const theme = useAppStore((state) => state.theme);
+    const client = useQueryClient();
 
     const { data: stopEstimate, isLoading, isError } = useStopEstimate(route.key, direction.key, stop.stopCode);
 
     useEffect(() => {
-        if (!stopEstimate || stopEstimate.routeDirectionTimes.length == 0) return
+        if (!stopEstimate) return;
+
+        // this is usually caused by out of date base data
+        // therefore refresh the base data
+        if (stopEstimate.routeDirectionTimes.length == 0) {
+            setStatus("Error loading estimates, try again later.");
+            return
+        }
 
         const estimate = stopEstimate.routeDirectionTimes[0]!;
 

@@ -5,6 +5,7 @@ import { getColorScheme } from "app/utils";
 import moment from "moment";
 import { GetBaseDataResponseSchema, GetNextDepartTimesResponseSchema, GetPatternPathsResponseSchema, GetStopEstimatesResponseSchema, GetStopSchedulesResponseSchema, GetTripPlanResponseSchema, GetVehiclesResponseSchema, IFoundLocation, IFoundStop, IGetBaseDataResponse, IGetNextDepartTimesResponse, IGetPatternPathsResponse, IGetStopEstimatesResponse, IGetStopSchedulesResponse, IGetVehiclesResponse, IMapRoute, IMapServiceInterruption, IPatternPoint, IVehicle, SearchSuggestion } from "utils/interfaces";
 
+var hasInvalid = 0;
 
 export const useAuthToken = () => {
     const query = useQuery({
@@ -112,7 +113,8 @@ export const useRoutes = () => {
             return mergedRoutes;
         },
         enabled: patternPathsQuery.isSuccess && baseDataQuery.isSuccess,
-        staleTime: Infinity
+        staleTime: 2 * 3600 * 1000, // 2 hours
+        refetchInterval: 2 * 3600 * 1000, // 2 hours
     });
 
     return query;
