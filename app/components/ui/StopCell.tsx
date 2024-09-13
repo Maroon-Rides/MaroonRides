@@ -27,7 +27,6 @@ const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, se
     const setPoppedUpStopCallout = useAppStore((state) => state.setPoppedUpStopCallout);
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const theme = useAppStore((state) => state.theme);
-    const client = useQueryClient();
 
     const { data: stopEstimate, isLoading, isError } = useStopEstimate(route.key, direction.key, stop.stopCode);
 
