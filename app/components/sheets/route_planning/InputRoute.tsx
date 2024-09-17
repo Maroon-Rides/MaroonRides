@@ -114,256 +114,255 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
     return (
         <BottomSheetModal 
-                ref={sheetRef} 
-                snapPoints={snapPoints} 
-                backgroundStyle={{backgroundColor: theme.background}}
-                handleIndicatorStyle={{backgroundColor: theme.divider}}
-                enablePanDownToClose={false}
-            >
-                <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible = {false}>
-                    <View>
-                        <BottomSheetView>
-                            {/* header */}
-                            <SheetHeader
-                                title="Plan a Route"
-                                icon={
-                                    <TouchableOpacity 
-                                        style={{ marginLeft: 10 }} 
-                                        onPress={() => {
-                                            Keyboard.dismiss()
-                                            dismissSheet("inputRoute")
+            ref={sheetRef} 
+            snapPoints={snapPoints} 
+            backgroundStyle={{backgroundColor: theme.background}}
+            handleIndicatorStyle={{backgroundColor: theme.divider}}
+            enablePanDownToClose={false}
+        >
+            <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible = {false}>
+                <View>
+                    <BottomSheetView>
+                        {/* header */}
+                        <SheetHeader
+                            title="Plan a Route"
+                            icon={
+                                <TouchableOpacity 
+                                    style={{ marginLeft: 10 }} 
+                                    onPress={() => {
+                                        Keyboard.dismiss()
+                                        dismissSheet("inputRoute")
+                                    }}
+                                >
+                                    <Ionicons name="close-circle" size={28} color={theme.exitButton} />
+                                </TouchableOpacity>
+                            }
+                        />
+
+                        {/* Route Details Input */}
+                        <View>
+                            {/* Endpoint Input */}
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingHorizontal: 16}}>
+                                <View style={{paddingRight: 8, alignItems: "center", flex: 1}}>
+                                    {/* Start */}
+                                    <SuggestionInput
+                                        outputName={"start"}
+                                        location={startLocation}
+                                        onFocus={() => {
+                                            if (startLocation?.type == "my-location") setStartLocation(null)
                                         }}
-                                    >
-                                        <Ionicons name="close-circle" size={28} color={theme.exitButton} />
-                                    </TouchableOpacity>
-                                }
-                            />
-
-                            {/* Route Details Input */}
-                            <View>
-                                {/* Endpoint Input */}
-                                <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingHorizontal: 16}}>
-                                    <View style={{paddingRight: 8, alignItems: "center", flex: 1}}>
-                                        {/* Start */}
-                                        <SuggestionInput
-                                            outputName={"start"}
-                                            location={startLocation}
-                                            onFocus={() => {
-                                                if (startLocation?.type == "my-location") setStartLocation(null)
-                                            }}
-                                            icon={(startLocation?.type == "my-location") 
-                                                ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
-                                                : <MaterialCommunityIcons name="circle-outline" size={20} color={theme.subtitle} />
-                                            }
-                                            setSuggestionLoading={setSearchSuggestionsLoading}
-                                        />
-
-                                        {/* 2 dots in between rows */}
-                                        <View style={{height: 3, width: 3, backgroundColor: theme.subtitle, marginVertical: 1.5, alignSelf: "flex-start", marginLeft: 16, borderRadius: 999}} />
-                                        <View style={{height: 3, width: 3, backgroundColor: theme.subtitle, marginVertical: 1.5, alignSelf: "flex-start", marginLeft: 16, borderRadius: 999}} />
-                                        <View style={{height: 3, width: 3, backgroundColor: theme.subtitle, marginVertical: 1.5, alignSelf: "flex-start", marginLeft: 16, borderRadius: 999}} />
-
-                                        {/* End */}
-                                        <SuggestionInput
-                                            outputName={"end"}
-                                            location={endLocation}
-                                            onFocus={() => {
-                                                if (endLocation?.type == "my-location") setEndLocation(null)
-                                            }}
-                                            icon={(endLocation?.type == "my-location") 
-                                                ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
-                                                : <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} />
-                                            }
-                                            setSuggestionLoading={setSearchSuggestionsLoading}
-                                        />
-                                    </View>
-
-                                    {/* Swap Endpoints */}
-                                    <TouchableOpacity 
-                                        style={{ marginLeft: 8 }}
-                                        onPress={() => {
-                                            const temp = startLocation
-                                            setStartLocation(endLocation)
-                                            setEndLocation(temp)
-                                            setSuggesionOutput(null)
-                                        }}>
-                                        <MaterialCommunityIcons name="swap-vertical" size={28} color={theme.subtitle} />
-                                    </TouchableOpacity>
-                                </View>
-
-                                {/* Leave by/Arrive By */}
-                                <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 12, paddingHorizontal: 16 }}>
-                                    <SegmentedControl
-                                        values={['Leave by', 'Arrive by']}
-                                        selectedIndex={0}
-                                        onChange={(event) => {
-                                            setDeadline(event.nativeEvent.selectedSegmentIndex == 0 ? "leave" : "arrive")
-                                        }}
-                                        style={{flex: 1, marginRight: 8}}
-                                        backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
+                                        icon={(startLocation?.type == "my-location") 
+                                            ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
+                                            : <MaterialCommunityIcons name="circle-outline" size={20} color={theme.subtitle} />
+                                        }
+                                        setSuggestionLoading={setSearchSuggestionsLoading}
                                     />
 
-                                    <TimeInput 
-                                        onTimeChange={(time) => setTime(time)}
+                                    {/* 2 dots in between rows */}
+                                    <View style={{height: 3, width: 3, backgroundColor: theme.subtitle, marginVertical: 1.5, alignSelf: "flex-start", marginLeft: 16, borderRadius: 999}} />
+                                    <View style={{height: 3, width: 3, backgroundColor: theme.subtitle, marginVertical: 1.5, alignSelf: "flex-start", marginLeft: 16, borderRadius: 999}} />
+                                    <View style={{height: 3, width: 3, backgroundColor: theme.subtitle, marginVertical: 1.5, alignSelf: "flex-start", marginLeft: 16, borderRadius: 999}} />
+
+                                    {/* End */}
+                                    <SuggestionInput
+                                        outputName={"end"}
+                                        location={endLocation}
+                                        onFocus={() => {
+                                            if (endLocation?.type == "my-location") setEndLocation(null)
+                                        }}
+                                        icon={(endLocation?.type == "my-location") 
+                                            ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
+                                            : <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} />
+                                        }
+                                        setSuggestionLoading={setSearchSuggestionsLoading}
                                     />
                                 </View>
 
-
-                                {/* Divider */}
-                                <View style={{height: 1, backgroundColor: theme.divider, marginTop: 4}} />
-
-                                {/* Error */}
-                                { routeInfoError != "" && (
-                                    <View style={{marginTop: 8, justifyContent: "center", alignItems: "center"}}>
-                                        
-                                        {/* Error Text */}
-                                        <Text style={{color: theme.subtitle,  textAlign:"center", marginLeft: 4, paddingHorizontal: 24 }}>{routeInfoError}</Text>
-                                    </View>
-                                )}
-                                { routeInfoError == "Location Unavailable, enable location in Settings." && (
-                                    <Button title="Open Settings" onPress={() => Linking.openSettings()} />
-                                )}
-
-                                {/* Search Button */}
+                                {/* Swap Endpoints */}
+                                <TouchableOpacity 
+                                    style={{ marginLeft: 8 }}
+                                    onPress={() => {
+                                        const temp = startLocation
+                                        setStartLocation(endLocation)
+                                        setEndLocation(temp)
+                                        setSuggesionOutput(null)
+                                    }}>
+                                    <MaterialCommunityIcons name="swap-vertical" size={28} color={theme.subtitle} />
+                                </TouchableOpacity>
                             </View>
 
+                            {/* Leave by/Arrive By */}
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 12, paddingHorizontal: 16 }}>
+                                <SegmentedControl
+                                    values={['Leave by', 'Arrive by']}
+                                    selectedIndex={0}
+                                    onChange={(event) => {
+                                        setDeadline(event.nativeEvent.selectedSegmentIndex == 0 ? "leave" : "arrive")
+                                    }}
+                                    style={{flex: 1, marginRight: 8}}
+                                    backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
+                                />
+
+                                <TimeInput 
+                                    onTimeChange={(time) => setTime(time)}
+                                />
+                            </View>
+
+
+                            {/* Divider */}
+                            <View style={{height: 1, backgroundColor: theme.divider, marginTop: 4}} />
+
+                            {/* Error */}
+                            { routeInfoError != "" && (
+                                <View style={{marginTop: 8, justifyContent: "center", alignItems: "center"}}>
+                                    
+                                    {/* Error Text */}
+                                    <Text style={{color: theme.subtitle,  textAlign:"center", marginLeft: 4, paddingHorizontal: 24 }}>{routeInfoError}</Text>
+                                </View>
+                            )}
+                            { routeInfoError == "Location Unavailable, enable location in Settings." && (
+                                <Button title="Open Settings" onPress={() => Linking.openSettings()} />
+                            )}
+
+                            {/* Search Button */}
+                        </View>
+
+                    </BottomSheetView>
+                </View>
+            </TouchableWithoutFeedback>
+                    
+            {/* Flat lists when no error */}
+            {routeInfoError == "" && (
+                suggestionOutput ? (
+                    /* Search Suggestions */
+                    <BottomSheetFlatList
+                        data={searchSuggestions}
+                        keyExtractor={(_, index) => index.toString()}
+                        keyboardShouldPersistTaps={"handled"}
+                        ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: theme.divider, marginLeft: 12}} />}
+                        ListHeaderComponent={() => {
+                            if (searchSuggestions.length == 0 && suggestionOutput && !searchSuggestionsLoading) {
+                                return (
+                                    <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
+                                        <Text style={{color: theme.subtitle, textAlign: "center"}}>No locations found</Text>
+                                    </View>
+                                ) 
+                            }
+                            return null
+                        }}
+                        onScrollBeginDrag={() => Keyboard.dismiss()}
+                        renderItem={({item: suggestion}) => (
+                            <TouchableOpacity 
+                                style={{paddingVertical: 12, paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+                                onPress={() => {
+                                    if (suggestionOutput == "start") setStartLocation(suggestion)
+                                    if (suggestionOutput == "end") setEndLocation(suggestion)
+                                    setSuggestions([])
+                                    setSuggesionOutput(null)
+                                    Keyboard.dismiss()
+                                }}
+                            >
+                                <View
+                                    style={{
+                                        backgroundColor: theme.tertiaryBackground,
+                                        borderRadius: 999,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        height: 40,
+                                        width: 40,
+                                        paddingVertical: 2,
+                                    }}
+                                >
+                                    { suggestion.type == "my-location" && <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} /> }
+                                    { suggestion.type == "stop" && <MaterialCommunityIcons name="bus-stop" size={24} color={theme.subtitle} /> }
+                                    { suggestion.type == "map" && <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} /> }
+                                    
+                                </View>
+                                <View style={{flex: 1, marginLeft: 12 }}>
+                                    {/* Title */}
+                                    <Text style={{ color: theme.text, fontSize: 16, fontWeight: "bold" }}>{suggestion.title}</Text>
+        
+                                    {/* Subtitle */}
+                                    { suggestion.subtitle && <Text style={{ color: theme.subtitle, fontSize: 14 }}>{suggestion.subtitle}</Text> }
+                                </View>
+
+                                {/* Favorite Location */}
+                                { suggestion.type != "my-location" &&
+                                    <TouchableOpacity 
+                                        onPress={(e) => {
+                                            e.stopPropagation()
+                                            toggleFavoriteLocation(suggestion)
+                                        }} 
+                                        style={{ paddingLeft: 16, zIndex: 10000 }}
+                                    >
+                                        { (favoriteLocations as SearchSuggestion[]).find((item) => suggestionEqual(item, suggestion)) ?
+                                            <FontAwesome name="star" size={24} color="#ffcc01" />
+                                        :
+                                            <FontAwesome name="star-o" size={24} color={theme.subtitle} />
+                                        }
+                                    </TouchableOpacity>
+                                }
+
+                            </TouchableOpacity>
+                        )}
+                    />
+                ) : ( tripPlanLoading || isError ? (
+                        // Show the Route Options
+                        <BottomSheetView>
+                            {(tripPlanLoading && !isError) && (
+                                <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
+                                    <ActivityIndicator />
+                                </View>
+                            )}
+
+                            {isError && (
+                                <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
+                                    <Text style={{color: theme.subtitle, textAlign: "center"}}>Unable to load routes. Please try again later.</Text>
+                                </View>
+                            )}
                         </BottomSheetView>
-                    </View>
-                </TouchableWithoutFeedback>
-                        
-                {/* Flat lists when no error */}
-                {routeInfoError == "" && (
-                    suggestionOutput ? (
-                        /* Search Suggestions */
+                    ) : (
                         <BottomSheetFlatList
-                            data={searchSuggestions}
+                            // filter out plans that have already passed, sort by end time
+                            data={
+                                tripPlan?.optionDetails
+                                    .filter((plan) => plan.startTime > Math.floor(Date.now() / 1000) - 300)
+                                    .sort((a, b) => a.endTime - b.endTime)
+                            }
                             keyExtractor={(_, index) => index.toString()}
+                            onRefresh={() => {
+                                client.invalidateQueries({
+                                    queryKey: ["tripPlan", startLocation, endLocation, time, deadline]
+                                })
+                                setSuggestions([])
+                            }}
+                            refreshing={tripPlanLoading}
                             keyboardShouldPersistTaps={"handled"}
                             ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: theme.divider, marginLeft: 12}} />}
                             ListHeaderComponent={() => {
-                                if (searchSuggestions.length == 0 && suggestionOutput && !searchSuggestionsLoading) {
+                                const filtered = tripPlan?.optionDetails.filter((plan) => plan.startTime > Math.floor(Date.now() / 1000) - 300) ?? []
+                                if (filtered.length == 0 && !tripPlanLoading && startLocation && endLocation) {
                                     return (
                                         <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
-                                            <Text style={{color: theme.subtitle, textAlign: "center"}}>No locations found</Text>
+                                            <Text style={{color: theme.subtitle, textAlign: "center"}}>No routes found</Text>
                                         </View>
                                     ) 
                                 }
                                 return null
                             }}
                             onScrollBeginDrag={() => Keyboard.dismiss()}
-                            renderItem={({item: suggestion}) => (
-                                <TouchableOpacity 
-                                    style={{paddingVertical: 12, paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
-                                    onPress={() => {
-                                        if (suggestionOutput == "start") setStartLocation(suggestion)
-                                        if (suggestionOutput == "end") setEndLocation(suggestion)
-                                        setSuggestions([])
-                                        setSuggesionOutput(null)
-                                        Keyboard.dismiss()
-                                    }}
-                                >
-                                    <View
-                                        style={{
-                                            backgroundColor: theme.tertiaryBackground,
-                                            borderRadius: 999,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            height: 40,
-                                            width: 40,
-                                            paddingVertical: 2,
-                                        }}
-                                    >
-                                        { suggestion.type == "my-location" && <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} /> }
-                                        { suggestion.type == "stop" && <MaterialCommunityIcons name="bus-stop" size={24} color={theme.subtitle} /> }
-                                        { suggestion.type == "map" && <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} /> }
-                                        
-                                    </View>
-                                    <View style={{flex: 1, marginLeft: 12 }}>
-                                        {/* Title */}
-                                        <Text style={{ color: theme.text, fontSize: 16, fontWeight: "bold" }}>{suggestion.title}</Text>
-            
-                                        {/* Subtitle */}
-                                        { suggestion.subtitle && <Text style={{ color: theme.subtitle, fontSize: 14 }}>{suggestion.subtitle}</Text> }
-                                    </View>
-
-                                    {/* Favorite Location */}
-                                    { suggestion.type != "my-location" &&
-                                        <TouchableOpacity 
-                                            onPress={(e) => {
-                                                e.stopPropagation()
-                                                toggleFavoriteLocation(suggestion)
-                                            }} 
-                                            style={{ paddingLeft: 16, zIndex: 10000 }}
-                                        >
-                                            { (favoriteLocations as SearchSuggestion[]).find((item) => suggestionEqual(item, suggestion)) ?
-                                                <FontAwesome name="star" size={24} color="#ffcc01" />
-                                            :
-                                                <FontAwesome name="star-o" size={24} color={theme.subtitle} />
-                                            }
-                                        </TouchableOpacity>
-                                    }
-
-                                </TouchableOpacity>
-                            )}
+                            renderItem={({item: plan}) => {
+                                return (
+                                    <TripPlanCell
+                                        plan={plan}
+                                    />
+                                )
+                            }}
                         />
-                    ) : ( tripPlanLoading || isError ? (
-                            // Show the Route Options
-                            <BottomSheetView>
-                                {(tripPlanLoading && !isError) && (
-                                    <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
-                                        <ActivityIndicator />
-                                    </View>
-                                )}
-
-                                {isError && (
-                                    <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
-                                        <Text style={{color: theme.subtitle, textAlign: "center"}}>Unable to load routes. Please try again later.</Text>
-                                    </View>
-                                )}
-                            </BottomSheetView>
-                        ) : (
-                            <BottomSheetFlatList
-                                // filter out plans that have already passed, sort by end time
-                                data={
-                                    tripPlan?.optionDetails
-                                        .filter((plan) => plan.startTime > Math.floor(Date.now() / 1000) - 300)
-                                        .sort((a, b) => a.endTime - b.endTime)
-                                }
-                                keyExtractor={(_, index) => index.toString()}
-                                onRefresh={() => {
-                                    client.invalidateQueries({
-                                        queryKey: ["tripPlan", startLocation, endLocation, time, deadline]
-                                    })
-                                    setSuggestions([])
-                                }}
-                                refreshing={tripPlanLoading}
-                                keyboardShouldPersistTaps={"handled"}
-                                ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: theme.divider, marginLeft: 12}} />}
-                                ListHeaderComponent={() => {
-                                    const filtered = tripPlan?.optionDetails.filter((plan) => plan.startTime > Math.floor(Date.now() / 1000) - 300) ?? []
-                                    if (filtered.length == 0 && !tripPlanLoading && startLocation && endLocation) {
-                                        return (
-                                            <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
-                                                <Text style={{color: theme.subtitle, textAlign: "center"}}>No routes found</Text>
-                                            </View>
-                                        ) 
-                                    }
-                                    return null
-                                }}
-                                onScrollBeginDrag={() => Keyboard.dismiss()}
-                                renderItem={({item: plan}) => {
-                                    return (
-                                        <TripPlanCell
-                                            plan={plan}
-                                        />
-                                    )
-                                }}
-                            />
-                        )
                     )
-                )}  
-            </BottomSheetModal>
-        
+                )
+            )}  
+        </BottomSheetModal>
     )
 }
 
