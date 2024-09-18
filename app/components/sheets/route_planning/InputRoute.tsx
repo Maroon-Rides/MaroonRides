@@ -53,6 +53,8 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     const addLocationFavorite = addFavoriteLocationMutation();
     const removeLocationFavorite = removeFavoriteLocationMutation();
 
+    const [timeInputFocused, setTimeInputFocused] = useState(false);
+
     function toggleFavoriteLocation(location: SearchSuggestion) {
         if (favoriteLocations && 
             (favoriteLocations as SearchSuggestion[]).find((item) => suggestionEqual(item, location))) 
@@ -61,6 +63,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         } else {
             addLocationFavorite.mutate(location)
         }
+    }
+
+    function toggleTimeInputFocused(newValue: boolean) {
+        console.log(newValue)
+        setTimeInputFocused(newValue)
     }
 
     useEffect(() => {
@@ -122,7 +129,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         >
             <BottomSheetView
                 onTouchStart={() => {
-                    if (!suggestionOutput) Keyboard.dismiss()
+                    if (!suggestionOutput && !timeInputFocused) Keyboard.dismiss()
                 }}
                 style={[!(routeInfoError == "") && {flex: 1}]}
             >
@@ -208,6 +215,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
                         <TimeInput 
                             onTimeChange={(time) => setTime(time)}
+                            onTimeInputFocused={toggleTimeInputFocused}
                         />
                     </View>
 
