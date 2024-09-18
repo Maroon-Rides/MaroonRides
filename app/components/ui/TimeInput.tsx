@@ -5,9 +5,10 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 
 interface Props {
     onTimeChange: (time: Date) => void;
+    onTimeInputFocused: (newValue: boolean) => void
 }
 
-const TimeInput: React.FC<Props> = ({ onTimeChange }) => {
+const TimeInput: React.FC<Props> = ({ onTimeChange, onTimeInputFocused }) => {
     const [time, setTime] = useState('')
     const [meridiem, setMeridiem] = useState('AM')
     const [isFocused, setIsFocused] = useState(false)
@@ -87,9 +88,14 @@ const TimeInput: React.FC<Props> = ({ onTimeChange }) => {
             <TextInput
                 ref={textInputRef}
                 value={time}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-                selection={{ start: time.length, end: time.length }}
+                onFocus={() => {
+                    setIsFocused(true)
+                    onTimeInputFocused(true)
+                }}
+                onBlur={() => {
+                    setIsFocused(false)
+                    onTimeInputFocused(false)
+                }}
                 style={{
                     color: theme.text,
                     fontWeight: 'bold',
