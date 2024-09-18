@@ -120,14 +120,20 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             handleIndicatorStyle={{backgroundColor: theme.divider}}
             enablePanDownToClose={false}
         >
-            <BottomSheetView>
+            <BottomSheetView
+                onTouchStart={() => Keyboard.dismiss()}
+                style={[!(routeInfoError == "") && {flex: 1}]}
+            >
                 {/* header */}
                 <SheetHeader
                     title="Plan a Route"
                     icon={
                         <TouchableOpacity 
                             style={{ marginLeft: 10 }} 
-                            onPress={() => dismissSheet("inputRoute")}
+                            onPress={() => {
+                                Keyboard.dismiss()
+                                dismissSheet("inputRoute")
+                            }}
                         >
                             <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>
@@ -213,17 +219,15 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             
                             {/* Error Text */}
                             <Text style={{color: theme.subtitle,  textAlign:"center", marginLeft: 4, paddingHorizontal: 24 }}>{routeInfoError}</Text>
+                            
+                            { routeInfoError == "Location Unavailable, enable location in Settings." && (
+                                <Button title="Open Settings" onPress={() => Linking.openSettings()} />
+                            )}
                         </View>
                     )}
-                    { routeInfoError == "Location Unavailable, enable location in Settings." && (
-                        <Button title="Open Settings" onPress={() => Linking.openSettings()} />
-                    )}
-
-                    {/* Search Button */}
                 </View>
-
             </BottomSheetView>
-            
+                    
             {/* Flat lists when no error */}
             {routeInfoError == "" && (
                 suggestionOutput ? (
@@ -354,7 +358,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                         />
                     )
                 )
-            )}
+            )}  
         </BottomSheetModal>
     )
 }

@@ -1,5 +1,4 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Appearance } from "react-native";
 import { SearchSuggestion } from "utils/interfaces";
 
 // given a hex code without the #, return a lighter version of it
@@ -30,8 +29,8 @@ export function getLighterColor(color: string): string {
 }
 
 export async function getColorScheme(): Promise<string> {
-    const colorScheme = Appearance.getColorScheme();
     const themeIndex = await AsyncStorage.getItem('app-theme')
+    const systemTheme = await AsyncStorage.getItem('system-theme') ?? "light"
 
     switch (themeIndex) {
         case "1":
@@ -39,7 +38,7 @@ export async function getColorScheme(): Promise<string> {
         case "2":
             return "dark"
         default:
-            return colorScheme == "dark" ? "dark" : "light"
+            return systemTheme
     }    
 }
 

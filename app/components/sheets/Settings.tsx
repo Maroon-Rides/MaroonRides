@@ -53,6 +53,8 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
             if (value) {
                 setTheme(Number(value));
             }
+            const systemTheme = Appearance.getColorScheme() ?? "light"
+            AsyncStorage.setItem('system-theme', systemTheme)
         })
     }, [])
 

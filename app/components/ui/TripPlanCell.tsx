@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import useAppStore from 'app/data/app_state';
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Keyboard } from 'react-native';
 import { IOptionDetail } from 'utils/interfaces';
 
 interface TripPlanCellProps {
@@ -62,6 +62,7 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
                 alignItems: 'center' 
             }}
             onPress={() => {
+                Keyboard.dismiss()
                 setSelectedRoutePlan(plan);
                 setDrawnRoutes([]);
                 presentSheet("tripPlanDetail")
