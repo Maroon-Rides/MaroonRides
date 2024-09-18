@@ -121,7 +121,9 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             enablePanDownToClose={false}
         >
             <BottomSheetView
-                onTouchStart={() => Keyboard.dismiss()}
+                onTouchStart={() => {
+                    if (!suggestionOutput) Keyboard.dismiss()
+                }}
                 style={[!(routeInfoError == "") && {flex: 1}]}
             >
                 {/* header */}
