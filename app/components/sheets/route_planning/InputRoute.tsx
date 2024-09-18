@@ -66,7 +66,6 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     }
 
     function toggleTimeInputFocused(newValue: boolean) {
-        console.log(newValue)
         setTimeInputFocused(newValue)
     }
 
