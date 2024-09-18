@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Keyboard, ActivityIndicator, Button, Platform, TouchableWithoutFeedback } from "react-native";
+import { View, Text, TouchableOpacity, Keyboard, ActivityIndicator, Button, Platform } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
@@ -120,116 +120,113 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             handleIndicatorStyle={{backgroundColor: theme.divider}}
             enablePanDownToClose={false}
         >
-            <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible = {false}>
+            <BottomSheetView
+                onTouchStart={() => Keyboard.dismiss()}
+                style={[!(routeInfoError == "") && {flex: 1}]}
+            >
+                {/* header */}
+                <SheetHeader
+                    title="Plan a Route"
+                    icon={
+                        <TouchableOpacity 
+                            style={{ marginLeft: 10 }} 
+                            onPress={() => {
+                                Keyboard.dismiss()
+                                dismissSheet("inputRoute")
+                            }}
+                        >
+                            <Ionicons name="close-circle" size={28} color={theme.exitButton} />
+                        </TouchableOpacity>
+                    }
+                />
+
+                {/* Route Details Input */}
                 <View>
-                    <BottomSheetView>
-                        {/* header */}
-                        <SheetHeader
-                            title="Plan a Route"
-                            icon={
-                                <TouchableOpacity 
-                                    style={{ marginLeft: 10 }} 
-                                    onPress={() => {
-                                        Keyboard.dismiss()
-                                        dismissSheet("inputRoute")
-                                    }}
-                                >
-                                    <Ionicons name="close-circle" size={28} color={theme.exitButton} />
-                                </TouchableOpacity>
-                            }
+                    {/* Endpoint Input */}
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingHorizontal: 16}}>
+                        <View style={{paddingRight: 8, alignItems: "center", flex: 1}}>
+                            {/* Start */}
+                            <SuggestionInput
+                                outputName={"start"}
+                                location={startLocation}
+                                onFocus={() => {
+                                    if (startLocation?.type == "my-location") setStartLocation(null)
+                                }}
+                                icon={(startLocation?.type == "my-location") 
+                                    ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
+                                    : <MaterialCommunityIcons name="circle-outline" size={20} color={theme.subtitle} />
+                                }
+                                setSuggestionLoading={setSearchSuggestionsLoading}
+                            />
+
+                            {/* 2 dots in between rows */}
+                            <View style={{height: 3, width: 3, backgroundColor: theme.subtitle, marginVertical: 1.5, alignSelf: "flex-start", marginLeft: 16, borderRadius: 999}} />
+                            <View style={{height: 3, width: 3, backgroundColor: theme.subtitle, marginVertical: 1.5, alignSelf: "flex-start", marginLeft: 16, borderRadius: 999}} />
+                            <View style={{height: 3, width: 3, backgroundColor: theme.subtitle, marginVertical: 1.5, alignSelf: "flex-start", marginLeft: 16, borderRadius: 999}} />
+
+                            {/* End */}
+                            <SuggestionInput
+                                outputName={"end"}
+                                location={endLocation}
+                                onFocus={() => {
+                                    if (endLocation?.type == "my-location") setEndLocation(null)
+                                }}
+                                icon={(endLocation?.type == "my-location") 
+                                    ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
+                                    : <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} />
+                                }
+                                setSuggestionLoading={setSearchSuggestionsLoading}
+                            />
+                        </View>
+
+                        {/* Swap Endpoints */}
+                        <TouchableOpacity 
+                            style={{ marginLeft: 8 }}
+                            onPress={() => {
+                                const temp = startLocation
+                                setStartLocation(endLocation)
+                                setEndLocation(temp)
+                                setSuggesionOutput(null)
+                            }}>
+                            <MaterialCommunityIcons name="swap-vertical" size={28} color={theme.subtitle} />
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Leave by/Arrive By */}
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 12, paddingHorizontal: 16 }}>
+                        <SegmentedControl
+                            values={['Leave by', 'Arrive by']}
+                            selectedIndex={0}
+                            onChange={(event) => {
+                                setDeadline(event.nativeEvent.selectedSegmentIndex == 0 ? "leave" : "arrive")
+                            }}
+                            style={{flex: 1, marginRight: 8}}
+                            backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
                         />
 
-                        {/* Route Details Input */}
-                        <View>
-                            {/* Endpoint Input */}
-                            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingHorizontal: 16}}>
-                                <View style={{paddingRight: 8, alignItems: "center", flex: 1}}>
-                                    {/* Start */}
-                                    <SuggestionInput
-                                        outputName={"start"}
-                                        location={startLocation}
-                                        onFocus={() => {
-                                            if (startLocation?.type == "my-location") setStartLocation(null)
-                                        }}
-                                        icon={(startLocation?.type == "my-location") 
-                                            ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
-                                            : <MaterialCommunityIcons name="circle-outline" size={20} color={theme.subtitle} />
-                                        }
-                                        setSuggestionLoading={setSearchSuggestionsLoading}
-                                    />
-
-                                    {/* 2 dots in between rows */}
-                                    <View style={{height: 3, width: 3, backgroundColor: theme.subtitle, marginVertical: 1.5, alignSelf: "flex-start", marginLeft: 16, borderRadius: 999}} />
-                                    <View style={{height: 3, width: 3, backgroundColor: theme.subtitle, marginVertical: 1.5, alignSelf: "flex-start", marginLeft: 16, borderRadius: 999}} />
-                                    <View style={{height: 3, width: 3, backgroundColor: theme.subtitle, marginVertical: 1.5, alignSelf: "flex-start", marginLeft: 16, borderRadius: 999}} />
-
-                                    {/* End */}
-                                    <SuggestionInput
-                                        outputName={"end"}
-                                        location={endLocation}
-                                        onFocus={() => {
-                                            if (endLocation?.type == "my-location") setEndLocation(null)
-                                        }}
-                                        icon={(endLocation?.type == "my-location") 
-                                            ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
-                                            : <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} />
-                                        }
-                                        setSuggestionLoading={setSearchSuggestionsLoading}
-                                    />
-                                </View>
-
-                                {/* Swap Endpoints */}
-                                <TouchableOpacity 
-                                    style={{ marginLeft: 8 }}
-                                    onPress={() => {
-                                        const temp = startLocation
-                                        setStartLocation(endLocation)
-                                        setEndLocation(temp)
-                                        setSuggesionOutput(null)
-                                    }}>
-                                    <MaterialCommunityIcons name="swap-vertical" size={28} color={theme.subtitle} />
-                                </TouchableOpacity>
-                            </View>
-
-                            {/* Leave by/Arrive By */}
-                            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 12, paddingHorizontal: 16 }}>
-                                <SegmentedControl
-                                    values={['Leave by', 'Arrive by']}
-                                    selectedIndex={0}
-                                    onChange={(event) => {
-                                        setDeadline(event.nativeEvent.selectedSegmentIndex == 0 ? "leave" : "arrive")
-                                    }}
-                                    style={{flex: 1, marginRight: 8}}
-                                    backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
-                                />
-
-                                <TimeInput 
-                                    onTimeChange={(time) => setTime(time)}
-                                />
-                            </View>
+                        <TimeInput 
+                            onTimeChange={(time) => setTime(time)}
+                        />
+                    </View>
 
 
-                            {/* Divider */}
-                            <View style={{height: 1, backgroundColor: theme.divider, marginTop: 4}} />
+                    {/* Divider */}
+                    <View style={{height: 1, backgroundColor: theme.divider, marginTop: 4}} />
 
-                            {/* Error */}
-                            { routeInfoError != "" && (
-                                <View style={{marginTop: 8, justifyContent: "center", alignItems: "center"}}>
-                                    
-                                    {/* Error Text */}
-                                    <Text style={{color: theme.subtitle,  textAlign:"center", marginLeft: 4, paddingHorizontal: 24 }}>{routeInfoError}</Text>
-                                </View>
-                            )}
+                    {/* Error */}
+                    { routeInfoError != "" && (
+                        <View style={{marginTop: 8, justifyContent: "center", alignItems: "center"}}>
+                            
+                            {/* Error Text */}
+                            <Text style={{color: theme.subtitle,  textAlign:"center", marginLeft: 4, paddingHorizontal: 24 }}>{routeInfoError}</Text>
+                            
                             { routeInfoError == "Location Unavailable, enable location in Settings." && (
                                 <Button title="Open Settings" onPress={() => Linking.openSettings()} />
                             )}
-
-                            {/* Search Button */}
                         </View>
-
-                    </BottomSheetView>
+                    )}
                 </View>
-            </TouchableWithoutFeedback>
+            </BottomSheetView>
                     
             {/* Flat lists when no error */}
             {routeInfoError == "" && (
