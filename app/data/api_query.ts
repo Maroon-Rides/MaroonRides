@@ -247,7 +247,7 @@ export const useSearchSuggestion = (query: string) => {
         queryKey: ["searchSuggestion", query],
         queryFn: async () => {
             let dataSources: Promise<any>[] = [
-                findLocations(query, "AIzaSyA89ax74We8sxQcmzDgPTgEUoXMBsc3lG0")
+                findLocations(query, "AIzaSyD-Ap8GzlFWIUOwqMnYpxRjwwAyhpb3ljQ")
             ]
 
             // we need data from pattern paths to get the stop GPS locations
