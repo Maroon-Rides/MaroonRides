@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { TripPlan, findBusStops, findLocations, getAuthentication, getBaseData, getNextDepartureTimes, getPatternPaths, getStopEstimates, getStopSchedules, getTripPlan, getVehicles } from "aggie-spirit-api";
+import { TripPlan, findBusStops, getAuthentication, getBaseData, getNextDepartureTimes, getPatternPaths, getStopEstimates, getStopSchedules, getTripPlan, getVehicles } from "aggie-spirit-api";
 import { darkMode, lightMode } from "app/theme";
 import { getColorScheme } from "app/utils";
 import moment from "moment";
-import { GetBaseDataResponseSchema, GetNextDepartTimesResponseSchema, GetPatternPathsResponseSchema, GetStopEstimatesResponseSchema, GetStopSchedulesResponseSchema, GetTripPlanResponseSchema, GetVehiclesResponseSchema, IFoundLocation, IFoundStop, IGetBaseDataResponse, IGetNextDepartTimesResponse, IGetPatternPathsResponse, IGetStopEstimatesResponse, IGetStopSchedulesResponse, IGetVehiclesResponse, IMapRoute, IMapServiceInterruption, IPatternPoint, IVehicle, SearchSuggestion } from "utils/interfaces";
+import { GetBaseDataResponseSchema, GetNextDepartTimesResponseSchema, GetPatternPathsResponseSchema, GetStopEstimatesResponseSchema, GetStopSchedulesResponseSchema, GetTripPlanResponseSchema, GetVehiclesResponseSchema, IFoundStop, IGetBaseDataResponse, IGetNextDepartTimesResponse, IGetPatternPathsResponse, IGetStopEstimatesResponse, IGetStopSchedulesResponse, IGetVehiclesResponse, IMapRoute, IMapServiceInterruption, IPatternPoint, IVehicle, SearchSuggestion } from "utils/interfaces";
 
 export const useAuthToken = () => {
     const query = useQuery({
@@ -246,72 +246,54 @@ export const useSearchSuggestion = (query: string) => {
     return useQuery<any, Error, SearchSuggestion[]>({
         queryKey: ["searchSuggestion", query],
         queryFn: async () => {
-            let dataSources: Promise<any>[] = [
-                findLocations(query, "AIzaSyD-Ap8GzlFWIUOwqMnYpxRjwwAyhpb3ljQ")
-            ]
 
             // we need data from pattern paths to get the stop GPS locations
             // This is limitation of the API where we can't get the GPS location of a stop directly
             // we can just ignore the bus stops if we don't have the pattern paths 
             // since Google already has most buildings in their search
-            if (patternPathsQuery.isSuccess && baseDataQuery.isSuccess) {
-                dataSources.push(findBusStops(query, authTokenQuery.data!))
-            }
-
-            return await Promise.all(dataSources);
-        },
-        select: (responses) => {
-            // handle locations
-            const locations: [SearchSuggestion] = responses[0].map((location: IFoundLocation) => {
-                return {
-                    type: "map",
-                    title: location.structured_formatting.main_text,
-                    subtitle: location.structured_formatting.secondary_text,
-                    placeId: location.place_id,
-                }
-            });
-
+            const stops = await findBusStops(query, authTokenQuery.data!)
             
             // handle bus stops
             let busStops: SearchSuggestion[] = []
-            if (responses.length > 1) {
-                // we need the baseData to get the stop GPS locations
-                const baseData = baseDataQuery.data as IGetBaseDataResponse;
 
-                busStops = responses[1].map((stop: IFoundStop): SearchSuggestion => {
-                    // find the stop location (lat/long) in baseData patternPaths
-                    // TODO: convert this processing to be on the BaseData loading
-                    let foundLocation: IPatternPoint | undefined = undefined;
-                    for (let route of baseData.routes) {
-                        for (let path of route.patternPaths) {
-                            const stops = path.patternPoints.filter(point => point.stop != null)
-                            for (let point of stops) {
-                                if (point.stop?.stopCode === stop.stopCode) {
-                                    foundLocation = point;
-                                    break;
-                                }
+            // we need the baseData to get the stop GPS locations
+            const baseData = baseDataQuery.data as IGetBaseDataResponse;
+
+            busStops = stops.map((stop: IFoundStop) => {
+                // find the stop location (lat/long) in baseData patternPaths
+                // TODO: convert this processing to be on the BaseData loading
+                let foundLocation: IPatternPoint | undefined = undefined;
+                for (let route of baseData.routes) {
+                    for (let path of route.patternPaths) {
+                        const stops = path.patternPoints.filter(point => point.stop != null)
+                        for (let point of stops) {
+                            if (point.stop?.stopCode === stop.stopCode) {
+                                foundLocation = point;
+                                break;
                             }
-                            if (foundLocation) break;
                         }
-
                         if (foundLocation) break;
                     }
 
-                    return {
-                        type: "stop",
-                        title: stop.stopName,
-                        subtitle: "ID: " + stop.stopCode,
-                        stopCode: stop.stopCode,
-                        lat: foundLocation?.latitude,
-                        long: foundLocation?.longitude
-                    }
-                });
-            }
+                    if (foundLocation) break;
+                }
 
-            return [...busStops, ...locations];
+                return {
+                    type: "stop",
+                    title: stop.stopName,
+                    subtitle: "ID: " + stop.stopCode,
+                    code: stop.stopCode,
+                    lat: foundLocation?.latitude,
+                    long: foundLocation?.longitude
+                }
+            });
+
+            return busStops;
         },
         enabled: 
             authTokenQuery.isSuccess && 
+            patternPathsQuery.isSuccess &&
+            baseDataQuery.isSuccess &&
             query !== "" ,
         throwOnError: true,
         staleTime: Infinity
