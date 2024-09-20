@@ -143,6 +143,7 @@ platform :android do
 
     # Increment the version code
     new_version_code = latest_version_code + 1
+    new_version_code = 23
     UI.message("New Version Code: #{new_version_code}")
 
     # Update the versionCode in the build.gradle file
