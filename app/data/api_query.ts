@@ -64,9 +64,6 @@ export const usePatternPaths = () => {
         enabled: baseDataQuery.isSuccess,
         staleTime: 2 * 3600 * 1000, // 2 hours
         refetchInterval: 2 * 3600 * 1000, // 2 hours
-        meta: {
-            persist: true
-        }
     });
 
     return query
