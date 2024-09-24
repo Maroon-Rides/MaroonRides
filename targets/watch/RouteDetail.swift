@@ -119,9 +119,17 @@ struct RouteDetail: View {
 
       if (patternPaths.count > 0 && (error == nil)) {
         Divider()
-        ForEach(selectedPath!.patternPoints, id: \.key) { point in
+        ForEach(Array(selectedPath!.patternPoints.enumerated()), id: \.element.key) { i, point in
           if (point.stop != nil) {
-            StopCell(stop: point.stop!, direction: route.directionList[selectedDirection].direction, route: route)
+            StopCell(
+              stop: point.stop!,
+              // if we are the last element and there is another direction, use that direction for estimate
+              // this fixed the "no departure times" that the last element on multidirection route would always have
+              direction: route.directionList.count > 1 && i == selectedPath!.patternPoints.count-1
+                ? route.directionList[selectedDirection == 0 ? 1 : 0].direction
+                : route.directionList[selectedDirection].direction,
+              route: route
+            )
           }
         }
         .listStyle(.plain)
