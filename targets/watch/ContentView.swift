@@ -10,13 +10,24 @@ import SwiftUI
 struct ContentView: View {
     @StateObject var apiManager: APIManager = APIManager()
     var body: some View {
-      NavigationStack {
-        RouteList()
+      if #available(watchOS 9, *) {
+        NavigationStack {
+          RouteList()
+        }
+        .onAppear(perform: {
+          apiManager.fetchData()
+        })
+        .environmentObject(apiManager)
+      } else {
+        NavigationView {
+          RouteList()
+        }
+        .navigationViewStyle(.stack)
+        .onAppear(perform: {
+          apiManager.fetchData()
+        })
+        .environmentObject(apiManager)
       }
-      .onAppear(perform: {
-        apiManager.fetchData()
-      })
-      .environmentObject(apiManager)
     }
 }
 

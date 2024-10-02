@@ -3,7 +3,7 @@ module.exports = {
   type: "watch",
   name: "Maroon Rides Watch App",
   identifier: "com.bwees.reveille-rides.watch",
-  deploymentTarget: "9.0",
+  deploymentTarget: "8.7",
   icon: "../../assets/icon.png",
   frameworks: [
     "SwiftUI"
