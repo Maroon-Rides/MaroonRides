@@ -3,5 +3,5 @@
 
 We are building the best native mobile app for the Texas A&M University bus system.
 
-![header image](https://github.com/Maroon-Rides/MaroonRides/assets/12686250/b51a0437-7fe2-4780-ae4e-4fb76f90aae0)
 
+![maroonrides_header](https://github.com/user-attachments/assets/f85ba3ce-9ad9-49cc-aebc-f26d1cee1105)
