@@ -41,13 +41,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         currentSelectedRoute?.patternPaths[0]?.patternPoints[0]?.stop?.stopCode ?? ""
     )
 
-    setScrollToStop((stop) => {
-        sheetRef.current?.snapToIndex(2);
-        const index = processedStops.findIndex(st => st.stopCode === stop.stopCode);
-
-        setFuturePosition(index);
-    })
-
 
     // Controls SegmentedControl
     const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
@@ -101,6 +94,20 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         
         setSelectedDirectionIndex(directionIndex);
     }, [selectedRouteDirection]);
+
+    useEffect(() => {
+        setScrollToStop((stop) => {
+            const index = getPatternPathForSelectedRoute()
+                ?.patternPoints
+                .filter(st => st.stop)
+                .findIndex(st => st.stop && st.stop?.stopCode === stop.stopCode);
+            
+            if (index && index != -1) {
+                sheetRef.current?.snapToIndex(2);
+                setFuturePosition(index);
+            }
+        })
+    }, [selectedRoute, selectedRouteDirection])
 
     useEffect(() => {
         setSheetCloseCallback(() => {
