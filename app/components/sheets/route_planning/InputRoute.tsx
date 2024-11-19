@@ -49,7 +49,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     const client = useQueryClient()
 
     // Favorite Location
-    const { data: favoriteLocations } = useFavoriteLocations();
+    const { data: favoriteLocations, refetch: refetchFavoriteLocations } = useFavoriteLocations();
     const addLocationFavorite = addFavoriteLocationMutation();
     const removeLocationFavorite = removeFavoriteLocationMutation();
 
@@ -63,6 +63,8 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         } else {
             addLocationFavorite.mutate(location)
         }
+
+        refetchFavoriteLocations()
     }
 
     function toggleTimeInputFocused(newValue: boolean) {

@@ -171,7 +171,10 @@ export const addFavoriteLocationMutation = () => {
         mutationFn: async (location: SearchSuggestion) => {
             const favorites = await AsyncStorage.getItem('favoriteLocations')
 
-            var favoritesArray = JSON.parse(favorites ?? "[]");
+            var favoritesArray: SearchSuggestion[] = JSON.parse(favorites ?? "[]");
+
+            // dont add if its already there
+            if (favoritesArray.findIndex((fav: SearchSuggestion) => suggestionEqual(fav, location)) != -1) return;
 
             favoritesArray.push(location);
 
