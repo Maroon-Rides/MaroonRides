@@ -204,3 +204,5 @@ export const removeFavoriteLocationMutation = () => {
 
     return mutation;
 }
+
+export default useFavorites;

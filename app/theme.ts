@@ -267,3 +267,5 @@ export const DarkGoogleMaps = [
         ]
     }
 ]
+
+export default lightMode;

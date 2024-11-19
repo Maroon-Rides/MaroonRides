@@ -50,3 +50,5 @@ export function suggestionEqual(lhs: SearchSuggestion, rhs: SearchSuggestion) {
 
     return false
 }
+
+export default getLighterColor;

@@ -326,3 +326,5 @@ export const useTripPlan = (origin: SearchSuggestion | null, destination: Search
         throwOnError: true
     });
 }
+
+export default useAuthToken;
