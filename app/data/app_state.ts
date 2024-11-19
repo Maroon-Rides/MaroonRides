@@ -96,25 +96,25 @@ const useAppStore = create<AppState>()((set, get) => ({
 
     sheetCloseCallback: {
         routeDetails: function (): void {
-            console.log("not implemented")
+            // console.log("not implemented")
         },
         alerts: function (): void {
-            console.log("not implemented")
+            // console.log("not implemented")
         },
         stopTimetable: function (): void {
-            console.log("not implemented")
+            // console.log("not implemented")
         },
         settings: function (): void {
-            console.log("not implemented")
+            // console.log("not implemented")
         },
         alertsDetail: function (): void {
-            console.log("not implemented")
+            // console.log("not implemented")
         },
         inputRoute: function (): void {
-            console.log("not implemented")
+            // console.log("not implemented")
         },
         tripPlanDetail: function (): void {
-            console.log("not implemented")
+            // console.log("not implemented")
         }
     },
     setSheetCloseCallback: (fn, key) => set((state) => ({
