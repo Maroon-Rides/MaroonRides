@@ -8,6 +8,7 @@
     "userInterfaceStyle": "automatic",
     "scheme": "myapp",
     "assetBundlePatterns": ["**/*"],
+    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.bwees.reveille-rides",
