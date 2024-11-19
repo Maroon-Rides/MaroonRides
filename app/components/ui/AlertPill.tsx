@@ -22,15 +22,9 @@ const AlertPill: React.FC<Props> = ({ routeId, showText }) => {
 
     // Update the alert icon when the alerts change
     useEffect(() => {
-        if (!alerts) return
-
-        if (!routeId) {
-            if (alerts.length > 0) {
-                setAlertIcon("bell-badge");
-            } else {
-                setAlertIcon("bell-outline");
-            }
-            return;
+        if (!alerts) {
+            setAlertIcon("bell-outline");
+            return
         }
 
         // find the route that matches the routeId
@@ -45,8 +39,8 @@ const AlertPill: React.FC<Props> = ({ routeId, showText }) => {
                 }
             }
         }
-        
-        if ((activeAlerts && route) || (!route && alerts.length > 0)) {
+
+        if ((activeAlerts && route)) {
             setAlertIcon("bell-badge");
         } else {
             setAlertIcon("bell-outline");
