@@ -35,27 +35,27 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                 zIndex: 1000,
                 elevation: 1000
             }}
+            onPress={() => {
+                setSelectedRouteDirection(direction)
+                scrollToStop(stop) 
+            }}
         >
             <View style={[
             Platform.OS == "android" && {
                 padding: 4,
             }]}>
-                <TouchableOpacity 
+                <View 
                     style={{ 
                         flexDirection: "row", 
                         justifyContent: "center", 
                         alignItems: "center", 
                         alignSelf: "flex-start" 
                     }} 
-                    onPress={() => {
-                        setSelectedRouteDirection(direction)
-                        scrollToStop(stop) 
-                    }}
                 >
                     <BusIcon name={route.shortName} color={tintColor} isCallout={true} style={{ marginRight: 8 }} />
                     <Text style={{ flex: 1, fontWeight: 'bold' }} numberOfLines={2} >{stop.name}</Text>
                     <AmenityRow amenities={estimate?.amenities || []} color={lightMode.subtitle} size={18}/>
-                </TouchableOpacity>
+                </View>
 
                 { isLoading ?
                     <ActivityIndicator style={{ marginTop: 8 }} />
