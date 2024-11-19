@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { View, Text, ActivityIndicator, TouchableOpacity, Platform } from 'react-native'
+import { View, Text, ActivityIndicator, Platform } from 'react-native'
 import { Callout } from 'react-native-maps'
 import BusIcon from '../ui/BusIcon'
 import { IMapRoute, IStop } from '../../../utils/interfaces'
