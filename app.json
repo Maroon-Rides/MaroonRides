@@ -73,6 +73,7 @@
       "bundler": "metro"
     },
     "plugins": [
+      "@config-plugins/detox", 
       ["@bacons/apple-targets",
         {
           "appleTeamId": "65AMD2STXG"

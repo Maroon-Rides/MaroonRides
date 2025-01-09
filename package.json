@@ -51,6 +51,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
+    "@config-plugins/detox": "^8.0.0",
     "@testing-library/jest-native": "^5.4.2",
     "@testing-library/react-native": "^12.1.3",
     "@types/react": "~18.2.79",
