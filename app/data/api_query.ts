@@ -13,7 +13,8 @@ export const useAuthCode = () => {
             const authCodeB64 = await (await fetch("https://auth.maroonrides.app")).text()
             return atob(authCodeB64)
         },
-        refetchInterval: Infinity
+        staleTime: Infinity,
+        refetchInterval: 2 * 3600 * 1000,
     });
 
     return query;
@@ -25,11 +26,34 @@ export const useAuthToken = () => {
     const query = useQuery<{[key: string]: string}>({
         queryKey: ["authToken"],
         queryFn: async () => {
-            const headers = await eval(authCodeQuery.data!)
+            var data = authCodeQuery.data!
+            data += "\ngetAuthentication()"
+            const headers = await eval(data)
+            return headers
+        },
+        staleTime: Infinity,
+        refetchInterval: 2 * 3600 * 1000,
+        enabled: authCodeQuery.isSuccess,
+    });
+
+    return query;
+};
+
+
+export const useRoutePlanAuthToken = (queryString: string) => {
+    const authCodeQuery = useAuthCode();
+
+    const query = useQuery<{[key: string]: string}>({
+        queryKey: ["routePlanAuthToken"],
+        queryFn: async () => {
+            var qsAdded = authCodeQuery.data!.replace("ROUTE_PLAN_QUERY_STRING", queryString)
+            qsAdded += "\ngetRoutePlanAuthentication()"
+            
+            const headers = await eval(qsAdded)
             return headers
         },
         refetchInterval: 2 * 3600 * 1000,
-        enabled: authCodeQuery.isSuccess,
+        enabled: authCodeQuery.isSuccess && queryString !== "",
     });
 
     return query;
@@ -177,7 +201,7 @@ export const useStopEstimate = (routeKey: string, directionKey: string, stopCode
 
             return response
         },
-        enabled: authTokenQuery.isSuccess,
+        enabled: authTokenQuery.isSuccess && routeKey !== "" && directionKey !== "" && stopCode !== "",
         staleTime: 30000,
         refetchInterval: 30000  
     })
@@ -194,7 +218,7 @@ export const useTimetableEstimate = (stopCode: string, date: Date) => {
 
             return response
         },
-        enabled: authTokenQuery.isSuccess,
+        enabled: authTokenQuery.isSuccess && stopCode !== "" && date !== null,
         staleTime: 30000,
         refetchInterval: 30000  
     })
@@ -255,8 +279,7 @@ export const useVehicles = (routeKey: string) => {
 // Route Planning
 export const useSearchSuggestion = (query: string) => {
     const authTokenQuery = useAuthToken();
-    const baseDataQuery = useBaseData();
-    const patternPathsQuery = usePatternPaths();
+    const routesQuery = useRoutes();
 
     return useQuery<any, Error, SearchSuggestion[]>({
         queryKey: ["searchSuggestion", query],
@@ -266,20 +289,24 @@ export const useSearchSuggestion = (query: string) => {
             // This is limitation of the API where we can't get the GPS location of a stop directly
             // we can just ignore the bus stops if we don't have the pattern paths 
             // since Google already has most buildings in their search
-            const stops = await findBusStops(query, authTokenQuery.data!)
+            var queryData = authTokenQuery.data!
+            queryData = {
+                "Cookie": queryData["Cookie"]!,
+                "X-Requested-With": queryData["X-Requested-With"]!,
+            }
+
+            const stops = await findBusStops(query, queryData)
             
             // handle bus stops
             let busStops: SearchSuggestion[] = []
-
-            // we need the baseData to get the stop GPS locations
-            const baseData = baseDataQuery.data as IGetBaseDataResponse;
 
             busStops = stops.map((stop: IFoundStop) => {
                 // find the stop location (lat/long) in baseData patternPaths
                 // TODO: convert this processing to be on the BaseData loading
                 let foundLocation: IPatternPoint | undefined = undefined;
-                for (let route of baseData.routes) {
+                for (let route of routesQuery.data!) {
                     for (let path of route.patternPaths) {
+                    
                         const stops = path.patternPoints.filter(point => point.stop != null)
                         for (let point of stops) {
                             if (point.stop?.stopCode === stop.stopCode) {
@@ -295,9 +322,9 @@ export const useSearchSuggestion = (query: string) => {
 
                 return {
                     type: "stop",
-                    title: stop.stopName,
-                    subtitle: "ID: " + stop.stopCode,
-                    code: stop.stopCode,
+                    title: foundLocation?.stop?.name ?? "",
+                    subtitle: "ID: " + foundLocation?.stop?.stopCode,
+                    stopCode: foundLocation?.stop?.stopCode,
                     lat: foundLocation?.latitude,
                     long: foundLocation?.longitude
                 }
@@ -307,8 +334,7 @@ export const useSearchSuggestion = (query: string) => {
         },
         enabled: 
             authTokenQuery.isSuccess && 
-            patternPathsQuery.isSuccess &&
-            baseDataQuery.isSuccess &&
+            routesQuery.isSuccess &&
             query !== "" ,
         throwOnError: true,
         staleTime: Infinity
@@ -316,26 +342,45 @@ export const useSearchSuggestion = (query: string) => {
 }
 
 export const useTripPlan = (origin: SearchSuggestion | null, destination: SearchSuggestion | null, date: Date, deadline: "leave" | "arrive") => {
-    const authTokenQuery = useAuthToken();
+    // build the query string
+    // ?o1=Commons&osc=0100&d1=HEEP&dsc=0108&dt=1736392200&ro=0
+    let queryString = ""
+    if (origin && destination) {
+        if (origin.title == "My Location") {
+            queryString = `Results?o1=${origin.title}&ola=${origin.lat}&olo=${origin.long}&og=1&d1=${destination.title}&dsc=${destination.stopCode}&dt=${(date.getTime() / 1000).toFixed(0)}&ro=0`
+        }
+        else if (destination.title == "My Location") {
+            queryString = `Results?o1=${origin.title}&osc=${origin.stopCode}&d1=${destination.title}&dla=${origin.lat}&dlo=${origin.long}&dg=true&dt=${(date.getTime() / 1000).toFixed(0)}&ro=0`
+        } else {
+            queryString = `Results?o1=${origin.title}&osc=${origin.stopCode}&d1=${destination.title}&dsc=${destination.stopCode}&dt=${(date.getTime() / 1000).toFixed(0)}&ro=0`
+        }
+    }
+    
+    const routePlanAuthToken = useRoutePlanAuthToken(queryString);
 
     return useQuery<ITripPlanResponse>({
         queryKey: ["tripPlan", origin, destination, date, deadline],
         queryFn: async () => {
-            
             let response = await getTripPlan(
-                                        authTokenQuery.data!,
-                                        origin!, 
-                                        destination!, 
-                                        deadline == "arrive" ? date : undefined,
-                                        deadline == "leave" ? date : undefined,
-                                    );
+                                routePlanAuthToken.data!,
+                                origin!, 
+                                destination!, 
+                                0,
+                                deadline == "arrive" ? date : undefined,
+                                deadline == "leave" ? date : undefined,
+                            );
 
-            GetTripPlanResponseSchema.parse(response)
+            try {
+                GetTripPlanResponseSchema.parse(response);
+            } catch (e) {
+                console.log(e)
+            }
 
-            return response;
+            // @ts-expect-error: Types are wrong in lib
+            return response as ITripPlanResponse;        
         },
         enabled: 
-            authTokenQuery.isSuccess &&
+            routePlanAuthToken.isSuccess &&
             origin !== null &&
             destination !== null &&
             date !== null &&

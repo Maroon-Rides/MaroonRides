@@ -330,7 +330,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                         <BottomSheetFlatList
                             // filter out plans that have already passed, sort by end time
                             data={
-                                tripPlan?.optionDetails
+                                tripPlan?.options
                                     .filter((plan) => plan.startTime > Math.floor(Date.now() / 1000) - 300)
                                     .sort((a, b) => a.endTime - b.endTime)
                             }
@@ -345,7 +345,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             keyboardShouldPersistTaps={"handled"}
                             ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: theme.divider, marginLeft: 12}} />}
                             ListHeaderComponent={() => {
-                                const filtered = tripPlan?.optionDetails.filter((plan) => plan.startTime > Math.floor(Date.now() / 1000) - 300) ?? []
+                                const filtered = tripPlan?.options.filter((plan) => plan.startTime > Math.floor(Date.now() / 1000) - 300) ?? []
                                 if (filtered.length == 0 && !tripPlanLoading && startLocation && endLocation) {
                                     return (
                                         <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>

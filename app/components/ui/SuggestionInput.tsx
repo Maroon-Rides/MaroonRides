@@ -40,8 +40,10 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
     }, [location])
 
     useEffect(() => {
+        if (!searchTerm) return
+
         if (searchTerm.trim() == "" && suggestionsOutput) {
-            setSuggestions([MyLocationSuggestion, ...favoriteLocations]);
+            setSuggestions([MyLocationSuggestion, ...(favoriteLocations ?? [])]);
             return
         }
         
@@ -87,7 +89,7 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
                     setSearchTerm(text);
                     setSuggestionsOutput(outputName);
                     if (text.trim() == "") {
-                        setSuggestions([MyLocationSuggestion, ...favoriteLocations]);
+                        setSuggestions([MyLocationSuggestion, ...(favoriteLocations ?? [])]);
                         return
                     }
                 }}
@@ -97,7 +99,7 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
                         setSearchTerm("");      
                     }
                     if (searchTerm.trim() == "") {
-                        setSuggestions([MyLocationSuggestion, ...favoriteLocations]);
+                        setSuggestions([MyLocationSuggestion, ...(favoriteLocations ?? [])]);
                     } else {
                         setSuggestions(suggestions ?? [])
                     }

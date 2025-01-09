@@ -322,11 +322,12 @@ export const ChartLinePositionSchema = z.object({
 export type IChartLinePosition = z.infer<typeof ChartLinePositionSchema>
 
 export const OptionBlockSchema = z.object({
-    leavingIn: z.string(),
+    className: z.string(),
     leftPosition: z.number(),
-    topPosition: z.number(),
+    rightPosition: z.number(),
+    routeShortName: z.string(),
     totalMinute: z.string(),
-    width: z.number()
+    stepType: z.number()
 });
 export type IOptionBlock = z.infer<typeof OptionBlockSchema>
 
@@ -361,19 +362,22 @@ export type IAgency = z.infer<typeof Agency>
 
 export const OptionDetailSchema = z.object({
     agencies: z.array(Agency),
+    blocks: z.array(PlanBlockSchema),
     copyrights: z.string(),
     endTime: z.number(),
     endTimeText: z.string(),
     instructions: z.array(InstructionStepSchema),
+    leftPosition: z.number(),
     mapBounds: z.object({
         neLatitude: z.number(),
         neLongitude: z.number(),
         swLatitude: z.number(),
         swLongitude: z.number()
     }),
-    optionIndex: z.number(),
+    rightPosition: z.number(),
     startTime: z.number(),
     startTimeText: z.string(),
+    totalMinute: z.string(),
     totalTime: z.string(),
     totalWalkingDistance: z.string(),
     totalWalkingTime: z.string(),
@@ -394,15 +398,8 @@ export const FindLocationsResponseSchema = z.array(FoundLocationSchema);
 export type IFindLocationsResponse = z.infer<typeof FindLocationsResponseSchema>
 
 export const GetTripPlanResponseSchema = z.object({
-    blocks: z.array(PlanBlockSchema),
-    chartHeight: z.number(),
     chartLinePositions: z.array(ChartLinePositionSchema).nullable(),
-    headerHeight: z.number(),
-    optionBlocks: z.array(OptionBlockSchema),
-    optionDetails: z.array(OptionDetailSchema),
-    optionHeight: z.number(),
-    optionPositions: z.array(OptionPositionSchema),
-    resultCount: z.number()
+    options: z.array(OptionDetailSchema),
 });
 export type ITripPlanResponse = z.infer<typeof GetTripPlanResponseSchema>
 
