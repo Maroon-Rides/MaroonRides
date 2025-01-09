@@ -149,7 +149,7 @@ export const defaultGroupMutation = () => {
 }
 
 export const useFavoriteLocations = () => {
-    const query = useQuery({
+    const query = useQuery<SearchSuggestion[]>({
         queryKey: ["favoriteLocations"],
         queryFn: async () => {
             const favorites = await AsyncStorage.getItem("favoriteLocations")
