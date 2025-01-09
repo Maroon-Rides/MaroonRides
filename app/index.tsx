@@ -18,22 +18,10 @@ import TripPlanDetail from './components/sheets/route_planning/TripPlanDetail';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import {
-    configureReanimatedLogger,
-    ReanimatedLogLevel,
-} from 'react-native-reanimated';
-  
-// This is the default configuration
-configureReanimatedLogger({
-    level: ReanimatedLogLevel.warn,
-    strict: false, // Reanimated runs in strict mode by default
-});
-
 
 // this needs to be out of component and not a state
 // weird stuff happens if it is a state
 var sheetStack: ("routeList" | "routeDetails" | "alerts" | "stopTimetable" | "settings" | "alertsDetail" | "inputRoute" | "tripPlanDetail")[] = [];
-
 
 
 const Home = () => {

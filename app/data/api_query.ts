@@ -1,17 +1,35 @@
 import { useQuery } from "@tanstack/react-query";
-import { TripPlan, findBusStops, getAuthentication, getBaseData, getNextDepartureTimes, getPatternPaths, getStopEstimates, getStopSchedules, getTripPlan, getVehicles } from "aggie-spirit-api";
+import { findBusStops, getBaseData, getNextDepartureTimes, getPatternPaths, getStopEstimates, getStopSchedules, getTripPlan, getVehicles } from "aggie-spirit-api";
 import { darkMode, lightMode } from "app/theme";
 import { getColorScheme } from "app/utils";
 import moment from "moment";
-import { GetBaseDataResponseSchema, GetNextDepartTimesResponseSchema, GetPatternPathsResponseSchema, GetStopEstimatesResponseSchema, GetStopSchedulesResponseSchema, GetTripPlanResponseSchema, GetVehiclesResponseSchema, IFoundStop, IGetBaseDataResponse, IGetNextDepartTimesResponse, IGetPatternPathsResponse, IGetStopEstimatesResponse, IGetStopSchedulesResponse, IGetVehiclesResponse, IMapRoute, IMapServiceInterruption, IPatternPoint, IVehicle, SearchSuggestion } from "utils/interfaces";
+import { GetBaseDataResponseSchema, GetNextDepartTimesResponseSchema, GetPatternPathsResponseSchema, GetStopEstimatesResponseSchema, GetStopSchedulesResponseSchema, GetTripPlanResponseSchema, GetVehiclesResponseSchema, IFoundStop, IGetBaseDataResponse, IGetNextDepartTimesResponse, IGetPatternPathsResponse, IGetStopEstimatesResponse, IGetStopSchedulesResponse, IGetVehiclesResponse, IMapRoute, IMapServiceInterruption, IPatternPoint, ITripPlanResponse, IVehicle, SearchSuggestion } from "utils/interfaces";
+import "@bacons/text-decoder/install";
+
+export const useAuthCode = () => {
+    const query = useQuery<string>({
+        queryKey: ["authCode"],
+        queryFn: async () => {
+            const authCodeB64 = await (await fetch("https://auth.maroonrides.app")).text()
+            return atob(authCodeB64)
+        },
+        refetchInterval: Infinity
+    });
+
+    return query;
+};
 
 export const useAuthToken = () => {
-    const query = useQuery({
+    const authCodeQuery = useAuthCode();
+
+    const query = useQuery<{[key: string]: string}>({
         queryKey: ["authToken"],
         queryFn: async () => {
-            return await getAuthentication();
+            const headers = await eval(authCodeQuery.data!)
+            return headers
         },
-        refetchInterval: 2 * 3600 * 1000
+        refetchInterval: 2 * 3600 * 1000,
+        enabled: authCodeQuery.isSuccess,
     });
 
     return query;
@@ -300,16 +318,16 @@ export const useSearchSuggestion = (query: string) => {
 export const useTripPlan = (origin: SearchSuggestion | null, destination: SearchSuggestion | null, date: Date, deadline: "leave" | "arrive") => {
     const authTokenQuery = useAuthToken();
 
-    return useQuery<TripPlan>({
+    return useQuery<ITripPlanResponse>({
         queryKey: ["tripPlan", origin, destination, date, deadline],
         queryFn: async () => {
             
             let response = await getTripPlan(
+                                        authTokenQuery.data!,
                                         origin!, 
                                         destination!, 
                                         deadline == "arrive" ? date : undefined,
                                         deadline == "leave" ? date : undefined,
-                                        authTokenQuery.data!
                                     );
 
             GetTripPlanResponseSchema.parse(response)
