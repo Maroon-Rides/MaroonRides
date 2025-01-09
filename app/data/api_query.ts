@@ -370,11 +370,7 @@ export const useTripPlan = (origin: SearchSuggestion | null, destination: Search
                                 deadline == "leave" ? date : undefined,
                             );
 
-            try {
-                GetTripPlanResponseSchema.parse(response);
-            } catch (e) {
-                console.log(e)
-            }
+            GetTripPlanResponseSchema.parse(response);
 
             // @ts-expect-error: Types are wrong in lib
             return response as ITripPlanResponse;        

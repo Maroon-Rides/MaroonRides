@@ -310,8 +310,6 @@ export const PlanBlockSchema = z.object({
     leftPosition: z.number(),
     routeShortName: z.string().nullable(),
     stepType: z.number(),
-    topPosition: z.number(),
-    width: z.number()
 });
 export type IPlanBlock = z.infer<typeof PlanBlockSchema>
 
