@@ -9,7 +9,6 @@
     "scheme": "myapp",
     "assetBundlePatterns": ["**/*"],
     "newArchEnabled": true,
-    "jsEngine": "hermes",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.bwees.reveille-rides",
