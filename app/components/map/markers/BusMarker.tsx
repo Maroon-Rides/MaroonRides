@@ -48,11 +48,11 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             <BusMapIcon 
                 tintColor={tintColor}
                 heading={bus.location.heading} 
-                active={selectedRouteDirection === bus.directionKey} 
+                active={selectedRouteDirection === bus.directionKey || bus.directionKey === "00000000-0000-0000-0000-000000000000"} 
             />
 
             <BusCallout 
-                directionName={bus.directionName} 
+                directionName={bus.directionName ?? ""} 
                 fullPercentage={Math.round((bus.passengersOnboard / bus.passengerCapacity)*100)}
                 amenities={bus.amenities} 
                 tintColor={tintColor} 

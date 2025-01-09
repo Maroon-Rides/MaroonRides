@@ -104,7 +104,7 @@ export const VehicleSchema = z.object({
     name: z.string(),
     location: BusLocationSchema,
     directionKey: z.string(),
-    directionName: z.string(),
+    directionName: z.string().nullable(),
     routeKey: z.string(),
     passengerCapacity: z.number(),
     passengersOnboard: z.number(),
