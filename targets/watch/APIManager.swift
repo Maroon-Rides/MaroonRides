@@ -20,7 +20,7 @@ class APIManager: ObservableObject {
   @Published var error: Error?
   
   
-  private var authKey: String = ""
+  private var authKey: [String:String] = [:]
   var cancellables = Set<AnyCancellable>()
   let session = URLSession.shared
 
@@ -42,34 +42,73 @@ class APIManager: ObservableObject {
   }
   
   
-  private func getAuthentication() -> AnyPublisher<String, Error> {
-    guard let url = URL(string: "https://aggiespirit.ts.tamu.edu/") else {
-      return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
-    }
-    
-    var request = URLRequest(url: url)
-    request.httpMethod = "GET"
-    request.httpShouldHandleCookies = false
-    
-    
-    
-    return session.dataTaskPublisher(for: request)
-      .tryMap { data, response in
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200,
-              let allHeaders = httpResponse.allHeaderFields as? [String: String],
-              let setCookieHeader = allHeaders["Set-Cookie"] else {
-          throw NetworkError.serverError
-        }
-        
-        let cookies = setCookieHeader.split(separator: ",").map { String($0.trimmingCharacters(in: .whitespaces)) }
-        return cookies.map { $0.split(separator: ";").first ?? "" }.joined(separator: "; ")
+  private func getAuthentication() -> AnyPublisher<[String: String], Error> {
+      guard let url = URL(string: "https://aggiespirit.ts.tamu.edu/") else {
+          return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
       }
-      .receive(on: RunLoop.main)
-      .eraseToAnyPublisher()
+
+      var request = URLRequest(url: url)
+      request.httpMethod = "GET"
+      request.httpShouldHandleCookies = false
+
+      return session.dataTaskPublisher(for: request)
+          .tryMap { data, response in
+              guard let httpResponse = response as? HTTPURLResponse,
+                    httpResponse.statusCode == 200,
+                    let allHeaders = httpResponse.allHeaderFields as? [String: String],
+                    let setCookieHeader = allHeaders["Set-Cookie"] else {
+                  throw NetworkError.serverError
+              }
+
+              // Extract cookies from the "Set-Cookie" header
+              let cookies = setCookieHeader.split(separator: ",").map { String($0.trimmingCharacters(in: .whitespaces)) }
+              let cookieHeader = cookies.map { $0.split(separator: ";").first ?? "" }.joined(separator: "; ")
+
+              // Extract verification token from HTML response
+              guard let html = String(data: data, encoding: .utf8) else {
+                  throw NetworkError.invalidResponse
+              }
+
+            let verificationToken = try self.extractRequestVerificationToken(from: html)
+
+            print([
+              "Cookie": cookieHeader,
+              "RequestVerificationToken": verificationToken,
+              "X-Requested-With": "XMLHttpRequest"
+          ])
+              return [
+                  "Cookie": cookieHeader,
+                  "RequestVerificationToken": verificationToken,
+                  "X-Requested-With": "XMLHttpRequest"
+              ]
+          }
+          .receive(on: RunLoop.main)
+          .eraseToAnyPublisher()
   }
+
+  private func extractRequestVerificationToken(from html: String) throws -> String {
+      let regexPattern = "\"[a-zA-Z0-9]{288}MQ==\""
+      guard let regex = try? NSRegularExpression(pattern: regexPattern),
+            let match = regex.firstMatch(in: html, options: [], range: NSRange(location: 0, length: html.utf16.count)) else {
+          throw NetworkError.invalidResponse
+      }
+
+      let matchRange = match.range(at: 0)
+      guard let range = Range(matchRange, in: html) else {
+          throw NetworkError.invalidResponse
+      }
+
+      let encodedToken = String(html[range]).trimmingCharacters(in: CharacterSet(charactersIn: "\"")).trimmingCharacters(in: .whitespaces)
+
+      guard let decodedToken = Data(base64Encoded: encodedToken) else {
+          throw NetworkError.invalidResponse
+      }
+
+    return String(data: decodedToken, encoding: .utf8) ?? ""
+  }
+
   
-  private func getBaseData(auth: String) -> AnyPublisher<GetBaseDataResponse, Error> {
+  private func getBaseData(auth: [String:String]) -> AnyPublisher<GetBaseDataResponse, Error> {
     self.authKey = auth
     
     guard let url = URL(string: "https://aggiespirit.ts.tamu.edu/RouteMap/GetBaseData") else {
@@ -78,7 +117,9 @@ class APIManager: ObservableObject {
     
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
-    request.addValue(auth, forHTTPHeaderField: "cookie")
+    for header in auth {
+      request.addValue(header.value, forHTTPHeaderField: header.key)
+    }
     
     return session.dataTaskPublisher(for: request)
       .map(\.data)
@@ -96,7 +137,9 @@ class APIManager: ObservableObject {
     
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
-    request.addValue(self.authKey, forHTTPHeaderField: "cookie")
+    for header in self.authKey {
+      request.addValue(header.value, forHTTPHeaderField: header.key)
+    }
     request.setValue("application/x-www-form-urlencoded; charset=UTF-8", forHTTPHeaderField: "Content-Type")
     
     request.httpBody = bodyData.data(using: .utf8)
@@ -128,7 +171,10 @@ class APIManager: ObservableObject {
 
       var request = URLRequest(url: url)
       request.httpMethod = "POST"
-      request.addValue(self.authKey, forHTTPHeaderField: "cookie")
+      for header in self.authKey {
+        request.addValue(header.value, forHTTPHeaderField: header.key)
+      }
+    
       request.setValue("application/x-www-form-urlencoded; charset=UTF-8", forHTTPHeaderField: "Content-Type")
       request.httpBody = bodyString.data(using: .utf8)
 
