@@ -52,6 +52,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     // const removeLocationFavorite = removeFavoriteLocationMutation();
 
     const [timeInputFocused, setTimeInputFocused] = useState(false);
+    const [segmentedIndex, setSegmentedIndex] = useState<number>(0)
 
     // function toggleFavoriteLocation(location: SearchSuggestion) {
     //     if (favoriteLocations && favoriteLocations.find((item) => suggestionEqual(item, location))) 
@@ -203,8 +204,9 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                     <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 12, paddingHorizontal: 16 }}>
                         <SegmentedControl
                             values={['Leave by', 'Arrive by']}
-                            selectedIndex={0}
+                            selectedIndex={segmentedIndex}
                             onChange={(event) => {
+                                setSegmentedIndex(event.nativeEvent.selectedSegmentIndex)
                                 setDeadline(event.nativeEvent.selectedSegmentIndex == 0 ? "leave" : "arrive")
                             }}
                             style={{flex: 1, marginRight: 8}}
