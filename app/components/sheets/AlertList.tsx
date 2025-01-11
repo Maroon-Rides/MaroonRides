@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useEffect, useState, useRef } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -20,6 +20,9 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const theme = useAppStore((state) => state.theme);
     const selectedRoute = useAppStore((state) => state.selectedRoute);
+    const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
+    const setSelectedRouteDirection = useAppStore((state) => state.setSelectedRouteDirection);
+    const setOldSelectedRoute = useAppStore((state) => state.setOldSelectedRoute);
     const presentSheet = useAppStore((state) => state.presentSheet);
     const setSelectedAlert = useAppStore((state) => state.setSelectedAlert);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
@@ -40,7 +43,6 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
 
         if (!selectedRoute) {
             setShownAlerts(alerts);
-
             return;
         }
 
@@ -53,6 +55,10 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
     const displayDetailAlert = (alert: IMapServiceInterruption) => {
         setSelectedAlert(alert);
         presentSheet("alertsDetail");
+    }
+
+    const handleDismiss = () => {
+        dismissSheet("alerts")
     }
 
     return (
@@ -76,7 +82,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                     title="Alerts"
                     subtitle={selectedRoute ? selectedRoute.name : "All Routes"}
                     icon={
-                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => dismissSheet("alerts")}>
+                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => handleDismiss()}>
                             <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>
                     }
@@ -106,6 +112,10 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                     return (
                         <TouchableOpacity
                             onPress={() => {
+                                const selectedRouteCopy = JSON.stringify(selectedRoute);
+                                setOldSelectedRoute(selectedRouteCopy); // Will be referenced again when dismissing AlertDetail sheet
+                                clearSelectedRoute();
+                                setSelectedRouteDirection("0"); // Since no directionId is equal to "0", every route is considered inactive
                                 displayDetailAlert(alert);
                             }}
                             style={{

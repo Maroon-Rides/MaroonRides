@@ -16,6 +16,9 @@ interface AppState {
     selectedRouteDirection: string | null,
     setSelectedRouteDirection: (selectedRouteDirection: string | null) => void,
 
+    oldSelectedRoute: string | null,
+    setOldSelectedRoute: (oldSelectedRouteDirection: string | null) => void,
+
     selectedRouteCategory: "Favorites" | "All Routes" | "Gameday",
     setSelectedRouteCategory: (selectedRouteCategory: "Favorites" | "All Routes" | "Gameday") => void
 
@@ -78,6 +81,9 @@ const useAppStore = create<AppState>()((set, get) => ({
 
     selectedRouteDirection: null,
     setSelectedRouteDirection: (selectedRouteDirection) => set(() => ({ selectedRouteDirection: selectedRouteDirection })),
+
+    oldSelectedRoute: null,
+    setOldSelectedRoute: (oldSelectedRoute) => set(() => ({ oldSelectedRoute: oldSelectedRoute })),
 
     selectedRouteCategory: 'All Routes',
     setSelectedRouteCategory: (selectedRouteCategory) => set(() => ({ selectedRouteCategory })),
