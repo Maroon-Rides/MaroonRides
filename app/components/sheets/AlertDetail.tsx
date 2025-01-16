@@ -6,7 +6,6 @@ import SheetHeader from "../ui/SheetHeader";
 import RenderHtml from 'react-native-render-html';
 import { useRoutes } from "app/data/api_query";
 import { useState } from "react";
-import { IMapRoute } from "utils/interfaces";
 
 
 const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = ({ sheetRef }) => {
