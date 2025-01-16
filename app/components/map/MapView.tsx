@@ -58,7 +58,6 @@ const Map: React.FC = () => {
 
     // center the view on the drawn routes
     useEffect(() => {
-        console.log("called 1")
         centerViewOnRoutes();
     }, [drawnRoutes, selectedRoutePlanPath]);
 
@@ -332,7 +331,6 @@ const Map: React.FC = () => {
                     return (
                         Object.keys(coordDirections).map((directionId) => {
                             const active = directionId === selectedRouteDirection || selectedRouteDirection == null
-                            console.log(selectedRouteDirection)
                             return (
                                 <Polyline
                                     key={`${directionId}`}
