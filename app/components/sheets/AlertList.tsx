@@ -1,11 +1,11 @@
-import React, { memo, useEffect, useState, useRef } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import useAppStore from "../../data/app_state";
 import SheetHeader from "../ui/SheetHeader";
-import { IMapServiceInterruption } from "utils/interfaces";
+import { IMapRoute, IMapServiceInterruption } from "utils/interfaces";
 import { useRoutes, useServiceInterruptions } from "app/data/api_query";
 
 interface SheetProps {
@@ -112,7 +112,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                     return (
                         <TouchableOpacity
                             onPress={() => {
-                                const selectedRouteCopy = JSON.stringify(selectedRoute);
+                                const selectedRouteCopy = selectedRoute as IMapRoute;
                                 setOldSelectedRoute(selectedRouteCopy); // Will be referenced again when dismissing AlertDetail sheet
                                 clearSelectedRoute();
                                 setSelectedRouteDirection("0"); // Since no directionId is equal to "0", every route is considered inactive

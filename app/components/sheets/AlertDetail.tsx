@@ -32,9 +32,8 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
 
     const handleDismiss = () => {
         if (oldSelectedRoute) {
-            const route = JSON.parse(oldSelectedRoute);
-            setSelectedRoute(route);
-            setDrawnRoutes([route as IMapRoute]);
+            setSelectedRoute(oldSelectedRoute);
+            setDrawnRoutes([oldSelectedRoute]);
         }
         dismissSheet("alertsDetail")
     }

@@ -16,8 +16,8 @@ interface AppState {
     selectedRouteDirection: string | null,
     setSelectedRouteDirection: (selectedRouteDirection: string | null) => void,
 
-    oldSelectedRoute: string | null,
-    setOldSelectedRoute: (oldSelectedRouteDirection: string | null) => void,
+    oldSelectedRoute: IMapRoute | null,
+    setOldSelectedRoute: (oldSelectedRouteDirection: IMapRoute | null) => void,
 
     selectedRouteCategory: "Favorites" | "All Routes" | "Gameday",
     setSelectedRouteCategory: (selectedRouteCategory: "Favorites" | "All Routes" | "Gameday") => void
