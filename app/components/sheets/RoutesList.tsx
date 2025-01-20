@@ -24,6 +24,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     
     const allRoutes = useAppStore((state) => state.allRoutes);
     const setAllRoutes = useAppStore((state) => state.setAllRoutes);
+    const favoriteRoutes = useAppStore((state) => state.favoriteRoutes);
+    const setFavoriteRoutes = useAppStore((state) => state.setFavoriteRoutes);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
     const setSelectedRouteCategory = useAppStore(state => state.setSelectedRouteCategory);
@@ -70,6 +72,9 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         setDrawnRoutes(filterRoutes())
         if (routes && !allRoutes) {
             setAllRoutes(routes);
+        }
+        if (favorites && !favoriteRoutes) {
+            setFavoriteRoutes(favorites);
         }
     }, [selectedRouteCategory, routes, favorites]);
 

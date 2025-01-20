@@ -22,17 +22,20 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     const flatListRef = React.useRef<BottomSheetFlatListMethods>(null);
 
     const allRoutes = useAppStore((state) => state.allRoutes);
+    const favoriteRoutes = useAppStore((state) => state.favoriteRoutes);
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
 
+    
     const [futurePosition, setFuturePosition] = useState(-1);
-
+    
+    const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
+    const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
     const setSelectedRouteDirection = useAppStore(state => state.setSelectedRouteDirection);
     const setSelectedStop = useAppStore(state => state.setSelectedStop);
     const setPoppedUpStopCallout = useAppStore(state => state.setPoppedUpStopCallout);
     const setSheetCloseCallback = useAppStore(state => state.setSheetCloseCallback);
-    const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
     const setScrollToStop = useAppStore(state => state.setScrollToStop);
     const dismissSheet = useAppStore((state) => state.dismissSheet);
     const theme = useAppStore(state => state.theme);
@@ -59,10 +62,13 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     }
 
     const handleDismiss = () => {
-        if (allRoutes) {
+        if (selectedRouteCategory == "Favorites" && favoriteRoutes) {
+            setDrawnRoutes(favoriteRoutes);
+        }
+        else if (selectedRouteCategory != "Favorites" && allRoutes) {
             setDrawnRoutes(allRoutes);
         }
-        dismissSheet("routeDetails")
+        dismissSheet("routeDetails") // If neither conditions are met, don't force draw routes
     }
 
     // When a new route is selected or the direction of the route is changed, update the stops
