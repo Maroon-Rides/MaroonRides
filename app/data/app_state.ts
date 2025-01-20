@@ -10,11 +10,14 @@ interface AppState {
     setDrawnRoutes: (routes: IMapRoute[]) => void
 
     selectedRoute: IMapRoute | null,
-    setSelectedRoute: (selectedRoute: IMapRoute) => void,
+    setSelectedRoute: (selectedRoute: IMapRoute | null) => void,
     clearSelectedRoute: () => void,
 
     selectedRouteDirection: string | null,
     setSelectedRouteDirection: (selectedRouteDirection: string | null) => void,
+
+    oldSelectedRoute: IMapRoute | null,
+    setOldSelectedRoute: (oldSelectedRouteDirection: IMapRoute | null) => void,
 
     selectedRouteCategory: "Favorites" | "All Routes" | "Gameday",
     setSelectedRouteCategory: (selectedRouteCategory: "Favorites" | "All Routes" | "Gameday") => void
@@ -78,6 +81,9 @@ const useAppStore = create<AppState>()((set, get) => ({
 
     selectedRouteDirection: null,
     setSelectedRouteDirection: (selectedRouteDirection) => set(() => ({ selectedRouteDirection: selectedRouteDirection })),
+
+    oldSelectedRoute: null,
+    setOldSelectedRoute: (oldSelectedRoute) => set(() => ({ oldSelectedRoute: oldSelectedRoute })),
 
     selectedRouteCategory: 'All Routes',
     setSelectedRouteCategory: (selectedRouteCategory) => set(() => ({ selectedRouteCategory })),
