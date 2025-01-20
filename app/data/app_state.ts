@@ -12,6 +12,9 @@ interface AppState {
     favoriteRoutes: IMapRoute[] | null,
     setFavoriteRoutes: (favoriteRoutes: IMapRoute[]) => void,
 
+    gamedayRoutes: IMapRoute[] | null,
+    setGamedayRoutes: (gamedayRoutes: IMapRoute[]) => void,
+
     drawnRoutes: IMapRoute[],
     setDrawnRoutes: (routes: IMapRoute[]) => void
 
@@ -80,6 +83,9 @@ const useAppStore = create<AppState>()((set, get) => ({
 
     favoriteRoutes: null,
     setFavoriteRoutes: (favoriteRoutes) => set(() => ({ favoriteRoutes })),
+
+    gamedayRoutes: null,
+    setGamedayRoutes: (gamedayRoutes) => set(() => ({ gamedayRoutes })),
 
     drawnRoutes: [],
     setDrawnRoutes: (routes) => set(() => ({ drawnRoutes: routes })),

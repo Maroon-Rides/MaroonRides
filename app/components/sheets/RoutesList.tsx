@@ -26,6 +26,9 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const setAllRoutes = useAppStore((state) => state.setAllRoutes);
     const favoriteRoutes = useAppStore((state) => state.favoriteRoutes);
     const setFavoriteRoutes = useAppStore((state) => state.setFavoriteRoutes);
+    const gamedayRoutes = useAppStore((state) => state.gamedayRoutes);
+    const setGamedayRoutes = useAppStore((state) => state.setGamedayRoutes);
+
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
     const setSelectedRouteCategory = useAppStore(state => state.setSelectedRouteCategory);
@@ -68,13 +71,18 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     }, [theme])
 
     // Update the shown routes when the selectedRouteCategory changes
+    // Also stores all categorical routes for future reference 
     useEffect(() => {
-        setDrawnRoutes(filterRoutes())
+        const filteredRoutes = filterRoutes();
+        setDrawnRoutes(filteredRoutes);
         if (routes && !allRoutes) {
             setAllRoutes(routes);
         }
         if (favorites && !favoriteRoutes) {
             setFavoriteRoutes(favorites);
+        }
+        if (routes && selectedRouteCategory == "Gameday" && !gamedayRoutes) {
+            setGamedayRoutes(filteredRoutes);
         }
     }, [selectedRouteCategory, routes, favorites]);
 

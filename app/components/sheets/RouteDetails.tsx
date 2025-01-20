@@ -23,6 +23,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const allRoutes = useAppStore((state) => state.allRoutes);
     const favoriteRoutes = useAppStore((state) => state.favoriteRoutes);
+    const gamedayRoutes = useAppStore((state) => state.gamedayRoutes);
+
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
@@ -65,10 +67,13 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         if (selectedRouteCategory == "Favorites" && favoriteRoutes) {
             setDrawnRoutes(favoriteRoutes);
         }
-        else if (selectedRouteCategory != "Favorites" && allRoutes) {
+        else if (selectedRouteCategory == "All Routes" && allRoutes) {
             setDrawnRoutes(allRoutes);
         }
-        dismissSheet("routeDetails") // If neither conditions are met, don't force draw routes
+        else if (selectedRouteCategory == "Gameday" && gamedayRoutes) {
+            setDrawnRoutes(gamedayRoutes);
+        }
+        dismissSheet("routeDetails") // If no conditions are met, don't force draw routes
     }
 
     // When a new route is selected or the direction of the route is changed, update the stops
