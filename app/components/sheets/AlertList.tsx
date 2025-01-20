@@ -6,7 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../data/app_state";
 import SheetHeader from "../ui/SheetHeader";
 import { IMapRoute, IMapServiceInterruption } from "utils/interfaces";
-import { useRoutes, useServiceInterruptions } from "app/data/api_query";
+import { useServiceInterruptions } from "app/data/api_query";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -20,17 +20,15 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const theme = useAppStore((state) => state.theme);
     const selectedRoute = useAppStore((state) => state.selectedRoute);
-    const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
+    const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     const setSelectedRouteDirection = useAppStore((state) => state.setSelectedRouteDirection);
     const setOldSelectedRoute = useAppStore((state) => state.setOldSelectedRoute);
     const presentSheet = useAppStore((state) => state.presentSheet);
     const setSelectedAlert = useAppStore((state) => state.setSelectedAlert);
-    const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
     const dismissSheet = useAppStore((state) => state.dismissSheet);
 
     const [shownAlerts, setShownAlerts] = useState<IMapServiceInterruption[]>([]);
 
-    const { data: routes } = useRoutes();
     const { data: alerts, isError } = useServiceInterruptions()
 
     // If no route is selected, we're looking at all routes, therefore show all alerts
@@ -68,12 +66,6 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
             index={snap} 
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
-            onAnimate={(_, to) => {
-                if (!selectedRoute && to == 1) {        
-                    const affectedRoutes = routes?.filter(route => route.directionList.flatMap(direction => direction.serviceInterruptionKeys).length > 0)
-                    setDrawnRoutes(affectedRoutes ?? [])
-                }
-            }}
             enablePanDownToClose={false}
         >
             <BottomSheetView>
@@ -114,8 +106,8 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                             onPress={() => {
                                 const selectedRouteCopy = selectedRoute as IMapRoute;
                                 setOldSelectedRoute(selectedRouteCopy); // Will be referenced again when dismissing AlertDetail sheet
-                                clearSelectedRoute();
-                                setSelectedRouteDirection("0"); // Since no directionId is equal to "0", every route is considered inactive
+                                setSelectedRoute(null);
+                                setSelectedRouteDirection(null);
                                 displayDetailAlert(alert);
                             }}
                             style={{

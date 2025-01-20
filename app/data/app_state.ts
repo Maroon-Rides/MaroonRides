@@ -10,7 +10,7 @@ interface AppState {
     setDrawnRoutes: (routes: IMapRoute[]) => void
 
     selectedRoute: IMapRoute | null,
-    setSelectedRoute: (selectedRoute: IMapRoute) => void,
+    setSelectedRoute: (selectedRoute: IMapRoute | null) => void,
     clearSelectedRoute: () => void,
 
     selectedRouteDirection: string | null,
