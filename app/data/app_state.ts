@@ -6,6 +6,9 @@ interface AppState {
     theme: Theme,
     setTheme: (theme: Theme) => void
 
+    allRoutes: IMapRoute[] | null,
+    setAllRoutes: (allRoutes: IMapRoute[]) => void,
+
     drawnRoutes: IMapRoute[],
     setDrawnRoutes: (routes: IMapRoute[]) => void
 
@@ -68,6 +71,9 @@ const useAppStore = create<AppState>()((set, get) => ({
 
     theme: lightMode,
     setTheme: (theme) => set(() => ({ theme })),
+
+    allRoutes: null,
+    setAllRoutes: (allRoutes) => set(() => ({ allRoutes })),
 
     drawnRoutes: [],
     setDrawnRoutes: (routes) => set(() => ({ drawnRoutes: routes })),

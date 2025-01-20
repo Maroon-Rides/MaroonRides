@@ -21,8 +21,10 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const flatListRef = React.useRef<BottomSheetFlatListMethods>(null);
 
+    const allRoutes = useAppStore((state) => state.allRoutes);
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
+    const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
 
     const [futurePosition, setFuturePosition] = useState(-1);
 
@@ -54,6 +56,13 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     function getPatternPathForSelectedRoute(): IPatternPath | undefined {
         if (!selectedRoute) return undefined;
         return selectedRoute.patternPaths.find(direction => direction.patternKey === selectedRoute.directionList[selectedDirectionIndex]?.patternList[0]?.key)
+    }
+
+    const handleDismiss = () => {
+        if (allRoutes) {
+            setDrawnRoutes(allRoutes);
+        }
+        dismissSheet("routeDetails")
     }
 
     // When a new route is selected or the direction of the route is changed, update the stops
@@ -159,7 +168,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                         />
                         <Text style={{ fontWeight: 'bold', fontSize: 28, flex: 1, color: theme.text }}>{selectedRoute?.name ?? "Something went wrong"}</Text>
 
-                        <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }} onPress={() => dismissSheet("routeDetails")}>
+                        <TouchableOpacity style={{ alignContent: 'center', justifyContent: 'flex-end' }} onPress={handleDismiss}>
                             <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>
                     </View>

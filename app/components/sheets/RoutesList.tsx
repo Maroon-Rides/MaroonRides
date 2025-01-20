@@ -22,6 +22,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const snapPoints = ['25%', '45%', '85%'];
     const [snap, setSnap] = useState(1)
     
+    const allRoutes = useAppStore((state) => state.allRoutes);
+    const setAllRoutes = useAppStore((state) => state.setAllRoutes);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
     const setSelectedRouteCategory = useAppStore(state => state.setSelectedRouteCategory);
@@ -66,6 +68,9 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     // Update the shown routes when the selectedRouteCategory changes
     useEffect(() => {
         setDrawnRoutes(filterRoutes())
+        if (routes && !allRoutes) {
+            setAllRoutes(routes);
+        }
     }, [selectedRouteCategory, routes, favorites]);
 
     // Update the favorites when the view is focused
