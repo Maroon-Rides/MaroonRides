@@ -331,7 +331,6 @@ const Map: React.FC = () => {
                     return (
                         Object.keys(coordDirections).map((directionId) => {
                             const active = directionId === selectedRouteDirection || selectedRouteDirection == null
-
                             return (
                                 <Polyline
                                     key={`${directionId}`}

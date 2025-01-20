@@ -13,6 +13,8 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
     const alert = useAppStore((state) => state.selectedAlert);
     const theme = useAppStore((state) => state.theme);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
+    const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
+    const oldSelectedRoute = useAppStore((state) => state.oldSelectedRoute);
     const dismissSheet = useAppStore((state) => state.dismissSheet);
 
     const { data: routes } = useRoutes();
@@ -25,7 +27,15 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
         div: { paddingBottom: 0, marginBottom: 0, color: theme.text }
     };
 
-    const [snap, _] = useState(1)
+    const [snap, _] = useState(1);
+
+    const handleDismiss = () => {
+        if (oldSelectedRoute) {
+            setSelectedRoute(oldSelectedRoute);
+            setDrawnRoutes([oldSelectedRoute]);
+        }
+        dismissSheet("alertsDetail")
+    }
 
     return (
         <BottomSheetModal
@@ -46,7 +56,7 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
                 <SheetHeader
                     title="Alert Details"
                     icon={
-                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => dismissSheet("alertsDetail")}>
+                        <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => handleDismiss()}>
                             <Ionicons name="close-circle" size={28} color={theme.exitButton} />
                         </TouchableOpacity>
                     }
