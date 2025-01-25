@@ -6,17 +6,11 @@ interface AppState {
     theme: Theme,
     setTheme: (theme: Theme) => void
 
-    allRoutes: IMapRoute[] | null,
-    setAllRoutes: (allRoutes: IMapRoute[]) => void,
-
-    favoriteRoutes: IMapRoute[] | null,
-    setFavoriteRoutes: (favoriteRoutes: IMapRoute[]) => void,
-
-    gamedayRoutes: IMapRoute[] | null,
-    setGamedayRoutes: (gamedayRoutes: IMapRoute[]) => void,
-
     drawnRoutes: IMapRoute[],
     setDrawnRoutes: (routes: IMapRoute[]) => void
+
+    didSelectRoute: boolean,
+    setDidSelectRoute: (newState: boolean) => void,
 
     selectedRoute: IMapRoute | null,
     setSelectedRoute: (selectedRoute: IMapRoute | null) => void,
@@ -81,17 +75,11 @@ const useAppStore = create<AppState>()((set, get) => ({
     theme: lightMode,
     setTheme: (theme) => set(() => ({ theme })),
 
-    allRoutes: null,
-    setAllRoutes: (allRoutes) => set(() => ({ allRoutes })),
-
-    favoriteRoutes: null,
-    setFavoriteRoutes: (favoriteRoutes) => set(() => ({ favoriteRoutes })),
-
-    gamedayRoutes: null,
-    setGamedayRoutes: (gamedayRoutes) => set(() => ({ gamedayRoutes })),
-
     drawnRoutes: [],
     setDrawnRoutes: (routes) => set(() => ({ drawnRoutes: routes })),
+
+    didSelectRoute: false,
+    setDidSelectRoute: (didSelectRoute) => set(() => ({ didSelectRoute })),
     
     selectedRoute: null,
     setSelectedRoute: (selectedRoute) => set(() => ({ selectedRoute })),

@@ -20,15 +20,10 @@ interface SheetProps {
 // Display routes list for all routes and favorite routes
 const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const snapPoints = ['25%', '45%', '85%'];
-    const [snap, setSnap] = useState(1)
-    
-    const allRoutes = useAppStore((state) => state.allRoutes);
-    const setAllRoutes = useAppStore((state) => state.setAllRoutes);
-    const favoriteRoutes = useAppStore((state) => state.favoriteRoutes);
-    const setFavoriteRoutes = useAppStore((state) => state.setFavoriteRoutes);
-    const gamedayRoutes = useAppStore((state) => state.gamedayRoutes);
-    const setGamedayRoutes = useAppStore((state) => state.setGamedayRoutes);
+    const [snap, setSnap] = useState(1);
 
+    const didSelectRoute = useAppStore((state) => state.didSelectRoute);
+    const setDidSelectRoute = useAppStore((state) => state.setDidSelectRoute);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
     const setSelectedRouteCategory = useAppStore(state => state.setSelectedRouteCategory);
@@ -43,7 +38,9 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const routeError = [useRoutes().isError, useAuthToken().isError, usePatternPaths().isError, useBaseData().isError].some((v) => v == true);
 
-    const handleRouteSelected = (selectedRoute: IMapRoute) => {        
+    const handleRouteSelected = (selectedRoute: IMapRoute) => { 
+        setDidSelectRoute(true);
+        setSnap(-1);       
         setSelectedRoute(selectedRoute);
         setDrawnRoutes([selectedRoute]);
         presentSheet("routeDetails");
@@ -71,29 +68,20 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     }, [theme])
 
     // Update the shown routes when the selectedRouteCategory changes
-    // Also stores all categorical routes for future reference 
     useEffect(() => {
         const filteredRoutes = filterRoutes();
         setDrawnRoutes(filteredRoutes);
-        if (routes && !allRoutes) {
-            setAllRoutes(routes);
-        }
-        if (favorites && !favoriteRoutes) {
-            setFavoriteRoutes(favorites);
-        }
-        if (routes && selectedRouteCategory == "Gameday" && !gamedayRoutes) {
-            setGamedayRoutes(filteredRoutes);
-        }
     }, [selectedRouteCategory, routes, favorites]);
 
     // Update the favorites when the view is focused
-    function onAnimate(from: number, to: number) {
+    function onChange(to: number) {
         setSnap(to)
-        if (from === -1) {
+        if (didSelectRoute) {
             refetchDefaultGroup()
             refetchFavorites()
 
             setDrawnRoutes(filterRoutes());
+            setDidSelectRoute(false);
         }
     }
 
@@ -117,7 +105,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             index={snap} 
             enableDismissOnClose={false}
             enablePanDownToClose={false}
-            onAnimate={onAnimate}
+            onChange={onChange}
             backgroundStyle={{ backgroundColor: theme.background }}
             handleIndicatorStyle={{ backgroundColor: theme.divider }}
         >

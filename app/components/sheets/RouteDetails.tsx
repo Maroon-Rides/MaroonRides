@@ -21,18 +21,11 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
     const flatListRef = React.useRef<BottomSheetFlatListMethods>(null);
 
-    const allRoutes = useAppStore((state) => state.allRoutes);
-    const favoriteRoutes = useAppStore((state) => state.favoriteRoutes);
-    const gamedayRoutes = useAppStore((state) => state.gamedayRoutes);
-
     const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
     const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
-    const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
-
     
     const [futurePosition, setFuturePosition] = useState(-1);
     
-    const selectedRouteCategory = useAppStore((state) => state.selectedRouteCategory);
     const selectedRouteDirection = useAppStore(state => state.selectedRouteDirection);
     const setSelectedRouteDirection = useAppStore(state => state.setSelectedRouteDirection);
     const setSelectedStop = useAppStore(state => state.setSelectedStop);
@@ -64,16 +57,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     }
 
     const handleDismiss = () => {
-        if (selectedRouteCategory == "Favorites" && favoriteRoutes) {
-            setDrawnRoutes(favoriteRoutes);
-        }
-        else if (selectedRouteCategory == "All Routes" && allRoutes) {
-            setDrawnRoutes(allRoutes);
-        }
-        else if (selectedRouteCategory == "Gameday" && gamedayRoutes) {
-            setDrawnRoutes(gamedayRoutes);
-        }
-        dismissSheet("routeDetails") // If no conditions are met, don't force draw routes
+        dismissSheet("routeDetails");
     }
 
     // When a new route is selected or the direction of the route is changed, update the stops
