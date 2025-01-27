@@ -93,7 +93,7 @@ const Home = () => {
             prevSheet?.current?.close();
             sheetStack.pop();
 
-            const newSheet = sheetRefs[sheetStack.at(-1)!];
+            const newSheet = sheetRefs[sheetStack.pop()!];
             newSheet?.current?.present();
         })
     }, [])
