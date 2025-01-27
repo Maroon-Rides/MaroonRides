@@ -45,14 +45,14 @@ const Home = () => {
     const tripPlanDetailSheetRef = useRef<BottomSheetModal>(null);
     
     const sheetNameToRef: { [key: string]: React.RefObject<BottomSheetModalMethods> } = {
-        routeList: routesListSheetRef,
-        alerts: alertDetailSheetRef,
-        routeDetails: routeDetailSheetRef,
-        stopTimetable: stopTimetableSheetRef,
-        settings: settingsSheetRef,
-        alertsDetail: alertDetailSheetRef,
-        inputRoute: inputRouteSheetRef,
-        tripPlanDetail: tripPlanDetailSheetRef
+        "routeList": routesListSheetRef,
+        "alerts": alertDetailSheetRef,
+        "routeDetails": routeDetailSheetRef,
+        "stopTimetable": stopTimetableSheetRef,
+        "settings": settingsSheetRef,
+        "alertsDetail": alertDetailSheetRef,
+        "inputRoute": inputRouteSheetRef,
+        "tripPlanDetail": tripPlanDetailSheetRef
     }
     
     BackHandler.addEventListener("hardwareBackPress", () => {
