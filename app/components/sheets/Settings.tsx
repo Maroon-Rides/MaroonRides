@@ -21,16 +21,20 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
     const [snap, _] = useState(1)
 
     const [themeSetting, setTheme] = useState(0);
+    const [defaultGroupSetting, setDefaultGroupState] = useState(0);
+
     const theme = useAppStore((state) => state.theme);
     const setAppTheme = useAppStore((state) => state.setTheme);
     const dismissSheet = useAppStore((state) => state.dismissSheet);
 
-    const { data: defaultGroup } = useDefaultRouteGroup();
+    const { data: defaultGroup, refetch: refetchDefaultGroup } = useDefaultRouteGroup();
     const setDefaultGroup = defaultGroupMutation();
     const client = useQueryClient();
 
     function setDefaultGroupValue(evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) {
         setDefaultGroup.mutate(evt.nativeEvent.selectedSegmentIndex);
+        setDefaultGroupState(evt.nativeEvent.selectedSegmentIndex);
+        refetchDefaultGroup()
     }
 
     function setAppThemeValue(evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) {
@@ -57,6 +61,12 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
             AsyncStorage.setItem('system-theme', systemTheme)
         })
     }, [])
+
+    useEffect(() => {
+        if (defaultGroup) {
+            setDefaultGroupState(defaultGroup);
+        }
+    }, [defaultGroup])
 
     return (
         <BottomSheetModal 
@@ -91,7 +101,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
                     <Text style={{fontSize: 12, color: theme.subtitle, marginTop: 4}}>Choose the default route group to display when the app opens</Text>
                     <SegmentedControl
                         values={['All Routes', 'Favorites']}
-                        selectedIndex={defaultGroup}
+                        selectedIndex={defaultGroupSetting}
                         style={{ marginTop: 8 }}
                         onChange={setDefaultGroupValue}
                         backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}

@@ -76,10 +76,10 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     // Update the favorites when the view is focused
     function onChange(to: number) {
         setSnap(to)
+        refetchDefaultGroup()
+        refetchFavorites()
+        
         if (didSelectRoute) {
-            refetchDefaultGroup()
-            refetchFavorites()
-
             setDrawnRoutes(filterRoutes());
             setDidSelectRoute(false);
         }
