@@ -22,8 +22,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const snapPoints = ['25%', '45%', '85%'];
     const [snap, setSnap] = useState(1);
 
-    const didSelectRoute = useAppStore((state) => state.didSelectRoute);
-    const setDidSelectRoute = useAppStore((state) => state.setDidSelectRoute);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     const selectedRouteCategory = useAppStore(state => state.selectedRouteCategory);
     const setSelectedRouteCategory = useAppStore(state => state.setSelectedRouteCategory);
@@ -39,8 +37,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const routeError = [useRoutes().isError, useAuthToken().isError, usePatternPaths().isError, useBaseData().isError].some((v) => v == true);
 
     const handleRouteSelected = (selectedRoute: IMapRoute) => { 
-        setDidSelectRoute(true);
-        setSnap(-1);       
         setSelectedRoute(selectedRoute);
         setDrawnRoutes([selectedRoute]);
         presentSheet("routeDetails");
@@ -74,14 +70,13 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     }, [selectedRouteCategory, routes, favorites]);
 
     // Update the favorites when the view is focused
-    function onChange(to: number) {
+    function onAnimate(from: number, to: number) {
         setSnap(to)
-        refetchDefaultGroup()
-        refetchFavorites()
+        if (from==-1) {
+            refetchDefaultGroup()
+            refetchFavorites()
         
-        if (didSelectRoute) {
             setDrawnRoutes(filterRoutes());
-            setDidSelectRoute(false);
         }
     }
 
@@ -92,6 +87,15 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         }
 
         return ["All Routes", "Favorites"]
+    }
+
+    function androidHandleDismss(to: number) {
+        if (to != -1) {
+            refetchDefaultGroup()
+            refetchFavorites()
+        
+            setDrawnRoutes(filterRoutes());
+        }
     }
 
     const handleSetSelectedRouteCategory = (evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
@@ -105,7 +109,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             index={snap} 
             enableDismissOnClose={false}
             enablePanDownToClose={false}
-            onChange={onChange}
+            onAnimate={onAnimate}
+            onChange={Platform.OS == "android" ? androidHandleDismss : undefined}
             backgroundStyle={{ backgroundColor: theme.background }}
             handleIndicatorStyle={{ backgroundColor: theme.divider }}
         >

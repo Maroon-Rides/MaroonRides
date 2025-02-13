@@ -16,7 +16,6 @@ import { DarkGoogleMaps } from "app/theme";
 const Map: React.FC = () => {
     const mapViewRef = useRef<MapView>(null);
     const setSelectedDirection = useAppStore(state => state.setSelectedRouteDirection);
-    const setDidSelectRoute = useAppStore((state) => state.setDidSelectRoute);
     const selectedRoute = useAppStore((state) => state.selectedRoute);
     const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
     const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
@@ -51,7 +50,6 @@ const Map: React.FC = () => {
 
         if (selectedRoute?.key === route.key) return;
 
-        setDidSelectRoute(true);
         setSelectedRoute(route);
         setDrawnRoutes([route]);
         presentSheet("routeDetails");
