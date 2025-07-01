@@ -48,7 +48,8 @@
     "react-native-timeline-flatlist": "^0.8.0",
     "react-native-web": "~0.19.6",
     "zod": "^3.22.4",
-    "zustand": "^4.4.6"
+    "zustand": "^4.4.6",
+    "expo-build-properties": "~0.12.5"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
