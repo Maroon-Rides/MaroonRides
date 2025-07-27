@@ -180,7 +180,7 @@ export const useStopEstimate = (routeKey: string, directionKey: string, stopCode
             const response = await getNextDepartureTimes(routeKey, [directionKey], stopCode, authTokenQuery.data!);
             GetNextDepartTimesResponseSchema.parse(response);
 
-            return response
+            return response as IGetNextDepartTimesResponse;
         },
         select: (response) => {
             // dedup the stopTimes[].nextDeparts based on relative time
