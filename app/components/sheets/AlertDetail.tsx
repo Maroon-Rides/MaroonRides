@@ -1,4 +1,4 @@
-import { BottomSheetModal, BottomSheetScrollView, BottomSheetView } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { View, TouchableOpacity, useWindowDimensions } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../data/app_state";
@@ -51,8 +51,9 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
                 }
             }}
             enablePanDownToClose={false}
+            enableDynamicSizing={false}
         >
-            <BottomSheetView>
+            <View>
                 <SheetHeader
                     title="Alert Details"
                     icon={
@@ -63,7 +64,7 @@ const AlertDetails: React.FC<{ sheetRef: React.RefObject<BottomSheetModal> }> = 
                 />
                 <View style={{ height: 1, backgroundColor: theme.divider, marginTop: 8 }} />
 
-            </BottomSheetView>
+            </View>
             <BottomSheetScrollView>
 
 

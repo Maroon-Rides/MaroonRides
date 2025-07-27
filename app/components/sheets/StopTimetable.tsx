@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
-import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { FlatList } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import useAppStore from "../../data/app_state";
@@ -112,10 +112,11 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
             snapPoints={snapPoints}
             index={snap}
             enablePanDownToClose={false}
+            enableDynamicSizing={false}
             backgroundStyle={{ backgroundColor: theme.background }}
             handleIndicatorStyle={{ backgroundColor: theme.divider }}
         >
-            <BottomSheetView>
+            <View>
                 <SheetHeader
                     title={tempSelectedStop?.name ?? "Something went wrong"}
                     icon={
@@ -126,7 +127,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                 />
                 <View style={{ height: 1, backgroundColor: theme.divider, marginTop: 8 }} />
 
-            </BottomSheetView>
+            </View>
 
             { scheduleError && <Text style={{ textAlign: 'center', marginTop: 10, color: theme.subtitle }}>Unable to load schedules. Please try again later</Text> }
 

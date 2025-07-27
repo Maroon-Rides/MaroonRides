@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Keyboard, ActivityIndicator, Button, Platform } from "react-native";
-import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
 import SheetHeader from "../../ui/SheetHeader";
@@ -125,8 +125,9 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
             enablePanDownToClose={false}
+            enableDynamicSizing={false}
         >
-            <BottomSheetView
+            <View
                 onTouchStart={() => {
                     if (!suggestionOutput && !timeInputFocused) Keyboard.dismiss()
                 }}
@@ -236,7 +237,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                         </View>
                     )}
                 </View>
-            </BottomSheetView>
+            </View>
                     
             {/* Flat lists when no error */}
             {routeInfoError == "" && (
@@ -315,7 +316,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                     />
                 ) : ( tripPlanLoading || isError ? (
                         // Show the Route Options
-                        <BottomSheetView>
+                        <View>
                             {(tripPlanLoading && !isError) && (
                                 <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
                                     <ActivityIndicator />
@@ -327,7 +328,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                     <Text style={{color: theme.subtitle, textAlign: "center"}}>Unable to load routes. Please try again later.</Text>
                                 </View>
                             )}
-                        </BottomSheetView>
+                        </View>
                     ) : (
                         <BottomSheetFlatList
                             // filter out plans that have already passed, sort by end time

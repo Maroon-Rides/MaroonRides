@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import useAppStore from "../../data/app_state";
@@ -67,8 +67,9 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
             enablePanDownToClose={false}
+            enableDynamicSizing={false}
         >
-            <BottomSheetView>
+            <View>
                 {/* header */}
                 <SheetHeader
                     title="Alerts"
@@ -92,7 +93,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                     </View>)
                 }
 
-            </BottomSheetView>
+            </View>
 
 
             <BottomSheetFlatList

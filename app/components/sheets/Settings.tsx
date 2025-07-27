@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, NativeSyntheticEvent, Platform, Appearance } from "react-native";
-import { BottomSheetModal, BottomSheetView, BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SheetHeader from "../ui/SheetHeader";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
@@ -76,8 +76,9 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{ backgroundColor: theme.divider }}
             enablePanDownToClose={false}
+            enableDynamicSizing={false}
         >
-            <BottomSheetView>
+            <View>
                 {/* header */}
                 <SheetHeader
                     title="Settings"
@@ -90,7 +91,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
                 <View style={{ height: 1, backgroundColor: theme.divider, marginTop: 8 }} />
 
 
-            </BottomSheetView>
+            </View>
 
 
             <BottomSheetScrollView

@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from "react";
 import { ActivityIndicator, View, TouchableOpacity, Text, NativeSyntheticEvent, Platform } from "react-native";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
-import { BottomSheetModal, BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { FontAwesome, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 
 import { IDirectionList, IMapRoute } from "../../../utils/interfaces";
@@ -71,6 +71,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     // Update the favorites when the view is focused
     function onAnimate(from: number, to: number) {
+        console.log(to)
         setSnap(to)
         if (from==-1) {
             refetchDefaultGroup()
@@ -109,12 +110,13 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             index={snap} 
             enableDismissOnClose={false}
             enablePanDownToClose={false}
+            enableDynamicSizing={false}
             onAnimate={onAnimate}
             onChange={Platform.OS == "android" ? androidHandleDismss : undefined}
             backgroundStyle={{ backgroundColor: theme.background }}
             handleIndicatorStyle={{ backgroundColor: theme.divider }}
         >
-            <BottomSheetView>
+            <View>
                 <SheetHeader 
                     title="Routes" 
                     icon={
@@ -164,7 +166,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                         <Text style={{color: theme.subtitle}}>Error loading favorites. Please try again later.</Text>
                     </View>
                 }
-            </BottomSheetView>
+            </View>
 
             <BottomSheetFlatList
                 contentContainerStyle={{ paddingBottom: 35, marginLeft: 16 }}
@@ -176,6 +178,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     queryClient.invalidateQueries({ queryKey: ["patternPaths"] });
                     queryClient.invalidateQueries({ queryKey: ["routes"] });
                 }}
+                
                 renderItem={({item: route}) => {
                     return (
                         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 8 }} onPress={() => handleRouteSelected(route)}>

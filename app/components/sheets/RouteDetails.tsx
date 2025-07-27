@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, NativeSyntheticEvent, Platform } from "react-native";
-import { BottomSheetModal, BottomSheetView, BottomSheetFlatList, BottomSheetFlatListMethods } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetFlatList, BottomSheetFlatListMethods } from "@gorhom/bottom-sheet";
 import SegmentedControl, { NativeSegmentedControlIOSChangeEvent } from "@react-native-segmented-control/segmented-control";
 import { Ionicons } from '@expo/vector-icons';
 import { IMapRoute, IPatternPath, IStop } from "../../../utils/interfaces";
@@ -144,6 +144,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             snapPoints={snapPoints}
             index={snap}
             enablePanDownToClose={false}
+            enableDynamicSizing={false}
             backgroundStyle={{ backgroundColor:  theme.background }}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
             onChange={() => {
@@ -154,7 +155,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             }}
         >
             {selectedRoute &&
-                <BottomSheetView>
+                <View>
                     <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: 8, marginHorizontal: 16 }}>
                         <BusIcon 
                             name={selectedRoute?.shortName ?? "Something went wrong"} 
@@ -184,7 +185,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                     }
                     
                     <View style={{ height: 1, backgroundColor: theme.divider }} />
-                </BottomSheetView>
+                </View>
             }
             
 

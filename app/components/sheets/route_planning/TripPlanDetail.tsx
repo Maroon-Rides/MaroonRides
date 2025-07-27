@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from "react";
 import { View, TouchableOpacity, Text } from "react-native";
-import { BottomSheetModal, BottomSheetScrollView, BottomSheetView } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
 import SheetHeader from "../../ui/SheetHeader";
@@ -110,8 +110,9 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
             backgroundStyle={{backgroundColor: theme.background}}
             handleIndicatorStyle={{backgroundColor: theme.divider}}
             enablePanDownToClose={false}
+            enableDynamicSizing={false}
         >
-            <BottomSheetView>
+            <View>
                 {/* header */}
                 <SheetHeader
                     title="Trip Plan"
@@ -125,7 +126,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
                 />
 
                 <View style={{ height: 1, backgroundColor: theme.divider, marginTop: 8 }} />
-            </BottomSheetView>
+            </View>
             <BottomSheetScrollView
                 style={{
                     flex: 1,
