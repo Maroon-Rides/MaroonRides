@@ -23,6 +23,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Lint with expo
+        run: npx expo lint
+
       - name: Run TypeScript checks
         run: npx tsc
-
