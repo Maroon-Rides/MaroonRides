@@ -71,7 +71,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
     // Update the favorites when the view is focused
     function onAnimate(from: number, to: number) {
-        console.log(to)
         setSnap(to)
         if (from==-1) {
             refetchDefaultGroup()
