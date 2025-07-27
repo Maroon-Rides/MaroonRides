@@ -82,7 +82,6 @@
       "bundler": "metro"
     },
     "plugins": [
-      "@config-plugins/detox",
       [
         "@bacons/apple-targets",
         {
