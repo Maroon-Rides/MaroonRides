@@ -42,7 +42,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
         AsyncStorage.setItem('app-theme', evt.nativeEvent.selectedSegmentIndex.toString());
 
         getColorScheme().then((newTheme) => {
-            const t = newTheme == "dark" ? darkMode : lightMode
+            const t = newTheme === "dark" ? darkMode : lightMode
             
             setAppTheme(t);
             Appearance.setColorScheme(t.mode);
@@ -105,7 +105,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
                         selectedIndex={defaultGroupSetting}
                         style={{ marginTop: 8 }}
                         onChange={setDefaultGroupValue}
-                        backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
+                        backgroundColor={Platform.OS === "android" ? theme.androidSegmentedBackground : undefined}
                     />
                 </View>
 
@@ -117,7 +117,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
                         selectedIndex={themeSetting}
                         style={{ marginTop: 8 }}
                         onChange={setAppThemeValue}
-                        backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
+                        backgroundColor={Platform.OS === "android" ? theme.androidSegmentedBackground : undefined}
                     />
                 </View>
             </BottomSheetScrollView>

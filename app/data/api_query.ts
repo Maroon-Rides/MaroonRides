@@ -26,7 +26,7 @@ export const useAuthToken = () => {
     const query = useQuery<{[key: string]: string}>({
         queryKey: ["authToken"],
         queryFn: async () => {
-            var data = authCodeQuery.data!
+            let data = authCodeQuery.data!
             data += "\ngetAuthentication()"
             const headers = await eval(data)
             return headers
@@ -46,7 +46,7 @@ export const useRoutePlanAuthToken = (queryString: string) => {
     const query = useQuery<{[key: string]: string}>({
         queryKey: ["routePlanAuthToken"],
         queryFn: async () => {
-            var qsAdded = authCodeQuery.data!.replace("ROUTE_PLAN_QUERY_STRING", queryString)
+            let qsAdded = authCodeQuery.data!.replace("ROUTE_PLAN_QUERY_STRING", queryString)
             qsAdded += "\ngetRoutePlanAuthentication()"
             
             const headers = await eval(qsAdded)
@@ -135,10 +135,10 @@ export const useRoutes = () => {
             let mergedRoutes = JSON.parse(JSON.stringify(mergeBaseAndPaths([...baseData.routes], patternPaths))) as IMapRoute[];
             
             // convert colors of routes based on theme
-            const colorTheme = (await getColorScheme()) == "dark" ? darkMode : lightMode
+            const colorTheme = (await getColorScheme()) === "dark" ? darkMode : lightMode
 
             mergedRoutes = mergedRoutes.map((route) => {
-                const originalColor = baseData.routes.find((bRoute) => bRoute.key == route.key)!.directionList[0]?.lineColor!
+                const originalColor = baseData.routes.find((bRoute) => bRoute.key === route.key)!.directionList[0]?.lineColor!
                 route.directionList.forEach(direction => {
                     direction.lineColor = colorTheme.busTints[route.shortName] ?? originalColor;
                 })
@@ -255,7 +255,7 @@ export const useVehicles = (routeKey: string) => {
             return busesResponse
         },
         select: (data: IGetVehiclesResponse): IVehicle[] => {
-            if (data.length == 0 || !data[0]?.vehiclesByDirections) {
+            if (data.length === 0 || !data[0]?.vehiclesByDirections) {
                 return []
             }
 
@@ -289,7 +289,7 @@ export const useSearchSuggestion = (query: string) => {
             // This is limitation of the API where we can't get the GPS location of a stop directly
             // we can just ignore the bus stops if we don't have the pattern paths 
             // since Google already has most buildings in their search
-            var queryData = authTokenQuery.data!
+            let queryData = authTokenQuery.data!
             queryData = {
                 "Cookie": queryData["Cookie"]!,
                 "X-Requested-With": queryData["X-Requested-With"]!,
@@ -307,7 +307,7 @@ export const useSearchSuggestion = (query: string) => {
                 for (let route of routesQuery.data!) {
                     for (let path of route.patternPaths) {
                     
-                        const stops = path.patternPoints.filter(point => point.stop != null)
+                        const stops = path.patternPoints.filter(point => point.stop !== null)
                         for (let point of stops) {
                             if (point.stop?.stopCode === stop.stopCode) {
                                 foundLocation = point;
@@ -346,10 +346,10 @@ export const useTripPlan = (origin: SearchSuggestion | null, destination: Search
     // ?o1=Commons&osc=0100&d1=HEEP&dsc=0108&dt=1736392200&ro=0
     let queryString = ""
     if (origin && destination) {
-        if (origin.title == "My Location") {
+        if (origin.title === "My Location") {
             queryString = `Results?o1=${origin.title}&ola=${origin.lat}&olo=${origin.long}&og=1&d1=${destination.title}&dsc=${destination.stopCode}&dt=${(date.getTime() / 1000).toFixed(0)}&ro=0`
         }
-        else if (destination.title == "My Location") {
+        else if (destination.title === "My Location") {
             queryString = `Results?o1=${origin.title}&osc=${origin.stopCode}&d1=${destination.title}&dla=${origin.lat}&dlo=${origin.long}&dg=true&dt=${(date.getTime() / 1000).toFixed(0)}&ro=0`
         } else {
             queryString = `Results?o1=${origin.title}&osc=${origin.stopCode}&d1=${destination.title}&dsc=${destination.stopCode}&dt=${(date.getTime() / 1000).toFixed(0)}&ro=0`
@@ -366,8 +366,8 @@ export const useTripPlan = (origin: SearchSuggestion | null, destination: Search
                                 origin!, 
                                 destination!, 
                                 0,
-                                deadline == "arrive" ? date : undefined,
-                                deadline == "leave" ? date : undefined,
+                                deadline === "arrive" ? date : undefined,
+                                deadline === "leave" ? date : undefined,
                             );
 
             GetTripPlanResponseSchema.parse(response);

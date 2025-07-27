@@ -106,7 +106,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                 .filter(st => st.stop)
                 .findIndex(st => st.stop && st.stop?.stopCode === stop.stopCode);
             
-            if (index && index != -1) {
+            if (index && index !== -1) {
                 sheetRef.current?.snapToIndex(2);
                 setFuturePosition(index);
             }
@@ -180,7 +180,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                             values={selectedRoute?.directionList.map(direction => "to " + direction.destination) ?? []}
                             selectedIndex={selectedDirectionIndex}
                             onChange={handleSetSelectedDirection}
-                            backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
+                            backgroundColor={Platform.OS === "android" ? theme.androidSegmentedBackground : undefined}
                         />
                     }
                     
@@ -202,9 +202,9 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                     renderItem={({ item: stop, index }) => {
 
                         // handle the last cell showing No upcoming departures
-                        var direction;
-                        if (index == processedStops.length-1 && selectedRoute?.directionList.length > 1) {
-                            direction = selectedRoute?.directionList[selectedDirectionIndex == 0 ? 1 : 0]?.direction!
+                        let direction;
+                        if (index === processedStops.length-1 && selectedRoute?.directionList.length > 1) {
+                            direction = selectedRoute?.directionList[selectedDirectionIndex === 0 ? 1 : 0]?.direction!
                         } else {
                             direction = selectedRoute?.directionList[selectedDirectionIndex]?.direction!
                         }

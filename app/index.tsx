@@ -32,7 +32,7 @@ type Sheets =
 
 // this needs to be out of component and not a state
 // weird stuff happens if it is a state
-var sheetStack: Sheets[] = [];
+let sheetStack: Sheets[] = [];
 
 const Home = () => {
     const setPresentSheet = useAppStore((state) => state.setPresentSheet);
@@ -54,7 +54,7 @@ const Home = () => {
     
     BackHandler.addEventListener("hardwareBackPress", () => {
         const currentSheet = sheetStack.at(-1)
-        if (!currentSheet || currentSheet == "routeList") return false
+        if (!currentSheet || currentSheet === "routeList") return false
         
         dismissSheet(currentSheet)
         return true
@@ -64,7 +64,7 @@ const Home = () => {
     // Show the routes list sheet on app start
     useEffect(() => {
         getColorScheme().then((newTheme) => {
-            const t = newTheme == "dark" ? darkMode : lightMode
+            const t = newTheme === "dark" ? darkMode : lightMode
             
             setTheme(t);
             Appearance.setColorScheme(t.mode);

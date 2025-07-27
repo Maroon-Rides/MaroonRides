@@ -1,8 +1,7 @@
 import useAppStore from '../../data/app_state';
 import React, { memo } from 'react'
-import { View, Text } from 'react-native'
+import { View, Text , Dimensions } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { Dimensions } from 'react-native';
 
 interface Props {
     title: string,

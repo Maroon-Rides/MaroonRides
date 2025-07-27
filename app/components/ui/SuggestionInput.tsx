@@ -42,7 +42,7 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
     useEffect(() => {
         if (!searchTerm) return
 
-        if (searchTerm.trim() == "" && suggestionsOutput) {
+        if (searchTerm.trim() === "" && suggestionsOutput) {
             setSuggestions([MyLocationSuggestion, ...(favoriteLocations ?? [])]);
             return
         }
@@ -76,7 +76,7 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
             <TextInput
                 style={{
                     backgroundColor: theme.tertiaryBackground,
-                    color: (location?.type == "my-location") ? theme.myLocation : theme.text,
+                    color: (location?.type === "my-location") ? theme.myLocation : theme.text,
                     borderColor: theme.myLocation,
                     padding: 8,
                     borderRadius: 8,
@@ -88,17 +88,17 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
                 onChangeText={(text) => {
                     setSearchTerm(text);
                     setSuggestionsOutput(outputName);
-                    if (text.trim() == "") {
+                    if (text.trim() === "") {
                         setSuggestions([MyLocationSuggestion, ...(favoriteLocations ?? [])]);
                         return
                     }
                 }}
                 onFocus={() => {
                     // clear search so user can start typing immediately
-                    if (location?.type == "my-location") {
+                    if (location?.type === "my-location") {
                         setSearchTerm("");      
                     }
-                    if (searchTerm.trim() == "") {
+                    if (searchTerm.trim() === "") {
                         setSuggestions([MyLocationSuggestion, ...(favoriteLocations ?? [])]);
                     } else {
                         setSuggestions(suggestions ?? [])
@@ -108,7 +108,7 @@ const SuggestionInput: React.FC<Props> = ({ location, icon, onFocus, outputName,
                     onFocus()
                 }}
                 placeholder="Enter a location"
-                placeholderTextColor={Platform.OS == "android" ? theme.androidTextPlaceholderColor : undefined}
+                placeholderTextColor={Platform.OS === "android" ? theme.androidTextPlaceholderColor : undefined}
             />
         </View>
     )

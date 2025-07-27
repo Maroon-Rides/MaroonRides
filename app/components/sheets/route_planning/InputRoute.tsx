@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Keyboard, ActivityIndicator, Button, Platform } from "react-native";
+import { View, Text, TouchableOpacity, Keyboard, ActivityIndicator, Button, Platform , Linking } from "react-native";
 import { BottomSheetModal, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from "../../../data/app_state";
@@ -13,7 +13,6 @@ import { useTripPlan } from "app/data/api_query";
 import { useQueryClient } from "@tanstack/react-query";
 import TripPlanCell from "app/components/ui/TripPlanCell";
 import * as Location from 'expo-location';
-import { Linking } from "react-native";
 
 interface SheetProps {
     sheetRef: React.RefObject<BottomSheetModal>
@@ -87,13 +86,13 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         }
 
         if (startLocation && endLocation) {
-            if (startLocation.title == endLocation.title) {
+            if (startLocation.title === endLocation.title) {
                 setRouteInfoError("Start and End locations cannot be the same");
                 return
             }
         }
 
-        if (startLocation?.type == "my-location" || endLocation?.type == "my-location") {
+        if (startLocation?.type === "my-location" || endLocation?.type === "my-location") {
             // Request location permissions
             Location.requestForegroundPermissionsAsync().then(async (status) => {
                 // Check if permission is granted
@@ -110,8 +109,8 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                 location.lat = locationCoords.coords.latitude
                 location.long = locationCoords.coords.longitude
 
-                if (startLocation?.type == "my-location") setStartLocation(location)
-                if (endLocation?.type == "my-location") setEndLocation(location)
+                if (startLocation?.type === "my-location") setStartLocation(location)
+                if (endLocation?.type === "my-location") setEndLocation(location)
             })
         }
 
@@ -131,7 +130,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                 onTouchStart={() => {
                     if (!suggestionOutput && !timeInputFocused) Keyboard.dismiss()
                 }}
-                style={[!(routeInfoError == "") && {flex: 1}]}
+                style={[!(routeInfoError === "") && {flex: 1}]}
             >
                 {/* header */}
                 <SheetHeader
@@ -159,9 +158,9 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 outputName={"start"}
                                 location={startLocation}
                                 onFocus={() => {
-                                    if (startLocation?.type == "my-location") setStartLocation(null)
+                                    if (startLocation?.type === "my-location") setStartLocation(null)
                                 }}
-                                icon={(startLocation?.type == "my-location") 
+                                icon={(startLocation?.type === "my-location") 
                                     ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
                                     : <MaterialCommunityIcons name="circle-outline" size={20} color={theme.subtitle} />
                                 }
@@ -178,9 +177,9 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 outputName={"end"}
                                 location={endLocation}
                                 onFocus={() => {
-                                    if (endLocation?.type == "my-location") setEndLocation(null)
+                                    if (endLocation?.type === "my-location") setEndLocation(null)
                                 }}
-                                icon={(endLocation?.type == "my-location") 
+                                icon={(endLocation?.type === "my-location") 
                                     ? <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} />
                                     : <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} />
                                 }
@@ -208,10 +207,10 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             selectedIndex={segmentedIndex}
                             onChange={(event) => {
                                 setSegmentedIndex(event.nativeEvent.selectedSegmentIndex)
-                                setDeadline(event.nativeEvent.selectedSegmentIndex == 0 ? "leave" : "arrive")
+                                setDeadline(event.nativeEvent.selectedSegmentIndex === 0 ? "leave" : "arrive")
                             }}
                             style={{flex: 1, marginRight: 8}}
-                            backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
+                            backgroundColor={Platform.OS === "android" ? theme.androidSegmentedBackground : undefined}
                         />
 
                         <TimeInput 
@@ -225,13 +224,13 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                     <View style={{height: 1, backgroundColor: theme.divider, marginTop: 4}} />
 
                     {/* Error */}
-                    { routeInfoError != "" && (
+                    { routeInfoError !== "" && (
                         <View style={{marginTop: 8, justifyContent: "center", alignItems: "center"}}>
                             
                             {/* Error Text */}
                             <Text style={{color: theme.subtitle,  textAlign:"center", marginLeft: 4, paddingHorizontal: 24 }}>{routeInfoError}</Text>
                             
-                            { routeInfoError == "Location Unavailable, enable location in Settings." && (
+                            { routeInfoError === "Location Unavailable, enable location in Settings." && (
                                 <Button title="Open Settings" onPress={() => Linking.openSettings()} />
                             )}
                         </View>
@@ -240,7 +239,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             </View>
                     
             {/* Flat lists when no error */}
-            {routeInfoError == "" && (
+            {routeInfoError === "" && (
                 suggestionOutput ? (
                     /* Search Suggestions */
                     <BottomSheetFlatList
@@ -249,7 +248,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                         keyboardShouldPersistTaps={"handled"}
                         ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: theme.divider, marginLeft: 12}} />}
                         ListHeaderComponent={() => {
-                            if (searchSuggestions.length == 0 && suggestionOutput && !searchSuggestionsLoading) {
+                            if (searchSuggestions.length === 0 && suggestionOutput && !searchSuggestionsLoading) {
                                 return (
                                     <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
                                         <Text style={{color: theme.subtitle, textAlign: "center"}}>No locations found</Text>
@@ -263,8 +262,8 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             <TouchableOpacity 
                                 style={{paddingVertical: 12, paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
                                 onPress={() => {
-                                    if (suggestionOutput == "start") setStartLocation(suggestion)
-                                    if (suggestionOutput == "end") setEndLocation(suggestion)
+                                    if (suggestionOutput === "start") setStartLocation(suggestion)
+                                    if (suggestionOutput === "end") setEndLocation(suggestion)
                                     setSuggestions([])
                                     setSuggesionOutput(null)
                                     Keyboard.dismiss()
@@ -281,9 +280,9 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                         paddingVertical: 2,
                                     }}
                                 >
-                                    { suggestion.type == "my-location" && <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} /> }
-                                    { suggestion.type == "stop" && <MaterialCommunityIcons name="bus-stop" size={24} color={theme.subtitle} /> }
-                                    { suggestion.type == "map" && <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} /> }
+                                    { suggestion.type === "my-location" && <MaterialCommunityIcons name="crosshairs-gps" size={24} color={theme.myLocation} /> }
+                                    { suggestion.type === "stop" && <MaterialCommunityIcons name="bus-stop" size={24} color={theme.subtitle} /> }
+                                    { suggestion.type === "map" && <MaterialCommunityIcons name="map-marker" size={24} color={theme.subtitle} /> }
                                     
                                 </View>
                                 <View style={{flex: 1, marginLeft: 12 }}>
@@ -295,7 +294,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                                 </View>
 
                                 {/* Favorite Location
-                                { suggestion.type != "my-location" &&
+                                { suggestion.type !== "my-location" &&
                                     <TouchableOpacity 
                                         onPress={(e) => {
                                             e.stopPropagation()
@@ -349,7 +348,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                             ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: theme.divider, marginLeft: 12}} />}
                             ListHeaderComponent={() => {
                                 const filtered = tripPlan?.options.filter((plan) => plan.startTime > Math.floor(Date.now() / 1000) - 300) ?? []
-                                if (filtered.length == 0 && !tripPlanLoading && startLocation && endLocation) {
+                                if (filtered.length === 0 && !tripPlanLoading && startLocation && endLocation) {
                                     return (
                                         <View style={{padding: 16, justifyContent: "center", alignItems: "center"}}>
                                             <Text style={{color: theme.subtitle, textAlign: "center"}}>No routes found</Text>

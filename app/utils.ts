@@ -43,10 +43,10 @@ export async function getColorScheme(): Promise<string> {
 }
 
 export function suggestionEqual(lhs: SearchSuggestion, rhs: SearchSuggestion) {
-    if (lhs.type != rhs.type) return false
+    if (lhs.type !== rhs.type) return false
 
-    if (lhs.type == "map") return rhs.placeId == lhs.placeId
-    if (lhs.type == "stop") return rhs.stopCode == lhs.stopCode
+    if (lhs.type === "map") return rhs.placeId === lhs.placeId
+    if (lhs.type === "stop") return rhs.stopCode === lhs.stopCode
 
     return false
 }

@@ -31,7 +31,7 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: 215,
-                height: Platform.OS == "android" ? 60+18 : 60,
+                height: Platform.OS === "android" ? 60+18 : 60,
                 zIndex: 1000,
                 elevation: 1000
             }}
@@ -41,7 +41,7 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
             }}
         >
             <View style={[
-            Platform.OS == "android" && {
+            Platform.OS === "android" && {
                 padding: 4,
             }]}>
                 <View 
@@ -59,7 +59,7 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
 
                 { isLoading ?
                     <ActivityIndicator style={{ marginTop: 8 }} />
-                  : (  estimate?.routeDirectionTimes.length != 0 && estimate?.routeDirectionTimes[0]?.nextDeparts.length !== 0 ?
+                  : (  estimate?.routeDirectionTimes.length !== 0 && estimate?.routeDirectionTimes[0]?.nextDeparts.length !== 0 ?
                     <View style={{
                         flexDirection: "row",
                         justifyContent: "center",
@@ -75,9 +75,9 @@ const StopCallout: React.FC<Props> = ({ stop, tintColor, route, direction }) => 
                                     <CalloutTimeBubble
                                         key={index}
                                         time={relative <= 0 ? "Now" : relative.toString() + " min"}
-                                        color={index == 0 ? tintColor + "50" : lightMode.nextStopBubble}
-                                        textColor={index == 0 ? tintColor : lightMode.text}
-                                        live={departureTime.estimatedDepartTimeUtc == null ? false : true}
+                                        color={index === 0 ? tintColor + "50" : lightMode.nextStopBubble}
+                                        textColor={index === 0 ? tintColor : lightMode.text}
+                                        live={departureTime.estimatedDepartTimeUtc === null ? false : true}
                                     />
                             )
                         })}

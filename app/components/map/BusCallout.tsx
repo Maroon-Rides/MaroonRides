@@ -23,7 +23,7 @@ const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities,
         >
             <View style={[
                 { width: 170 }, 
-                Platform.OS == "android" && {
+                Platform.OS === "android" && {
                     padding: 4,
                     paddingVertical: 8,
                 }
@@ -51,7 +51,7 @@ const BusCallout: React.FC<Props> = ({ directionName, fullPercentage, amenities,
                     <AmenityRow amenities={amenities} color="gray" size={20} />
                 </View>
                 
-                { directionName != "" &&
+                { directionName !== "" &&
                     <Text style={{ flexDirection: "row", justifyContent: "center", alignSelf: "flex-start", marginBottom: 4, marginTop: 2 }}>
                         <Text style={{ fontWeight: '700', color: tintColor }}>To: </Text>
                         <Text style={{ fontSize: 14, marginLeft: 2 }}>{directionName}</Text>

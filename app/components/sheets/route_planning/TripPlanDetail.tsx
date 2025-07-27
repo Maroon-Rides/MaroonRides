@@ -66,7 +66,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
         if (!plan) return []
 
         return plan.instructions?.map((instruction, index) => {
-            var icon;
+            let icon;
             switch (instruction.className) {
                 case "bus":
                     icon = <StepIcon icon={<Ionicons name="bus" size={16} color={theme.text} />}/>

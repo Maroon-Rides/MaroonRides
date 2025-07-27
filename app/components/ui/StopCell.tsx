@@ -34,7 +34,7 @@ const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, se
 
         // this is usually caused by out of date base data
         // therefore refresh the base data
-        if (stopEstimate.routeDirectionTimes.length == 0) {
+        if (stopEstimate.routeDirectionTimes.length === 0) {
             setStatus("Error loading estimates, try again later.");
             return
         }
@@ -122,9 +122,9 @@ const StopCell: React.FC<Props> = ({ stop, route, direction, color, disabled, se
                             <TimeBubble
                                 key={index}
                                 time={relative <= 0 ? "Now" : relative.toString() + " min"}
-                                color={index == 0 ? color + (theme.mode == "dark" ? "65" : "40") : theme.nextStopBubble}
-                                textColor={index == 0 ? (theme.mode == "dark" ? theme.text : color) : theme.text}
-                                live={departureTime.estimatedDepartTimeUtc == null ? false : true}
+                                color={index === 0 ? color + (theme.mode === "dark" ? "65" : "40") : theme.nextStopBubble}
+                                textColor={index === 0 ? (theme.mode === "dark" ? theme.text : color) : theme.text}
+                                live={departureTime.estimatedDepartTimeUtc === null ? false : true}
                             />
                         )
                     }}

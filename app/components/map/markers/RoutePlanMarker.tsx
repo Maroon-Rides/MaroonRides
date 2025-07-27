@@ -22,7 +22,7 @@ const RoutePlanMarker: React.FC<Props> = ({ marker }) => {
                 longitude: marker.longitude
             }}
             style={[
-                Platform.OS == "android" && {
+                Platform.OS === "android" && {
                     height: 72,
                     justifyContent: 'center',
                     alignItems: 'center'

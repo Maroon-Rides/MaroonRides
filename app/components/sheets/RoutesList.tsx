@@ -34,7 +34,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     const { data: favorites, isLoading: isFavoritesLoading, isError: isFavoritesError, refetch: refetchFavorites } = useFavorites();
     const { data: defaultGroup, refetch: refetchDefaultGroup } = useDefaultRouteGroup();
 
-    const routeError = [useRoutes().isError, useAuthToken().isError, usePatternPaths().isError, useBaseData().isError].some((v) => v == true);
+    const routeError = [useRoutes().isError, useAuthToken().isError, usePatternPaths().isError, useBaseData().isError].some((v) => v === true);
 
     const handleRouteSelected = (selectedRoute: IMapRoute) => { 
         setSelectedRoute(selectedRoute);
@@ -72,7 +72,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     // Update the favorites when the view is focused
     function onAnimate(from: number, to: number) {
         setSnap(to)
-        if (from==-1) {
+        if (from===-1) {
             refetchDefaultGroup()
             refetchFavorites()
         
@@ -80,7 +80,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         }
     }
 
-    function getRouteCategories(): Array<"All Routes" | "Gameday" | "Favorites"> {
+    function getRouteCategories(): ("All Routes" | "Gameday" | "Favorites")[] {
         // if gameday routes are available
         if (routes && routes.some((element) => element.name.includes("Gameday"))) {
             return ["All Routes", "Gameday", "Favorites"]
@@ -90,7 +90,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     }
 
     function androidHandleDismss(to: number) {
-        if (to != -1) {
+        if (to !== -1) {
             refetchDefaultGroup()
             refetchFavorites()
         
@@ -111,7 +111,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
             enablePanDownToClose={false}
             enableDynamicSizing={false}
             onAnimate={onAnimate}
-            onChange={Platform.OS == "android" ? androidHandleDismss : undefined}
+            onChange={Platform.OS === "android" ? androidHandleDismss : undefined}
             backgroundStyle={{ backgroundColor: theme.background }}
             handleIndicatorStyle={{ backgroundColor: theme.divider }}
         >
@@ -141,12 +141,12 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     values={getRouteCategories()}
                     selectedIndex={getRouteCategories().indexOf(selectedRouteCategory)}
                     style={{ marginHorizontal: 16 }}
-                    backgroundColor={Platform.OS == "android" ? theme.androidSegmentedBackground : undefined}
+                    backgroundColor={Platform.OS === "android" ? theme.androidSegmentedBackground : undefined}
                     onChange={handleSetSelectedRouteCategory}
                 />
                 <View style={{height: 1, backgroundColor: theme.divider, marginTop: 8}} />
 
-                { (!isFavoritesLoading) && selectedRouteCategory === "Favorites" && favorites?.length === 0 && routes?.length != 0 && (
+                { (!isFavoritesLoading) && selectedRouteCategory === "Favorites" && favorites?.length === 0 && routes?.length !== 0 && (
                     <View style={{ alignItems: 'center', marginTop: 16 }}>
                         <Text style={{color: theme.text}}>You don't have any favorite routes.</Text>
                     </View>
@@ -185,7 +185,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                             <View>                                
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                     <Text style={{ fontWeight: 'bold', fontSize: 20, lineHeight: 28, color: theme.text }}>{route.name}</Text>
-                                    {favorites?.some((fav) => fav.shortName == route.shortName) && 
+                                    {favorites?.some((fav) => fav.shortName === route.shortName) && 
                                         <FontAwesome name="star" size={16} color={theme.starColor} style={{marginLeft: 4}} />
                                     }
                                 </View>

@@ -71,7 +71,7 @@ const Map: React.FC = () => {
             return;
         }
 
-        var polyline: RoutePlanPolylinePoint[] = [];
+        let polyline: RoutePlanPolylinePoint[] = [];
         selectedRoutePlan?.instructions.forEach((instruction, index) => {
             if (instruction.polyline) {
                 decode(instruction.polyline).forEach((point) => {
@@ -117,7 +117,7 @@ const Map: React.FC = () => {
         if (!selectedRoutePlan) return;
 
         // filter the selected route plan path to only show the selected part
-        var highlighted: RoutePlanPolylinePoint[] = [];
+        let highlighted: RoutePlanPolylinePoint[] = [];
         if (selectedRoutePlanPathPart === -1) {
             highlighted = selectedRoutePlanPath;
             setHighlightedRoutePlanPath(selectedRoutePlanPath);
@@ -131,7 +131,7 @@ const Map: React.FC = () => {
             setHighlightedRoutePlanPath(highlighted);
 
             // break the path into two parts, before and after the selected part
-            var faded: RoutePlanPolylinePoint[][] = [[], []];
+            let faded: RoutePlanPolylinePoint[][] = [[], []];
             selectedRoutePlanPath.forEach((point) => {
                 if (point.stepIndex < selectedRoutePlanPathPart) {
                     faded[0]!.push(point);
@@ -150,7 +150,7 @@ const Map: React.FC = () => {
            
             if (lastPoint) {
                 // if its the last location, show the finish flag
-                if (lastPoint.pathIndex == selectedRoutePlanPath.length - 1) {
+                if (lastPoint.pathIndex === selectedRoutePlanPath.length - 1) {
                     setRoutePlanMapMarkers([
                         {
                             icon: <MaterialCommunityIcons name="circle" size={14} color="white" />,
@@ -306,10 +306,10 @@ const Map: React.FC = () => {
                 region={defaultMapRegion}
                 onPanDrag={() => setIsViewCenteredOnUser(false)}
                 // this deprcation is ok, we only use it on android
-                maxZoomLevel={Platform.OS == "android" ? 18 : undefined}
+                maxZoomLevel={Platform.OS === "android" ? 18 : undefined}
                 showsMyLocationButton={false} // we have our own
                 // fix dark mode android map syling
-                customMapStyle={Platform.OS == "android" && theme.mode == "dark" ? DarkGoogleMaps : []}
+                customMapStyle={Platform.OS === "android" && theme.mode === "dark" ? DarkGoogleMaps : []}
             >
                 {/* Route Polylines */}
                 {drawnRoutes.map((drawnRoute) => {
@@ -330,7 +330,7 @@ const Map: React.FC = () => {
                     
                     return (
                         Object.keys(coordDirections).map((directionId) => {
-                            const active = directionId === selectedRouteDirection || selectedRouteDirection == null
+                            const active = directionId === selectedRouteDirection || selectedRouteDirection === null
                             return (
                                 <Polyline
                                     key={`${directionId}`}
@@ -353,7 +353,7 @@ const Map: React.FC = () => {
                         const stop = patternPoint.stop
 
                         // if it is the end of the route, dont put a marker
-                        if (index2 == patternPath.patternPoints.length-1) return
+                        if (index2 === patternPath.patternPoints.length-1) return
 
                         if (stop) {
                             return (

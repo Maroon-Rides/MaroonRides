@@ -46,7 +46,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
             const foundEstimate = estimate?.routeStopSchedules.find((schedule) => schedule.directionName === item.directionName && schedule.routeName === item.routeName);
             
             
-            const timeEstimateIndex = foundEstimate?.stopTimes.findIndex((stopTime) => stopTime.tripPointId == time.tripPointId)
+            const timeEstimateIndex = foundEstimate?.stopTimes.findIndex((stopTime) => stopTime.tripPointId === time.tripPointId)
             const timeEstimate = foundEstimate?.stopTimes[timeEstimateIndex!];
 
             // have to check if it isnt undefined because if it is undefined, moment will default to current time
@@ -97,7 +97,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
             if (shouldHighlight && !foundHighlight) {
                 // set all of the expired items to tint color and 50% opacity
                 for (let j = 0; j < row.length; j++) {
-                    if (row[j]!.color == "grey") {
+                    if (row[j]!.color === "grey") {
                         row[j]!.color = tintColor + "80";
                     }
                 }
@@ -117,7 +117,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
 
     return (
         <View style={{ marginLeft: 16, paddingTop: 8 }}>
-            <TouchableOpacity onPress={dismissBack} disabled={dismissBack == null} style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
+            <TouchableOpacity onPress={dismissBack} disabled={dismissBack === null} style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
                 <BusIcon name={item.routeNumber} color={tintColor} style={{ marginRight: 8 }} />
                 <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -145,7 +145,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
                                     paddingVertical: 8,
                                     paddingHorizontal: 8,
                                     borderRadius: 8,
-                                    backgroundColor: row.shouldHighlight ? tintColor + "40" : (rowIndex % 2 == 0 ? theme.timetableRowB : theme.timetableRowA),
+                                    backgroundColor: row.shouldHighlight ? tintColor + "40" : (rowIndex % 2 === 0 ? theme.timetableRowB : theme.timetableRowA),
                                 }}
                                 key={rowIndex}
                             >
@@ -159,7 +159,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
                                             key={colIndex}>
                                             <Text style={{
                                                     color: item.color,
-                                                    fontWeight: item.color == tintColor ? "bold" : "normal",
+                                                    fontWeight: item.color === tintColor ? "bold" : "normal",
                                                     fontSize: 16,
                                                     textDecorationLine: item.cancelled ? "line-through" : "none"
                                                 }}
@@ -174,7 +174,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, stopCode, dismissBack }) 
                             </View>
                         )
                 })}
-                {item.stopTimes.length == 0 && !item.isEndOfRoute && <Text style={{ color: "grey", textAlign: "center" }}>No Timetable for Today</Text>}
+                {item.stopTimes.length === 0 && !item.isEndOfRoute && <Text style={{ color: "grey", textAlign: "center" }}>No Timetable for Today</Text>}
             </View>
         </View>
     );

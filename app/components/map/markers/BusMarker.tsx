@@ -35,7 +35,7 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
             style={[
                 { zIndex: 100, elevation: 100}, 
 
-                Platform.OS == "android" && {
+                Platform.OS === "android" && {
                     width: 42, 
                     height: 42,
                     justifyContent: 'center',

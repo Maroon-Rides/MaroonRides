@@ -15,7 +15,7 @@ export const useFavorites = () => {
             const favorites = await AsyncStorage.getItem("favorites")
             if (!favorites) return [] as IMapRoute[];
 
-            var favoritesArray = JSON.parse(favorites);
+            let favoritesArray = JSON.parse(favorites);
 
             // uuid regex
             const uuidRegex = new RegExp("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
@@ -63,7 +63,7 @@ export const useFavorite = (routeShortName: string) => {
             const favorites = await AsyncStorage.getItem("favorites")
             if (!favorites) return false;
 
-            var favoritesArray = JSON.parse(favorites);
+            let favoritesArray = JSON.parse(favorites);
 
             return favoritesArray.includes(routeShortName);
         },
@@ -81,7 +81,7 @@ export const addFavoriteMutation = () => {
         mutationFn: async (routeShortName: string) => {
             const favorites = await AsyncStorage.getItem('favorites')
 
-            var favoritesArray = JSON.parse(favorites ?? "[]");
+            let favoritesArray = JSON.parse(favorites ?? "[]");
 
             favoritesArray.push(routeShortName);
 
@@ -104,7 +104,7 @@ export const removeFavoriteMutation = () => {
         mutationFn: async (routeShortName: string) => {
             const favorites = await AsyncStorage.getItem('favorites')
 
-            var favoritesArray = JSON.parse(favorites ?? "[]");
+            let favoritesArray = JSON.parse(favorites ?? "[]");
 
             const newFavorites = favoritesArray.filter((fav: string) => fav !== routeShortName);
 
@@ -171,10 +171,10 @@ export const addFavoriteLocationMutation = () => {
         mutationFn: async (location: SearchSuggestion) => {
             const favorites = await AsyncStorage.getItem('favoriteLocations')
 
-            var favoritesArray: SearchSuggestion[] = JSON.parse(favorites ?? "[]");
+            let favoritesArray: SearchSuggestion[] = JSON.parse(favorites ?? "[]");
 
             // dont add if its already there
-            if (favoritesArray.findIndex((fav: SearchSuggestion) => suggestionEqual(fav, location)) != -1) return;
+            if (favoritesArray.findIndex((fav: SearchSuggestion) => suggestionEqual(fav, location)) !== -1) return;
 
             favoritesArray.push(location);
 
@@ -196,7 +196,7 @@ export const removeFavoriteLocationMutation = () => {
         mutationFn: async (location: SearchSuggestion) => {
             const favorites = await AsyncStorage.getItem('favoriteLocations')
 
-            var favoritesArray = JSON.parse(favorites ?? "[]");
+            let favoritesArray = JSON.parse(favorites ?? "[]");
             const newFavorites = favoritesArray.filter((fav: SearchSuggestion) => !suggestionEqual(fav, location));
             await AsyncStorage.setItem('favoriteLocations', JSON.stringify(newFavorites));
         },
