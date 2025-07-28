@@ -35,11 +35,14 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
   const setAppTheme = useAppStore((state) => state.setTheme);
   const dismissSheet = useAppStore((state) => state.dismissSheet);
 
-  const { data: defaultGroup, refetch: refetchDefaultGroup } = useDefaultRouteGroup();
+  const { data: defaultGroup, refetch: refetchDefaultGroup } =
+    useDefaultRouteGroup();
   const setDefaultGroup = defaultGroupMutation();
   const client = useQueryClient();
 
-  function setDefaultGroupValue(evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) {
+  function setDefaultGroupValue(
+    evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>,
+  ) {
     setDefaultGroupState(evt.nativeEvent.selectedSegmentIndex);
     setDefaultGroup.mutate(evt.nativeEvent.selectedSegmentIndex, {
       onSuccess: () => {
@@ -48,7 +51,9 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
     });
   }
 
-  function setAppThemeValue(evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) {
+  function setAppThemeValue(
+    evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>,
+  ) {
     setTheme(evt.nativeEvent.selectedSegmentIndex);
     AsyncStorage.setItem(
       "app-theme",
