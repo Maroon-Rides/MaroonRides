@@ -6,10 +6,9 @@ import SheetHeader from "../ui/SheetHeader";
 import RenderHtml from "react-native-render-html";
 import { useRoutes } from "app/data/api_query";
 import { useState } from "react";
+import { SheetProps } from "app/utils";
 
-const AlertDetails: React.FC<{
-  sheetRef: React.RefObject<BottomSheetModal>;
-}> = ({ sheetRef }) => {
+const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const snapPoints = ["25%", "45%", "85%"];
   const alert = useAppStore((state) => state.selectedAlert);
   const theme = useAppStore((state) => state.theme);

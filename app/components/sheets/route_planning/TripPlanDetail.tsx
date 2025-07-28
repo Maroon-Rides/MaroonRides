@@ -8,10 +8,7 @@ import Timeline from "react-native-timeline-flatlist";
 import { IOptionDetail, IWalkingInstruction } from "utils/interfaces";
 import RenderHTML from "react-native-render-html";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-
-interface SheetProps {
-  sheetRef: React.RefObject<BottomSheetModal>;
-}
+import { SheetProps } from "app/utils";
 
 // TripPlanDetail (for all routes and current route)
 const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {

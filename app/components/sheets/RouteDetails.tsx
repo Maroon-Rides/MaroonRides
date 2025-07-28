@@ -23,10 +23,7 @@ import FavoritePill from "../ui/FavoritePill";
 import AlertPill from "../ui/AlertPill";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStopEstimate } from "app/data/api_query";
-
-interface SheetProps {
-  sheetRef: React.RefObject<BottomSheetModal>;
-}
+import { SheetProps } from "app/utils";
 
 // Display details when a route is selected
 const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {

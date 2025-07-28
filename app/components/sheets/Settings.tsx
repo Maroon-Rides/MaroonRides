@@ -19,13 +19,9 @@ import {
   defaultGroupMutation,
   useDefaultRouteGroup,
 } from "app/data/storage_query";
-import { getColorScheme } from "app/utils";
+import { getColorScheme, SheetProps } from "app/utils";
 import { darkMode, lightMode } from "app/theme";
 import { useQueryClient } from "@tanstack/react-query";
-
-interface SheetProps {
-  sheetRef: React.RefObject<BottomSheetModal>;
-}
 
 // Settings (for all routes and current route)
 const Settings: React.FC<SheetProps> = ({ sheetRef }) => {

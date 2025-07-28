@@ -21,7 +21,6 @@ import TripPlanDetail from "./components/sheets/route_planning/TripPlanDetail";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
-import { BottomSheetModalMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
 
 type Sheets =
   | "routeList"
@@ -46,7 +45,7 @@ const Home = () => {
     (state) => state.callSheetCloseCallback,
   );
 
-  const sheetRefs: Record<Sheets, React.RefObject<BottomSheetModalMethods>> = {
+  const sheetRefs: Record<Sheets, React.RefObject<BottomSheetModal | null>> = {
     routeList: useRef<BottomSheetModal>(null),
     alerts: useRef<BottomSheetModal>(null),
     routeDetails: useRef<BottomSheetModal>(null),

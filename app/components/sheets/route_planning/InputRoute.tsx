@@ -22,10 +22,7 @@ import { useTripPlan } from "app/data/api_query";
 import { useQueryClient } from "@tanstack/react-query";
 import TripPlanCell from "app/components/ui/TripPlanCell";
 import * as Location from "expo-location";
-
-interface SheetProps {
-  sheetRef: React.RefObject<BottomSheetModal>;
-}
+import { SheetProps } from "app/utils";
 
 // AlertList (for all routes and current route)
 const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {

@@ -7,10 +7,7 @@ import useAppStore from "../../data/app_state";
 import SheetHeader from "../ui/SheetHeader";
 import { IMapRoute, IMapServiceInterruption } from "utils/interfaces";
 import { useServiceInterruptions } from "app/data/api_query";
-
-interface SheetProps {
-  sheetRef: React.RefObject<BottomSheetModal>;
-}
+import { SheetProps } from "app/utils";
 
 // AlertList (for all routes and current route)
 const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {

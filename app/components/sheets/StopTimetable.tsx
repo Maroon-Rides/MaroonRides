@@ -10,10 +10,7 @@ import moment from "moment-strftime";
 import DateSelector from "../ui/DateSelector";
 import SheetHeader from "../ui/SheetHeader";
 import { useRoutes, useSchedule } from "app/data/api_query";
-
-interface SheetProps {
-  sheetRef: React.RefObject<BottomSheetModal>;
-}
+import { SheetProps } from "app/utils";
 
 // Timtable with upcoming routes
 const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {

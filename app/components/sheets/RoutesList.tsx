@@ -26,10 +26,7 @@ import {
 } from "app/data/api_query";
 import { useDefaultRouteGroup, useFavorites } from "app/data/storage_query";
 import { useQueryClient } from "@tanstack/react-query";
-
-interface SheetProps {
-  sheetRef: React.RefObject<BottomSheetModal>;
-}
+import { SheetProps } from "app/utils";
 
 // Display routes list for all routes and favorite routes
 const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
