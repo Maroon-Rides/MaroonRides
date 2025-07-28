@@ -21,6 +21,7 @@ import TripPlanDetail from "./components/sheets/route_planning/TripPlanDetail";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { StatusBar } from "react-native";
 
 type Sheets =
   | "routeList"
@@ -41,9 +42,8 @@ const Home = () => {
   const setDismissSheet = useAppStore((state) => state.setDismissSheet);
   const dismissSheet = useAppStore((state) => state.dismissSheet);
   const setTheme = useAppStore((state) => state.setTheme);
-  const callSheetCloseCallback = useAppStore(
-    (state) => state.callSheetCloseCallback,
-  );
+  const callSheetCloseCallback = useAppStore((state) => state.callSheetCloseCallback);
+  const theme = useAppStore((state) => state.theme);
 
   const sheetRefs: Record<Sheets, React.RefObject<BottomSheetModal | null>> = {
     routeList: useRef<BottomSheetModal>(null),
@@ -126,6 +126,10 @@ const Home = () => {
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <BottomSheetModalProvider>
+          <StatusBar
+            barStyle={theme.mode === "dark" ? "light-content" : "dark-content"}
+            backgroundColor={theme.background}
+          />
           <View
             style={{
               display: "flex",
