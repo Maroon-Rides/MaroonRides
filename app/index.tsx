@@ -79,12 +79,7 @@ const Home = () => {
     sheetStack = ["routeList"];
 
     setPresentSheet((sheet) => {
-      // There is a problem with dismiss on android.
-      // Seems like the reference isn't able to be detected/accessible?
-      // .close is slightly less performant but is more reliable due to sheet not being removed from the view hierarchy
-      const prevSheet = sheetRefs[sheetStack.at(-1)!];
       const newSheet = sheetRefs[sheet];
-      prevSheet?.current?.close();
       newSheet?.current?.present();
       sheetStack.push(sheet);
     });
@@ -92,14 +87,9 @@ const Home = () => {
     setDismissSheet((sheet) => {
       // run any defined close sheet steps
       callSheetCloseCallback(sheet);
-
-      // See comments in setPresentSheet()
       const prevSheet = sheetRefs[sheet];
       prevSheet?.current?.close();
       sheetStack.pop();
-
-      const newSheet = sheetRefs[sheetStack.at(-1)!];
-      newSheet?.current?.present();
     });
   }, []);
 

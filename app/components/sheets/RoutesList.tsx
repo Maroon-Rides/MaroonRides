@@ -48,6 +48,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
   const {
     data: routes,
     isLoading: isRoutesLoading,
+    isError: routeError,
     isRefetching: isRefreshing,
     refetch: refetchRoutes,
   } = useRoutes();
@@ -59,13 +60,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
   } = useFavorites();
   const { data: defaultGroup, refetch: refetchDefaultGroup } =
     useDefaultRouteGroup();
-
-  const routeError = [
-    useRoutes().isError,
-    useAuthToken().isError,
-    usePatternPaths().isError,
-    useBaseData().isError,
-  ].some((v) => v === true);
 
   const handleRouteSelected = (selectedRoute: IMapRoute) => {
     setSelectedRoute(selectedRoute);
