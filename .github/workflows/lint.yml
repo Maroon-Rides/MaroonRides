@@ -5,6 +5,8 @@ on:
     paths-ignore:
       - ".github/**"
       - "fastlane/**"
+    branches:
+      - main
   pull_request:
 
 jobs:
@@ -24,7 +26,7 @@ jobs:
         run: npm install
 
       - name: Lint with expo
-        run: npx expo lint
+        run: npx expo lint --max-warnings 0
 
       - name: Run TypeScript checks
         run: npx tsc
