@@ -1,4 +1,4 @@
-name: "Build App and Upload"
+name: 'Build App and Upload'
 
 on:
   # manual trigger but change to any supported event
@@ -11,13 +11,12 @@ on:
         default: 'all'
         type: choice
         options:
-        - all
-        - ios
-        - android
+          - all
+          - ios
+          - android
 
   release:
     types: [published]
-
 
 jobs:
   build_ios:
@@ -37,22 +36,22 @@ jobs:
         run: /usr/bin/xcodebuild -version
 
       - name: Checkout Repository
-        uses: actions/checkout@v4 
+        uses: actions/checkout@v4
 
       - name: Install Fastlane and Fix CocoaPods
         run: |
           sudo gem install cocoapods -v 1.15.2
           sudo gem install fastlane -NV
           fastlane --version
-          
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22.x'
-  
+
       - name: Install Dependencies
         run: npm install
-      
+
       - name: Expo Prebuild [iOS]
         run: |
           npx expo prebuild --platform ios --npm
@@ -69,7 +68,7 @@ jobs:
 
   build_android:
     runs-on: ubuntu-latest
-    
+
     # build for android if platform is android or all, or if triggered by a release
     if: github.event_name == 'release' || inputs.buildPlatform == 'all' || inputs.buildPlatform == 'android'
 
@@ -87,7 +86,7 @@ jobs:
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
           java-version: '17'
-          
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
@@ -101,7 +100,7 @@ jobs:
           sed -i "s/{{GOOGLE_MAPS_KEY}}/$GOOGLE_MAPS_KEY/g" app.json
         env:
           GOOGLE_MAPS_KEY: ${{ secrets.GOOGLE_MAPS_KEY }}
-      
+
       - name: Expo Prebuild [Android]
         run: |
           npx expo prebuild --platform android --npm
@@ -129,16 +128,16 @@ jobs:
           KEY_PASSWORD: ${{ secrets.AAB_PASSWORD }}
           STORE_PASSWORD: ${{ secrets.AAB_PASSWORD }}
           KEY_PATH: ${{ github.workspace }}/android/app/maroon-rides-release-key.jks
-          
+
           GOOGLE_PLAY_KEY: ${{ secrets.GOOGLE_PLAY_KEY }}
-          PACKAGE_NAME: "com.maroonrides.maroonrides"
+          PACKAGE_NAME: 'com.maroonrides.maroonrides'
           APP_GRADLE_FILE: ${{ github.workspace }}/android/app/build.gradle
-      
+
       - uses: actions/upload-artifact@v4
         with:
           name: app-bundle.aab
           path: ./android/app/build/outputs/bundle/release/app-release.aab
-        
+
       - name: Set outputs
         id: git_sha
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
@@ -148,4 +147,4 @@ jobs:
         env:
           GOOGLE_PLAY_KEY: ${{ secrets.GOOGLE_PLAY_KEY }}
           RELEASE_NAME: ${{ github.event.release.tag_name || steps.git_sha.outputs.sha_short }}
-          PACKAGE_NAME: "com.maroonrides.maroonrides"
+          PACKAGE_NAME: 'com.maroonrides.maroonrides'

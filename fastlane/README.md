@@ -1,5 +1,4 @@
-fastlane documentation
-----
+## fastlane documentation
 
 # Installation
 
@@ -31,8 +30,7 @@ Setup generated Xcode project for build
 
 Push a new build to TestFlight
 
-----
-
+---
 
 ## Android
 
@@ -52,7 +50,7 @@ Build APK with Gradle
 
 Push a new build to Google Play Store
 
-----
+---
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
 
