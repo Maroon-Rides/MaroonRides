@@ -42,7 +42,7 @@ const Home = () => {
   const dismissSheet = useAppStore((state) => state.dismissSheet);
   const setTheme = useAppStore((state) => state.setTheme);
   const callSheetCloseCallback = useAppStore(
-    (state) => state.callSheetCloseCallback,
+    (state) => state.callSheetCloseCallback
   );
   const theme = useAppStore((state) => state.theme);
 

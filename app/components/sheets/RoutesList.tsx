@@ -1,32 +1,26 @@
-import React, { memo, useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  View,
-  TouchableOpacity,
-  Text,
-  NativeSyntheticEvent,
-  Platform,
-} from "react-native";
+import { FontAwesome, FontAwesome6, MaterialIcons } from "@expo/vector-icons";
+import { BottomSheetFlatList, BottomSheetModal } from "@gorhom/bottom-sheet";
 import SegmentedControl, {
   NativeSegmentedControlIOSChangeEvent,
 } from "@react-native-segmented-control/segmented-control";
-import { BottomSheetModal, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { FontAwesome, FontAwesome6, MaterialIcons } from "@expo/vector-icons";
-
+import { useQueryClient } from "@tanstack/react-query";
+import { useRoutes } from "app/data/api_query";
+import { useDefaultRouteGroup, useFavorites } from "app/data/storage_query";
+import { SheetProps } from "app/utils";
+import React, { memo, useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  NativeSyntheticEvent,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { IDirectionList, IMapRoute } from "../../../utils/interfaces";
 import useAppStore from "../../data/app_state";
 import BusIcon from "../ui/BusIcon";
-import SheetHeader from "../ui/SheetHeader";
 import IconPill from "../ui/IconPill";
-import {
-  useAuthToken,
-  useBaseData,
-  usePatternPaths,
-  useRoutes,
-} from "app/data/api_query";
-import { useDefaultRouteGroup, useFavorites } from "app/data/storage_query";
-import { useQueryClient } from "@tanstack/react-query";
-import { SheetProps } from "app/utils";
+import SheetHeader from "../ui/SheetHeader";
 
 // Display routes list for all routes and favorite routes
 const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
@@ -35,10 +29,10 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
   const selectedRouteCategory = useAppStore(
-    (state) => state.selectedRouteCategory,
+    (state) => state.selectedRouteCategory
   );
   const setSelectedRouteCategory = useAppStore(
-    (state) => state.setSelectedRouteCategory,
+    (state) => state.setSelectedRouteCategory
   );
   const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
   const presentSheet = useAppStore((state) => state.presentSheet);
@@ -124,11 +118,10 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
   }
 
   const handleSetSelectedRouteCategory = (
-    evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>,
+    evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>
   ) => {
     setSelectedRouteCategory(
-      getRouteCategories()[evt.nativeEvent.selectedSegmentIndex] ??
-        "All Routes",
+      getRouteCategories()[evt.nativeEvent.selectedSegmentIndex] ?? "All Routes"
     );
   };
 
@@ -271,7 +264,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     {route.name}
                   </Text>
                   {favorites?.some(
-                    (fav) => fav.shortName === route.shortName,
+                    (fav) => fav.shortName === route.shortName
                   ) && (
                     <FontAwesome
                       name="star"
@@ -303,7 +296,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                             </Text>
                           )}
                         </React.Fragment>
-                      ),
+                      )
                     )}
                   </View>
                 ) : (
