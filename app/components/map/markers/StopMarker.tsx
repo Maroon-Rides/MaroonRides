@@ -1,11 +1,11 @@
-import React, { memo, useEffect } from "react";
-import { MapMarker, Marker } from "react-native-maps";
-import { IMapRoute, IPatternPoint } from "utils/interfaces";
-import StopCallout from "../StopCallout";
-import { View } from "react-native";
-import { getLighterColor } from "app/utils";
+import React, { memo, useEffect } from 'react';
+import { MapMarker, Marker } from 'react-native-maps';
+import { IMapRoute, IPatternPoint } from 'utils/interfaces';
+import StopCallout from '../StopCallout';
+import { View } from 'react-native';
+import { getLighterColor } from 'app/utils';
 
-import useAppStore from "../../../data/app_state";
+import useAppStore from '../../../data/app_state';
 
 interface Props {
   point: IPatternPoint;
@@ -61,10 +61,10 @@ const StopMarker: React.FC<Props> = ({
           height: 16,
           borderWidth: 2,
           borderRadius: 9999,
-          backgroundColor: active ? tintColor : tintColor + "60",
+          backgroundColor: active ? tintColor : tintColor + '60',
           borderColor: active
             ? getLighterColor(tintColor)
-            : getLighterColor(tintColor) + "60",
+            : getLighterColor(tintColor) + '60',
           zIndex: active ? 700 : 400,
           elevation: active ? 700 : 400,
         }}

@@ -1,7 +1,7 @@
-import useAppStore from "app/data/app_state";
-import React, { useEffect, useState } from "react";
-import { Text, TextInput, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import useAppStore from 'app/data/app_state';
+import React, { useEffect, useState } from 'react';
+import { Text, TextInput, View } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 interface Props {
   onTimeChange: (time: Date) => void;
@@ -9,8 +9,8 @@ interface Props {
 }
 
 const TimeInput: React.FC<Props> = ({ onTimeChange, onTimeInputFocused }) => {
-  const [time, setTime] = useState("");
-  const [meridiem, setMeridiem] = useState("AM");
+  const [time, setTime] = useState('');
+  const [meridiem, setMeridiem] = useState('AM');
   const [isFocused, setIsFocused] = useState(false);
 
   const textInputRef = React.createRef<TextInput>();
@@ -19,17 +19,17 @@ const TimeInput: React.FC<Props> = ({ onTimeChange, onTimeInputFocused }) => {
 
   const formatTime = (value: string) => {
     // replace non-numeric characters
-    value = value.replace(/:|[a-zA-Z]/g, "");
+    value = value.replace(/:|[a-zA-Z]/g, '');
 
     let totalCharactersInValue = value.length;
 
     if (totalCharactersInValue === 3) {
-      setTime(value.slice(0, 1) + ":" + value.slice(1));
+      setTime(value.slice(0, 1) + ':' + value.slice(1));
       return;
     }
 
     if (totalCharactersInValue >= 4) {
-      setTime(value.slice(0, 2) + ":" + value.slice(2, 4));
+      setTime(value.slice(0, 2) + ':' + value.slice(2, 4));
       return;
     }
 
@@ -39,7 +39,7 @@ const TimeInput: React.FC<Props> = ({ onTimeChange, onTimeInputFocused }) => {
 
   useEffect(() => {
     // validate time
-    let regex = new RegExp("^(0?[1-9]|1[012]):[0-5][0-9]$");
+    let regex = new RegExp('^(0?[1-9]|1[012]):[0-5][0-9]$');
 
     if (!regex.test(time)) {
       return;
@@ -48,9 +48,9 @@ const TimeInput: React.FC<Props> = ({ onTimeChange, onTimeInputFocused }) => {
     // make time to a date object with the date as today and time from time and meridiem
     let date = new Date();
 
-    let hours = parseInt(time.split(":")[0] ?? "0");
-    let minutes = parseInt(time.split(":")[1] ?? "0");
-    if (meridiem === "PM") hours += 12;
+    let hours = parseInt(time.split(':')[0] ?? '0');
+    let minutes = parseInt(time.split(':')[1] ?? '0');
+    if (meridiem === 'PM') hours += 12;
     date.setHours(hours, minutes);
 
     // call the onTimeChange prop with the date object
@@ -63,11 +63,11 @@ const TimeInput: React.FC<Props> = ({ onTimeChange, onTimeInputFocused }) => {
     date.setMinutes(date.getMinutes());
     let hours = date.getHours();
     let minutes = date.getMinutes();
-    let meridiem = hours >= 12 ? "PM" : "AM";
+    let meridiem = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
     hours = hours ? hours : 12;
-    let minutesString = minutes < 10 ? "0" + minutes : minutes;
-    let timeString = hours + ":" + minutesString;
+    let minutesString = minutes < 10 ? '0' + minutes : minutes;
+    let timeString = hours + ':' + minutesString;
     setTime(timeString);
     setMeridiem(meridiem);
   }, []);
@@ -81,8 +81,8 @@ const TimeInput: React.FC<Props> = ({ onTimeChange, onTimeInputFocused }) => {
         width: 110,
         height: 32,
         backgroundColor: theme.tertiaryBackground,
-        justifyContent: "center",
-        flexDirection: "row",
+        justifyContent: 'center',
+        flexDirection: 'row',
       }}
     >
       <TextInput
@@ -98,9 +98,9 @@ const TimeInput: React.FC<Props> = ({ onTimeChange, onTimeInputFocused }) => {
         }}
         style={{
           color: theme.text,
-          fontWeight: "bold",
+          fontWeight: 'bold',
           fontSize: 16,
-          textAlign: "center",
+          textAlign: 'center',
           marginHorizontal: 2,
           marginLeft: 2,
           width: 50,
@@ -124,12 +124,12 @@ const TimeInput: React.FC<Props> = ({ onTimeChange, onTimeInputFocused }) => {
 
       <TouchableOpacity
         style={{
-          alignItems: "center",
-          justifyContent: "center",
+          alignItems: 'center',
+          justifyContent: 'center',
           width: 32,
           flex: 1,
         }}
-        onPress={() => setMeridiem(meridiem === "AM" ? "PM" : "AM")}
+        onPress={() => setMeridiem(meridiem === 'AM' ? 'PM' : 'AM')}
       >
         <Text
           style={{

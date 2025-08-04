@@ -1,7 +1,7 @@
-import React from "react";
-import { View } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { getLighterColor } from "app/utils";
+import React from 'react';
+import { View } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { getLighterColor } from 'app/utils';
 
 interface Props {
   heading: number;
@@ -16,7 +16,7 @@ const BusMapIcon: React.FC<Props> = ({ heading, tintColor, active }) => {
     return [
       {
         rotate:
-          bearing !== undefined ? `${Math.round(bearing) - 135}deg` : "0deg",
+          bearing !== undefined ? `${Math.round(bearing) - 135}deg` : '0deg',
       },
     ];
   };
@@ -26,14 +26,14 @@ const BusMapIcon: React.FC<Props> = ({ heading, tintColor, active }) => {
   return (
     <View
       style={{
-        alignItems: "center",
-        justifyContent: "center",
+        alignItems: 'center',
+        justifyContent: 'center',
         width: 30,
         height: 30,
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
         borderBottomLeftRadius: 15,
-        backgroundColor: active ? tintColor : tintColor + "70",
+        backgroundColor: active ? tintColor : tintColor + '70',
         borderColor: borderColor,
         borderWidth: borderColor ? 2 : 0,
         transform: getRotationProp(heading),
@@ -44,7 +44,7 @@ const BusMapIcon: React.FC<Props> = ({ heading, tintColor, active }) => {
       <MaterialCommunityIcons
         name="bus"
         size={18}
-        color={active ? "white" : "#ffffffcc"}
+        color={active ? 'white' : '#ffffffcc'}
         style={{ transform: getRotationProp(-heading - 90) }}
       />
     </View>

@@ -1,9 +1,9 @@
-import React, { memo, useEffect, useState } from "react";
-import { TouchableOpacity } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import IconPill from "./IconPill";
-import useAppStore from "../../data/app_state";
-import { useRoutes, useServiceInterruptions } from "app/data/api_query";
+import React, { memo, useEffect, useState } from 'react';
+import { TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import IconPill from './IconPill';
+import useAppStore from '../../data/app_state';
+import { useRoutes, useServiceInterruptions } from 'app/data/api_query';
 
 interface Props {
   routeId?: string;
@@ -13,8 +13,8 @@ interface Props {
 const AlertPill: React.FC<Props> = ({ routeId, showText }) => {
   const presentSheet = useAppStore((state) => state.presentSheet);
   const theme = useAppStore((state) => state.theme);
-  const [alertIcon, setAlertIcon] = useState<"bell-badge" | "bell-outline">(
-    "bell-outline",
+  const [alertIcon, setAlertIcon] = useState<'bell-badge' | 'bell-outline'>(
+    'bell-outline',
   );
 
   const { data: alerts } = useServiceInterruptions();
@@ -23,7 +23,7 @@ const AlertPill: React.FC<Props> = ({ routeId, showText }) => {
   // Update the alert icon when the alerts change
   useEffect(() => {
     if (!alerts) {
-      setAlertIcon("bell-outline");
+      setAlertIcon('bell-outline');
       return;
     }
 
@@ -41,14 +41,14 @@ const AlertPill: React.FC<Props> = ({ routeId, showText }) => {
     }
 
     if (activeAlerts && route) {
-      setAlertIcon("bell-badge");
+      setAlertIcon('bell-badge');
     } else {
-      setAlertIcon("bell-outline");
+      setAlertIcon('bell-outline');
     }
   }, [alerts, routeId]);
 
   return (
-    <TouchableOpacity onPress={() => presentSheet("alerts")}>
+    <TouchableOpacity onPress={() => presentSheet('alerts')}>
       <IconPill
         icon={
           <MaterialCommunityIcons
@@ -57,7 +57,7 @@ const AlertPill: React.FC<Props> = ({ routeId, showText }) => {
             color={theme.text}
           />
         }
-        text={showText ? "Alerts" : ""}
+        text={showText ? 'Alerts' : ''}
       />
     </TouchableOpacity>
   );

@@ -1,18 +1,18 @@
-import React, { memo, useEffect, useState } from "react";
-import { View, TouchableOpacity, Text } from "react-native";
-import { BottomSheetModal, BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import useAppStore from "../../../data/app_state";
-import SheetHeader from "../../ui/SheetHeader";
-import Timeline from "react-native-timeline-flatlist";
-import { IOptionDetail, IWalkingInstruction } from "utils/interfaces";
-import RenderHTML from "react-native-render-html";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { SheetProps } from "app/utils";
+import React, { memo, useEffect, useState } from 'react';
+import { View, TouchableOpacity, Text } from 'react-native';
+import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import useAppStore from '../../../data/app_state';
+import SheetHeader from '../../ui/SheetHeader';
+import Timeline from 'react-native-timeline-flatlist';
+import { IOptionDetail, IWalkingInstruction } from 'utils/interfaces';
+import RenderHTML from 'react-native-render-html';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { SheetProps } from 'app/utils';
 
 // TripPlanDetail (for all routes and current route)
 const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
-  const snapPoints = ["25%", "45%", "85%"];
+  const snapPoints = ['25%', '45%', '85%'];
   const [snap, _] = useState(1);
 
   const theme = useAppStore((state) => state.theme);
@@ -39,8 +39,8 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
       paddingTop: 2,
     },
     titleClassStyle: {
-      location_label: { fontSize: 16, fontWeight: "bold" },
-      "stop-code": { fontSize: 16, color: theme.subtitle },
+      location_label: { fontSize: 16, fontWeight: 'bold' },
+      'stop-code': { fontSize: 16, color: theme.subtitle },
     },
     titleTagStyles: {
       div: { fontSize: 16 },
@@ -60,7 +60,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
     setSheetCloseCallback(() => {
       setSelectedRoutePlanPathPart(-1);
       setSelectedRoutePlan(null);
-    }, "tripPlanDetail");
+    }, 'tripPlanDetail');
   }, []);
 
   function processRoutePlan(plan: IOptionDetail) {
@@ -69,14 +69,14 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
     return plan.instructions?.map((instruction, index) => {
       let icon;
       switch (instruction.className) {
-        case "bus":
+        case 'bus':
           icon = (
             <StepIcon
               icon={<Ionicons name="bus" size={16} color={theme.text} />}
             />
           );
           break;
-        case "walking":
+        case 'walking':
           icon = (
             <StepIcon
               icon={
@@ -90,7 +90,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
             />
           );
           break;
-        case "end":
+        case 'end':
           icon = (
             <StepIcon
               icon={
@@ -103,7 +103,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
             />
           );
           break;
-        case "waiting":
+        case 'waiting':
           icon = (
             <StepIcon
               icon={
@@ -129,12 +129,12 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
 
       return {
         time: instruction.startTime,
-        title: instruction.instruction?.replace("(ID:", " (ID:"),
+        title: instruction.instruction?.replace('(ID:', ' (ID:'),
         description: instruction.walkingInstructions
           .map((step: IWalkingInstruction) => {
             return `<p>${step.index}. ${step.instruction}</p>`;
           })
-          .join(""),
+          .join(''),
         icon: icon,
         index: index,
       };
@@ -160,12 +160,12 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
         {/* header */}
         <SheetHeader
           title="Trip Plan"
-          subtitle={"Arrive at " + selectedRoutePlan?.endTimeText}
+          subtitle={'Arrive at ' + selectedRoutePlan?.endTimeText}
           onTitlePress={() => setSelectedRoutePlanPathPart(-1)}
           icon={
             <TouchableOpacity
               style={{ marginLeft: 10 }}
-              onPress={() => dismissSheet("tripPlanDetail")}
+              onPress={() => dismissSheet('tripPlanDetail')}
             >
               <Ionicons
                 name="close-circle"
@@ -190,13 +190,13 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
           style={{ marginTop: 16, marginHorizontal: 8 }}
           timeContainerStyle={{ minWidth: 100 }}
           timeStyle={{
-            textAlign: "center",
+            textAlign: 'center',
             backgroundColor: theme.tertiaryBackground,
             color: theme.text,
             padding: 6,
             marginHorizontal: 8,
             borderRadius: 16,
-            fontWeight: "bold",
+            fontWeight: 'bold',
           }}
           onEventPress={(e) => {
             // @ts-ignore: e is not actually an Event,
@@ -210,14 +210,14 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
           renderDetail={(data) => (
             <StepDetail step={data} styles={htmlStyles} />
           )}
-          innerCircle={"icon"}
+          innerCircle={'icon'}
           data={processRoutePlan(selectedRoutePlan!)}
         />
         <Text
           style={{
             color: theme.subtitle,
             fontSize: 12,
-            textAlign: "center",
+            textAlign: 'center',
             marginVertical: 12,
             paddingBottom: 16,
             marginRight: 16, // to center the text
@@ -264,11 +264,11 @@ const StepDetail: React.FC<StepDetailProps> = ({
             <Text
               style={{
                 color: theme.myLocation,
-                textAlign: "center",
+                textAlign: 'center',
                 marginVertical: 8,
               }}
             >
-              {showInstructions ? "Hide" : "View"} Instructions
+              {showInstructions ? 'Hide' : 'View'} Instructions
             </Text>
           </TouchableOpacity>
           {showInstructions && (
@@ -311,8 +311,8 @@ const StepIcon: React.FC<StepIconProps> = ({ icon }) => {
         borderColor: theme.pillBorder,
         width: 32,
         height: 32,
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: 'center',
+        alignItems: 'center',
         marginTop: 14,
       }}
     >

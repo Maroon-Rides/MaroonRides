@@ -1,29 +1,29 @@
-import React, { useEffect, useState } from "react";
+import { Ionicons } from '@expo/vector-icons';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  NativeSyntheticEvent,
-  Platform,
-} from "react-native";
-import {
-  BottomSheetModal,
   BottomSheetFlatList,
   BottomSheetFlatListMethods,
-} from "@gorhom/bottom-sheet";
+  BottomSheetModal,
+} from '@gorhom/bottom-sheet';
 import SegmentedControl, {
   NativeSegmentedControlIOSChangeEvent,
-} from "@react-native-segmented-control/segmented-control";
-import { Ionicons } from "@expo/vector-icons";
-import { IMapRoute, IPatternPath, IStop } from "../../../utils/interfaces";
-import useAppStore from "../../data/app_state";
-import StopCell from "../ui/StopCell";
-import BusIcon from "../ui/BusIcon";
-import FavoritePill from "../ui/FavoritePill";
-import AlertPill from "../ui/AlertPill";
-import { useQueryClient } from "@tanstack/react-query";
-import { useStopEstimate } from "app/data/api_query";
-import { SheetProps } from "app/utils";
+} from '@react-native-segmented-control/segmented-control';
+import { useQueryClient } from '@tanstack/react-query';
+import { useStopEstimate } from 'app/data/api_query';
+import { SheetProps } from 'app/utils';
+import React, { useEffect, useState } from 'react';
+import {
+  NativeSyntheticEvent,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { IMapRoute, IPatternPath, IStop } from '../../../utils/interfaces';
+import useAppStore from '../../data/app_state';
+import AlertPill from '../ui/AlertPill';
+import BusIcon from '../ui/BusIcon';
+import FavoritePill from '../ui/FavoritePill';
+import StopCell from '../ui/StopCell';
 
 // Display details when a route is selected
 const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
@@ -52,10 +52,10 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const theme = useAppStore((state) => state.theme);
 
   const { data: stopEstimates } = useStopEstimate(
-    currentSelectedRoute?.key ?? "",
-    currentSelectedRoute?.directionList[0]?.direction.key ?? "",
+    currentSelectedRoute?.key ?? '',
+    currentSelectedRoute?.directionList[0]?.direction.key ?? '',
     currentSelectedRoute?.patternPaths[0]?.patternPoints[0]?.stop?.stopCode ??
-      "",
+      '',
   );
 
   // Controls SegmentedControl
@@ -78,7 +78,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   }
 
   const handleDismiss = () => {
-    dismissSheet("routeDetails");
+    dismissSheet('routeDetails');
   };
 
   // When a new route is selected or the direction of the route is changed, update the stops
@@ -145,7 +145,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
       // reset direction selector
       setSelectedDirectionIndex(0);
-    }, "routeDetails");
+    }, 'routeDetails');
 
     return () => setSelectedRouteDirection(null);
   }, []);
@@ -161,7 +161,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     );
   };
 
-  const snapPoints = ["25%", "45%", "85%"];
+  const snapPoints = ['25%', '45%', '85%'];
   const [snap, _] = useState(1);
 
   return (
@@ -187,30 +187,30 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         <View>
           <View
             style={{
-              flexDirection: "row",
-              alignItems: "center",
+              flexDirection: 'row',
+              alignItems: 'center',
               marginBottom: 8,
               marginHorizontal: 16,
             }}
           >
             <BusIcon
-              name={selectedRoute?.shortName ?? "Something went wrong"}
-              color={selectedRoute?.directionList[0]?.lineColor ?? "#500000"}
+              name={selectedRoute?.shortName ?? 'Something went wrong'}
+              color={selectedRoute?.directionList[0]?.lineColor ?? '#500000'}
               style={{ marginRight: 16 }}
             />
             <Text
               style={{
-                fontWeight: "bold",
+                fontWeight: 'bold',
                 fontSize: 28,
                 flex: 1,
                 color: theme.text,
               }}
             >
-              {selectedRoute?.name ?? "Something went wrong"}
+              {selectedRoute?.name ?? 'Something went wrong'}
             </Text>
 
             <TouchableOpacity
-              style={{ alignContent: "center", justifyContent: "flex-end" }}
+              style={{ alignContent: 'center', justifyContent: 'flex-end' }}
               onPress={handleDismiss}
             >
               <Ionicons
@@ -223,8 +223,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
           <View
             style={{
-              flexDirection: "row",
-              alignItems: "center",
+              flexDirection: 'row',
+              alignItems: 'center',
               marginBottom: 8,
               marginLeft: 16,
               gap: 4,
@@ -239,13 +239,13 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
               style={{ marginHorizontal: 16, marginBottom: 8 }}
               values={
                 selectedRoute?.directionList.map(
-                  (direction) => "to " + direction.destination,
+                  (direction) => 'to ' + direction.destination,
                 ) ?? []
               }
               selectedIndex={selectedDirectionIndex}
               onChange={handleSetSelectedDirection}
               backgroundColor={
-                Platform.OS === "android"
+                Platform.OS === 'android'
                   ? theme.androidSegmentedBackground
                   : undefined
               }
@@ -261,10 +261,10 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
           ref={flatListRef}
           data={processedStops}
           extraData={stopEstimates?.routeDirectionTimes[0]}
-          style={{ height: "100%" }}
+          style={{ height: '100%' }}
           contentContainerStyle={{ paddingBottom: 35, paddingLeft: 16 }}
           onRefresh={() =>
-            client.invalidateQueries({ queryKey: ["stopEstimate"] })
+            client.invalidateQueries({ queryKey: ['stopEstimate'] })
           }
           refreshing={false}
           ItemSeparatorComponent={() => (
@@ -298,7 +298,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                 stop={stop}
                 route={selectedRoute}
                 direction={direction}
-                color={selectedRoute?.directionList[0]?.lineColor ?? "#909090"}
+                color={selectedRoute?.directionList[0]?.lineColor ?? '#909090'}
                 disabled={index === processedStops.length - 1}
                 setSheetPos={(pos) => sheetRef.current?.snapToIndex(pos)}
               />
@@ -308,7 +308,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
       )}
 
       {!selectedRoute && (
-        <View style={{ alignItems: "center", marginTop: 16 }}>
+        <View style={{ alignItems: 'center', marginTop: 16 }}>
           <Text style={{ color: theme.text }}>Something went wrong.</Text>
         </View>
       )}

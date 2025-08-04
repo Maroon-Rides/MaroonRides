@@ -1,14 +1,14 @@
-import React, { memo } from "react";
-import { View, Text, ActivityIndicator, Platform } from "react-native";
-import { Callout } from "react-native-maps";
-import BusIcon from "../ui/BusIcon";
-import { IMapRoute, IStop } from "../../../utils/interfaces";
-import { useStopEstimate } from "app/data/api_query";
-import moment from "moment";
-import CalloutTimeBubble from "../ui/CalloutTimeBubble";
-import { lightMode } from "app/theme";
-import AmenityRow from "../ui/AmenityRow";
-import useAppStore from "app/data/app_state";
+import React, { memo } from 'react';
+import { View, Text, ActivityIndicator, Platform } from 'react-native';
+import { Callout } from 'react-native-maps';
+import BusIcon from '../ui/BusIcon';
+import { IMapRoute, IStop } from '../../../utils/interfaces';
+import { useStopEstimate } from 'app/data/api_query';
+import moment from 'moment';
+import CalloutTimeBubble from '../ui/CalloutTimeBubble';
+import { lightMode } from 'app/theme';
+import AmenityRow from '../ui/AmenityRow';
+import useAppStore from 'app/data/app_state';
 
 interface Props {
   stop: IStop;
@@ -38,10 +38,10 @@ const StopCallout: React.FC<Props> = ({
   return (
     <Callout
       style={{
-        alignItems: "center",
-        justifyContent: "center",
+        alignItems: 'center',
+        justifyContent: 'center',
         width: 215,
-        height: Platform.OS === "android" ? 60 + 18 : 60,
+        height: Platform.OS === 'android' ? 60 + 18 : 60,
         zIndex: 1000,
         elevation: 1000,
       }}
@@ -52,17 +52,17 @@ const StopCallout: React.FC<Props> = ({
     >
       <View
         style={[
-          Platform.OS === "android" && {
+          Platform.OS === 'android' && {
             padding: 4,
           },
         ]}
       >
         <View
           style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            alignSelf: "flex-start",
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignSelf: 'flex-start',
           }}
         >
           <BusIcon
@@ -71,7 +71,7 @@ const StopCallout: React.FC<Props> = ({
             isCallout={true}
             style={{ marginRight: 8 }}
           />
-          <Text style={{ flex: 1, fontWeight: "bold" }} numberOfLines={2}>
+          <Text style={{ flex: 1, fontWeight: 'bold' }} numberOfLines={2}>
             {stop.name}
           </Text>
           <AmenityRow
@@ -87,10 +87,10 @@ const StopCallout: React.FC<Props> = ({
           estimate?.routeDirectionTimes[0]?.nextDeparts.length !== 0 ? (
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
-              alignSelf: "flex-start",
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+              alignSelf: 'flex-start',
               marginTop: 8,
             }}
           >
@@ -100,15 +100,15 @@ const StopCallout: React.FC<Props> = ({
                 const date = moment(
                   departureTime.estimatedDepartTimeUtc ??
                     departureTime.scheduledDepartTimeUtc ??
-                    "",
+                    '',
                 );
-                const relative = date.diff(moment(), "minutes");
+                const relative = date.diff(moment(), 'minutes');
                 return (
                   <CalloutTimeBubble
                     key={index}
-                    time={relative <= 0 ? "Now" : relative.toString() + " min"}
+                    time={relative <= 0 ? 'Now' : relative.toString() + ' min'}
                     color={
-                      index === 0 ? tintColor + "50" : lightMode.nextStopBubble
+                      index === 0 ? tintColor + '50' : lightMode.nextStopBubble
                     }
                     textColor={index === 0 ? tintColor : lightMode.text}
                     live={
@@ -126,7 +126,7 @@ const StopCallout: React.FC<Props> = ({
           <Text
             style={{
               marginTop: 8,
-              alignSelf: "center",
+              alignSelf: 'center',
               color: lightMode.subtitle,
               fontSize: 12,
             }}

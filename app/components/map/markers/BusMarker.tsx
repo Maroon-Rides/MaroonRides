@@ -1,10 +1,10 @@
-import React, { memo } from "react";
-import { Marker } from "react-native-maps";
-import BusMapIcon from "../mapIcons/BusMapIcon";
-import BusCallout from "../BusCallout";
-import { IVehicle } from "utils/interfaces";
-import useAppStore from "../../../data/app_state";
-import { Platform } from "react-native";
+import React, { memo } from 'react';
+import { Marker } from 'react-native-maps';
+import BusMapIcon from '../mapIcons/BusMapIcon';
+import BusCallout from '../BusCallout';
+import { IVehicle } from 'utils/interfaces';
+import useAppStore from '../../../data/app_state';
+import { Platform } from 'react-native';
 
 interface Props {
   bus: IVehicle;
@@ -41,11 +41,11 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
       style={[
         { zIndex: 100, elevation: 100 },
 
-        Platform.OS === "android" && {
+        Platform.OS === 'android' && {
           width: 42,
           height: 42,
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: 'center',
+          alignItems: 'center',
         },
       ]}
       onPress={() => busDefaultDirection()}
@@ -56,12 +56,12 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
         heading={bus.location.heading}
         active={
           selectedRouteDirection === bus.directionKey ||
-          bus.directionKey === "00000000-0000-0000-0000-000000000000"
+          bus.directionKey === '00000000-0000-0000-0000-000000000000'
         }
       />
 
       <BusCallout
-        directionName={bus.directionName ?? ""}
+        directionName={bus.directionName ?? ''}
         fullPercentage={Math.round(
           (bus.passengersOnboard / bus.passengerCapacity) * 100,
         )}

@@ -1,5 +1,5 @@
-import React, { memo } from "react";
-import { View, Text, ViewProps } from "react-native";
+import React, { memo } from 'react';
+import { View, Text, ViewProps } from 'react-native';
 
 interface Props extends ViewProps {
   name: string;
@@ -19,8 +19,8 @@ const BusIcon: React.FC<Props> = ({
         {
           backgroundColor: color,
           borderRadius: 6,
-          alignItems: "center",
-          justifyContent: "center",
+          alignItems: 'center',
+          justifyContent: 'center',
           width: isCallout ? 40 : 48,
           height: isCallout ? 24 : 40,
         },
@@ -32,9 +32,9 @@ const BusIcon: React.FC<Props> = ({
         numberOfLines={1}
         style={{
           fontSize: 18,
-          textAlign: "center",
-          fontWeight: "bold",
-          color: "white",
+          textAlign: 'center',
+          fontWeight: 'bold',
+          color: 'white',
           padding: 4,
         }}
       >

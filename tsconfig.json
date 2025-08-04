@@ -5,9 +5,8 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["src/*"]
     }
   },
-  "exclude": ["./node_modules/**/*", "e2e/**/*.ts"],
+  "exclude": ["./node_modules/**/*", "e2e/**/*.ts"]
 }
-

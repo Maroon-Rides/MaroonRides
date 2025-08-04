@@ -1,6 +1,6 @@
-import useAppStore from "../data/app_state";
-import React from "react";
-import { SafeAreaView, Text } from "react-native";
+import useAppStore from '../data/app_state';
+import React from 'react';
+import { SafeAreaView, Text } from 'react-native';
 
 const Error: React.FC = () => {
   const theme = useAppStore((state) => state.theme);
@@ -8,10 +8,10 @@ const Error: React.FC = () => {
   return (
     <SafeAreaView
       style={{
-        width: "100%",
-        height: "100%",
-        justifyContent: "center",
-        alignItems: "center",
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: theme.background,
       }}
     >

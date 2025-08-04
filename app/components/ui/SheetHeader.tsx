@@ -1,7 +1,7 @@
-import useAppStore from "../../data/app_state";
-import React, { memo } from "react";
-import { View, Text, Dimensions } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import useAppStore from '../../data/app_state';
+import React, { memo } from 'react';
+import { View, Text, Dimensions } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 interface Props {
   title: string;
@@ -18,18 +18,18 @@ const SheetHeader: React.FC<Props> = ({
 }) => {
   const theme = useAppStore((state) => state.theme);
 
-  const screenWidth = Dimensions.get("window").width;
+  const screenWidth = Dimensions.get('window').width;
   return (
     <View
       style={{
         marginBottom: 8,
         marginHorizontal: 16,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center", // To align icon and text vertically
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center', // To align icon and text vertically
       }}
     >
-      <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
         <TouchableOpacity
           onPress={onTitlePress}
           disabled={!onTitlePress}
@@ -37,7 +37,7 @@ const SheetHeader: React.FC<Props> = ({
         >
           <Text
             style={{
-              fontWeight: "bold",
+              fontWeight: 'bold',
               fontSize: 32,
               color: theme.text,
               maxWidth: screenWidth * 0.75, // Adjust the maxWidth as necessary

@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,25 +8,25 @@ import {
   Button,
   Platform,
   Linking,
-} from "react-native";
-import { BottomSheetModal, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import useAppStore from "../../../data/app_state";
-import SheetHeader from "../../ui/SheetHeader";
-import { MyLocationSuggestion, SearchSuggestion } from "utils/interfaces";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import SuggestionInput from "app/components/ui/SuggestionInput";
-import SegmentedControl from "@react-native-segmented-control/segmented-control";
-import TimeInput from "app/components/ui/TimeInput";
-import { useTripPlan } from "app/data/api_query";
-import { useQueryClient } from "@tanstack/react-query";
-import TripPlanCell from "app/components/ui/TripPlanCell";
-import * as Location from "expo-location";
-import { SheetProps } from "app/utils";
+} from 'react-native';
+import { BottomSheetModal, BottomSheetFlatList } from '@gorhom/bottom-sheet';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import useAppStore from '../../../data/app_state';
+import SheetHeader from '../../ui/SheetHeader';
+import { MyLocationSuggestion, SearchSuggestion } from 'utils/interfaces';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import SuggestionInput from 'app/components/ui/SuggestionInput';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import TimeInput from 'app/components/ui/TimeInput';
+import { useTripPlan } from 'app/data/api_query';
+import { useQueryClient } from '@tanstack/react-query';
+import TripPlanCell from 'app/components/ui/TripPlanCell';
+import * as Location from 'expo-location';
+import { SheetProps } from 'app/utils';
 
 // AlertList (for all routes and current route)
 const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
-  const snapPoints = ["85%"];
+  const snapPoints = ['85%'];
 
   const theme = useAppStore((state) => state.theme);
 
@@ -35,7 +35,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     MyLocationSuggestion,
   );
   const [endLocation, setEndLocation] = useState<SearchSuggestion | null>(null);
-  const [deadline, setDeadline] = useState<"leave" | "arrive">("leave");
+  const [deadline, setDeadline] = useState<'leave' | 'arrive'>('leave');
   const [time, setTime] = useState<Date>(new Date());
 
   const {
@@ -48,7 +48,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
   const suggestionOutput = useAppStore((state) => state.suggestionOutput);
   const setSuggestions = useAppStore((state) => state.setSuggestions);
   const setSuggesionOutput = useAppStore((state) => state.setSuggestionOutput);
-  const [routeInfoError, setRouteInfoError] = useState("");
+  const [routeInfoError, setRouteInfoError] = useState('');
   const dismissSheet = useAppStore((state) => state.dismissSheet);
   const setSheetCloseCallback = useAppStore(
     (state) => state.setSheetCloseCallback,
@@ -89,32 +89,32 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         setEndLocation(null);
         setSuggesionOutput(null);
       }, 500);
-    }, "inputRoute");
+    }, 'inputRoute');
   }, []);
 
   useEffect(() => {
     if (suggestionOutput) {
-      setRouteInfoError("");
+      setRouteInfoError('');
       return;
     }
 
     if (startLocation && endLocation) {
       if (startLocation.title === endLocation.title) {
-        setRouteInfoError("Start and End locations cannot be the same");
+        setRouteInfoError('Start and End locations cannot be the same');
         return;
       }
     }
 
     if (
-      startLocation?.type === "my-location" ||
-      endLocation?.type === "my-location"
+      startLocation?.type === 'my-location' ||
+      endLocation?.type === 'my-location'
     ) {
       // Request location permissions
       Location.requestForegroundPermissionsAsync().then(async (status) => {
         // Check if permission is granted
         if (!status.granted) {
           setRouteInfoError(
-            "Location Unavailable, enable location in Settings.",
+            'Location Unavailable, enable location in Settings.',
           );
           return;
         }
@@ -130,12 +130,12 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         location.lat = locationCoords.coords.latitude;
         location.long = locationCoords.coords.longitude;
 
-        if (startLocation?.type === "my-location") setStartLocation(location);
-        if (endLocation?.type === "my-location") setEndLocation(location);
+        if (startLocation?.type === 'my-location') setStartLocation(location);
+        if (endLocation?.type === 'my-location') setEndLocation(location);
       });
     }
 
-    setRouteInfoError("");
+    setRouteInfoError('');
   }, [startLocation, endLocation, suggestionOutput]);
 
   return (
@@ -151,7 +151,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         onTouchStart={() => {
           if (!suggestionOutput && !timeInputFocused) Keyboard.dismiss();
         }}
-        style={[!(routeInfoError === "") && { flex: 1 }]}
+        style={[!(routeInfoError === '') && { flex: 1 }]}
       >
         {/* header */}
         <SheetHeader
@@ -161,7 +161,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
               style={{ marginLeft: 10 }}
               onPress={() => {
                 Keyboard.dismiss();
-                dismissSheet("inputRoute");
+                dismissSheet('inputRoute');
               }}
             >
               <Ionicons
@@ -178,24 +178,24 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
           {/* Endpoint Input */}
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
               marginTop: 8,
               paddingHorizontal: 16,
             }}
           >
-            <View style={{ paddingRight: 8, alignItems: "center", flex: 1 }}>
+            <View style={{ paddingRight: 8, alignItems: 'center', flex: 1 }}>
               {/* Start */}
               <SuggestionInput
-                outputName={"start"}
+                outputName={'start'}
                 location={startLocation}
                 onFocus={() => {
-                  if (startLocation?.type === "my-location")
+                  if (startLocation?.type === 'my-location')
                     setStartLocation(null);
                 }}
                 icon={
-                  startLocation?.type === "my-location" ? (
+                  startLocation?.type === 'my-location' ? (
                     <MaterialCommunityIcons
                       name="crosshairs-gps"
                       size={24}
@@ -219,7 +219,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                   width: 3,
                   backgroundColor: theme.subtitle,
                   marginVertical: 1.5,
-                  alignSelf: "flex-start",
+                  alignSelf: 'flex-start',
                   marginLeft: 16,
                   borderRadius: 999,
                 }}
@@ -230,7 +230,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                   width: 3,
                   backgroundColor: theme.subtitle,
                   marginVertical: 1.5,
-                  alignSelf: "flex-start",
+                  alignSelf: 'flex-start',
                   marginLeft: 16,
                   borderRadius: 999,
                 }}
@@ -241,7 +241,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                   width: 3,
                   backgroundColor: theme.subtitle,
                   marginVertical: 1.5,
-                  alignSelf: "flex-start",
+                  alignSelf: 'flex-start',
                   marginLeft: 16,
                   borderRadius: 999,
                 }}
@@ -249,13 +249,13 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
               {/* End */}
               <SuggestionInput
-                outputName={"end"}
+                outputName={'end'}
                 location={endLocation}
                 onFocus={() => {
-                  if (endLocation?.type === "my-location") setEndLocation(null);
+                  if (endLocation?.type === 'my-location') setEndLocation(null);
                 }}
                 icon={
-                  endLocation?.type === "my-location" ? (
+                  endLocation?.type === 'my-location' ? (
                     <MaterialCommunityIcons
                       name="crosshairs-gps"
                       size={24}
@@ -294,27 +294,27 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
           {/* Leave by/Arrive By */}
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
               marginVertical: 12,
               paddingHorizontal: 16,
             }}
           >
             <SegmentedControl
-              values={["Leave by", "Arrive by"]}
+              values={['Leave by', 'Arrive by']}
               selectedIndex={segmentedIndex}
               onChange={(event) => {
                 setSegmentedIndex(event.nativeEvent.selectedSegmentIndex);
                 setDeadline(
                   event.nativeEvent.selectedSegmentIndex === 0
-                    ? "leave"
-                    : "arrive",
+                    ? 'leave'
+                    : 'arrive',
                 );
               }}
               style={{ flex: 1, marginRight: 8 }}
               backgroundColor={
-                Platform.OS === "android"
+                Platform.OS === 'android'
                   ? theme.androidSegmentedBackground
                   : undefined
               }
@@ -332,19 +332,19 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
           />
 
           {/* Error */}
-          {routeInfoError !== "" && (
+          {routeInfoError !== '' && (
             <View
               style={{
                 marginTop: 8,
-                justifyContent: "center",
-                alignItems: "center",
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
             >
               {/* Error Text */}
               <Text
                 style={{
                   color: theme.subtitle,
-                  textAlign: "center",
+                  textAlign: 'center',
                   marginLeft: 4,
                   paddingHorizontal: 24,
                 }}
@@ -353,7 +353,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
               </Text>
 
               {routeInfoError ===
-                "Location Unavailable, enable location in Settings." && (
+                'Location Unavailable, enable location in Settings.' && (
                 <Button
                   title="Open Settings"
                   onPress={() => Linking.openSettings()}
@@ -365,13 +365,13 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
       </View>
 
       {/* Flat lists when no error */}
-      {routeInfoError === "" &&
+      {routeInfoError === '' &&
         (suggestionOutput ? (
           /* Search Suggestions */
           <BottomSheetFlatList
             data={searchSuggestions}
             keyExtractor={(_, index) => index.toString()}
-            keyboardShouldPersistTaps={"handled"}
+            keyboardShouldPersistTaps={'handled'}
             ItemSeparatorComponent={() => (
               <View
                 style={{
@@ -391,12 +391,12 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                   <View
                     style={{
                       padding: 16,
-                      justifyContent: "center",
-                      alignItems: "center",
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}
                   >
                     <Text
-                      style={{ color: theme.subtitle, textAlign: "center" }}
+                      style={{ color: theme.subtitle, textAlign: 'center' }}
                     >
                       No locations found
                     </Text>
@@ -411,14 +411,14 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                 style={{
                   paddingVertical: 12,
                   paddingHorizontal: 16,
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                 }}
                 onPress={() => {
-                  if (suggestionOutput === "start")
+                  if (suggestionOutput === 'start')
                     setStartLocation(suggestion);
-                  if (suggestionOutput === "end") setEndLocation(suggestion);
+                  if (suggestionOutput === 'end') setEndLocation(suggestion);
                   setSuggestions([]);
                   setSuggesionOutput(null);
                   Keyboard.dismiss();
@@ -428,28 +428,28 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                   style={{
                     backgroundColor: theme.tertiaryBackground,
                     borderRadius: 999,
-                    alignItems: "center",
-                    justifyContent: "center",
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     height: 40,
                     width: 40,
                     paddingVertical: 2,
                   }}
                 >
-                  {suggestion.type === "my-location" && (
+                  {suggestion.type === 'my-location' && (
                     <MaterialCommunityIcons
                       name="crosshairs-gps"
                       size={24}
                       color={theme.myLocation}
                     />
                   )}
-                  {suggestion.type === "stop" && (
+                  {suggestion.type === 'stop' && (
                     <MaterialCommunityIcons
                       name="bus-stop"
                       size={24}
                       color={theme.subtitle}
                     />
                   )}
-                  {suggestion.type === "map" && (
+                  {suggestion.type === 'map' && (
                     <MaterialCommunityIcons
                       name="map-marker"
                       size={24}
@@ -463,7 +463,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                     style={{
                       color: theme.text,
                       fontSize: 16,
-                      fontWeight: "bold",
+                      fontWeight: 'bold',
                     }}
                   >
                     {suggestion.title}
@@ -503,8 +503,8 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
               <View
                 style={{
                   padding: 16,
-                  justifyContent: "center",
-                  alignItems: "center",
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}
               >
                 <ActivityIndicator />
@@ -515,11 +515,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
               <View
                 style={{
                   padding: 16,
-                  justifyContent: "center",
-                  alignItems: "center",
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}
               >
-                <Text style={{ color: theme.subtitle, textAlign: "center" }}>
+                <Text style={{ color: theme.subtitle, textAlign: 'center' }}>
                   Unable to load routes. Please try again later.
                 </Text>
               </View>
@@ -537,7 +537,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             onRefresh={() => {
               client.invalidateQueries({
                 queryKey: [
-                  "tripPlan",
+                  'tripPlan',
                   startLocation,
                   endLocation,
                   time,
@@ -547,7 +547,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
               setSuggestions([]);
             }}
             refreshing={tripPlanLoading}
-            keyboardShouldPersistTaps={"handled"}
+            keyboardShouldPersistTaps={'handled'}
             ItemSeparatorComponent={() => (
               <View
                 style={{
@@ -573,12 +573,12 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                   <View
                     style={{
                       padding: 16,
-                      justifyContent: "center",
-                      alignItems: "center",
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}
                   >
                     <Text
-                      style={{ color: theme.subtitle, textAlign: "center" }}
+                      style={{ color: theme.subtitle, textAlign: 'center' }}
                     >
                       No routes found
                     </Text>

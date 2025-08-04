@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react";
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
-import { BottomSheetModal, BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import { FlatList } from "react-native-gesture-handler";
-import { Ionicons } from "@expo/vector-icons";
-import useAppStore from "../../data/app_state";
-import { IRouteStopSchedule, IStop } from "../../../utils/interfaces";
-import Timetable from "../ui/Timetable";
-import moment from "moment-strftime";
-import DateSelector from "../ui/DateSelector";
-import SheetHeader from "../ui/SheetHeader";
-import { useRoutes, useSchedule } from "app/data/api_query";
-import { SheetProps } from "app/utils";
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { FlatList } from 'react-native-gesture-handler';
+import { Ionicons } from '@expo/vector-icons';
+import useAppStore from '../../data/app_state';
+import { IRouteStopSchedule, IStop } from '../../../utils/interfaces';
+import Timetable from '../ui/Timetable';
+import moment from 'moment-strftime';
+import DateSelector from '../ui/DateSelector';
+import SheetHeader from '../ui/SheetHeader';
+import { useRoutes, useSchedule } from 'app/data/api_query';
+import { SheetProps } from 'app/utils';
 
 // Timtable with upcoming routes
 const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
@@ -50,14 +50,14 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     isError: scheduleError,
     isLoading: scheduleLoading,
   } = useSchedule(
-    selectedStop?.stopCode ?? "",
+    selectedStop?.stopCode ?? '',
     selectedTimetableDate ?? moment().toDate(),
   );
 
   const dayDecrement = () => {
     // Decrease the date by one day
     const prevDate = moment(selectedTimetableDate || moment().toDate())
-      .subtract(1, "days")
+      .subtract(1, 'days')
       .toDate();
     setRouteSchedules(null);
     setNonRouteSchedules(null);
@@ -67,7 +67,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
   const dayIncrement = () => {
     // Increase the date by one day
     const nextDate = moment(selectedTimetableDate || moment().toDate())
-      .add(1, "days")
+      .add(1, 'days')
       .toDate();
     setRouteSchedules(null);
     setNonRouteSchedules(null);
@@ -104,7 +104,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
   function getLineColor(shortName: string) {
     const route = routes?.find((route) => route.shortName === shortName);
-    return route?.directionList[0]?.lineColor ?? "#500000";
+    return route?.directionList[0]?.lineColor ?? '#500000';
   }
 
   // prevent data from disappearing when the sheet is closed
@@ -123,10 +123,10 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
       setSelectedStop(null);
       setShowNonRouteSchedules(false);
       setSelectedTimetableDate(null);
-    }, "stopTimetable");
+    }, 'stopTimetable');
   }, []);
 
-  const snapPoints = ["25%", "45%", "85%"];
+  const snapPoints = ['25%', '45%', '85%'];
   const [snap, _] = useState(2);
 
   return (
@@ -141,11 +141,11 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     >
       <View>
         <SheetHeader
-          title={tempSelectedStop?.name ?? "Something went wrong"}
+          title={tempSelectedStop?.name ?? 'Something went wrong'}
           icon={
             <TouchableOpacity
               style={{ marginLeft: 10 }}
-              onPress={() => dismissSheet("stopTimetable")}
+              onPress={() => dismissSheet('stopTimetable')}
             >
               <Ionicons
                 name="close-circle"
@@ -162,7 +162,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
       {scheduleError && (
         <Text
-          style={{ textAlign: "center", marginTop: 10, color: theme.subtitle }}
+          style={{ textAlign: 'center', marginTop: 10, color: theme.subtitle }}
         >
           Unable to load schedules. Please try again later
         </Text>
@@ -175,16 +175,16 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
         >
           <View
             style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
               marginBottom: 8,
             }}
           >
             <View style={{ flex: 1 }} />
             <DateSelector
               text={moment(selectedTimetableDate || moment()).strftime(
-                "%A, %B %d",
+                '%A, %B %d',
               )}
               leftArrowShown={
                 new Date() < (selectedTimetableDate || moment().toDate())
@@ -218,7 +218,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                     <Timetable
                       item={item}
                       tintColor={getLineColor(item.routeNumber)}
-                      stopCode={selectedStop?.stopCode ?? ""}
+                      stopCode={selectedStop?.stopCode ?? ''}
                     />
                   </View>
                 );
@@ -260,15 +260,15 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                           );
 
                           if (route) {
-                            dismissSheet("stopTimetable");
+                            dismissSheet('stopTimetable');
 
                             setSelectedRoute(route);
                             setDrawnRoutes([route]);
-                            presentSheet("routeDetails");
+                            presentSheet('routeDetails');
                           }
                         }}
                         tintColor={getLineColor(item.routeNumber)}
-                        stopCode={selectedStop?.stopCode ?? ""}
+                        stopCode={selectedStop?.stopCode ?? ''}
                       />
                     </View>
                   );
@@ -286,15 +286,15 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                 marginHorizontal: 16,
                 borderRadius: 8,
                 marginTop: 16,
-                alignSelf: "center",
+                alignSelf: 'center',
                 backgroundColor: getLineColor(
-                  selectedRoute?.shortName ?? "#550000",
+                  selectedRoute?.shortName ?? '#550000',
                 ),
               }}
               onPress={() => setShowNonRouteSchedules(!showNonRouteSchedules)}
             >
-              <Text style={{ color: "white" }}>
-                {showNonRouteSchedules ? "Hide" : "Show"} Other Routes
+              <Text style={{ color: 'white' }}>
+                {showNonRouteSchedules ? 'Hide' : 'Show'} Other Routes
               </Text>
             </TouchableOpacity>
           )}

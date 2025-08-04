@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from '@tanstack/react-query';
 import {
   findBusStops,
   getBaseData,
@@ -8,10 +8,10 @@ import {
   getStopSchedules,
   getTripPlan,
   getVehicles,
-} from "aggie-spirit-api";
-import { darkMode, lightMode } from "app/theme";
-import { getColorScheme } from "app/utils";
-import moment from "moment";
+} from 'aggie-spirit-api';
+import { darkMode, lightMode } from 'app/theme';
+import { getColorScheme } from 'app/utils';
+import moment from 'moment';
 import {
   GetBaseDataResponseSchema,
   GetNextDepartTimesResponseSchema,
@@ -33,15 +33,15 @@ import {
   ITripPlanResponse,
   IVehicle,
   SearchSuggestion,
-} from "utils/interfaces";
-import "@bacons/text-decoder/install";
+} from 'utils/interfaces';
+import '@bacons/text-decoder/install';
 
 export const useAuthCode = () => {
   const query = useQuery<string>({
-    queryKey: ["authCode"],
+    queryKey: ['authCode'],
     queryFn: async () => {
       const authCodeB64 = await (
-        await fetch("https://auth.maroonrides.app")
+        await fetch('https://auth.maroonrides.app')
       ).text();
       return atob(authCodeB64);
     },
@@ -56,10 +56,10 @@ export const useAuthToken = () => {
   const authCodeQuery = useAuthCode();
 
   const query = useQuery<{ [key: string]: string }>({
-    queryKey: ["authToken"],
+    queryKey: ['authToken'],
     queryFn: async () => {
       let data = authCodeQuery.data!;
-      data += "\ngetAuthentication()";
+      data += '\ngetAuthentication()';
       const headers = await eval(data);
       return headers;
     },
@@ -75,19 +75,19 @@ export const useRoutePlanAuthToken = (queryString: string) => {
   const authCodeQuery = useAuthCode();
 
   const query = useQuery<{ [key: string]: string }>({
-    queryKey: ["routePlanAuthToken"],
+    queryKey: ['routePlanAuthToken'],
     queryFn: async () => {
       let qsAdded = authCodeQuery.data!.replace(
-        "ROUTE_PLAN_QUERY_STRING",
+        'ROUTE_PLAN_QUERY_STRING',
         queryString,
       );
-      qsAdded += "\ngetRoutePlanAuthentication()";
+      qsAdded += '\ngetRoutePlanAuthentication()';
 
       const headers = await eval(qsAdded);
       return headers;
     },
     refetchInterval: 2 * 3600 * 1000,
-    enabled: authCodeQuery.isSuccess && queryString !== "",
+    enabled: authCodeQuery.isSuccess && queryString !== '',
   });
 
   return query;
@@ -97,7 +97,7 @@ export const useBaseData = () => {
   const authTokenQuery = useAuthToken();
 
   const query = useQuery<IGetBaseDataResponse>({
-    queryKey: ["baseData"],
+    queryKey: ['baseData'],
     // @ts-ignore: We are modifying the baseData object to add patternPaths
     queryFn: async () => {
       const baseData = await getBaseData(authTokenQuery.data!);
@@ -123,7 +123,7 @@ export const usePatternPaths = () => {
 
   const query = useQuery<IGetPatternPathsResponse>({
     queryKey: [
-      "patternPaths",
+      'patternPaths',
       (baseDataQuery.data as IGetBaseDataResponse)?.routes.map((route) => [
         route.key,
         route.directionList.map((d) => d.direction.key),
@@ -153,7 +153,7 @@ export const useRoutes = () => {
   const patternPathsQuery = usePatternPaths();
 
   const query = useQuery<IMapRoute[]>({
-    queryKey: ["routes"],
+    queryKey: ['routes'],
     queryFn: async () => {
       const baseData = baseDataQuery.data as IGetBaseDataResponse;
       const patternPaths = patternPathsQuery.data as IGetPatternPathsResponse;
@@ -180,7 +180,7 @@ export const useRoutes = () => {
 
       // convert colors of routes based on theme
       const colorTheme =
-        (await getColorScheme()) === "dark" ? darkMode : lightMode;
+        (await getColorScheme()) === 'dark' ? darkMode : lightMode;
 
       mergedRoutes = mergedRoutes.map((route) => {
         const originalColor = baseData.routes.find(
@@ -208,7 +208,7 @@ export const useServiceInterruptions = () => {
   const baseDataQuery = useBaseData();
 
   return useQuery<IMapServiceInterruption[]>({
-    queryKey: ["serviceInterruptions"],
+    queryKey: ['serviceInterruptions'],
     queryFn: async () => {
       const baseData = baseDataQuery.data as IGetBaseDataResponse;
       return baseData.serviceInterruptions;
@@ -226,7 +226,7 @@ export const useStopEstimate = (
   const authTokenQuery = useAuthToken();
 
   return useQuery<IGetNextDepartTimesResponse>({
-    queryKey: ["stopEstimate", routeKey, directionKey, stopCode],
+    queryKey: ['stopEstimate', routeKey, directionKey, stopCode],
     queryFn: async () => {
       const response = await getNextDepartureTimes(
         routeKey,
@@ -244,9 +244,9 @@ export const useStopEstimate = (
         const relatives = response.routeDirectionTimes[0].nextDeparts.map(
           (item) => {
             const date = moment(
-              item.estimatedDepartTimeUtc ?? item.scheduledDepartTimeUtc ?? "",
+              item.estimatedDepartTimeUtc ?? item.scheduledDepartTimeUtc ?? '',
             );
-            const relative = date.diff(moment(), "minutes");
+            const relative = date.diff(moment(), 'minutes');
 
             return relative;
           },
@@ -265,9 +265,9 @@ export const useStopEstimate = (
     },
     enabled:
       authTokenQuery.isSuccess &&
-      routeKey !== "" &&
-      directionKey !== "" &&
-      stopCode !== "",
+      routeKey !== '' &&
+      directionKey !== '' &&
+      stopCode !== '',
     staleTime: 30000,
     refetchInterval: 30000,
   });
@@ -278,9 +278,9 @@ export const useTimetableEstimate = (stopCode: string, date: Date) => {
 
   return useQuery<IGetStopEstimatesResponse>({
     queryKey: [
-      "timetableEstimate",
+      'timetableEstimate',
       stopCode,
-      moment(date).format("YYYY-MM-DD"),
+      moment(date).format('YYYY-MM-DD'),
     ],
     queryFn: async () => {
       const response = await getStopEstimates(
@@ -292,7 +292,7 @@ export const useTimetableEstimate = (stopCode: string, date: Date) => {
 
       return response;
     },
-    enabled: authTokenQuery.isSuccess && stopCode !== "" && date !== null,
+    enabled: authTokenQuery.isSuccess && stopCode !== '' && date !== null,
     staleTime: 30000,
     refetchInterval: 30000,
   });
@@ -302,7 +302,7 @@ export const useSchedule = (stopCode: string, date: Date) => {
   const authTokenQuery = useAuthToken();
 
   return useQuery<IGetStopSchedulesResponse>({
-    queryKey: ["schedule", stopCode, date],
+    queryKey: ['schedule', stopCode, date],
     queryFn: async () => {
       const stopSchedulesResponse = await getStopSchedules(
         stopCode,
@@ -313,7 +313,7 @@ export const useSchedule = (stopCode: string, date: Date) => {
 
       return stopSchedulesResponse;
     },
-    enabled: authTokenQuery.isSuccess && stopCode !== "" && date !== null,
+    enabled: authTokenQuery.isSuccess && stopCode !== '' && date !== null,
     staleTime: Infinity,
   });
 };
@@ -322,7 +322,7 @@ export const useVehicles = (routeKey: string) => {
   const authTokenQuery = useAuthToken();
 
   return useQuery<IGetVehiclesResponse, Error, IVehicle[]>({
-    queryKey: ["vehicles", routeKey],
+    queryKey: ['vehicles', routeKey],
     queryFn: async () => {
       let busesResponse = (await getVehicles(
         [routeKey],
@@ -346,7 +346,7 @@ export const useVehicles = (routeKey: string) => {
 
       return extracted;
     },
-    enabled: authTokenQuery.isSuccess && routeKey !== "",
+    enabled: authTokenQuery.isSuccess && routeKey !== '',
     staleTime: 10000,
     refetchInterval: 10000,
   });
@@ -358,7 +358,7 @@ export const useSearchSuggestion = (query: string) => {
   const routesQuery = useRoutes();
 
   return useQuery<any, Error, SearchSuggestion[]>({
-    queryKey: ["searchSuggestion", query],
+    queryKey: ['searchSuggestion', query],
     queryFn: async () => {
       // we need data from pattern paths to get the stop GPS locations
       // This is limitation of the API where we can't get the GPS location of a stop directly
@@ -366,8 +366,8 @@ export const useSearchSuggestion = (query: string) => {
       // since Google already has most buildings in their search
       let queryData = authTokenQuery.data!;
       queryData = {
-        Cookie: queryData["Cookie"]!,
-        "X-Requested-With": queryData["X-Requested-With"]!,
+        Cookie: queryData['Cookie']!,
+        'X-Requested-With': queryData['X-Requested-With']!,
       };
 
       const stops = await findBusStops(query, queryData);
@@ -397,9 +397,9 @@ export const useSearchSuggestion = (query: string) => {
         }
 
         return {
-          type: "stop",
-          title: foundLocation?.stop?.name ?? "",
-          subtitle: "ID: " + foundLocation?.stop?.stopCode,
+          type: 'stop',
+          title: foundLocation?.stop?.name ?? '',
+          subtitle: 'ID: ' + foundLocation?.stop?.stopCode,
           stopCode: foundLocation?.stop?.stopCode,
           lat: foundLocation?.latitude,
           long: foundLocation?.longitude,
@@ -408,7 +408,7 @@ export const useSearchSuggestion = (query: string) => {
 
       return busStops;
     },
-    enabled: authTokenQuery.isSuccess && routesQuery.isSuccess && query !== "",
+    enabled: authTokenQuery.isSuccess && routesQuery.isSuccess && query !== '',
     throwOnError: true,
     staleTime: Infinity,
   });
@@ -418,15 +418,15 @@ export const useTripPlan = (
   origin: SearchSuggestion | null,
   destination: SearchSuggestion | null,
   date: Date,
-  deadline: "leave" | "arrive",
+  deadline: 'leave' | 'arrive',
 ) => {
   // build the query string
   // ?o1=Commons&osc=0100&d1=HEEP&dsc=0108&dt=1736392200&ro=0
-  let queryString = "";
+  let queryString = '';
   if (origin && destination) {
-    if (origin.title === "My Location") {
+    if (origin.title === 'My Location') {
       queryString = `Results?o1=${origin.title}&ola=${origin.lat}&olo=${origin.long}&og=1&d1=${destination.title}&dsc=${destination.stopCode}&dt=${(date.getTime() / 1000).toFixed(0)}&ro=0`;
-    } else if (destination.title === "My Location") {
+    } else if (destination.title === 'My Location') {
       queryString = `Results?o1=${origin.title}&osc=${origin.stopCode}&d1=${destination.title}&dla=${origin.lat}&dlo=${origin.long}&dg=true&dt=${(date.getTime() / 1000).toFixed(0)}&ro=0`;
     } else {
       queryString = `Results?o1=${origin.title}&osc=${origin.stopCode}&d1=${destination.title}&dsc=${destination.stopCode}&dt=${(date.getTime() / 1000).toFixed(0)}&ro=0`;
@@ -436,15 +436,15 @@ export const useTripPlan = (
   const routePlanAuthToken = useRoutePlanAuthToken(queryString);
 
   return useQuery<ITripPlanResponse>({
-    queryKey: ["tripPlan", origin, destination, date, deadline],
+    queryKey: ['tripPlan', origin, destination, date, deadline],
     queryFn: async () => {
       let response = await getTripPlan(
         routePlanAuthToken.data!,
         origin!,
         destination!,
         0,
-        deadline === "arrive" ? date : undefined,
-        deadline === "leave" ? date : undefined,
+        deadline === 'arrive' ? date : undefined,
+        deadline === 'leave' ? date : undefined,
       );
 
       GetTripPlanResponseSchema.parse(response);

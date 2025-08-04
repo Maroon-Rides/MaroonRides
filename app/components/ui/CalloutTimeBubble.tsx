@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React from 'react';
+import { View, Text } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface Props {
   time: string;
@@ -20,10 +20,10 @@ const CalloutTimeBubble: React.FC<Props> = ({
       style={{
         backgroundColor: color,
         borderRadius: 6,
-        alignItems: "center",
-        justifyContent: "center",
-        alignSelf: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf: 'center',
+        flexDirection: 'row',
         padding: 4,
         paddingHorizontal: 8,
         marginRight: 4,
@@ -32,9 +32,9 @@ const CalloutTimeBubble: React.FC<Props> = ({
       <Text
         style={{
           fontSize: 12,
-          textAlign: "center",
-          fontWeight: "600",
-          color: textColor ?? "white",
+          textAlign: 'center',
+          fontWeight: '600',
+          color: textColor ?? 'white',
         }}
       >
         {time}
@@ -44,8 +44,8 @@ const CalloutTimeBubble: React.FC<Props> = ({
         <MaterialCommunityIcons
           name="rss"
           size={12}
-          color={textColor ?? "white"}
-          style={{ marginRight: -2, paddingLeft: 1, alignSelf: "flex-start" }}
+          color={textColor ?? 'white'}
+          style={{ marginRight: -2, paddingLeft: 1, alignSelf: 'flex-start' }}
         />
       )}
     </View>

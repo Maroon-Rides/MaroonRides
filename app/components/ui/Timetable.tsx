@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { IRouteStopSchedule } from "../../../utils/interfaces";
-import BusIcon from "./BusIcon";
-import useAppStore from "../../data/app_state";
-import moment from "moment";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { useTimetableEstimate } from "app/data/api_query";
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Text, View } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { IRouteStopSchedule } from '../../../utils/interfaces';
+import BusIcon from './BusIcon';
+import useAppStore from '../../data/app_state';
+import moment from 'moment';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useTimetableEstimate } from 'app/data/api_query';
 
 interface Props {
   item: IRouteStopSchedule;
@@ -82,8 +82,8 @@ const Timetable: React.FC<Props> = ({
       // and the time is in the same day
 
       if (
-        (departTime.isSame(now, "day") &&
-          departTime.diff(now, "minutes") >= 0) ||
+        (departTime.isSame(now, 'day') &&
+          departTime.diff(now, 'minutes') >= 0) ||
         (timeEstimate?.isRealtime && !timeEstimate?.isCancelled)
       ) {
         color = theme.text;
@@ -96,7 +96,7 @@ const Timetable: React.FC<Props> = ({
       }
 
       return {
-        time: departTime.format("h:mm"),
+        time: departTime.format('h:mm'),
         color: color,
         shouldHighlight: shouldHighlight,
         live: (timeEstimate && timeEstimate.isRealtime) ?? false,
@@ -119,8 +119,8 @@ const Timetable: React.FC<Props> = ({
       if (shouldHighlight && !foundHighlight) {
         // set all of the expired items to tint color and 50% opacity
         for (let j = 0; j < row.length; j++) {
-          if (row[j]!.color === "grey") {
-            row[j]!.color = tintColor + "80";
+          if (row[j]!.color === 'grey') {
+            row[j]!.color = tintColor + '80';
           }
         }
       }
@@ -142,7 +142,7 @@ const Timetable: React.FC<Props> = ({
       <TouchableOpacity
         onPress={dismissBack}
         disabled={dismissBack === null}
-        style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}
+        style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}
       >
         <BusIcon
           name={item.routeNumber}
@@ -150,10 +150,10 @@ const Timetable: React.FC<Props> = ({
           style={{ marginRight: 8 }}
         />
         <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text
               style={{
-                fontWeight: "bold",
+                fontWeight: 'bold',
                 fontSize: 24,
                 color: theme.text,
                 flexShrink: 1,
@@ -177,13 +177,13 @@ const Timetable: React.FC<Props> = ({
           return (
             <View
               style={{
-                flexDirection: "row",
-                alignItems: "center",
+                flexDirection: 'row',
+                alignItems: 'center',
                 paddingVertical: 8,
                 paddingHorizontal: 8,
                 borderRadius: 8,
                 backgroundColor: row.shouldHighlight
-                  ? tintColor + "40"
+                  ? tintColor + '40'
                   : rowIndex % 2 === 0
                     ? theme.timetableRowB
                     : theme.timetableRowA,
@@ -194,9 +194,9 @@ const Timetable: React.FC<Props> = ({
                 return (
                   <View
                     style={{
-                      flexBasis: "20%",
-                      justifyContent: "center",
-                      flexDirection: "row",
+                      flexBasis: '20%',
+                      justifyContent: 'center',
+                      flexDirection: 'row',
                     }}
                     key={colIndex}
                   >
@@ -204,11 +204,11 @@ const Timetable: React.FC<Props> = ({
                       style={{
                         color: item.color,
                         fontWeight:
-                          item.color === tintColor ? "bold" : "normal",
+                          item.color === tintColor ? 'bold' : 'normal',
                         fontSize: 16,
                         textDecorationLine: item.cancelled
-                          ? "line-through"
-                          : "none",
+                          ? 'line-through'
+                          : 'none',
                       }}
                     >
                       {item.time}
@@ -222,7 +222,7 @@ const Timetable: React.FC<Props> = ({
                         style={{
                           marginRight: -2,
                           paddingLeft: 1,
-                          alignSelf: "flex-start",
+                          alignSelf: 'flex-start',
                         }}
                       />
                     )}
@@ -233,7 +233,7 @@ const Timetable: React.FC<Props> = ({
           );
         })}
         {item.stopTimes.length === 0 && !item.isEndOfRoute && (
-          <Text style={{ color: "grey", textAlign: "center" }}>
+          <Text style={{ color: 'grey', textAlign: 'center' }}>
             No Timetable for Today
           </Text>
         )}

@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   ActivityIndicator,
   FlatList,
   TouchableOpacity,
-} from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { IDirection, IMapRoute, IStop } from "../../../utils/interfaces";
-import TimeBubble from "./TimeBubble";
-import useAppStore from "../../data/app_state";
-import AmenityRow from "./AmenityRow";
-import moment from "moment";
-import { useStopEstimate } from "app/data/api_query";
+} from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { IDirection, IMapRoute, IStop } from '../../../utils/interfaces';
+import TimeBubble from './TimeBubble';
+import useAppStore from '../../data/app_state';
+import AmenityRow from './AmenityRow';
+import moment from 'moment';
+import { useStopEstimate } from 'app/data/api_query';
 
 interface Props {
   stop: IStop;
@@ -31,7 +31,7 @@ const StopCell: React.FC<Props> = ({
   disabled,
   setSheetPos,
 }) => {
-  const [status, setStatus] = useState("On Time");
+  const [status, setStatus] = useState('On Time');
 
   const presentSheet = useAppStore((state) => state.presentSheet);
   const setSelectedStop = useAppStore((state) => state.setSelectedStop);
@@ -54,7 +54,7 @@ const StopCell: React.FC<Props> = ({
     // this is usually caused by out of date base data
     // therefore refresh the base data
     if (stopEstimate.routeDirectionTimes.length === 0) {
-      setStatus("Error loading estimates, try again later.");
+      setStatus('Error loading estimates, try again later.');
       return;
     }
 
@@ -63,10 +63,10 @@ const StopCell: React.FC<Props> = ({
     let deviation = 0;
 
     for (const departTime of estimate.nextDeparts) {
-      const estimatedTime = moment(departTime.estimatedDepartTimeUtc ?? "");
-      const scheduledTime = moment(departTime.scheduledDepartTimeUtc ?? "");
+      const estimatedTime = moment(departTime.estimatedDepartTimeUtc ?? '');
+      const scheduledTime = moment(departTime.scheduledDepartTimeUtc ?? '');
 
-      const delayLength = estimatedTime.diff(scheduledTime, "seconds");
+      const delayLength = estimatedTime.diff(scheduledTime, 'seconds');
 
       if (!isNaN(delayLength)) {
         deviation = delayLength;
@@ -76,27 +76,27 @@ const StopCell: React.FC<Props> = ({
 
     const roundedDeviation = Math.round(deviation / 60);
 
-    if (estimate.directionKey === "") {
-      setStatus("Loading");
+    if (estimate.directionKey === '') {
+      setStatus('Loading');
     } else if (estimate.nextDeparts.length === 0) {
-      setStatus("No upcoming departures");
+      setStatus('No upcoming departures');
     } else if (roundedDeviation > 0) {
       setStatus(
-        `${roundedDeviation} ${roundedDeviation > 1 ? "minutes" : "minute"} late`,
+        `${roundedDeviation} ${roundedDeviation > 1 ? 'minutes' : 'minute'} late`,
       );
     } else if (roundedDeviation < 0) {
       setStatus(
-        `${Math.abs(roundedDeviation)} ${Math.abs(roundedDeviation) > 1 ? "minutes" : "minute"} early`,
+        `${Math.abs(roundedDeviation)} ${Math.abs(roundedDeviation) > 1 ? 'minutes' : 'minute'} early`,
       );
     } else {
-      setStatus("On time");
+      setStatus('On time');
     }
   }, [stopEstimate]);
 
   // when cell is tapped, open the stop timetable
   function toTimetable() {
     setSelectedStop(stop);
-    presentSheet("stopTimetable");
+    presentSheet('stopTimetable');
   }
 
   function zoomToStop() {
@@ -115,12 +115,12 @@ const StopCell: React.FC<Props> = ({
 
   return (
     <TouchableOpacity style={{ marginTop: 8 }} onPress={zoomToStop}>
-      <View style={{ flexDirection: "row", alignContent: "flex-start" }}>
+      <View style={{ flexDirection: 'row', alignContent: 'flex-start' }}>
         <Text
           style={{
             fontSize: 22,
-            fontWeight: "bold",
-            width: "75%",
+            fontWeight: 'bold',
+            width: '75%',
             color: theme.text,
           }}
         >
@@ -131,33 +131,33 @@ const StopCell: React.FC<Props> = ({
           amenities={stopEstimate?.amenities ?? []}
           size={24}
           color={theme.subtitle}
-          style={{ paddingRight: 16, alignSelf: "flex-start" }}
+          style={{ paddingRight: 16, alignSelf: 'flex-start' }}
         />
       </View>
 
       {isLoading ? (
         <View
           style={{
-            flexDirection: "row",
-            alignItems: "center",
+            flexDirection: 'row',
+            alignItems: 'center',
             marginVertical: 2,
           }}
         >
-          <ActivityIndicator style={{ justifyContent: "flex-start" }} />
+          <ActivityIndicator style={{ justifyContent: 'flex-start' }} />
           <View style={{ flex: 1 }} />
         </View>
       ) : (
         <Text style={{ marginBottom: 12, marginTop: 4, color: theme.subtitle }}>
           {isError
-            ? "Unable to load estimates. Please try again later."
+            ? 'Unable to load estimates. Please try again later.'
             : status}
         </Text>
       )}
 
       <View
         style={{
-          flexDirection: "row",
-          alignItems: "center",
+          flexDirection: 'row',
+          alignItems: 'center',
           marginRight: 8,
           marginBottom: 8,
           marginTop: -4,
@@ -172,21 +172,21 @@ const StopCell: React.FC<Props> = ({
             const date = moment(
               departureTime.estimatedDepartTimeUtc ??
                 departureTime.scheduledDepartTimeUtc ??
-                "",
+                '',
             );
-            const relative = date.diff(moment(), "minutes");
+            const relative = date.diff(moment(), 'minutes');
             return (
               <TimeBubble
                 key={index}
-                time={relative <= 0 ? "Now" : relative.toString() + " min"}
+                time={relative <= 0 ? 'Now' : relative.toString() + ' min'}
                 color={
                   index === 0
-                    ? color + (theme.mode === "dark" ? "65" : "40")
+                    ? color + (theme.mode === 'dark' ? '65' : '40')
                     : theme.nextStopBubble
                 }
                 textColor={
                   index === 0
-                    ? theme.mode === "dark"
+                    ? theme.mode === 'dark'
                       ? theme.text
                       : color
                     : theme.text
@@ -203,8 +203,8 @@ const StopCell: React.FC<Props> = ({
         {!disabled && (
           <TouchableOpacity
             style={{
-              alignItems: "center",
-              flexDirection: "row",
+              alignItems: 'center',
+              flexDirection: 'row',
               paddingVertical: 4, // increase touch area
               paddingLeft: 8, // increase touch area
             }}
@@ -214,8 +214,8 @@ const StopCell: React.FC<Props> = ({
             <Text
               style={{
                 fontSize: 16,
-                textAlign: "center",
-                fontWeight: "bold",
+                textAlign: 'center',
+                fontWeight: 'bold',
                 marginVertical: 4,
                 marginLeft: 4,
                 marginRight: 2,

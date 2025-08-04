@@ -1,6 +1,6 @@
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { SearchSuggestion } from "utils/interfaces";
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SearchSuggestion } from 'utils/interfaces';
 
 export interface SheetProps {
   sheetRef: React.RefObject<BottomSheetModal | null>;
@@ -25,22 +25,22 @@ export function getLighterColor(color: string): string {
 
   // Convert the lightened color components back to a hex string
   const lightenedColor =
-    lightenedR.toString(16).padStart(2, "0") +
-    lightenedG.toString(16).padStart(2, "0") +
-    lightenedB.toString(16).padStart(2, "0");
+    lightenedR.toString(16).padStart(2, '0') +
+    lightenedG.toString(16).padStart(2, '0') +
+    lightenedB.toString(16).padStart(2, '0');
 
-  return "#" + lightenedColor;
+  return '#' + lightenedColor;
 }
 
 export async function getColorScheme(): Promise<string> {
-  const themeIndex = await AsyncStorage.getItem("app-theme");
-  const systemTheme = (await AsyncStorage.getItem("system-theme")) ?? "light";
+  const themeIndex = await AsyncStorage.getItem('app-theme');
+  const systemTheme = (await AsyncStorage.getItem('system-theme')) ?? 'light';
 
   switch (themeIndex) {
-    case "1":
-      return "light";
-    case "2":
-      return "dark";
+    case '1':
+      return 'light';
+    case '2':
+      return 'dark';
     default:
       return systemTheme;
   }
@@ -49,8 +49,8 @@ export async function getColorScheme(): Promise<string> {
 export function suggestionEqual(lhs: SearchSuggestion, rhs: SearchSuggestion) {
   if (lhs.type !== rhs.type) return false;
 
-  if (lhs.type === "map") return rhs.placeId === lhs.placeId;
-  if (lhs.type === "stop") return rhs.stopCode === lhs.stopCode;
+  if (lhs.type === 'map') return rhs.placeId === lhs.placeId;
+  if (lhs.type === 'stop') return rhs.stopCode === lhs.stopCode;
 
   return false;
 }

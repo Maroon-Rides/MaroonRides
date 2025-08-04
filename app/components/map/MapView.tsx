@@ -1,21 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, Platform, TouchableOpacity, View } from "react-native";
-import MapView, { LatLng, Polyline, Region } from "react-native-maps";
-import * as Location from "expo-location";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import React, { useEffect, useRef, useState } from 'react';
+import { Dimensions, Platform, TouchableOpacity, View } from 'react-native';
+import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
+import * as Location from 'expo-location';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import {
   IMapRoute,
   RoutePlanMapMarker,
   RoutePlanPolylinePoint,
-} from "../../../utils/interfaces";
-import useAppStore from "../../data/app_state";
-import BusMarker from "./markers/BusMarker";
-import StopMarker from "./markers/StopMarker";
-import { useVehicles } from "../../data/api_query";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { decode } from "@googlemaps/polyline-codec";
-import RoutePlanMarker from "./markers/RoutePlanMarker";
-import { DarkGoogleMaps } from "app/theme";
+} from '../../../utils/interfaces';
+import useAppStore from '../../data/app_state';
+import BusMarker from './markers/BusMarker';
+import StopMarker from './markers/StopMarker';
+import { useVehicles } from '../../data/api_query';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { decode } from '@googlemaps/polyline-codec';
+import RoutePlanMarker from './markers/RoutePlanMarker';
+import { DarkGoogleMaps } from 'app/theme';
 
 const Map: React.FC = () => {
   const mapViewRef = useRef<MapView>(null);
@@ -53,7 +53,7 @@ const Map: React.FC = () => {
     RoutePlanMapMarker[]
   >([]);
 
-  const { data: buses } = useVehicles(selectedRoute?.key ?? "");
+  const { data: buses } = useVehicles(selectedRoute?.key ?? '');
 
   const defaultMapRegion: Region = {
     latitude: 30.606,
@@ -70,7 +70,7 @@ const Map: React.FC = () => {
 
     setSelectedRoute(route);
     setDrawnRoutes([route]);
-    presentSheet("routeDetails");
+    presentSheet('routeDetails');
   }
 
   // center the view on the drawn routes
@@ -189,7 +189,7 @@ const Map: React.FC = () => {
                   name="time"
                   size={16}
                   color="white"
-                  style={{ transform: [{ rotate: "-45deg" }] }}
+                  style={{ transform: [{ rotate: '-45deg' }] }}
                 />
               ),
               latitude: lastPoint.latitude,
@@ -230,9 +230,9 @@ const Map: React.FC = () => {
     // animate to the selected part of the route plan
     mapViewRef.current?.fitToCoordinates(highlighted, {
       edgePadding: {
-        top: Dimensions.get("window").height * 0.05,
+        top: Dimensions.get('window').height * 0.05,
         right: 40,
-        bottom: Dimensions.get("window").height * 0.45 + 8,
+        bottom: Dimensions.get('window').height * 0.45 + 8,
         left: 40,
       },
       animated: true,
@@ -292,9 +292,9 @@ const Map: React.FC = () => {
     if (coords.length > 0) {
       mapViewRef.current?.fitToCoordinates(coords, {
         edgePadding: {
-          top: Dimensions.get("window").height * 0.05,
+          top: Dimensions.get('window').height * 0.05,
           right: 40,
-          bottom: Dimensions.get("window").height * 0.45 + 8,
+          bottom: Dimensions.get('window').height * 0.45 + 8,
           left: 40,
         },
         animated: true,
@@ -309,7 +309,7 @@ const Map: React.FC = () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
 
     // Check if permission is granted
-    if (status !== "granted") {
+    if (status !== 'granted') {
       return;
     }
 
@@ -336,17 +336,17 @@ const Map: React.FC = () => {
     <>
       <MapView
         showsUserLocation={true}
-        style={{ width: "100%", height: "100%" }}
+        style={{ width: '100%', height: '100%' }}
         ref={mapViewRef}
         rotateEnabled={false}
         region={defaultMapRegion}
         onPanDrag={() => setIsViewCenteredOnUser(false)}
         // this deprcation is ok, we only use it on android
-        maxZoomLevel={Platform.OS === "android" ? 18 : undefined}
+        maxZoomLevel={Platform.OS === 'android' ? 18 : undefined}
         showsMyLocationButton={false} // we have our own
         // fix dark mode android map syling
         customMapStyle={
-          Platform.OS === "android" && theme.mode === "dark"
+          Platform.OS === 'android' && theme.mode === 'dark'
             ? DarkGoogleMaps
             : []
         }
@@ -367,7 +367,7 @@ const Map: React.FC = () => {
             });
           });
 
-          const lineColor = drawnRoute.directionList[0]?.lineColor ?? "#FFFF";
+          const lineColor = drawnRoute.directionList[0]?.lineColor ?? '#FFFF';
 
           return Object.keys(coordDirections).map((directionId) => {
             const active =
@@ -377,7 +377,7 @@ const Map: React.FC = () => {
               <Polyline
                 key={`${directionId}`}
                 coordinates={coordDirections[directionId] ?? []}
-                strokeColor={active ? lineColor : lineColor + "60"}
+                strokeColor={active ? lineColor : lineColor + '60'}
                 strokeWidth={5}
                 tappable={true}
                 onPress={() => selectRoute(drawnRoute, directionId)}
@@ -405,7 +405,7 @@ const Map: React.FC = () => {
                     key={`${stop.stopCode}-${index1}-${index2}`}
                     point={patternPoint}
                     tintColor={
-                      selectedRoute?.directionList[0]?.lineColor ?? "#FFFF"
+                      selectedRoute?.directionList[0]?.lineColor ?? '#FFFF'
                     }
                     active={patternPath.directionKey === selectedRouteDirection}
                     route={selectedRoute}
@@ -424,7 +424,7 @@ const Map: React.FC = () => {
         {/* Route Plan Highlighted */}
         {selectedRoutePlan && (
           <Polyline
-            key={"highlighted-route-plan"}
+            key={'highlighted-route-plan'}
             coordinates={highlightedRoutePlanPath}
             strokeColor={theme.myLocation}
             strokeWidth={5}
@@ -438,7 +438,7 @@ const Map: React.FC = () => {
               <Polyline
                 key={`faded-route-plan-${index}`}
                 coordinates={path}
-                strokeColor={theme.myLocation + "60"}
+                strokeColor={theme.myLocation + '60'}
                 strokeWidth={5}
               />
             );
@@ -459,7 +459,7 @@ const Map: React.FC = () => {
         {selectedRoute &&
           buses?.map((bus) => {
             const color =
-              selectedRoute.directionList[0]?.lineColor ?? "#500000";
+              selectedRoute.directionList[0]?.lineColor ?? '#500000';
             return (
               <BusMarker
                 key={bus.key}
@@ -475,11 +475,11 @@ const Map: React.FC = () => {
       <View
         style={{
           top: 60,
-          alignContent: "center",
-          justifyContent: "center",
-          position: "absolute",
+          alignContent: 'center',
+          justifyContent: 'center',
+          position: 'absolute',
           right: 8,
-          overflow: "hidden",
+          overflow: 'hidden',
           borderRadius: 8,
           backgroundColor: theme.background,
           zIndex: 1000,

@@ -1,6 +1,6 @@
-import useAppStore from "../../data/app_state";
-import React, { memo } from "react";
-import { View, Text, ViewProps } from "react-native";
+import useAppStore from '../../data/app_state';
+import React, { memo } from 'react';
+import { View, Text, ViewProps } from 'react-native';
 
 interface Props extends ViewProps {
   text?: string;
@@ -18,10 +18,10 @@ const IconPill: React.FC<Props> = ({ text, icon, style }) => {
           borderColor: theme.pillBorder,
           borderWidth: 1,
           borderRadius: 1000,
-          alignItems: "center",
-          justifyContent: "center",
-          alignContent: "center",
-          flexDirection: "row",
+          alignItems: 'center',
+          justifyContent: 'center',
+          alignContent: 'center',
+          flexDirection: 'row',
           paddingHorizontal: 8,
           paddingVertical: 2,
           padding: 4,
@@ -39,8 +39,8 @@ const IconPill: React.FC<Props> = ({ text, icon, style }) => {
           minimumFontScale={1}
           style={{
             fontSize: 16,
-            textAlign: "center",
-            fontWeight: "600",
+            textAlign: 'center',
+            fontWeight: '600',
             color: theme.text,
             paddingRight: 4,
             paddingLeft: 6,

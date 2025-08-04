@@ -1,12 +1,12 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 import {
   IMapRoute,
   IMapServiceInterruption,
   IOptionDetail,
   IStop,
   SearchSuggestion,
-} from "../../utils/interfaces";
-import { Theme, lightMode } from "../theme";
+} from '../../utils/interfaces';
+import { Theme, lightMode } from '../theme';
 
 interface AppState {
   theme: Theme;
@@ -25,9 +25,9 @@ interface AppState {
   oldSelectedRoute: IMapRoute | null;
   setOldSelectedRoute: (oldSelectedRouteDirection: IMapRoute | null) => void;
 
-  selectedRouteCategory: "Favorites" | "All Routes" | "Gameday";
+  selectedRouteCategory: 'Favorites' | 'All Routes' | 'Gameday';
   setSelectedRouteCategory: (
-    selectedRouteCategory: "Favorites" | "All Routes" | "Gameday",
+    selectedRouteCategory: 'Favorites' | 'All Routes' | 'Gameday',
   ) => void;
 
   selectedStop: IStop | null;
@@ -36,81 +36,81 @@ interface AppState {
   // TODO: Switch to Provider Functions
   presentSheet: (
     sheet:
-      | "routeDetails"
-      | "alerts"
-      | "stopTimetable"
-      | "settings"
-      | "alertsDetail"
-      | "inputRoute"
-      | "tripPlanDetail",
+      | 'routeDetails'
+      | 'alerts'
+      | 'stopTimetable'
+      | 'settings'
+      | 'alertsDetail'
+      | 'inputRoute'
+      | 'tripPlanDetail',
   ) => void;
   setPresentSheet: (
     presentSheet: (
       sheet:
-        | "routeDetails"
-        | "alerts"
-        | "stopTimetable"
-        | "settings"
-        | "alertsDetail"
-        | "inputRoute"
-        | "tripPlanDetail",
+        | 'routeDetails'
+        | 'alerts'
+        | 'stopTimetable'
+        | 'settings'
+        | 'alertsDetail'
+        | 'inputRoute'
+        | 'tripPlanDetail',
     ) => void,
   ) => void;
 
   // TODO: Switch to Provider Functions
   dismissSheet: (
     sheet:
-      | "routeDetails"
-      | "alerts"
-      | "stopTimetable"
-      | "settings"
-      | "alertsDetail"
-      | "inputRoute"
-      | "tripPlanDetail",
+      | 'routeDetails'
+      | 'alerts'
+      | 'stopTimetable'
+      | 'settings'
+      | 'alertsDetail'
+      | 'inputRoute'
+      | 'tripPlanDetail',
   ) => void;
   setDismissSheet: (
     dismissSheet: (
       sheet:
-        | "routeDetails"
-        | "alerts"
-        | "stopTimetable"
-        | "settings"
-        | "alertsDetail"
-        | "inputRoute"
-        | "tripPlanDetail",
+        | 'routeDetails'
+        | 'alerts'
+        | 'stopTimetable'
+        | 'settings'
+        | 'alertsDetail'
+        | 'inputRoute'
+        | 'tripPlanDetail',
     ) => void,
   ) => void;
 
   sheetCloseCallback: {
     [key in
-      | "routeDetails"
-      | "alerts"
-      | "stopTimetable"
-      | "settings"
-      | "alertsDetail"
-      | "inputRoute"
-      | "tripPlanDetail"]: () => void;
+      | 'routeDetails'
+      | 'alerts'
+      | 'stopTimetable'
+      | 'settings'
+      | 'alertsDetail'
+      | 'inputRoute'
+      | 'tripPlanDetail']: () => void;
   };
   setSheetCloseCallback: (
     fn: () => void,
     key:
-      | "routeDetails"
-      | "alerts"
-      | "stopTimetable"
-      | "settings"
-      | "alertsDetail"
-      | "inputRoute"
-      | "tripPlanDetail",
+      | 'routeDetails'
+      | 'alerts'
+      | 'stopTimetable'
+      | 'settings'
+      | 'alertsDetail'
+      | 'inputRoute'
+      | 'tripPlanDetail',
   ) => void;
   callSheetCloseCallback: (
     key:
-      | "routeDetails"
-      | "alerts"
-      | "stopTimetable"
-      | "settings"
-      | "alertsDetail"
-      | "inputRoute"
-      | "tripPlanDetail",
+      | 'routeDetails'
+      | 'alerts'
+      | 'stopTimetable'
+      | 'settings'
+      | 'alertsDetail'
+      | 'inputRoute'
+      | 'tripPlanDetail',
   ) => void;
 
   selectedAlert: IMapServiceInterruption | null;
@@ -135,8 +135,8 @@ interface AppState {
   suggestions: SearchSuggestion[];
   setSuggestions: (suggestions: SearchSuggestion[]) => void;
 
-  suggestionOutput: "start" | "end" | null;
-  setSuggestionOutput: (suggestionOutput: "start" | "end" | null) => void;
+  suggestionOutput: 'start' | 'end' | null;
+  setSuggestionOutput: (suggestionOutput: 'start' | 'end' | null) => void;
 
   selectedRoutePlan: IOptionDetail | null;
   setSelectedRoutePlan: (selectedRoutePlan: IOptionDetail | null) => void;
@@ -164,7 +164,7 @@ const useAppStore = create<AppState>()((set, get) => ({
   setOldSelectedRoute: (oldSelectedRoute) =>
     set(() => ({ oldSelectedRoute: oldSelectedRoute })),
 
-  selectedRouteCategory: "All Routes",
+  selectedRouteCategory: 'All Routes',
   setSelectedRouteCategory: (selectedRouteCategory) =>
     set(() => ({ selectedRouteCategory })),
 
@@ -228,7 +228,7 @@ const useAppStore = create<AppState>()((set, get) => ({
   setSelectedAlert: (selectedAlert) => set(() => ({ selectedAlert })),
 
   zoomToStopLatLng: (lat, lng) => {
-    console.log(lat + " " + lng);
+    console.log(lat + ' ' + lng);
   },
   setZoomToStopLatLng: (zoomToStopLatLng) => set(() => ({ zoomToStopLatLng })),
 

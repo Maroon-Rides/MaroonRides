@@ -1,7 +1,7 @@
-import { Ionicons } from "@expo/vector-icons";
-import useAppStore from "../../data/app_state";
-import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+import useAppStore from '../../data/app_state';
+import React from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 
 // Define the types for the props
 interface DateSelectorComponentProps {
@@ -22,9 +22,9 @@ const DateSelector: React.FC<DateSelectorComponentProps> = ({
   return (
     <View
       style={{
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
         backgroundColor: theme.secondaryBackground,
         marginTop: 8,
         paddingVertical: 2,

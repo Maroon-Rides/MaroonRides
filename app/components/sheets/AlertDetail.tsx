@@ -1,15 +1,15 @@
-import { BottomSheetModal, BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import { View, TouchableOpacity, useWindowDimensions } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import useAppStore from "../../data/app_state";
-import SheetHeader from "../ui/SheetHeader";
-import RenderHtml from "react-native-render-html";
-import { useRoutes } from "app/data/api_query";
-import { useState } from "react";
-import { SheetProps } from "app/utils";
+import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { View, TouchableOpacity, useWindowDimensions } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import useAppStore from '../../data/app_state';
+import SheetHeader from '../ui/SheetHeader';
+import RenderHtml from 'react-native-render-html';
+import { useRoutes } from 'app/data/api_query';
+import { useState } from 'react';
+import { SheetProps } from 'app/utils';
 
 const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
-  const snapPoints = ["25%", "45%", "85%"];
+  const snapPoints = ['25%', '45%', '85%'];
   const alert = useAppStore((state) => state.selectedAlert);
   const theme = useAppStore((state) => state.theme);
   const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
@@ -22,19 +22,19 @@ const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const tagStyles = {
     h3: {
       fontSize: 32,
-      fontWeight: "bold",
+      fontWeight: 'bold',
       marginTop: 24,
       marginBottom: 8,
       color: theme.text,
     },
     h6: {
       fontSize: 20,
-      fontWeight: "bold",
+      fontWeight: 'bold',
       marginTop: 24,
       marginBottom: 8,
       color: theme.text,
     },
-    span: { fontWeight: "bold" },
+    span: { fontWeight: 'bold' },
     ul: {
       marginLeft: 16,
       marginTop: 8,
@@ -53,7 +53,7 @@ const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
       setSelectedRoute(oldSelectedRoute);
       setDrawnRoutes([oldSelectedRoute]);
     }
-    dismissSheet("alertsDetail");
+    dismissSheet('alertsDetail');
   };
 
   return (
@@ -105,7 +105,7 @@ const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             paddingTop: 8,
             paddingBottom: 48,
           }}
-          source={{ html: alert?.description || "No details to show." }}
+          source={{ html: alert?.description || 'No details to show.' }}
           // @ts-ignore: Werid errors with tagStyles typings, but it works
           tagsStyles={tagStyles}
         />

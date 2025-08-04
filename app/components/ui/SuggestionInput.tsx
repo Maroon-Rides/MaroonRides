@@ -1,15 +1,15 @@
-import { useSearchSuggestion } from "app/data/api_query";
-import useAppStore from "app/data/app_state";
-import { useFavoriteLocations } from "app/data/storage_query";
-import { memo, useEffect, useState } from "react";
-import { View, TextInput, Keyboard, Platform } from "react-native";
-import { MyLocationSuggestion, SearchSuggestion } from "utils/interfaces";
+import { useSearchSuggestion } from 'app/data/api_query';
+import useAppStore from 'app/data/app_state';
+import { useFavoriteLocations } from 'app/data/storage_query';
+import { memo, useEffect, useState } from 'react';
+import { View, TextInput, Keyboard, Platform } from 'react-native';
+import { MyLocationSuggestion, SearchSuggestion } from 'utils/interfaces';
 
 interface Props {
   location: SearchSuggestion | null;
   icon: React.JSX.Element;
   onFocus: () => void;
-  outputName: "start" | "end" | null;
+  outputName: 'start' | 'end' | null;
   setSuggestionLoading: (loading: boolean) => void;
 }
 
@@ -29,7 +29,7 @@ const SuggestionInput: React.FC<Props> = ({
 
   const { data: favoriteLocations } = useFavoriteLocations();
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const { data: suggestions, isLoading } = useSearchSuggestion(searchTerm);
 
   useEffect(() => {
@@ -42,14 +42,14 @@ const SuggestionInput: React.FC<Props> = ({
       setSuggestions([]);
       Keyboard.dismiss();
     } else {
-      setSearchTerm("");
+      setSearchTerm('');
     }
   }, [location]);
 
   useEffect(() => {
     if (!searchTerm) return;
 
-    if (searchTerm.trim() === "" && suggestionsOutput) {
+    if (searchTerm.trim() === '' && suggestionsOutput) {
       setSuggestions([MyLocationSuggestion, ...(favoriteLocations ?? [])]);
       return;
     }
@@ -60,17 +60,17 @@ const SuggestionInput: React.FC<Props> = ({
   return (
     <View
       style={{
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
       <View
         style={{
           backgroundColor: theme.tertiaryBackground,
           borderRadius: 999,
-          alignItems: "center",
-          justifyContent: "center",
+          alignItems: 'center',
+          justifyContent: 'center',
           height: 36,
           width: 36,
           paddingVertical: 2,
@@ -84,7 +84,7 @@ const SuggestionInput: React.FC<Props> = ({
         style={{
           backgroundColor: theme.tertiaryBackground,
           color:
-            location?.type === "my-location" ? theme.myLocation : theme.text,
+            location?.type === 'my-location' ? theme.myLocation : theme.text,
           borderColor: theme.myLocation,
           padding: 8,
           borderRadius: 8,
@@ -96,7 +96,7 @@ const SuggestionInput: React.FC<Props> = ({
         onChangeText={(text) => {
           setSearchTerm(text);
           setSuggestionsOutput(outputName);
-          if (text.trim() === "") {
+          if (text.trim() === '') {
             setSuggestions([
               MyLocationSuggestion,
               ...(favoriteLocations ?? []),
@@ -106,10 +106,10 @@ const SuggestionInput: React.FC<Props> = ({
         }}
         onFocus={() => {
           // clear search so user can start typing immediately
-          if (location?.type === "my-location") {
-            setSearchTerm("");
+          if (location?.type === 'my-location') {
+            setSearchTerm('');
           }
-          if (searchTerm.trim() === "") {
+          if (searchTerm.trim() === '') {
             setSuggestions([
               MyLocationSuggestion,
               ...(favoriteLocations ?? []),
@@ -123,7 +123,7 @@ const SuggestionInput: React.FC<Props> = ({
         }}
         placeholder="Enter a location"
         placeholderTextColor={
-          Platform.OS === "android"
+          Platform.OS === 'android'
             ? theme.androidTextPlaceholderColor
             : undefined
         }

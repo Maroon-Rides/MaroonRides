@@ -1,17 +1,17 @@
-import React, { memo, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { BottomSheetModal, BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import React, { memo, useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { BottomSheetModal, BottomSheetFlatList } from '@gorhom/bottom-sheet';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
-import useAppStore from "../../data/app_state";
-import SheetHeader from "../ui/SheetHeader";
-import { IMapRoute, IMapServiceInterruption } from "utils/interfaces";
-import { useServiceInterruptions } from "app/data/api_query";
-import { SheetProps } from "app/utils";
+import useAppStore from '../../data/app_state';
+import SheetHeader from '../ui/SheetHeader';
+import { IMapRoute, IMapServiceInterruption } from 'utils/interfaces';
+import { useServiceInterruptions } from 'app/data/api_query';
+import { SheetProps } from 'app/utils';
 
 // AlertList (for all routes and current route)
 const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
-  const snapPoints = ["25%", "45%", "85%"];
+  const snapPoints = ['25%', '45%', '85%'];
   const [snap, _] = useState(1);
 
   const theme = useAppStore((state) => state.theme);
@@ -54,11 +54,11 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
 
   const displayDetailAlert = (alert: IMapServiceInterruption) => {
     setSelectedAlert(alert);
-    presentSheet("alertsDetail");
+    presentSheet('alertsDetail');
   };
 
   const handleDismiss = () => {
-    dismissSheet("alerts");
+    dismissSheet('alerts');
   };
 
   return (
@@ -75,7 +75,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
         {/* header */}
         <SheetHeader
           title="Alerts"
-          subtitle={selectedRoute ? selectedRoute.name : "All Routes"}
+          subtitle={selectedRoute ? selectedRoute.name : 'All Routes'}
           icon={
             <TouchableOpacity
               style={{ marginLeft: 10 }}
@@ -95,14 +95,14 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
         />
 
         {isError ? (
-          <View style={{ alignItems: "center", paddingTop: 16 }}>
+          <View style={{ alignItems: 'center', paddingTop: 16 }}>
             <Text style={{ color: theme.subtitle }}>
               Error loading alerts. Please try again later.
             </Text>
           </View>
         ) : (
           shownAlerts.length === 0 && (
-            <View style={{ alignItems: "center", paddingTop: 16 }}>
+            <View style={{ alignItems: 'center', paddingTop: 16 }}>
               <Text style={{ color: theme.subtitle }}>
                 There are no active alerts at this time.
               </Text>
@@ -117,7 +117,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
             self.findIndex((o) => o.name === obj.name) === index,
         )}
         keyExtractor={(alert) => alert.key}
-        style={{ height: "100%", marginLeft: 16, paddingTop: 8 }}
+        style={{ height: '100%', marginLeft: 16, paddingTop: 8 }}
         contentContainerStyle={{ paddingBottom: 35, paddingRight: 16 }}
         renderItem={({ item: alert }) => {
           return (
@@ -130,8 +130,8 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                 displayDetailAlert(alert);
               }}
               style={{
-                flexDirection: "row",
-                alignItems: "center",
+                flexDirection: 'row',
+                alignItems: 'center',
                 marginVertical: 4,
                 backgroundColor: theme.secondaryBackground,
                 padding: 8,

@@ -1,8 +1,8 @@
-import { Ionicons } from "@expo/vector-icons";
-import useAppStore from "app/data/app_state";
-import React from "react";
-import { View, Text, TouchableOpacity, Keyboard } from "react-native";
-import { IOptionDetail } from "utils/interfaces";
+import { Ionicons } from '@expo/vector-icons';
+import useAppStore from 'app/data/app_state';
+import React from 'react';
+import { View, Text, TouchableOpacity, Keyboard } from 'react-native';
+import { IOptionDetail } from 'utils/interfaces';
 
 interface TripPlanCellProps {
   plan: IOptionDetail;
@@ -20,7 +20,7 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
     const diffMin = Math.floor(time / 60);
     const diffHrs = Math.floor(diffMin / 60);
 
-    if (diffHrs < 1) return `${diffMin} minute${diffMin > 1 ? "s" : ""}`;
+    if (diffHrs < 1) return `${diffMin} minute${diffMin > 1 ? 's' : ''}`;
 
     return `${diffHrs}h ${diffMin - diffHrs * 60}m`;
   };
@@ -45,11 +45,11 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
 
   const transportationFormat = () => {
     for (const instruction of plan.instructions) {
-      if (instruction.className.includes("bus")) {
-        return "bus";
+      if (instruction.className.includes('bus')) {
+        return 'bus';
       }
     }
-    return "walking";
+    return 'walking';
   };
 
   const arrivalDate = () => {
@@ -63,15 +63,15 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
       style={{
         paddingVertical: 12,
         paddingHorizontal: 16,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
       }}
       onPress={() => {
         Keyboard.dismiss();
         setSelectedRoutePlan(plan);
         setDrawnRoutes([]);
-        presentSheet("tripPlanDetail");
+        presentSheet('tripPlanDetail');
       }}
     >
       <View
@@ -80,11 +80,11 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
           height: 36,
           borderRadius: 18,
           backgroundColor: theme.secondaryBackground,
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
       >
-        {transportationFormat() === "bus" ? (
+        {transportationFormat() === 'bus' ? (
           <Ionicons name="bus" size={22} color={theme.subtitle} />
         ) : (
           <Ionicons name="walk" size={22} color={theme.subtitle} />
@@ -93,14 +93,14 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
 
       <View style={{ flex: 1, marginLeft: 12 }}>
         {/* Title */}
-        <Text style={{ color: theme.text, fontSize: 24, fontWeight: "bold" }}>
+        <Text style={{ color: theme.text, fontSize: 24, fontWeight: 'bold' }}>
           {relativeTime(plan.endTime - plan.startTime)}
         </Text>
 
         {/* Subtitle */}
         <Text style={{ color: theme.subtitle, fontSize: 14 }}>
           Arrive at {plan.endTimeText}
-          {isOnOtherDay() ? ` on ${arrivalDate()}` : ""}
+          {isOnOtherDay() ? ` on ${arrivalDate()}` : ''}
         </Text>
       </View>
 

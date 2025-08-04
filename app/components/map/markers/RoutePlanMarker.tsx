@@ -1,9 +1,9 @@
-import React, { memo } from "react";
-import { MapMarker, Marker } from "react-native-maps";
-import { RoutePlanMapMarker } from "utils/interfaces";
-import { Platform, View } from "react-native";
-import { getLighterColor } from "app/utils";
-import useAppStore from "app/data/app_state";
+import React, { memo } from 'react';
+import { MapMarker, Marker } from 'react-native-maps';
+import { RoutePlanMapMarker } from 'utils/interfaces';
+import { Platform, View } from 'react-native';
+import { getLighterColor } from 'app/utils';
+import useAppStore from 'app/data/app_state';
 
 interface Props {
   marker: RoutePlanMapMarker;
@@ -22,10 +22,10 @@ const RoutePlanMarker: React.FC<Props> = ({ marker }) => {
         longitude: marker.longitude,
       }}
       style={[
-        Platform.OS === "android" && {
+        Platform.OS === 'android' && {
           height: 72,
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: 'center',
+          alignItems: 'center',
         },
       ]}
       tracksViewChanges={false}
@@ -35,15 +35,15 @@ const RoutePlanMarker: React.FC<Props> = ({ marker }) => {
       {marker.isOrigin ? (
         <View
           style={{
-            alignItems: "center",
-            justifyContent: "center",
+            alignItems: 'center',
+            justifyContent: 'center',
             width: 24,
             height: 24,
             backgroundColor: theme.myLocation,
             borderColor: getLighterColor(theme.myLocation),
             borderWidth: 2,
             borderRadius: 999,
-            transform: [{ rotate: "45deg" }],
+            transform: [{ rotate: '45deg' }],
             zIndex: 800,
             elevation: 800,
           }}
@@ -53,8 +53,8 @@ const RoutePlanMarker: React.FC<Props> = ({ marker }) => {
       ) : (
         <View
           style={{
-            alignItems: "center",
-            justifyContent: "center",
+            alignItems: 'center',
+            justifyContent: 'center',
             width: 30,
             height: 30,
             borderTopLeftRadius: 15,
@@ -63,7 +63,7 @@ const RoutePlanMarker: React.FC<Props> = ({ marker }) => {
             backgroundColor: theme.error,
             borderColor: getLighterColor(theme.error),
             borderWidth: 2,
-            transform: [{ translateY: -20 }, { rotate: "45deg" }],
+            transform: [{ translateY: -20 }, { rotate: '45deg' }],
             zIndex: 800,
             elevation: 800,
           }}
