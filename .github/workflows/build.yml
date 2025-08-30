@@ -50,7 +50,7 @@ jobs:
           node-version: '22.x'
 
       - name: Install Dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Expo Prebuild [iOS]
         run: |
@@ -93,7 +93,7 @@ jobs:
           node-version: '22.x'
 
       - name: Install Dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Write Google Maps API Key to app.json
         run: |
