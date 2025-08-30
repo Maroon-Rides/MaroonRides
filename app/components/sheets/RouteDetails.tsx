@@ -69,12 +69,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   // Filters patternPaths for only the selected route from all patternPaths
   function getPatternPathForSelectedRoute(): IPatternPath | undefined {
     if (!selectedRoute) return undefined;
-    return selectedRoute.patternPaths.find(
-      (direction) =>
-        direction.patternKey ===
-        selectedRoute.directionList[selectedDirectionIndex]?.patternList[0]
-          ?.key,
-    );
+    return selectedRoute.patternPaths[selectedDirectionIndex];
   }
 
   const handleDismiss = () => {

@@ -1,14 +1,14 @@
-import React, { memo } from 'react';
-import { View, Text, ActivityIndicator, Platform } from 'react-native';
-import { Callout } from 'react-native-maps';
-import BusIcon from '../ui/BusIcon';
-import { IMapRoute, IStop } from '../../../utils/interfaces';
 import { useStopEstimate } from 'app/data/api_query';
-import moment from 'moment';
-import CalloutTimeBubble from '../ui/CalloutTimeBubble';
-import { lightMode } from 'app/theme';
-import AmenityRow from '../ui/AmenityRow';
 import useAppStore from 'app/data/app_state';
+import { lightMode } from 'app/theme';
+import moment from 'moment';
+import React, { memo } from 'react';
+import { ActivityIndicator, Platform, Text, View } from 'react-native';
+import { Callout } from 'react-native-maps';
+import { IMapRoute, IStop } from '../../../utils/interfaces';
+import AmenityRow from '../ui/AmenityRow';
+import BusIcon from '../ui/BusIcon';
+import CalloutTimeBubble from '../ui/CalloutTimeBubble';
 
 interface Props {
   stop: IStop;
@@ -71,7 +71,10 @@ const StopCallout: React.FC<Props> = ({
             isCallout={true}
             style={{ marginRight: 8 }}
           />
-          <Text style={{ flex: 1, fontWeight: 'bold' }} numberOfLines={2}>
+          <Text
+            style={{ flex: 1, fontWeight: 'bold', color: 'black' }}
+            numberOfLines={2}
+          >
             {stop.name}
           </Text>
           <AmenityRow
