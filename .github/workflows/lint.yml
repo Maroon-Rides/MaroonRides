@@ -3,12 +3,14 @@ name: TypeScript Linting
 on:
   push:
     paths-ignore:
-      - ".github/**"
-      - "fastlane/**"
+      - '.github/**'
+      - 'fastlane/**'
+    branches:
+      - main
   pull_request:
 
 jobs:
-  tsc:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,9 +22,16 @@ jobs:
         with:
           node-version: 22
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
+
+      - name: Lint with expo
+        run: npx expo lint --max-warnings 0
 
       - name: Run TypeScript checks
         run: npx tsc
-

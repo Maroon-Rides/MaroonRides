@@ -1,11 +1,12 @@
 {
   "expo": {
     "name": "Maroon Rides",
-    "slug": "Maroon Rides",
+    "slug": "Maroon_Rides",
     "version": "1.6.5",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
+    "newArchEnabled": false,
     "scheme": "myapp",
     "assetBundlePatterns": [
       "**/*"
@@ -82,7 +83,6 @@
       "bundler": "metro"
     },
     "plugins": [
-      "@config-plugins/detox",
       [
         "@bacons/apple-targets",
         {
@@ -97,16 +97,21 @@
           "locationWhenInUsePermission": "Allow location for map display and route planning"
         }
       ],
-      ["expo-build-properties", {
-        "android": {
+      [
+        "expo-build-properties",
+        {
+          "android": {
             "compileSdkVersion": 35,
             "targetSdkVersion": 35,
             "buildToolsVersion": "35.0.0"
-        },
-        "ios": {
-          "deploymentTarget": "13.4"
+          },
+          "ios": {
+            "deploymentTarget": "15.1"
+          }
         }
-      }]
+      ],
+      "expo-font",
+      "expo-router"
     ]
   }
 }
