@@ -1,9 +1,9 @@
 import React, { memo } from 'react';
-import { View, Text, Platform } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import { Callout } from 'react-native-maps';
 import { IAmenity } from '../../../utils/interfaces';
-import BusIcon from '../ui/BusIcon';
 import AmenityRow from '../ui/AmenityRow';
+import BusIcon from '../ui/BusIcon';
 interface Props {
   directionName: string;
   fullPercentage: number;
@@ -80,7 +80,9 @@ const BusCallout: React.FC<Props> = ({
             }}
           >
             <Text style={{ fontWeight: '700', color: tintColor }}>To: </Text>
-            <Text style={{ fontSize: 14, marginLeft: 2 }}>{directionName}</Text>
+            <Text style={{ fontSize: 14, marginLeft: 2, color: 'black' }}>
+              {directionName}
+            </Text>
           </Text>
         )}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
