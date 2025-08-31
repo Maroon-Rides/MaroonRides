@@ -1,21 +1,21 @@
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { decode } from '@googlemaps/polyline-codec';
+import { DarkGoogleMaps } from 'app/theme';
+import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, Platform, TouchableOpacity, View } from 'react-native';
 import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
-import * as Location from 'expo-location';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import {
   IMapRoute,
   RoutePlanMapMarker,
   RoutePlanPolylinePoint,
 } from '../../../utils/interfaces';
+import { useVehicles } from '../../data/api_query';
 import useAppStore from '../../data/app_state';
 import BusMarker from './markers/BusMarker';
-import StopMarker from './markers/StopMarker';
-import { useVehicles } from '../../data/api_query';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { decode } from '@googlemaps/polyline-codec';
 import RoutePlanMarker from './markers/RoutePlanMarker';
-import { DarkGoogleMaps } from 'app/theme';
+import StopMarker from './markers/StopMarker';
 
 const Map: React.FC = () => {
   const mapViewRef = useRef<MapView>(null);
@@ -411,7 +411,8 @@ const Map: React.FC = () => {
                     route={selectedRoute}
                     direction={patternPath.directionKey}
                     isCalloutShown={
-                      poppedUpStopCallout?.stopCode === stop.stopCode
+                      poppedUpStopCallout?.stopCode === stop.stopCode &&
+                      selectedRouteDirection === patternPath.directionKey
                     }
                   />
                 );
