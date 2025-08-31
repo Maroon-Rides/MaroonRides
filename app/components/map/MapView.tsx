@@ -475,7 +475,7 @@ const Map: React.FC = () => {
       {/* map buttons */}
       <View
         style={{
-          top: 60,
+          top: Platform.OS === 'ios' ? 60 : 20,
           alignContent: 'center',
           justifyContent: 'center',
           position: 'absolute',
