@@ -1,27 +1,27 @@
-import React, { memo, useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  NativeSyntheticEvent,
-  Platform,
-  Appearance,
-} from 'react-native';
-import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import SheetHeader from '../ui/SheetHeader';
+import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import SegmentedControl, {
   NativeSegmentedControlIOSChangeEvent,
 } from '@react-native-segmented-control/segmented-control';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import useAppStore from '../../data/app_state';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   defaultGroupMutation,
   useDefaultRouteGroup,
-} from 'app/data/storage_query';
-import { getColorScheme, SheetProps } from 'app/utils';
+} from 'app/data/queries/structure/storage';
 import { darkMode, lightMode } from 'app/theme';
-import { useQueryClient } from '@tanstack/react-query';
+import { getColorScheme, SheetProps } from 'app/utils';
+import React, { memo, useEffect, useState } from 'react';
+import {
+  Appearance,
+  NativeSyntheticEvent,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import useAppStore from '../../data/app_state';
+import SheetHeader from '../ui/SheetHeader';
 
 // Settings (for all routes and current route)
 const Settings: React.FC<SheetProps> = ({ sheetRef }) => {

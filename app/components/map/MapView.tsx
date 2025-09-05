@@ -2,6 +2,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { decode } from '@googlemaps/polyline-codec';
 import { Direction, Route } from 'app/data/datatypes';
+import { useVehiclesAPI } from 'app/data/queries/api/aggie_spirit';
 import { DarkGoogleMaps } from 'app/theme';
 import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
@@ -11,9 +12,7 @@ import {
   RoutePlanMapMarker,
   RoutePlanPolylinePoint,
 } from '../../../utils/interfaces';
-import { useVehicles } from '../../data/api_query';
 import useAppStore from '../../data/app_state';
-import BusMarker from './markers/BusMarker';
 import RoutePlanMarker from './markers/RoutePlanMarker';
 import StopMarker from './markers/StopMarker';
 
@@ -51,7 +50,7 @@ const RouteMap: React.FC = () => {
     RoutePlanMapMarker[]
   >([]);
 
-  const { data: buses } = useVehicles(selectedRoute?.id ?? '');
+  const { data: buses } = useVehiclesAPI(selectedRoute?.id ?? '');
 
   const defaultMapRegion: Region = {
     latitude: 30.606,
@@ -454,7 +453,7 @@ const RouteMap: React.FC = () => {
           })}
 
         {/* Buses */}
-        {selectedRoute &&
+        {/* {selectedRoute &&
           buses?.map((bus) => {
             const color = selectedRoute.tintColor;
             return (
@@ -465,7 +464,7 @@ const RouteMap: React.FC = () => {
                 routeName={selectedRoute.routeCode}
               />
             );
-          })}
+          })} */}
       </MapView>
 
       {/* map buttons */}

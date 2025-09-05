@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { SearchSuggestion } from 'utils/interfaces';
 import { suggestionEqual } from 'app/utils';
-import { Route } from './datatypes';
-import { useRouteList } from './queries';
+import { SearchSuggestion } from 'utils/interfaces';
+import { Route } from '../../datatypes';
+import { useRouteList } from '../app';
 
 export const useFavorites = () => {
   const routesQuery = useRouteList();
@@ -14,14 +14,14 @@ export const useFavorites = () => {
       const routes = routesQuery.data as Route[];
 
       const favorites = await AsyncStorage.getItem('favorites');
-      if (!favorites) return ([] as Route[]);
+      if (!favorites) return [] as Route[];
 
       let favoritesArray = JSON.parse(favorites);
-      
+
       // set the favorite routes
       return routes.filter((route) => favoritesArray.includes(route.routeCode));
     },
-    
+
     staleTime: Infinity,
     enabled: routesQuery.isSuccess,
   });

@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
+import { Platform } from 'react-native';
 import { Marker } from 'react-native-maps';
-import BusMapIcon from '../mapIcons/BusMapIcon';
-import BusCallout from '../BusCallout';
 import { IVehicle } from 'utils/interfaces';
 import useAppStore from '../../../data/app_state';
-import { Platform } from 'react-native';
+import BusCallout from '../BusCallout';
+import BusMapIcon from '../mapIcons/BusMapIcon';
 
 interface Props {
   bus: IVehicle;
@@ -15,17 +15,18 @@ interface Props {
 // Bus Marker with icon and callout
 const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
   const selectedRouteDirection = useAppStore(
-    (state) => state.selectedRouteDirection,
+    (state) => state.selectedDirection,
   );
   const setSelectedDirection = useAppStore(
-    (state) => state.setSelectedRouteDirection,
+    (state) => state.setSelectedDirection,
   );
 
   //if direction is not selected and route is inactive, then call setSelectedDirection w/ parameter bus.directionKey
   const busDefaultDirection = () => {
-    if (selectedRouteDirection !== bus.directionKey) {
-      setSelectedDirection(bus.directionKey);
-    }
+    // TODO: fix
+    // if (selectedRouteDirection !== bus.directionKey) {
+    // setSelectedDirection(bus.directionKey);
+    // }
   };
 
   return (
@@ -54,10 +55,12 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
       <BusMapIcon
         tintColor={tintColor}
         heading={bus.location.heading}
-        active={
-          selectedRouteDirection === bus.directionKey ||
-          bus.directionKey === '00000000-0000-0000-0000-000000000000'
-        }
+        active={true}
+      // TODO: fix
+      // active={
+      //   selectedRouteDirection === bus.directionKey ||
+      //   bus.directionKey === '00000000-0000-0000-0000-000000000000'
+      // }
       />
 
       <BusCallout

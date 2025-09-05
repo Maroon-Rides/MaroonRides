@@ -1,13 +1,12 @@
-import React, { memo, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { BottomSheetModal, BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import Ionicons from '@expo/vector-icons/Ionicons';
-
+import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useServiceInterruptionsAPI } from 'app/data/queries/api/aggie_spirit';
+import { SheetProps } from 'app/utils';
+import React, { memo, useEffect, useState } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { IMapServiceInterruption } from 'utils/interfaces';
 import useAppStore from '../../data/app_state';
 import SheetHeader from '../ui/SheetHeader';
-import { IMapRoute, IMapServiceInterruption } from 'utils/interfaces';
-import { useServiceInterruptions } from 'app/data/api_query';
-import { SheetProps } from 'app/utils';
 
 // AlertList (for all routes and current route)
 const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
@@ -17,8 +16,8 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
   const theme = useAppStore((state) => state.theme);
   const selectedRoute = useAppStore((state) => state.selectedRoute);
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
-  const setSelectedRouteDirection = useAppStore(
-    (state) => state.setSelectedRouteDirection,
+  const setSelectedDirection = useAppStore(
+    (state) => state.setSelectedDirection,
   );
   const setOldSelectedRoute = useAppStore((state) => state.setOldSelectedRoute);
   const presentSheet = useAppStore((state) => state.presentSheet);
@@ -27,7 +26,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
 
   const [shownAlerts, setShownAlerts] = useState<IMapServiceInterruption[]>([]);
 
-  const { data: alerts, isError } = useServiceInterruptions();
+  const { data: alerts, isError } = useServiceInterruptionsAPI();
 
   // If no route is selected, we're looking at all routes, therefore show all alerts
   // If a route is selected, only show the alerts for that route
@@ -42,14 +41,15 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
       return;
     }
 
-    const alertKeys = selectedRoute.directionList.flatMap(
-      (direction) => direction.serviceInterruptionKeys,
-    );
-    const filteredAlerts = alerts.filter((alert) =>
-      alertKeys.includes(Number(alert.key)),
-    );
+    // TODO: Fix this
+    // const alertKeys = selectedRoute.directions.flatMap(
+    //   (direction) => direction.id,
+    // );
+    // const filteredAlerts = alerts.filter((alert) =>
+    //   alertKeys.includes(Number(alert.key)),
+    // );
 
-    setShownAlerts(filteredAlerts);
+    // setShownAlerts(filteredAlerts);
   }, [selectedRoute, alerts]);
 
   const displayDetailAlert = (alert: IMapServiceInterruption) => {
@@ -123,10 +123,10 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
           return (
             <TouchableOpacity
               onPress={() => {
-                const selectedRouteCopy = selectedRoute as IMapRoute;
+                const selectedRouteCopy = selectedRoute;
                 setOldSelectedRoute(selectedRouteCopy); // Will be referenced again when dismissing AlertDetail sheet
                 setSelectedRoute(null);
-                setSelectedRouteDirection(null);
+                setSelectedDirection(null);
                 displayDetailAlert(alert);
               }}
               style={{

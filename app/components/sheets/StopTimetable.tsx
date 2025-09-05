@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { useSchedule } from 'app/data/api_query';
-import { useRouteList } from 'app/data/queries';
+import { useScheduleAPI } from 'app/data/queries/api/aggie_spirit';
+import { useRouteList } from 'app/data/queries/app';
 import { SheetProps } from 'app/utils';
 import moment from 'moment-strftime';
 import { useEffect, useState } from 'react';
@@ -49,7 +49,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     data: stopSchedule,
     isError: scheduleError,
     isLoading: scheduleLoading,
-  } = useSchedule(
+  } = useScheduleAPI(
     selectedStop?.id ?? '',
     selectedTimetableDate ?? moment().toDate(),
   );

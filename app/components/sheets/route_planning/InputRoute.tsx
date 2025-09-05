@@ -1,28 +1,28 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import { useQueryClient } from '@tanstack/react-query';
+import SuggestionInput from 'app/components/ui/SuggestionInput';
+import TimeInput from 'app/components/ui/TimeInput';
+import TripPlanCell from 'app/components/ui/TripPlanCell';
+import { useTripPlanAPI } from 'app/data/queries/api/route_planning';
+import { SheetProps } from 'app/utils';
+import * as Location from 'expo-location';
 import React, { memo, useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  Keyboard,
   ActivityIndicator,
   Button,
-  Platform,
+  Keyboard,
   Linking,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { BottomSheetModal, BottomSheetFlatList } from '@gorhom/bottom-sheet';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { MyLocationSuggestion, SearchSuggestion } from 'utils/interfaces';
 import useAppStore from '../../../data/app_state';
 import SheetHeader from '../../ui/SheetHeader';
-import { MyLocationSuggestion, SearchSuggestion } from 'utils/interfaces';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import SuggestionInput from 'app/components/ui/SuggestionInput';
-import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import TimeInput from 'app/components/ui/TimeInput';
-import { useTripPlan } from 'app/data/api_query';
-import { useQueryClient } from '@tanstack/react-query';
-import TripPlanCell from 'app/components/ui/TripPlanCell';
-import * as Location from 'expo-location';
-import { SheetProps } from 'app/utils';
 
 // AlertList (for all routes and current route)
 const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
@@ -42,7 +42,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     data: tripPlan,
     isError,
     isLoading: tripPlanLoading,
-  } = useTripPlan(startLocation, endLocation, time, deadline);
+  } = useTripPlanAPI(startLocation, endLocation, time, deadline);
 
   const searchSuggestions = useAppStore((state) => state.suggestions);
   const suggestionOutput = useAppStore((state) => state.suggestionOutput);
@@ -354,11 +354,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
               {routeInfoError ===
                 'Location Unavailable, enable location in Settings.' && (
-                <Button
-                  title="Open Settings"
-                  onPress={() => Linking.openSettings()}
-                />
-              )}
+                  <Button
+                    title="Open Settings"
+                    onPress={() => Linking.openSettings()}
+                  />
+                )}
             </View>
           )}
         </View>

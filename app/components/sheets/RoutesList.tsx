@@ -4,7 +4,12 @@ import SegmentedControl, {
   NativeSegmentedControlIOSChangeEvent,
 } from '@react-native-segmented-control/segmented-control';
 import { useQueryClient } from '@tanstack/react-query';
-import { useDefaultRouteGroup, useFavorites } from 'app/data/storage_query';
+import { Direction, Route } from 'app/data/datatypes';
+import { useRouteList } from 'app/data/queries/app';
+import {
+  useDefaultRouteGroup,
+  useFavorites,
+} from 'app/data/queries/structure/storage';
 import { SheetProps } from 'app/utils';
 import React, { memo, useEffect, useState } from 'react';
 import {
@@ -19,8 +24,6 @@ import useAppStore from '../../data/app_state';
 import BusIcon from '../ui/BusIcon';
 import IconPill from '../ui/IconPill';
 import SheetHeader from '../ui/SheetHeader';
-import { useRouteList } from 'app/data/queries';
-import { Direction, Route } from 'app/data/datatypes';
 
 // Display routes list for all routes and favorite routes
 const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
@@ -123,7 +126,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
   ) => {
     setSelectedRouteCategory(
       getRouteCategories()[evt.nativeEvent.selectedSegmentIndex] ??
-        'All Routes',
+      'All Routes',
     );
   };
 
@@ -268,13 +271,13 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                   {favorites?.some(
                     (fav) => fav.routeCode === route.routeCode,
                   ) && (
-                    <FontAwesome
-                      name="star"
-                      size={16}
-                      color={theme.starColor}
-                      style={{ marginLeft: 4 }}
-                    />
-                  )}
+                      <FontAwesome
+                        name="star"
+                        size={16}
+                        color={theme.starColor}
+                        style={{ marginLeft: 4 }}
+                      />
+                    )}
                 </View>
                 {route.directions.length > 1 ? (
                   <View
@@ -284,22 +287,18 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                       alignItems: 'center',
                     }}
                   >
-                    {route.directions.map(
-                      (elm: Direction, index: number) => (
-                        <React.Fragment key={index}>
-                          <Text style={{ color: theme.text }}>
-                            {elm.name}
+                    {route.directions.map((elm: Direction, index: number) => (
+                      <React.Fragment key={index}>
+                        <Text style={{ color: theme.text }}>{elm.name}</Text>
+                        {index !== route.directions.length - 1 && (
+                          <Text
+                            style={{ marginHorizontal: 2, color: theme.text }}
+                          >
+                            |
                           </Text>
-                          {index !== route.directions.length - 1 && (
-                            <Text
-                              style={{ marginHorizontal: 2, color: theme.text }}
-                            >
-                              |
-                            </Text>
-                          )}
-                        </React.Fragment>
-                      ),
-                    )}
+                        )}
+                      </React.Fragment>
+                    ))}
                   </View>
                 ) : (
                   <Text style={{ color: theme.text }}>Campus Circulator</Text>

@@ -1,12 +1,12 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTimetableEstimateAPI } from 'app/data/queries/api/aggie_spirit';
+import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { IRouteStopSchedule } from '../../../utils/interfaces';
-import BusIcon from './BusIcon';
-import useAppStore from '../../data/app_state';
-import moment from 'moment';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useTimetableEstimate } from 'app/data/api_query';
+import { IRouteStopSchedule } from '../../../utils/interfaces';
+import useAppStore from '../../data/app_state';
+import BusIcon from './BusIcon';
 
 interface Props {
   item: IRouteStopSchedule;
@@ -40,7 +40,7 @@ const Timetable: React.FC<Props> = ({
   const theme = useAppStore((state) => state.theme);
 
   const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
-  const { data: estimate, isLoading } = useTimetableEstimate(
+  const { data: estimate, isLoading } = useTimetableEstimateAPI(
     stopCode,
     selectedTimetableDate || moment().toDate(),
   );

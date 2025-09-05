@@ -1,6 +1,6 @@
-import { useStopEstimate } from 'app/data/api_query';
 import useAppStore from 'app/data/app_state';
 import { Direction, Route, Stop } from 'app/data/datatypes';
+import { useStopEstimateAPI } from 'app/data/queries/api/aggie_spirit';
 import { lightMode } from 'app/theme';
 import moment from 'moment';
 import React, { memo } from 'react';
@@ -29,7 +29,7 @@ const StopCallout: React.FC<Props> = ({
     (state) => state.setSelectedDirection,
   );
 
-  const { data: estimate, isLoading } = useStopEstimate(
+  const { data: estimate, isLoading } = useStopEstimateAPI(
     route.id,
     direction.id,
     stop.id,

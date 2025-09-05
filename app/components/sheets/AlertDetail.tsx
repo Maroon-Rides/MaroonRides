@@ -1,12 +1,12 @@
-import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { View, TouchableOpacity, useWindowDimensions } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { useRouteList } from 'app/data/queries/app';
+import { SheetProps } from 'app/utils';
+import { useState } from 'react';
+import { TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import RenderHtml from 'react-native-render-html';
 import useAppStore from '../../data/app_state';
 import SheetHeader from '../ui/SheetHeader';
-import RenderHtml from 'react-native-render-html';
-import { useState } from 'react';
-import { SheetProps } from 'app/utils';
-import { useRouteList } from 'app/data/queries';
 
 const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const snapPoints = ['25%', '45%', '85%'];

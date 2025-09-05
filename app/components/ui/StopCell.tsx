@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Direction, Route, Stop } from 'app/data/datatypes';
+import { useStopEstimateAPI } from 'app/data/queries/api/aggie_spirit';
+import moment from 'moment';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
   ActivityIndicator,
   FlatList,
+  Text,
   TouchableOpacity,
+  View,
 } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { IDirection, IMapRoute, IStop } from '../../../utils/interfaces';
-import TimeBubble from './TimeBubble';
 import useAppStore from '../../data/app_state';
 import AmenityRow from './AmenityRow';
-import moment from 'moment';
-import { useStopEstimate } from 'app/data/api_query';
-import { Direction, Route, Stop } from 'app/data/datatypes';
+import TimeBubble from './TimeBubble';
 
 interface Props {
   stop: Stop;
@@ -47,7 +46,7 @@ const StopCell: React.FC<Props> = ({
     data: stopEstimate,
     isLoading,
     isError,
-  } = useStopEstimate(route.id, direction.id, stop.id);
+  } = useStopEstimateAPI(route.id, direction.id, stop.id);
 
   useEffect(() => {
     if (!stopEstimate) return;
@@ -165,8 +164,8 @@ const StopCell: React.FC<Props> = ({
           renderItem={({ item: departureTime, index }) => {
             const date = moment(
               departureTime.estimatedDepartTimeUtc ??
-                departureTime.scheduledDepartTimeUtc ??
-                '',
+              departureTime.scheduledDepartTimeUtc ??
+              '',
             );
             const relative = date.diff(moment(), 'minutes');
             return (

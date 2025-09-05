@@ -1,10 +1,10 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useServiceInterruptionsAPI } from 'app/data/queries/api/aggie_spirit';
+import { useRouteList } from 'app/data/queries/app';
 import React, { memo, useEffect, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import IconPill from './IconPill';
 import useAppStore from '../../data/app_state';
-import { useServiceInterruptions } from 'app/data/api_query';
-import { useRouteList } from 'app/data/queries';
+import IconPill from './IconPill';
 
 interface Props {
   routeId?: string;
@@ -18,7 +18,7 @@ const AlertPill: React.FC<Props> = ({ routeId, showText }) => {
     'bell-outline',
   );
 
-  const { data: alerts } = useServiceInterruptions();
+  const { data: alerts } = useServiceInterruptionsAPI();
   const { data: routes } = useRouteList();
 
   // Update the alert icon when the alerts change

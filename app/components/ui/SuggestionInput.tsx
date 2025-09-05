@@ -1,8 +1,8 @@
-import { useSearchSuggestion } from 'app/data/api_query';
 import useAppStore from 'app/data/app_state';
-import { useFavoriteLocations } from 'app/data/storage_query';
+import { useSearchSuggestionAPI } from 'app/data/queries/api/route_planning';
+import { useFavoriteLocations } from 'app/data/queries/structure/storage';
 import { memo, useEffect, useState } from 'react';
-import { View, TextInput, Keyboard, Platform } from 'react-native';
+import { Keyboard, Platform, TextInput, View } from 'react-native';
 import { MyLocationSuggestion, SearchSuggestion } from 'utils/interfaces';
 
 interface Props {
@@ -30,7 +30,7 @@ const SuggestionInput: React.FC<Props> = ({
   const { data: favoriteLocations } = useFavoriteLocations();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const { data: suggestions, isLoading } = useSearchSuggestion(searchTerm);
+  const { data: suggestions, isLoading } = useSearchSuggestionAPI(searchTerm);
 
   useEffect(() => {
     setSuggestionLoading(isLoading);
