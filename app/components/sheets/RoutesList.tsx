@@ -80,7 +80,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
   }, [defaultGroup]);
 
   useEffect(() => {
-    refetchRoutes();
+    if (routes) refetchRoutes();
   }, [theme]);
 
   // Update the shown routes when the selectedRouteCategory changes
