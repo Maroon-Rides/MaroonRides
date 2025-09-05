@@ -1,7 +1,8 @@
 import moment from 'moment';
 import { LatLng } from 'react-native-maps';
+import { IAmenity } from 'utils/interfaces';
 
-export enum Amentity {
+export enum Amenity {
   AIR_CONDITIONING = 'Air Conditioning',
   WHEELCHAIR_ACCESSIBLE = 'Wheelchair Accessible',
   WHEELCHAIR_LIFT = 'Wheelchair Lift',
@@ -9,9 +10,28 @@ export enum Amentity {
   SHELTER = 'Shelter',
 }
 
+export namespace Amenity {
+  export function fromAPI(api: IAmenity[]): Amenity[] {
+    return api
+      .map((item) => {
+        return Object.values(Amenity).find((amenity) => amenity === item.name);
+      })
+      .filter((amenity): amenity is Amenity => amenity !== undefined);
+  }
+}
+
+export enum DataSource {
+  AGGIE_SPIRIT,
+  BRAZOS_TRANSIT,
+}
+
 export type Location = LatLng;
 
-export interface Stop {
+export interface FromDataSource {
+  dataSource: DataSource;
+}
+
+export interface Stop extends FromDataSource {
   name: string;
   id: string;
   location: Location;
@@ -21,7 +41,7 @@ export interface PathLocation extends Location {
   isStop: boolean;
 }
 
-export interface Route {
+export interface Route extends FromDataSource {
   name: string;
   id: string;
   routeCode: string;
@@ -29,7 +49,7 @@ export interface Route {
   directions: Direction[];
 }
 
-export interface Direction {
+export interface Direction extends FromDataSource {
   pathPoints: PathLocation[];
   name: string;
   id: string;
@@ -37,23 +57,24 @@ export interface Direction {
   isOnlyDirection: boolean;
 }
 
-export interface Bus {
+export interface Bus extends FromDataSource {
   location: Location;
   heading: number;
-  amenities: Amentity[];
+  amenities: Amenity[];
   capacity: number;
   speed: number;
   id: string;
   direction: Direction;
+  name: string;
 }
 
-export interface TimeEstimate {
-  estimatedTime: moment.Moment;
+export interface TimeEstimate extends FromDataSource {
+  estimatedTime: moment.Moment | null;
   scheduledTime: moment.Moment;
   isRealTime: boolean;
 }
 
-export interface Alert {
+export interface Alert extends FromDataSource {
   title: string;
   description: string;
   affectedRoutes: Route[];

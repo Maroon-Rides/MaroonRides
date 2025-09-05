@@ -1,29 +1,17 @@
+import { Bus, Direction, Route } from 'app/data/datatypes';
 import React, { memo } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { Callout } from 'react-native-maps';
-import { IAmenity } from '../../../utils/interfaces';
 import AmenityRow from '../ui/AmenityRow';
 import BusIcon from '../ui/BusIcon';
 interface Props {
-  directionName: string;
-  fullPercentage: number;
-  amenities: IAmenity[];
-  tintColor: string;
-  routeName: string;
-  busId: string;
-  speed: number;
+  bus: Bus;
+  direction: Direction | null;
+  route: Route;
 }
 
 // Bus callout with amentities
-const BusCallout: React.FC<Props> = ({
-  directionName,
-  fullPercentage,
-  amenities,
-  tintColor,
-  routeName,
-  busId,
-  speed,
-}) => {
+const BusCallout: React.FC<Props> = ({ bus, direction, route }) => {
   return (
     <Callout style={{ zIndex: 1000, elevation: 1000 }}>
       <View
@@ -40,6 +28,7 @@ const BusCallout: React.FC<Props> = ({
             flexDirection: 'row',
             justifyContent: 'center',
             alignItems: 'center',
+            paddingBottom: 4,
           }}
         >
           <View
@@ -52,7 +41,11 @@ const BusCallout: React.FC<Props> = ({
               borderRadius: 4,
             }}
           >
-            <BusIcon name={routeName} color={tintColor} isCallout={true} />
+            <BusIcon
+              name={route.routeCode}
+              color={route.tintColor}
+              isCallout={true}
+            />
             <Text
               style={{
                 fontSize: 12,
@@ -61,15 +54,14 @@ const BusCallout: React.FC<Props> = ({
                 color: 'grey',
               }}
             >
-              <Text style={{ fontWeight: 'bold' }}>ID: </Text>
-              <Text>{busId}</Text>
+              {bus.name}
             </Text>
           </View>
           <View style={{ flex: 1 }} />
-          <AmenityRow amenities={amenities} color="gray" size={20} />
+          <AmenityRow amenities={bus.amenities} color="gray" size={20} />
         </View>
 
-        {directionName !== '' && (
+        {!!bus.direction && !bus.direction.isOnlyDirection && (
           <Text
             style={{
               flexDirection: 'row',
@@ -79,9 +71,11 @@ const BusCallout: React.FC<Props> = ({
               marginTop: 2,
             }}
           >
-            <Text style={{ fontWeight: '700', color: tintColor }}>To: </Text>
+            <Text style={{ fontWeight: '700', color: route.tintColor }}>
+              To:{' '}
+            </Text>
             <Text style={{ fontSize: 14, marginLeft: 2, color: 'black' }}>
-              {directionName}
+              {direction?.name}
             </Text>
           </Text>
         )}
@@ -94,7 +88,7 @@ const BusCallout: React.FC<Props> = ({
               marginTop: 4,
             }}
           >
-            {fullPercentage}% Full
+            {bus.capacity}% Full
           </Text>
 
           <Text
@@ -105,7 +99,7 @@ const BusCallout: React.FC<Props> = ({
               marginTop: 4,
             }}
           >
-            {speed.toFixed(0)} MPH
+            {bus.speed.toFixed(0)} MPH
           </Text>
         </View>
       </View>

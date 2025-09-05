@@ -1,29 +1,48 @@
-import { useQuery } from "@tanstack/react-query";
-import { darkMode, lightMode } from "app/theme";
-import { getColorScheme } from "app/utils";
-import { Direction, Location, PathLocation, Route, Stop } from "../../datatypes";
-import { useBaseDataAPI, usePatternPathsAPI } from "../api/aggie_spirit";
+import { useQuery } from '@tanstack/react-query';
+import { darkMode, lightMode } from 'app/theme';
+import { getColorScheme } from 'app/utils';
+import moment from 'moment';
+import {
+  Amenity,
+  Bus,
+  DataSource,
+  Direction,
+  Location,
+  PathLocation,
+  Route,
+  Stop,
+  TimeEstimate,
+} from '../../datatypes';
+import {
+  useBaseDataAPI,
+  usePatternPathsAPI,
+  useStopEstimateAPI,
+  useVehiclesAPI,
+} from '../api/aggie_spirit';
 
 export enum ASQueryKey {
-  ROUTE_LIST = "ASRouteList",
+  ROUTE_LIST = 'ASRouteList',
+  VEHICLES = 'ASVehicles',
+  STOP_ESTIMATE = 'ASStopEstimate',
+  STOP_AMENITIES = 'ASStopAmenities',
 }
 
 export const useASRouteList = () => {
-  const asBaseQuery = useBaseDataAPI();
-  const asPatternPathsQuery = usePatternPathsAPI();
+  const apiBaseDataQuery = useBaseDataAPI();
+  const apiPatternPathsQuery = usePatternPathsAPI();
 
   const query = useQuery<Route[]>({
     queryKey: [ASQueryKey.ROUTE_LIST],
     queryFn: async () => {
-      let ASBaseData = asBaseQuery.data!;
-      let ASPatternPathData = asPatternPathsQuery.data!;
+      let apiBaseData = apiBaseDataQuery.data!;
+      let apiPatternPathData = apiPatternPathsQuery.data!;
 
       const colorTheme =
         (await getColorScheme()) === 'dark' ? darkMode : lightMode;
 
-      let routes: Route[] = ASBaseData.routes.map((baseRoute) => {
+      let routes: Route[] = apiBaseData.routes.map((baseRoute) => {
         // Find matching pattern paths for this route
-        const matchingPatternPaths = ASPatternPathData.find(
+        const matchingPatternPaths = apiPatternPathData.find(
           (path) => path.routeKey === baseRoute.key,
         )!;
 
@@ -48,6 +67,7 @@ export const useASRouteList = () => {
           const stops: Stop[] = patternPathForDirection.patternPoints
             .filter((pt) => !!pt.stop)
             .map((pt) => ({
+              dataSource: DataSource.AGGIE_SPIRIT,
               name: pt.stop!.name || '',
               id: pt.stop!.stopCode || '',
               location: {
@@ -57,7 +77,8 @@ export const useASRouteList = () => {
             }));
 
           return {
-            name: dir.direction.name,
+            dataSource: DataSource.AGGIE_SPIRIT,
+            name: dir.direction.name.replace("to", "").trim(),
             id: dir.direction.key,
             pathPoints: points,
             stops: stops,
@@ -66,6 +87,7 @@ export const useASRouteList = () => {
         });
 
         return {
+          dataSource: DataSource.AGGIE_SPIRIT,
           name: baseRoute.name,
           id: baseRoute.key,
           routeCode: baseRoute.shortName,
@@ -76,8 +98,119 @@ export const useASRouteList = () => {
       return routes;
     },
     staleTime: Infinity,
-    refetchInterval: 2 * 3600 * 1000,
-    enabled: asBaseQuery.isSuccess && asPatternPathsQuery.isSuccess,
+    refetchInterval: moment.duration(30, 'minutes').asMilliseconds(),
+    enabled: apiBaseDataQuery.isSuccess && apiPatternPathsQuery.isSuccess,
+  });
+
+  return query;
+};
+
+export const useASVehicles = (route: Route | null) => {
+  const apiBusesQuery = useVehiclesAPI(route?.id ?? '');
+
+  const query = useQuery<Bus[]>({
+    queryKey: [ASQueryKey.VEHICLES, route?.id],
+    queryFn: async () => {
+      let apiBuses = apiBusesQuery.data!;
+
+      if (!apiBuses.vehiclesByDirections) return [];
+
+      let buses: Bus[] = apiBuses.vehiclesByDirections.flatMap(
+        (vehicleDirection) => {
+          const direction = route?.directions.find(
+            (dir) => dir.id === vehicleDirection.directionKey,
+          )!;
+
+          const directionBuses: Bus[] = vehicleDirection.vehicles.map(
+            (vehicle) => {
+              return {
+                dataSource: DataSource.AGGIE_SPIRIT,
+                location: {
+                  latitude: vehicle.location.latitude,
+                  longitude: vehicle.location.longitude,
+                },
+                heading: vehicle.location.heading,
+                amenities: Amenity.fromAPI(vehicle.amenities),
+                capacity: Math.round(
+                  (vehicle.passengersOnboard / vehicle.passengerCapacity) * 100,
+                ),
+                speed: vehicle.location.speed,
+                id: vehicle.key,
+                direction: direction,
+                name: vehicle.name
+              };
+            },
+          );
+
+          return directionBuses;
+        },
+      );
+
+      return buses;
+    },
+    staleTime: moment.duration(10, 'seconds').asMilliseconds(),
+    refetchInterval: moment.duration(10, 'seconds').asMilliseconds(),
+    enabled: apiBusesQuery.isSuccess,
+  });
+
+  return query;
+};
+
+export const useASStopEstimate = (
+  route: Route,
+  direction: Direction,
+  stop: Stop,
+) => {
+  const apiStopEstimateQuery = useStopEstimateAPI(
+    route.id,
+    direction.id,
+    stop.id,
+  );
+
+  const query = useQuery<TimeEstimate[]>({
+    queryKey: [ASQueryKey.STOP_ESTIMATE, route.id, direction.id, stop.id],
+    queryFn: async () => {
+      const stopEstimates = apiStopEstimateQuery.data!;
+
+      return stopEstimates.routeDirectionTimes[0].nextDeparts.map(
+        (e): TimeEstimate => {
+          return {
+            dataSource: DataSource.AGGIE_SPIRIT,
+            estimatedTime: e.estimatedDepartTimeUtc
+              ? moment.utc(e.estimatedDepartTimeUtc)
+              : null,
+            scheduledTime: moment.utc(e.scheduledDepartTimeUtc),
+            isRealTime: e.estimatedDepartTimeUtc == null,
+          };
+        },
+      );
+    },
+    staleTime: moment.duration(10, 'seconds').asMilliseconds(),
+    refetchInterval: moment.duration(10, 'seconds').asMilliseconds(),
+    enabled: apiStopEstimateQuery.isSuccess,
+  });
+
+  return query;
+};
+
+export const useASStopAmenities = (
+  route: Route,
+  direction: Direction,
+  stop: Stop,
+) => {
+  const apiStopEstimateQuery = useStopEstimateAPI(
+    route.id,
+    direction.id,
+    stop.id,
+  );
+
+  const query = useQuery<Amenity[]>({
+    queryKey: [ASQueryKey.STOP_AMENITIES, route.id, direction.id, stop.id],
+    queryFn: async () => {
+      const stopEstimates = apiStopEstimateQuery.data!;
+      return Amenity.fromAPI(stopEstimates.amenities);
+    },
+    enabled: apiStopEstimateQuery.isSuccess,
   });
 
   return query;

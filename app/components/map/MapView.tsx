@@ -2,7 +2,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { decode } from '@googlemaps/polyline-codec';
 import { Direction, Route } from 'app/data/datatypes';
-import { useVehiclesAPI } from 'app/data/queries/api/aggie_spirit';
+import { useVehicles } from 'app/data/queries/app';
 import { DarkGoogleMaps } from 'app/theme';
 import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
@@ -13,6 +13,7 @@ import {
   RoutePlanPolylinePoint,
 } from '../../../utils/interfaces';
 import useAppStore from '../../data/app_state';
+import BusMarker from './markers/BusMarker';
 import RoutePlanMarker from './markers/RoutePlanMarker';
 import StopMarker from './markers/StopMarker';
 
@@ -50,7 +51,7 @@ const RouteMap: React.FC = () => {
     RoutePlanMapMarker[]
   >([]);
 
-  const { data: buses } = useVehiclesAPI(selectedRoute?.id ?? '');
+  const { data: buses } = useVehicles(selectedRoute);
 
   const defaultMapRegion: Region = {
     latitude: 30.606,
@@ -350,22 +351,12 @@ const RouteMap: React.FC = () => {
       >
         {/* Route Polylines */}
         {drawnRoutes.map((drawnRoute) => {
+          const lineColor = drawnRoute.tintColor;
           let coordDirections = new Map<Direction, LatLng[]>([]);
 
-          // TODO: clean this up
           drawnRoute.directions.forEach((direction) => {
-            direction.pathPoints.forEach((point) => {
-              coordDirections.set(direction, [
-                ...(coordDirections.get(direction) ?? []),
-                {
-                  latitude: point.latitude,
-                  longitude: point.longitude,
-                },
-              ]);
-            });
+            coordDirections.set(direction, direction.pathPoints);
           });
-
-          const lineColor = drawnRoute.tintColor;
 
           return Array.from(coordDirections.entries()).map(
             ([direction, coords]) => {
@@ -453,18 +444,10 @@ const RouteMap: React.FC = () => {
           })}
 
         {/* Buses */}
-        {/* {selectedRoute &&
+        {selectedRoute &&
           buses?.map((bus) => {
-            const color = selectedRoute.tintColor;
-            return (
-              <BusMarker
-                key={bus.key}
-                bus={bus}
-                tintColor={color}
-                routeName={selectedRoute.routeCode}
-              />
-            );
-          })} */}
+            return <BusMarker key={bus.id} bus={bus} route={selectedRoute} />;
+          })}
       </MapView>
 
       {/* map buttons */}

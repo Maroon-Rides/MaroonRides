@@ -1,37 +1,34 @@
+import { Bus, Route } from 'app/data/datatypes';
 import React, { memo } from 'react';
 import { Platform } from 'react-native';
 import { Marker } from 'react-native-maps';
-import { IVehicle } from 'utils/interfaces';
 import useAppStore from '../../../data/app_state';
 import BusCallout from '../BusCallout';
 import BusMapIcon from '../mapIcons/BusMapIcon';
 
 interface Props {
-  bus: IVehicle;
-  tintColor: string;
-  routeName: string;
+  bus: Bus;
+  route: Route;
 }
 
 // Bus Marker with icon and callout
-const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
-  const selectedRouteDirection = useAppStore(
-    (state) => state.selectedDirection,
-  );
+const BusMarker: React.FC<Props> = ({ bus, route }) => {
+  const selectedDirection = useAppStore((state) => state.selectedDirection);
+
   const setSelectedDirection = useAppStore(
     (state) => state.setSelectedDirection,
   );
 
   //if direction is not selected and route is inactive, then call setSelectedDirection w/ parameter bus.directionKey
   const busDefaultDirection = () => {
-    // TODO: fix
-    // if (selectedRouteDirection !== bus.directionKey) {
-    // setSelectedDirection(bus.directionKey);
-    // }
+    if (selectedDirection?.id !== bus.direction.id) {
+      setSelectedDirection(bus.direction);
+    }
   };
 
   return (
     <Marker
-      key={bus.key}
+      key={bus.id}
       coordinate={{
         latitude: bus.location.latitude,
         longitude: bus.location.longitude,
@@ -53,27 +50,12 @@ const BusMarker: React.FC<Props> = ({ bus, tintColor, routeName }) => {
     >
       {/* Bus Icon on Map*/}
       <BusMapIcon
-        tintColor={tintColor}
-        heading={bus.location.heading}
-        active={true}
-      // TODO: fix
-      // active={
-      //   selectedRouteDirection === bus.directionKey ||
-      //   bus.directionKey === '00000000-0000-0000-0000-000000000000'
-      // }
+        bus={bus}
+        route={route}
+        selectedDirection={selectedDirection}
       />
 
-      <BusCallout
-        directionName={bus.directionName ?? ''}
-        fullPercentage={Math.round(
-          (bus.passengersOnboard / bus.passengerCapacity) * 100,
-        )}
-        amenities={bus.amenities}
-        tintColor={tintColor}
-        routeName={routeName}
-        busId={bus.name}
-        speed={bus.location.speed}
-      />
+      <BusCallout route={route} direction={selectedDirection} bus={bus} />
     </Marker>
   );
 };

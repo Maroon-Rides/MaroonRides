@@ -1,6 +1,6 @@
 import useAppStore from 'app/data/app_state';
 import { Direction, Route, Stop } from 'app/data/datatypes';
-import { useStopEstimateAPI } from 'app/data/queries/api/aggie_spirit';
+import { useStopAmenities, useStopEstimate } from 'app/data/queries/app';
 import { lightMode } from 'app/theme';
 import moment from 'moment';
 import React, { memo } from 'react';
@@ -29,11 +29,13 @@ const StopCallout: React.FC<Props> = ({
     (state) => state.setSelectedDirection,
   );
 
-  const { data: estimate, isLoading } = useStopEstimateAPI(
-    route.id,
-    direction.id,
-    stop.id,
+  const { data: estimates, isLoading } = useStopEstimate(
+    route,
+    direction,
+    stop,
   );
+
+  const { data: amenities } = useStopAmenities(route, direction, stop);
 
   return (
     <Callout
@@ -78,7 +80,7 @@ const StopCallout: React.FC<Props> = ({
             {stop.name}
           </Text>
           <AmenityRow
-            amenities={estimate?.amenities || []}
+            amenities={amenities || []}
             color={lightMode.subtitle}
             size={18}
           />
@@ -86,8 +88,7 @@ const StopCallout: React.FC<Props> = ({
 
         {isLoading ? (
           <ActivityIndicator style={{ marginTop: 8 }} />
-        ) : estimate?.routeDirectionTimes.length !== 0 &&
-          estimate?.routeDirectionTimes[0]?.nextDeparts.length !== 0 ? (
+        ) : estimates && estimates.length > 0 ? (
           <View
             style={{
               flexDirection: 'row',
@@ -98,31 +99,21 @@ const StopCallout: React.FC<Props> = ({
             }}
           >
             <View style={{ flex: 1 }} />
-            {estimate?.routeDirectionTimes[0]?.nextDeparts.map(
-              (departureTime, index) => {
-                const date = moment(
-                  departureTime.estimatedDepartTimeUtc ??
-                  departureTime.scheduledDepartTimeUtc ??
-                  '',
-                );
-                const relative = date.diff(moment(), 'minutes');
-                return (
-                  <CalloutTimeBubble
-                    key={index}
-                    time={relative <= 0 ? 'Now' : relative.toString() + ' min'}
-                    color={
-                      index === 0 ? tintColor + '50' : lightMode.nextStopBubble
-                    }
-                    textColor={index === 0 ? tintColor : lightMode.text}
-                    live={
-                      departureTime.estimatedDepartTimeUtc === null
-                        ? false
-                        : true
-                    }
-                  />
-                );
-              },
-            )}
+            {estimates!.map((estimate, index) => {
+              const date = estimate.estimatedTime ?? estimate.scheduledTime;
+              const relative = date.diff(moment(), 'minutes');
+              return (
+                <CalloutTimeBubble
+                  key={index}
+                  time={relative <= 0 ? 'Now' : relative.toString() + ' min'}
+                  color={
+                    index === 0 ? tintColor + '50' : lightMode.nextStopBubble
+                  }
+                  textColor={index === 0 ? tintColor : lightMode.text}
+                  live={estimate.estimatedTime === null ? false : true}
+                />
+              );
+            })}
             <View style={{ flex: 1 }} />
           </View>
         ) : (

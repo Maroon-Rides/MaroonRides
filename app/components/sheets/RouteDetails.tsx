@@ -249,7 +249,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             let hasAlternativeDirection = selectedRoute.directions.length > 1;
 
             if (isLastStop && hasAlternativeDirection) {
-              direction = selectedRoute?.directions[selectedDirectionIndex === 0 ? 1 : 0];
+              direction =
+                selectedRoute?.directions[selectedDirectionIndex === 0 ? 1 : 0];
             } else {
               direction = selectedRoute?.directions[selectedDirectionIndex];
             }

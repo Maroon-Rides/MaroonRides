@@ -1,16 +1,17 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Bus, Direction, Route } from 'app/data/datatypes';
+import { getLighterColor } from 'app/utils';
 import React from 'react';
 import { View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { getLighterColor } from 'app/utils';
 
 interface Props {
-  heading: number;
-  tintColor: string;
-  active: boolean;
+  bus: Bus;
+  route: Route;
+  selectedDirection: Direction | null;
 }
 
 // Bus icon thats show on map
-const BusMapIcon: React.FC<Props> = ({ heading, tintColor, active }) => {
+const BusMapIcon: React.FC<Props> = ({ bus, route, selectedDirection }) => {
   // Calculate the rotation angle based on the bearing of the bus
   const getRotationProp = (bearing: number | undefined) => {
     return [
@@ -21,7 +22,8 @@ const BusMapIcon: React.FC<Props> = ({ heading, tintColor, active }) => {
     ];
   };
 
-  const borderColor = active ? getLighterColor(tintColor) : undefined;
+  const active = bus.direction.id === selectedDirection?.id;
+  const borderColor = active ? getLighterColor(route.tintColor) : undefined;
 
   return (
     <View
@@ -33,10 +35,10 @@ const BusMapIcon: React.FC<Props> = ({ heading, tintColor, active }) => {
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
         borderBottomLeftRadius: 15,
-        backgroundColor: active ? tintColor : tintColor + '70',
+        backgroundColor: active ? route.tintColor : route.tintColor + '70',
         borderColor: borderColor,
         borderWidth: borderColor ? 2 : 0,
-        transform: getRotationProp(heading),
+        transform: getRotationProp(bus.heading),
         zIndex: active ? 800 : 500,
         elevation: active ? 800 : 500,
       }}
@@ -45,7 +47,7 @@ const BusMapIcon: React.FC<Props> = ({ heading, tintColor, active }) => {
         name="bus"
         size={18}
         color={active ? 'white' : '#ffffffcc'}
-        style={{ transform: getRotationProp(-heading - 90) }}
+        style={{ transform: getRotationProp(-bus.heading - 90) }}
       />
     </View>
   );

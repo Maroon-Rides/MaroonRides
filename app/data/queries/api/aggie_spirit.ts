@@ -25,7 +25,7 @@ import {
   IMapServiceInterruption
 } from 'utils/interfaces';
 
-export type Headers = { [key: string]: string }
+export type Headers = { [key: string]: string };
 
 export const useAuthCodeAPI = () => {
   const query = useQuery<string>({
@@ -164,7 +164,7 @@ export const useStopEstimateAPI = (
       GetNextDepartTimesResponseSchema.parse(response);
       // TODO: dedup the stopTimes[].nextDeparts based on relative time in app query
 
-      return response as IGetNextDepartTimesResponse;
+      return response as IGetNextDepartTimesResponse
     },
     enabled:
       authTokenQuery.isSuccess &&
@@ -224,17 +224,20 @@ export const useScheduleAPI = (stopCode: string, date: Date) => {
 export const useVehiclesAPI = (routeKey: string) => {
   const authTokenQuery = useAuthTokenAPI();
 
-  return useQuery<IGetVehiclesResponse>({
+  return useQuery<IGetVehiclesResponse[0]>({
     queryKey: ['vehicles', routeKey],
     queryFn: async () => {
       let busesResponse = (await getVehicles(
         [routeKey],
         authTokenQuery.data!,
       )) as IGetVehiclesResponse;
-      // TODO: flatten busses in AS query
 
       GetVehiclesResponseSchema.parse(busesResponse);
-      return busesResponse;
+
+      // TODO: make this a logger
+      if (busesResponse.length === 0) throw Error('No buses returned');
+
+      return busesResponse[0];
     },
     enabled: authTokenQuery.isSuccess && routeKey !== '',
     staleTime: moment.duration(10, 'seconds').asMilliseconds(),

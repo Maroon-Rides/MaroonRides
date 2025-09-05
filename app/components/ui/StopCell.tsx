@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Direction, Route, Stop } from 'app/data/datatypes';
-import { useStopEstimateAPI } from 'app/data/queries/api/aggie_spirit';
+import { useStopAmenities, useStopEstimate } from 'app/data/queries/app';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import {
@@ -39,34 +39,34 @@ const StopCell: React.FC<Props> = ({
   const setPoppedUpStopCallout = useAppStore(
     (state) => state.setPoppedUpStopCallout,
   );
-  const selectedRoute = useAppStore((state) => state.selectedRoute);
   const theme = useAppStore((state) => state.theme);
 
   const {
-    data: stopEstimate,
+    data: stopEstimates,
     isLoading,
     isError,
-  } = useStopEstimateAPI(route.id, direction.id, stop.id);
+  } = useStopEstimate(route, direction, stop);
+
+  const { data: stopAmenities } = useStopAmenities(route, direction, stop);
 
   useEffect(() => {
-    if (!stopEstimate) return;
+    if (!stopEstimates) return;
 
     // this is usually caused by out of date base data
     // therefore refresh the base data
-    if (stopEstimate.routeDirectionTimes.length === 0) {
+    if (stopEstimates.length === 0) {
       setStatus('Error loading estimates, try again later.');
       return;
     }
 
-    const estimate = stopEstimate.routeDirectionTimes[0]!;
-
     let deviation = 0;
 
-    for (const departTime of estimate.nextDeparts) {
-      const estimatedTime = moment(departTime.estimatedDepartTimeUtc ?? '');
-      const scheduledTime = moment(departTime.scheduledDepartTimeUtc ?? '');
-
-      const delayLength = estimatedTime.diff(scheduledTime, 'seconds');
+    for (const estimate of stopEstimates) {
+      if (!estimate.estimatedTime) continue;
+      const delayLength = estimate.estimatedTime.diff(
+        estimate.scheduledTime,
+        'seconds',
+      );
 
       if (!isNaN(delayLength)) {
         deviation = delayLength;
@@ -76,9 +76,9 @@ const StopCell: React.FC<Props> = ({
 
     const roundedDeviation = Math.round(deviation / 60);
 
-    if (estimate.directionKey === '') {
+    if (isLoading) {
       setStatus('Loading');
-    } else if (estimate.nextDeparts.length === 0) {
+    } else if (stopEstimates.length === 0) {
       setStatus('No upcoming departures');
     } else if (roundedDeviation > 0) {
       setStatus(
@@ -91,7 +91,7 @@ const StopCell: React.FC<Props> = ({
     } else {
       setStatus('On time');
     }
-  }, [stopEstimate]);
+  }, [stopEstimates]);
 
   // when cell is tapped, open the stop timetable
   function toTimetable() {
@@ -121,7 +121,7 @@ const StopCell: React.FC<Props> = ({
         </Text>
         <View style={{ flex: 1 }} />
         <AmenityRow
-          amenities={stopEstimate?.amenities ?? []}
+          amenities={stopAmenities ?? []}
           size={24}
           color={theme.subtitle}
           style={{ paddingRight: 16, alignSelf: 'flex-start' }}
@@ -159,14 +159,10 @@ const StopCell: React.FC<Props> = ({
         <FlatList
           horizontal
           scrollEnabled={false}
-          data={stopEstimate?.routeDirectionTimes[0]?.nextDeparts ?? []}
+          data={stopEstimates}
           keyExtractor={(_, index) => index.toString()}
-          renderItem={({ item: departureTime, index }) => {
-            const date = moment(
-              departureTime.estimatedDepartTimeUtc ??
-              departureTime.scheduledDepartTimeUtc ??
-              '',
-            );
+          renderItem={({ item: estimate, index }) => {
+            const date = estimate.estimatedTime ?? estimate.scheduledTime;
             const relative = date.diff(moment(), 'minutes');
             return (
               <TimeBubble
@@ -184,9 +180,7 @@ const StopCell: React.FC<Props> = ({
                       : color
                     : theme.text
                 }
-                live={
-                  departureTime.estimatedDepartTimeUtc === null ? false : true
-                }
+                live={estimate.isRealTime}
               />
             );
           }}
