@@ -1,37 +1,36 @@
 import { create } from 'zustand';
 import {
-  IMapRoute,
   IMapServiceInterruption,
   IOptionDetail,
-  IStop,
   SearchSuggestion,
 } from '../../utils/interfaces';
 import { Theme, lightMode } from '../theme';
+import { Direction, Route, Stop } from './datatypes';
 
 interface AppState {
   theme: Theme;
   setTheme: (theme: Theme) => void;
 
-  drawnRoutes: IMapRoute[];
-  setDrawnRoutes: (routes: IMapRoute[]) => void;
+  drawnRoutes: Route[];
+  setDrawnRoutes: (routes: Route[]) => void;
 
-  selectedRoute: IMapRoute | null;
-  setSelectedRoute: (selectedRoute: IMapRoute | null) => void;
+  selectedRoute: Route | null;
+  setSelectedRoute: (selectedRoute: Route | null) => void;
   clearSelectedRoute: () => void;
 
-  selectedRouteDirection: string | null;
-  setSelectedRouteDirection: (selectedRouteDirection: string | null) => void;
+  selectedDirection: Direction | null;
+  setSelectedDirection: (selectedDirection: Direction | null) => void;
 
-  oldSelectedRoute: IMapRoute | null;
-  setOldSelectedRoute: (oldSelectedRouteDirection: IMapRoute | null) => void;
+  oldSelectedRoute: Route | null;
+  setOldSelectedRoute: (oldSelectedRouteDirection: Route | null) => void;
 
   selectedRouteCategory: 'Favorites' | 'All Routes' | 'Gameday';
   setSelectedRouteCategory: (
     selectedRouteCategory: 'Favorites' | 'All Routes' | 'Gameday',
   ) => void;
 
-  selectedStop: IStop | null;
-  setSelectedStop: (selectedStop: IStop | null) => void;
+  selectedStop: Stop | null;
+  setSelectedStop: (selectedStop: Stop | null) => void;
 
   // TODO: Switch to Provider Functions
   presentSheet: (
@@ -125,11 +124,11 @@ interface AppState {
     zoomToStopLatLng: (lat: number, lng: number) => void,
   ) => void;
 
-  poppedUpStopCallout: IStop | null;
-  setPoppedUpStopCallout: (poppedUpStopCallout: IStop | null) => void;
+  poppedUpStopCallout: Stop | null;
+  setPoppedUpStopCallout: (poppedUpStopCallout: Stop | null) => void;
 
-  scrollToStop: (stop: IStop) => void;
-  setScrollToStop: (scrollToStop: (stop: IStop) => void) => void;
+  scrollToStop: (stop: Stop) => void;
+  setScrollToStop: (scrollToStop: (stop: Stop) => void) => void;
 
   // route planning
   suggestions: SearchSuggestion[];
@@ -156,9 +155,9 @@ const useAppStore = create<AppState>()((set, get) => ({
   setSelectedRoute: (selectedRoute) => set(() => ({ selectedRoute })),
   clearSelectedRoute: () => set(() => ({ selectedRoute: null })),
 
-  selectedRouteDirection: null,
-  setSelectedRouteDirection: (selectedRouteDirection) =>
-    set(() => ({ selectedRouteDirection: selectedRouteDirection })),
+  selectedDirection: null,
+  setSelectedDirection: (selectedDirection) =>
+    set(() => ({ selectedDirection })),
 
   oldSelectedRoute: null,
   setOldSelectedRoute: (oldSelectedRoute) =>

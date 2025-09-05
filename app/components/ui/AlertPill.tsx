@@ -3,7 +3,8 @@ import { TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import IconPill from './IconPill';
 import useAppStore from '../../data/app_state';
-import { useRoutes, useServiceInterruptions } from 'app/data/api_query';
+import { useServiceInterruptions } from 'app/data/api_query';
+import { useRouteList } from 'app/data/queries';
 
 interface Props {
   routeId?: string;
@@ -18,7 +19,7 @@ const AlertPill: React.FC<Props> = ({ routeId, showText }) => {
   );
 
   const { data: alerts } = useServiceInterruptions();
-  const { data: routes } = useRoutes();
+  const { data: routes } = useRouteList();
 
   // Update the alert icon when the alerts change
   useEffect(() => {
@@ -28,16 +29,16 @@ const AlertPill: React.FC<Props> = ({ routeId, showText }) => {
     }
 
     // find the route that matches the routeId
-    const route = routes?.find((route) => route.key === routeId);
+    const route = routes?.find((route) => route.id === routeId);
     let activeAlerts = false;
 
     if (route) {
-      for (const direction of route.directionList) {
-        if (direction.serviceInterruptionKeys.length > 0) {
-          activeAlerts = true;
-          break;
-        }
-      }
+      // for (const direction of route.directions) {
+      //   if (direction.serviceInterruptionKeys.length > 0) {
+      //     activeAlerts = true;
+      //     break;
+      //   }
+      // }
     }
 
     if (activeAlerts && route) {

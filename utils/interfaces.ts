@@ -52,7 +52,6 @@ export const MapRouteSchema = z.object({
   name: z.string(),
   shortName: z.string(),
   directionList: z.array(DirectionListSchema),
-  patternPaths: z.array(PatternPathSchema),
 });
 export type IMapRoute = z.infer<typeof MapRouteSchema>;
 

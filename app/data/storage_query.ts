@@ -1,58 +1,27 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { IMapRoute, SearchSuggestion } from 'utils/interfaces';
-import { useRoutes } from './api_query';
+import { SearchSuggestion } from 'utils/interfaces';
 import { suggestionEqual } from 'app/utils';
+import { Route } from './datatypes';
+import { useRouteList } from './queries';
 
 export const useFavorites = () => {
-  const routesQuery = useRoutes();
+  const routesQuery = useRouteList();
 
-  const query = useQuery<IMapRoute[]>({
+  const query = useQuery<Route[]>({
     queryKey: ['favorites'],
     queryFn: async () => {
-      const routes = routesQuery.data as IMapRoute[];
+      const routes = routesQuery.data as Route[];
 
       const favorites = await AsyncStorage.getItem('favorites');
-      if (!favorites) return [] as IMapRoute[];
+      if (!favorites) return ([] as Route[]);
 
       let favoritesArray = JSON.parse(favorites);
-
-      // uuid regex
-      const uuidRegex = new RegExp(
-        '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
-      );
-
-      if (favoritesArray.some((fav: string) => uuidRegex.test(fav))) {
-        console.log('Found a uuid in favorited, running migration steps...');
-
-        // convert any uuids (based on regex) to the new route shortName
-        favoritesArray = favoritesArray.map((fav: string) => {
-          // check if the favorite is a uuid
-          if (uuidRegex.test(fav)) {
-            const match = routes.find((route) => route.key === fav);
-
-            return match ? match.shortName : null; // return null if the route is not found
-          } else {
-            // otherwise return the favorite
-            return fav;
-          }
-        });
-
-        // remove any undefined values
-        favoritesArray = favoritesArray.filter(
-          (el: string | undefined) => el !== null,
-        );
-
-        // deduplicate the array
-        favoritesArray = Array.from(new Set(favoritesArray));
-
-        // save the converted favorites to AsyncStorage
-        AsyncStorage.setItem('favorites', JSON.stringify(favoritesArray));
-      }
-
+      
       // set the favorite routes
-      return routes.filter((route) => favoritesArray.includes(route.shortName));
+      return routes.filter((route) => favoritesArray.includes(route.routeCode));
     },
+    
     staleTime: Infinity,
     enabled: routesQuery.isSuccess,
   });

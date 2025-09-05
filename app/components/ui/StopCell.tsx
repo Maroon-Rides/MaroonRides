@@ -13,11 +13,12 @@ import useAppStore from '../../data/app_state';
 import AmenityRow from './AmenityRow';
 import moment from 'moment';
 import { useStopEstimate } from 'app/data/api_query';
+import { Direction, Route, Stop } from 'app/data/datatypes';
 
 interface Props {
-  stop: IStop;
-  route: IMapRoute;
-  direction: IDirection;
+  stop: Stop;
+  route: Route;
+  direction: Direction;
   color: string;
   disabled: boolean;
   setSheetPos: (pos: number) => void;
@@ -46,7 +47,7 @@ const StopCell: React.FC<Props> = ({
     data: stopEstimate,
     isLoading,
     isError,
-  } = useStopEstimate(route.key, direction.key, stop.stopCode);
+  } = useStopEstimate(route.id, direction.id, stop.id);
 
   useEffect(() => {
     if (!stopEstimate) return;
@@ -101,16 +102,9 @@ const StopCell: React.FC<Props> = ({
 
   function zoomToStop() {
     // find the gps coordinates of the stop
-    selectedRoute?.patternPaths.forEach((path) => {
-      const point = path.patternPoints.find(
-        (point) => point.stop?.stopCode === stop.stopCode,
-      );
-      if (point) {
-        setSheetPos(1);
-        zoomToStopLatLng(point.latitude, point.longitude);
-        setTimeout(() => setPoppedUpStopCallout(stop), 300);
-      }
-    });
+    setSheetPos(1);
+    zoomToStopLatLng(stop.location.latitude, stop.location.longitude);
+    setTimeout(() => setPoppedUpStopCallout(stop), 300);
   }
 
   return (

@@ -35,6 +35,8 @@ import {
   SearchSuggestion,
 } from 'utils/interfaces';
 import '@bacons/text-decoder/install';
+import { useRouteList } from './queries';
+import { Stop } from './datatypes';
 
 export const useAuthCode = () => {
   const query = useQuery<string>({
@@ -98,13 +100,8 @@ export const useBaseData = () => {
 
   const query = useQuery<IGetBaseDataResponse>({
     queryKey: ['baseData'],
-    // @ts-ignore: We are modifying the baseData object to add patternPaths
     queryFn: async () => {
       const baseData = await getBaseData(authTokenQuery.data!);
-
-      // go through each route and add a empty array on patternPaths
-      // @ts-ignore: We are modifying the baseData object to add patternPaths
-      baseData.routes.forEach((route) => (route.patternPaths = []));
 
       GetBaseDataResponseSchema.parse(baseData);
 
@@ -141,62 +138,6 @@ export const usePatternPaths = () => {
       return patternPaths;
     },
     enabled: baseDataQuery.isSuccess,
-    staleTime: 2 * 3600 * 1000, // 2 hours
-    refetchInterval: 2 * 3600 * 1000, // 2 hours
-  });
-
-  return query;
-};
-
-export const useRoutes = () => {
-  const baseDataQuery = useBaseData();
-  const patternPathsQuery = usePatternPaths();
-
-  const query = useQuery<IMapRoute[]>({
-    queryKey: ['routes'],
-    queryFn: async () => {
-      const baseData = baseDataQuery.data as IGetBaseDataResponse;
-      const patternPaths = patternPathsQuery.data as IGetPatternPathsResponse;
-
-      // Merge Pattern Paths with Base Data
-      function mergeBaseAndPaths(
-        baseDataRoutes: IMapRoute[],
-        patternPathsResponse: IGetPatternPathsResponse,
-      ) {
-        for (let elm of patternPathsResponse) {
-          const foundObject = baseDataRoutes.find(
-            (route) => route.key === elm.routeKey,
-          ) as IMapRoute;
-          if (foundObject) {
-            foundObject.patternPaths = elm.patternPaths;
-          }
-        }
-        return baseDataRoutes as IMapRoute[];
-      }
-
-      let mergedRoutes = JSON.parse(
-        JSON.stringify(mergeBaseAndPaths([...baseData.routes], patternPaths)),
-      ) as IMapRoute[];
-
-      // convert colors of routes based on theme
-      const colorTheme =
-        (await getColorScheme()) === 'dark' ? darkMode : lightMode;
-
-      mergedRoutes = mergedRoutes.map((route) => {
-        const originalColor = baseData.routes.find(
-          (bRoute) => bRoute.key === route.key,
-        )!.directionList[0]?.lineColor!;
-        route.directionList.forEach((direction) => {
-          direction.lineColor =
-            colorTheme.busTints[route.shortName] ?? originalColor;
-        });
-
-        return route;
-      });
-
-      return mergedRoutes;
-    },
-    enabled: patternPathsQuery.isSuccess && baseDataQuery.isSuccess,
     staleTime: 2 * 3600 * 1000, // 2 hours
     refetchInterval: 2 * 3600 * 1000, // 2 hours
   });
@@ -355,7 +296,7 @@ export const useVehicles = (routeKey: string) => {
 // Route Planning
 export const useSearchSuggestion = (query: string) => {
   const authTokenQuery = useAuthToken();
-  const routesQuery = useRoutes();
+  // const routesQuery = useRouteList();
 
   return useQuery<any, Error, SearchSuggestion[]>({
     queryKey: ['searchSuggestion', query],
@@ -375,40 +316,38 @@ export const useSearchSuggestion = (query: string) => {
       // handle bus stops
       let busStops: SearchSuggestion[] = [];
 
-      busStops = stops.map((stop: IFoundStop) => {
-        // find the stop location (lat/long) in baseData patternPaths
-        // TODO: convert this processing to be on the BaseData loading
-        let foundLocation: IPatternPoint | undefined = undefined;
-        for (let route of routesQuery.data!) {
-          for (let path of route.patternPaths) {
-            const stops = path.patternPoints.filter(
-              (point) => point.stop !== null,
-            );
-            for (let point of stops) {
-              if (point.stop?.stopCode === stop.stopCode) {
-                foundLocation = point;
-                break;
-              }
-            }
-            if (foundLocation) break;
-          }
+      // busStops = stops.map((stop: IFoundStop) => {
+      //   // find the stop location (lat/long) in baseData patternPaths
+      //   // TODO: convert this processing to be on the BaseData loading
+      //   let foundLocation: Stop | undefined = undefined;
+      //   for (let route of routesQuery.data!) {
+      //     for (let path of route.directions) {
+      //       const stops = path.stops;
+      //       for (let point of stops) {
+      //         if (point.id === stop.stopCode) {
+      //           foundLocation = point;
+      //           break;
+      //         }
+      //       }
+      //       if (foundLocation) break;
+      //     }
 
-          if (foundLocation) break;
-        }
+      //     if (foundLocation) break;
+      //   }
 
-        return {
-          type: 'stop',
-          title: foundLocation?.stop?.name ?? '',
-          subtitle: 'ID: ' + foundLocation?.stop?.stopCode,
-          stopCode: foundLocation?.stop?.stopCode,
-          lat: foundLocation?.latitude,
-          long: foundLocation?.longitude,
-        };
-      });
+      //   return {
+      //     type: 'stop',
+      //     title: foundLocation?.name ?? '',
+      //     subtitle: 'ID: ' + foundLocation?.id,
+      //     stopCode: foundLocation?.id,
+      //     lat: foundLocation?.location.latitude,
+      //     long: foundLocation?.location.longitude,
+      //   };
+      // });
 
       return busStops;
     },
-    enabled: authTokenQuery.isSuccess && routesQuery.isSuccess && query !== '',
+    enabled: authTokenQuery.isSuccess && query !== '',
     throwOnError: true,
     staleTime: Infinity,
   });

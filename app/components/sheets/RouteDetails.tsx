@@ -8,7 +8,7 @@ import SegmentedControl, {
   NativeSegmentedControlIOSChangeEvent,
 } from '@react-native-segmented-control/segmented-control';
 import { useQueryClient } from '@tanstack/react-query';
-import { useStopEstimate } from 'app/data/api_query';
+import { Direction, Route } from 'app/data/datatypes';
 import { SheetProps } from 'app/utils';
 import React, { useEffect, useState } from 'react';
 import {
@@ -18,7 +18,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { IMapRoute, IPatternPath, IStop } from '../../../utils/interfaces';
 import useAppStore from '../../data/app_state';
 import AlertPill from '../ui/AlertPill';
 import BusIcon from '../ui/BusIcon';
@@ -34,11 +33,9 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
   const [futurePosition, setFuturePosition] = useState(-1);
 
-  const selectedRouteDirection = useAppStore(
-    (state) => state.selectedRouteDirection,
-  );
-  const setSelectedRouteDirection = useAppStore(
-    (state) => state.setSelectedRouteDirection,
+  const selectedDirection = useAppStore((state) => state.selectedDirection);
+  const setSelectedDirection = useAppStore(
+    (state) => state.setSelectedDirection,
   );
   const setSelectedStop = useAppStore((state) => state.setSelectedStop);
   const setPoppedUpStopCallout = useAppStore(
@@ -51,50 +48,24 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const dismissSheet = useAppStore((state) => state.dismissSheet);
   const theme = useAppStore((state) => state.theme);
 
-  const { data: stopEstimates } = useStopEstimate(
-    currentSelectedRoute?.key ?? '',
-    currentSelectedRoute?.directionList[0]?.direction.key ?? '',
-    currentSelectedRoute?.patternPaths[0]?.patternPoints[0]?.stop?.stopCode ??
-      '',
-  );
-
   // Controls SegmentedControl
   const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
-
-  const [processedStops, setProcessedStops] = useState<IStop[]>([]);
-  const [selectedRoute, setSelectedRoute] = useState<IMapRoute | null>(null);
+  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
 
   const client = useQueryClient();
 
   // Filters patternPaths for only the selected route from all patternPaths
-  function getPatternPathForSelectedRoute(): IPatternPath | undefined {
+  function getPatternPathForSelectedRoute(): Direction | undefined {
     if (!selectedRoute) return undefined;
-    return selectedRoute.patternPaths.find(
+    return selectedRoute.directions.find(
       (direction) =>
-        direction.patternKey ===
-        selectedRoute.directionList[selectedDirectionIndex]?.patternList[0]
-          ?.key,
+        direction.id === selectedRoute.directions[selectedDirectionIndex].id,
     );
   }
 
   const handleDismiss = () => {
     dismissSheet('routeDetails');
   };
-
-  // When a new route is selected or the direction of the route is changed, update the stops
-  useEffect(() => {
-    if (!selectedRoute) return;
-
-    const processedStops: IStop[] = [];
-    const directionPath = getPatternPathForSelectedRoute()?.patternPoints ?? [];
-
-    for (const point of directionPath) {
-      if (!point.stop) continue;
-      processedStops.push(point.stop);
-    }
-
-    setProcessedStops(processedStops);
-  }, [selectedRoute, selectedDirectionIndex]);
 
   // Update the selected route when the currentSelectedRoute changes but only if it is not null
   // Prevents visual glitch when the sheet is closed and the selected route is null
@@ -103,9 +74,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     setSelectedRoute(currentSelectedRoute);
 
     // reset direction selector
-    setSelectedRouteDirection(
-      currentSelectedRoute.directionList[0]?.direction.key ?? null,
-    );
+    setSelectedDirection(currentSelectedRoute.directions[0] ?? null);
     setSelectedDirectionIndex(0);
   }, [currentSelectedRoute]);
 
@@ -113,32 +82,31 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   useEffect(() => {
     if (!selectedRoute) return;
 
-    const directionIndex = selectedRoute.directionList.findIndex(
-      (direction) => direction.direction.key === selectedRouteDirection,
+    const directionIndex = selectedRoute.directions.findIndex(
+      (direction) => direction.id === selectedDirection?.id,
     );
 
     if (directionIndex === -1) return;
-
     setSelectedDirectionIndex(directionIndex);
-  }, [selectedRouteDirection]);
+  }, [selectedDirection]);
 
   useEffect(() => {
     setScrollToStop((stop) => {
-      const index = getPatternPathForSelectedRoute()
-        ?.patternPoints.filter((st) => st.stop)
-        .findIndex((st) => st.stop && st.stop?.stopCode === stop.stopCode);
+      const index = getPatternPathForSelectedRoute()?.stops.findIndex(
+        (st) => st.id === stop.id,
+      );
 
       if (index && index !== -1) {
         sheetRef.current?.snapToIndex(2);
         setFuturePosition(index);
       }
     });
-  }, [selectedRoute, selectedRouteDirection]);
+  }, [selectedRoute, selectedDirection]);
 
   useEffect(() => {
     setSheetCloseCallback(() => {
       clearSelectedRoute();
-      setSelectedRouteDirection(null);
+      setSelectedDirection(null);
 
       setSelectedStop(null);
       setPoppedUpStopCallout(null);
@@ -147,18 +115,16 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
       setSelectedDirectionIndex(0);
     }, 'routeDetails');
 
-    return () => setSelectedRouteDirection(null);
+    return () => setSelectedDirection(null);
   }, []);
 
   const handleSetSelectedDirection = (
     evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>,
   ) => {
-    setSelectedDirectionIndex(evt.nativeEvent.selectedSegmentIndex);
+    const index = evt.nativeEvent.selectedSegmentIndex;
 
-    setSelectedRouteDirection(
-      selectedRoute?.directionList[evt.nativeEvent.selectedSegmentIndex]
-        ?.direction.key ?? null,
-    );
+    setSelectedDirectionIndex(index);
+    setSelectedDirection(selectedRoute?.directions[index] ?? null);
   };
 
   const snapPoints = ['25%', '45%', '85%'];
@@ -194,8 +160,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             }}
           >
             <BusIcon
-              name={selectedRoute?.shortName ?? 'Something went wrong'}
-              color={selectedRoute?.directionList[0]?.lineColor ?? '#500000'}
+              name={selectedRoute.routeCode}
+              color={selectedRoute.tintColor}
               style={{ marginRight: 16 }}
             />
             <Text
@@ -230,16 +196,16 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
               gap: 4,
             }}
           >
-            <FavoritePill routeShortName={selectedRoute!.shortName} />
-            <AlertPill routeId={selectedRoute!.key} showText />
+            <FavoritePill routeShortName={selectedRoute.routeCode} />
+            <AlertPill routeId={selectedRoute.id} showText />
           </View>
 
-          {selectedRoute?.directionList.length > 1 && (
+          {selectedRoute?.directions.length > 1 && (
             <SegmentedControl
               style={{ marginHorizontal: 16, marginBottom: 8 }}
               values={
-                selectedRoute?.directionList.map(
-                  (direction) => 'to ' + direction.destination,
+                selectedRoute?.directions.map(
+                  (direction) => 'to ' + direction.name,
                 ) ?? []
               }
               selectedIndex={selectedDirectionIndex}
@@ -259,8 +225,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
       {selectedRoute && (
         <BottomSheetFlatList
           ref={flatListRef}
-          data={processedStops}
-          extraData={stopEstimates?.routeDirectionTimes[0]}
+          data={selectedDirection?.stops}
+          // extraData={stopEstimates?.routeDirectionTimes[0]}
           style={{ height: '100%' }}
           contentContainerStyle={{ paddingBottom: 35, paddingLeft: 16 }}
           onRefresh={() =>
@@ -279,18 +245,13 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
           renderItem={({ item: stop, index }) => {
             // handle the last cell showing No upcoming departures
             let direction;
-            if (
-              index === processedStops.length - 1 &&
-              selectedRoute?.directionList.length > 1
-            ) {
-              direction =
-                selectedRoute?.directionList[
-                  selectedDirectionIndex === 0 ? 1 : 0
-                ]?.direction!;
+            let isLastStop = index === selectedDirection!.stops.length - 1;
+            let hasAlternativeDirection = selectedRoute.directions.length > 1;
+
+            if (isLastStop && hasAlternativeDirection) {
+              direction = selectedRoute?.directions[selectedDirectionIndex === 0 ? 1 : 0];
             } else {
-              direction =
-                selectedRoute?.directionList[selectedDirectionIndex]
-                  ?.direction!;
+              direction = selectedRoute?.directions[selectedDirectionIndex];
             }
 
             return (
@@ -298,8 +259,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                 stop={stop}
                 route={selectedRoute}
                 direction={direction}
-                color={selectedRoute?.directionList[0]?.lineColor ?? '#909090'}
-                disabled={index === processedStops.length - 1}
+                color={selectedRoute!.tintColor}
+                disabled={index === selectedDirection!.stops.length - 1}
                 setSheetPos={(pos) => sheetRef.current?.snapToIndex(pos)}
               />
             );

@@ -4,7 +4,6 @@ import SegmentedControl, {
   NativeSegmentedControlIOSChangeEvent,
 } from '@react-native-segmented-control/segmented-control';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRoutes } from 'app/data/api_query';
 import { useDefaultRouteGroup, useFavorites } from 'app/data/storage_query';
 import { SheetProps } from 'app/utils';
 import React, { memo, useEffect, useState } from 'react';
@@ -16,11 +15,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { IDirectionList, IMapRoute } from '../../../utils/interfaces';
 import useAppStore from '../../data/app_state';
 import BusIcon from '../ui/BusIcon';
 import IconPill from '../ui/IconPill';
 import SheetHeader from '../ui/SheetHeader';
+import { useRouteList } from 'app/data/queries';
+import { Direction, Route } from 'app/data/datatypes';
 
 // Display routes list for all routes and favorite routes
 const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
@@ -45,7 +45,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     isError: routeError,
     isRefetching: isRefreshing,
     refetch: refetchRoutes,
-  } = useRoutes();
+  } = useRouteList();
+
   const {
     data: favorites,
     isLoading: isFavoritesLoading,
@@ -55,13 +56,13 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
   const { data: defaultGroup, refetch: refetchDefaultGroup } =
     useDefaultRouteGroup();
 
-  const handleRouteSelected = (selectedRoute: IMapRoute) => {
+  const handleRouteSelected = (selectedRoute: Route) => {
     setSelectedRoute(selectedRoute);
     setDrawnRoutes([selectedRoute]);
     presentSheet('routeDetails');
   };
 
-  function filterRoutes(): IMapRoute[] {
+  function filterRoutes(): Route[] {
     if (!routes) return [];
 
     switch (selectedRouteCategory) {
@@ -230,7 +231,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
       <BottomSheetFlatList
         contentContainerStyle={{ paddingBottom: 35, marginLeft: 16 }}
         data={filterRoutes()}
-        keyExtractor={(route: IMapRoute) => route.key}
+        keyExtractor={(route: Route) => route.id}
         refreshing={isRefreshing}
         onRefresh={() => {
           queryClient.invalidateQueries({ queryKey: ['baseData'] });
@@ -248,8 +249,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
               onPress={() => handleRouteSelected(route)}
             >
               <BusIcon
-                name={route.shortName}
-                color={route.directionList[0]?.lineColor ?? '#000'}
+                name={route.routeCode}
+                color={route.tintColor ?? '#000'}
                 style={{ marginRight: 12 }}
               />
               <View>
@@ -265,7 +266,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     {route.name}
                   </Text>
                   {favorites?.some(
-                    (fav) => fav.shortName === route.shortName,
+                    (fav) => fav.routeCode === route.routeCode,
                   ) && (
                     <FontAwesome
                       name="star"
@@ -275,7 +276,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                     />
                   )}
                 </View>
-                {route.directionList.length > 1 ? (
+                {route.directions.length > 1 ? (
                   <View
                     style={{
                       display: 'flex',
@@ -283,13 +284,13 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                       alignItems: 'center',
                     }}
                   >
-                    {route.directionList.map(
-                      (elm: IDirectionList, index: number) => (
+                    {route.directions.map(
+                      (elm: Direction, index: number) => (
                         <React.Fragment key={index}>
                           <Text style={{ color: theme.text }}>
-                            {elm.destination}
+                            {elm.name}
                           </Text>
-                          {index !== route.directionList.length - 1 && (
+                          {index !== route.directions.length - 1 && (
                             <Text
                               style={{ marginHorizontal: 2, color: theme.text }}
                             >

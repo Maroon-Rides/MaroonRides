@@ -4,9 +4,9 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import useAppStore from '../../data/app_state';
 import SheetHeader from '../ui/SheetHeader';
 import RenderHtml from 'react-native-render-html';
-import { useRoutes } from 'app/data/api_query';
 import { useState } from 'react';
 import { SheetProps } from 'app/utils';
+import { useRouteList } from 'app/data/queries';
 
 const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const snapPoints = ['25%', '45%', '85%'];
@@ -17,7 +17,7 @@ const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const oldSelectedRoute = useAppStore((state) => state.oldSelectedRoute);
   const dismissSheet = useAppStore((state) => state.dismissSheet);
 
-  const { data: routes } = useRoutes();
+  const { data: routes } = useRouteList();
 
   const tagStyles = {
     h3: {
@@ -65,12 +65,13 @@ const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
       handleIndicatorStyle={{ backgroundColor: theme.divider }}
       onAnimate={(_, to) => {
         if (to === 1) {
-          const affectedRoutes = routes?.filter((route) =>
-            route.directionList
-              .flatMap((direction) => direction.serviceInterruptionKeys)
-              .includes(Number(alert?.key)),
-          );
-          setDrawnRoutes(affectedRoutes ?? []);
+          // const affectedRoutes = routes?.filter((route) =>
+          //   route.directions
+          //     .flatMap((direction) => direction.serviceInterruptionKeys)
+          //     .includes(Number(alert?.key)),
+          // );
+          // setDrawnRoutes(affectedRoutes ?? []);
+          setDrawnRoutes([]);
         }
       }}
       enablePanDownToClose={false}
