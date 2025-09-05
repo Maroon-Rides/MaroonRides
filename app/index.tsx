@@ -1,26 +1,26 @@
-import { useEffect, useRef } from 'react';
-import { View, Appearance, BackHandler, StatusBar } from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet';
-import useAppStore from './data/app_state';
-import MapView from './components/map/MapView';
-import RoutesList from './components/sheets/RoutesList';
-import AlertList from './components/sheets/AlertList';
-import AlertDetail from './components/sheets/AlertDetail';
-import RouteDetails from './components/sheets/RouteDetails';
-import StopTimetable from './components/sheets/StopTimetable';
-import Settings from './components/sheets/Settings';
-import { darkMode, lightMode } from './theme';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { Query, QueryClient } from '@tanstack/react-query';
-import { getColorScheme } from './utils';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { useEffect, useRef } from 'react';
+import { Appearance, BackHandler, StatusBar, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import RouteMap from './components/map/MapView';
+import AlertDetail from './components/sheets/AlertDetail';
+import AlertList from './components/sheets/AlertList';
 import InputRoute from './components/sheets/route_planning/InputRoute';
 import TripPlanDetail from './components/sheets/route_planning/TripPlanDetail';
-import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import RouteDetails from './components/sheets/RouteDetails';
+import RoutesList from './components/sheets/RoutesList';
+import Settings from './components/sheets/Settings';
+import StopTimetable from './components/sheets/StopTimetable';
+import useAppStore from './data/app_state';
+import { darkMode, lightMode } from './theme';
+import { getColorScheme } from './utils';
 
 type Sheets =
   | 'routeList'
@@ -129,7 +129,7 @@ const Home = () => {
               alignItems: 'center',
             }}
           >
-            {/* <MapView /> */}
+            <RouteMap />
           </View>
 
           {/* Sheets */}

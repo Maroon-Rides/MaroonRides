@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { LatLng } from 'react-native-maps';
 
 export enum Amentity {
   AIR_CONDITIONING = 'Air Conditioning',
@@ -8,15 +9,12 @@ export enum Amentity {
   SHELTER = 'Shelter',
 }
 
+export type Location = LatLng;
+
 export interface Stop {
   name: string;
   id: string;
   location: Location;
-}
-
-export interface Location {
-  latitude: number;
-  longitude: number;
 }
 
 export interface PathLocation extends Location {

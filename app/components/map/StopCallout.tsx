@@ -1,20 +1,20 @@
 import { useStopEstimate } from 'app/data/api_query';
 import useAppStore from 'app/data/app_state';
+import { Direction, Route, Stop } from 'app/data/datatypes';
 import { lightMode } from 'app/theme';
 import moment from 'moment';
 import React, { memo } from 'react';
 import { ActivityIndicator, Platform, Text, View } from 'react-native';
 import { Callout } from 'react-native-maps';
-import { IMapRoute, IStop } from '../../../utils/interfaces';
 import AmenityRow from '../ui/AmenityRow';
 import BusIcon from '../ui/BusIcon';
 import CalloutTimeBubble from '../ui/CalloutTimeBubble';
 
 interface Props {
-  stop: IStop;
+  stop: Stop;
   tintColor: string;
-  route: IMapRoute;
-  direction: string;
+  route: Route;
+  direction: Direction;
 }
 
 // Stop callout with time bubbles
@@ -25,14 +25,14 @@ const StopCallout: React.FC<Props> = ({
   direction,
 }) => {
   const scrollToStop = useAppStore((state) => state.scrollToStop);
-  const setSelectedRouteDirection = useAppStore(
-    (state) => state.setSelectedRouteDirection,
+  const setSelectedDirection = useAppStore(
+    (state) => state.setSelectedDirection,
   );
 
   const { data: estimate, isLoading } = useStopEstimate(
-    route.key,
-    direction,
-    stop.stopCode,
+    route.id,
+    direction.id,
+    stop.id,
   );
 
   return (
@@ -46,7 +46,7 @@ const StopCallout: React.FC<Props> = ({
         elevation: 1000,
       }}
       onPress={() => {
-        setSelectedRouteDirection(direction);
+        setSelectedDirection(direction);
         scrollToStop(stop);
       }}
     >
@@ -66,7 +66,7 @@ const StopCallout: React.FC<Props> = ({
           }}
         >
           <BusIcon
-            name={route.shortName}
+            name={route.routeCode}
             color={tintColor}
             isCallout={true}
             style={{ marginRight: 8 }}
@@ -102,8 +102,8 @@ const StopCallout: React.FC<Props> = ({
               (departureTime, index) => {
                 const date = moment(
                   departureTime.estimatedDepartTimeUtc ??
-                    departureTime.scheduledDepartTimeUtc ??
-                    '',
+                  departureTime.scheduledDepartTimeUtc ??
+                  '',
                 );
                 const relative = date.diff(moment(), 'minutes');
                 return (

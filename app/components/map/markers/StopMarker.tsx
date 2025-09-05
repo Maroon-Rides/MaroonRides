@@ -1,24 +1,24 @@
-import React, { memo, useEffect } from 'react';
-import { MapMarker, Marker } from 'react-native-maps';
-import { IMapRoute, IPatternPoint } from 'utils/interfaces';
-import StopCallout from '../StopCallout';
-import { View } from 'react-native';
 import { getLighterColor } from 'app/utils';
+import React, { memo, useEffect } from 'react';
+import { View } from 'react-native';
+import { MapMarker, Marker } from 'react-native-maps';
+import StopCallout from '../StopCallout';
 
+import { Direction, Route, Stop } from 'app/data/datatypes';
 import useAppStore from '../../../data/app_state';
 
 interface Props {
-  point: IPatternPoint;
+  stop: Stop
   tintColor: string;
-  route: IMapRoute;
-  direction: string;
+  route: Route;
+  direction: Direction;
   isCalloutShown?: boolean;
   active: boolean;
 }
 
 // Stop marker with callout
 const StopMarker: React.FC<Props> = ({
-  point,
+  stop,
   tintColor,
   route,
   direction,
@@ -27,7 +27,7 @@ const StopMarker: React.FC<Props> = ({
 }) => {
   const markerRef = React.useRef<MapMarker>(null);
   const setSelectedDirection = useAppStore(
-    (state) => state.setSelectedRouteDirection,
+    (state) => state.setSelectedDirection,
   );
 
   // If the global poppedUpStopCallout is the same as the current stop, show the callout on screen
@@ -46,10 +46,7 @@ const StopMarker: React.FC<Props> = ({
   return (
     <Marker
       ref={markerRef}
-      coordinate={{
-        latitude: point.latitude,
-        longitude: point.longitude,
-      }}
+      coordinate={stop.location}
       tracksViewChanges={false}
       anchor={{ x: 0.5, y: 0.5 }}
       pointerEvents="auto"
@@ -70,7 +67,7 @@ const StopMarker: React.FC<Props> = ({
         }}
       />
       <StopCallout
-        stop={point.stop!}
+        stop={stop}
         tintColor={tintColor}
         route={route}
         direction={direction}

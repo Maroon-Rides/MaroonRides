@@ -1,13 +1,13 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { decode } from '@googlemaps/polyline-codec';
+import { Direction, Route } from 'app/data/datatypes';
 import { DarkGoogleMaps } from 'app/theme';
 import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, Platform, TouchableOpacity, View } from 'react-native';
 import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
 import {
-  IMapRoute,
   RoutePlanMapMarker,
   RoutePlanPolylinePoint,
 } from '../../../utils/interfaces';
@@ -17,10 +17,10 @@ import BusMarker from './markers/BusMarker';
 import RoutePlanMarker from './markers/RoutePlanMarker';
 import StopMarker from './markers/StopMarker';
 
-const Map: React.FC = () => {
+const RouteMap: React.FC = () => {
   const mapViewRef = useRef<MapView>(null);
   const setSelectedDirection = useAppStore(
-    (state) => state.setSelectedRouteDirection,
+    (state) => state.setSelectedDirection,
   );
   const selectedRoute = useAppStore((state) => state.selectedRoute);
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
@@ -28,9 +28,7 @@ const Map: React.FC = () => {
   const presentSheet = useAppStore((state) => state.presentSheet);
   const drawnRoutes = useAppStore((state) => state.drawnRoutes);
   const setZoomToStopLatLng = useAppStore((state) => state.setZoomToStopLatLng);
-  const selectedRouteDirection = useAppStore(
-    (state) => state.selectedRouteDirection,
-  );
+  const selectedDirection = useAppStore((state) => state.selectedDirection);
   const selectedRoutePlan = useAppStore((state) => state.selectedRoutePlan);
   const selectedRoutePlanPathPart = useAppStore(
     (state) => state.selectedRoutePlanPathPart,
@@ -53,7 +51,7 @@ const Map: React.FC = () => {
     RoutePlanMapMarker[]
   >([]);
 
-  const { data: buses } = useVehicles(selectedRoute?.key ?? '');
+  const { data: buses } = useVehicles(selectedRoute?.id ?? '');
 
   const defaultMapRegion: Region = {
     latitude: 30.606,
@@ -62,11 +60,10 @@ const Map: React.FC = () => {
     longitudeDelta: 0.01,
   };
 
-  function selectRoute(route: IMapRoute, directionKey: string) {
-    if (selectedRouteDirection !== directionKey)
-      setSelectedDirection(directionKey);
+  function selectRoute(route: Route, direction: Direction) {
+    if (selectedDirection?.id !== direction.id) setSelectedDirection(direction);
 
-    if (selectedRoute?.key === route.key) return;
+    if (selectedRoute?.id === route.id) return;
 
     setSelectedRoute(route);
     setDrawnRoutes([route]);
@@ -257,11 +254,12 @@ const Map: React.FC = () => {
   }, []);
 
   const centerViewOnRoutes = () => {
+    // TODO: clean this up
     let coords: LatLng[] = [];
 
     if (selectedRoute) {
-      selectedRoute.patternPaths.forEach((path) => {
-        path.patternPoints.forEach((point) => {
+      selectedRoute.directions.forEach((direction) => {
+        direction.pathPoints.forEach((point) => {
           coords.push({
             latitude: point.latitude,
             longitude: point.longitude,
@@ -271,8 +269,8 @@ const Map: React.FC = () => {
     }
 
     drawnRoutes.forEach((route) => {
-      route.patternPaths.forEach((path) => {
-        path.patternPoints.forEach((point) => {
+      route.directions.forEach((direction) => {
+        direction.pathPoints.forEach((point) => {
           coords.push({
             latitude: point.latitude,
             longitude: point.longitude,
@@ -353,66 +351,65 @@ const Map: React.FC = () => {
       >
         {/* Route Polylines */}
         {drawnRoutes.map((drawnRoute) => {
-          const coordDirections: { [directionId: string]: LatLng[] } = {};
+          let coordDirections = new Map<Direction, LatLng[]>([]);
 
-          drawnRoute.patternPaths.forEach((path) => {
-            path.patternPoints.forEach((point) => {
-              coordDirections[path.directionKey] =
-                coordDirections[path.directionKey] ?? [];
-
-              coordDirections[path.directionKey]!.push({
-                latitude: point.latitude,
-                longitude: point.longitude,
-              });
+          // TODO: clean this up
+          drawnRoute.directions.forEach((direction) => {
+            direction.pathPoints.forEach((point) => {
+              coordDirections.set(direction, [
+                ...(coordDirections.get(direction) ?? []),
+                {
+                  latitude: point.latitude,
+                  longitude: point.longitude,
+                },
+              ]);
             });
           });
 
-          const lineColor = drawnRoute.directionList[0]?.lineColor ?? '#FFFF';
+          const lineColor = drawnRoute.tintColor;
 
-          return Object.keys(coordDirections).map((directionId) => {
-            const active =
-              directionId === selectedRouteDirection ||
-              selectedRouteDirection === null;
-            return (
-              <Polyline
-                key={`${directionId}`}
-                coordinates={coordDirections[directionId] ?? []}
-                strokeColor={active ? lineColor : lineColor + '60'}
-                strokeWidth={5}
-                tappable={true}
-                onPress={() => selectRoute(drawnRoute, directionId)}
-                style={{
-                  zIndex: active ? 600 : 300,
-                  elevation: active ? 600 : 300,
-                }}
-              />
-            );
-          });
+          return Array.from(coordDirections.entries()).map(
+            ([direction, coords]) => {
+              const active =
+                direction.id === selectedDirection?.id ||
+                selectedDirection === null;
+              return (
+                <Polyline
+                  key={`${direction.id}`}
+                  coordinates={coords}
+                  strokeColor={active ? lineColor : lineColor + '60'}
+                  strokeWidth={5}
+                  tappable={true}
+                  onPress={() => selectRoute(drawnRoute, direction)}
+                  style={{
+                    zIndex: active ? 600 : 300,
+                    elevation: active ? 600 : 300,
+                  }}
+                />
+              );
+            },
+          );
         })}
 
         {/* Stops */}
         {selectedRoute &&
-          selectedRoute?.patternPaths.flatMap((patternPath, index1) =>
-            patternPath.patternPoints.map((patternPoint, index2) => {
-              const stop = patternPoint.stop;
-
+          selectedRoute?.directions.flatMap((direction, index1) =>
+            direction.stops.map((stop, index2) => {
               // if it is the end of the route, dont put a marker
-              if (index2 === patternPath.patternPoints.length - 1) return;
+              if (index2 === direction.stops.length - 1) return;
 
               if (stop) {
                 return (
                   <StopMarker
-                    key={`${stop.stopCode}-${index1}-${index2}`}
-                    point={patternPoint}
-                    tintColor={
-                      selectedRoute?.directionList[0]?.lineColor ?? '#FFFF'
-                    }
-                    active={patternPath.directionKey === selectedRouteDirection}
+                    key={`${stop.id}-${index1}-${index2}`}
+                    stop={stop}
+                    tintColor={selectedRoute?.tintColor ?? '#FFFF'}
+                    active={direction.id === selectedDirection?.id}
                     route={selectedRoute}
-                    direction={patternPath.directionKey}
+                    direction={direction}
                     isCalloutShown={
-                      poppedUpStopCallout?.stopCode === stop.stopCode &&
-                      selectedRouteDirection === patternPath.directionKey
+                      poppedUpStopCallout?.id === stop.id &&
+                      selectedDirection?.id === direction.id
                     }
                   />
                 );
@@ -459,14 +456,13 @@ const Map: React.FC = () => {
         {/* Buses */}
         {selectedRoute &&
           buses?.map((bus) => {
-            const color =
-              selectedRoute.directionList[0]?.lineColor ?? '#500000';
+            const color = selectedRoute.tintColor;
             return (
               <BusMarker
                 key={bus.key}
                 bus={bus}
                 tintColor={color}
-                routeName={selectedRoute.shortName}
+                routeName={selectedRoute.routeCode}
               />
             );
           })}
@@ -501,4 +497,4 @@ const Map: React.FC = () => {
   );
 };
 
-export default Map;
+export default RouteMap;
