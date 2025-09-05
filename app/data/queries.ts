@@ -16,7 +16,6 @@ export const useRouteList = () => {
     queryKey: [QueryKey.ROUTE_LIST],
     queryFn: async () => {
       try {
-
         console.log("GETTING RUN!")
 
         let ASBaseData = asBaseQuery.data!;
@@ -37,7 +36,7 @@ export const useRouteList = () => {
           // process directions
           const directions: Direction[] = baseRoute.directionList.map((dir) => {
             const patternPathForDirection = matchingPatternPaths?.patternPaths.find(
-              (pp) => pp.directionKey === dir.patternList[0].key
+              (pp) => pp.directionKey === dir.direction.key
             )!;
   
             const points: PathLocation[] = patternPathForDirection.patternPoints.map((pt) => ({
@@ -72,7 +71,7 @@ export const useRouteList = () => {
         return routes;
       } catch (e) {
         console.error('Error processing route list:', e);
-        return [];
+        throw e;
       }
 
     },
@@ -80,8 +79,6 @@ export const useRouteList = () => {
     refetchInterval: 2 * 3600 * 1000,
     enabled: asBaseQuery.isSuccess && asPatternPathsQuery.isSuccess,
   });
-
-  console.log(`WTF ${asBaseQuery.isSuccess} && ${asPatternPathsQuery.isSuccess}`);
 
   return query;
 };

@@ -129,7 +129,7 @@ const Home = () => {
               alignItems: 'center',
             }}
           >
-            <MapView />
+            {/* <MapView /> */}
           </View>
 
           {/* Sheets */}
