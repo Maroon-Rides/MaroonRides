@@ -52,15 +52,7 @@ const StopCell: React.FC<Props> = ({
   useEffect(() => {
     if (!stopEstimates) return;
 
-    // this is usually caused by out of date base data
-    // therefore refresh the base data
-    if (stopEstimates.length === 0) {
-      setStatus('Error loading estimates, try again later.');
-      return;
-    }
-
     let deviation = 0;
-
     for (const estimate of stopEstimates) {
       if (!estimate.estimatedTime) continue;
       const delayLength = estimate.estimatedTime.diff(
@@ -76,21 +68,21 @@ const StopCell: React.FC<Props> = ({
 
     const roundedDeviation = Math.round(deviation / 60);
 
+    let status = 'N/A';
     if (isLoading) {
-      setStatus('Loading');
+      status = 'Loading';
     } else if (stopEstimates.length === 0) {
-      setStatus('No upcoming departures');
-    } else if (roundedDeviation > 0) {
-      setStatus(
-        `${roundedDeviation} ${roundedDeviation > 1 ? 'minutes' : 'minute'} late`,
-      );
-    } else if (roundedDeviation < 0) {
-      setStatus(
-        `${Math.abs(roundedDeviation)} ${Math.abs(roundedDeviation) > 1 ? 'minutes' : 'minute'} early`,
-      );
+      status = 'No upcoming departures';
+    } else if (roundedDeviation === 0) {
+      status = 'On time';
     } else {
-      setStatus('On time');
+      const deviationType = roundedDeviation > 0 ? 'late' : 'early';
+      const pluralizedMinute =
+        Math.abs(roundedDeviation) > 1 ? 'minutes' : 'minute';
+      status = `${Math.abs(roundedDeviation)} ${pluralizedMinute} ${deviationType}`;
     }
+
+    setStatus(status);
   }, [stopEstimates]);
 
   // when cell is tapped, open the stop timetable
