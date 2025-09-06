@@ -96,7 +96,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     setSnap(to);
     if (from === -1) {
       refetchDefaultGroup();
-      refetchFavorites();
+      if (favorites) refetchFavorites();
 
       setDrawnRoutes(filterRoutes());
     }
@@ -114,7 +114,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
   function androidHandleDismss(to: number) {
     if (to !== -1) {
       refetchDefaultGroup();
-      refetchFavorites();
+      if (favorites) refetchFavorites();
 
       setDrawnRoutes(filterRoutes());
     }
