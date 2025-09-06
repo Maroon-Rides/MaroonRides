@@ -34,7 +34,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, dismissBack }) => {
   const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
 
   useEffect(() => {
-    const now = moment().toDate();
+    const now = moment();
 
     let foundNextStop = false;
 

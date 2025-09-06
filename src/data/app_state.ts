@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { Sheets } from 'src/app/components/providers/sheet-controller';
 import { Theme, lightMode } from 'src/app/theme';
 import { create } from 'zustand';
@@ -35,8 +36,8 @@ interface AppState {
   selectedAlert: Alert | null;
   setSelectedAlert: (selectedAlert: Alert | null) => void;
 
-  selectedTimetableDate: Date | null;
-  setSelectedTimetableDate: (selectedTimetableDate: Date | null) => void;
+  selectedTimetableDate: moment.Moment;
+  setSelectedTimetableDate: (selectedTimetableDate: moment.Moment) => void;
 
   zoomToStopLatLng: (lat: number, lng: number) => void;
   setZoomToStopLatLng: (
@@ -85,7 +86,7 @@ const useAppStore = create<AppState>()((set, get) => ({
   selectedStop: null,
   setSelectedStop: (selectedStop) => set(() => ({ selectedStop })),
 
-  selectedTimetableDate: null,
+  selectedTimetableDate: moment(),
   setSelectedTimetableDate: (selectedTimetableDate) =>
     set(() => ({ selectedTimetableDate })),
 

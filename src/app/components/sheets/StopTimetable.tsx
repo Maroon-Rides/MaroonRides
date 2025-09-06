@@ -56,9 +56,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
   const dayDecrement = () => {
     // Decrease the date by one day
-    const prevDate = moment(selectedTimetableDate || moment().toDate())
-      .subtract(1, 'days')
-      .toDate();
+    const prevDate = selectedTimetableDate.subtract(1, 'days');
     setRouteSchedules(null);
     setNonRouteSchedules(null);
     setSelectedTimetableDate(prevDate);
@@ -66,14 +64,13 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
   const dayIncrement = () => {
     // Increase the date by one day
-    const nextDate = moment(selectedTimetableDate || moment().toDate())
-      .add(1, 'days')
-      .toDate();
+    const nextDate = selectedTimetableDate.add(1, 'days');
     setRouteSchedules(null);
     setNonRouteSchedules(null);
     setSelectedTimetableDate(nextDate);
   };
 
+  // TODO move this to a query
   useEffect(() => {
     if (!stopSchedule) return;
 
@@ -113,7 +110,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
       setNonRouteSchedules(null);
       setSelectedStop(null);
       setShowNonRouteSchedules(false);
-      setSelectedTimetableDate(null);
+      setSelectedTimetableDate(moment());
     }, Sheets.STOP_TIMETABLE);
   }, []);
 
@@ -174,12 +171,8 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
           >
             <View style={{ flex: 1 }} />
             <DateSelector
-              text={moment(selectedTimetableDate || moment()).strftime(
-                '%A, %B %d',
-              )}
-              leftArrowShown={
-                new Date() < (selectedTimetableDate || moment().toDate())
-              }
+              text={selectedTimetableDate.format('%A, %B %d')}
+              leftArrowShown={moment().isBefore(selectedTimetableDate, 'day')}
               onLeftClick={dayDecrement}
               onRightClick={dayIncrement}
             />
