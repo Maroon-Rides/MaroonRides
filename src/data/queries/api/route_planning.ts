@@ -35,7 +35,7 @@ export const useSearchSuggestionAPI = (query: string) => {
   const authTokenQuery = useAuthTokenAPI();
   const routesQuery = useASRoutes();
 
-  return useLoggingQuery<any, Error, SearchSuggestion[]>({
+  return useLoggingQuery<SearchSuggestion[]>({
     queryKey: ['searchSuggestion', query],
     queryFn: async () => {
       // we need data from pattern paths to get the stop GPS locations
