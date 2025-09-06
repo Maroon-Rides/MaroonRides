@@ -12,11 +12,13 @@ import {
   Route,
   Stop,
   TimeEstimate,
+  Timetable,
 } from 'src/data/datatypes';
 import {
   useBaseDataAPI,
   usePatternPathsAPI,
   useStopEstimateAPI,
+  useTimetableEstimateAPI,
   useVehiclesAPI,
 } from '../api/aggie_spirit';
 
@@ -25,6 +27,7 @@ export enum ASQueryKey {
   VEHICLES = 'ASVehicles',
   STOP_ESTIMATE = 'ASStopEstimate',
   STOP_AMENITIES = 'ASStopAmenities',
+  TIMETABLE = 'ASTimetable',
 }
 
 export const useASRouteList = () => {
@@ -213,6 +216,37 @@ export const useASStopAmenities = (
     queryFn: async () => {
       const stopEstimates = apiStopEstimateQuery.data!;
       return Amenity.fromAPI(stopEstimates.amenities);
+    },
+    enabled: apiStopEstimateQuery.isSuccess,
+  });
+
+  return query;
+};
+
+export const useASTimetable = (stop: Stop, date: Date) => {
+  const apiStopEstimateQuery = useTimetableEstimateAPI(stop.id, date);
+
+  const query = useQuery<Timetable>({
+    queryKey: [ASQueryKey.TIMETABLE, stop.id, date],
+    queryFn: async () => {
+      const timetableData = apiStopEstimateQuery.data!;
+      let finalTimetable: Timetable = new Map<string, TimeEstimate[]>();
+
+      for (let routeStop of timetableData.routeStopSchedules) {
+        const timeEstimates = routeStop.stopTimes.map(
+          (stopTime) =>
+            ({
+              dataSource: DataSource.AGGIE_SPIRIT,
+              estimatedTime: stopTime.estimatedDepartTimeUtc
+                ? moment.utc(stopTime.estimatedDepartTimeUtc)
+                : null,
+              scheduledTime: moment.utc(stopTime.scheduledDepartTimeUtc),
+              isRealTime: stopTime.estimatedDepartTimeUtc != null,
+            }) as TimeEstimate,
+        );
+        finalTimetable.set(routeStop.routeName, timeEstimates);
+      }
+      return finalTimetable;
     },
     enabled: apiStopEstimateQuery.isSuccess,
   });

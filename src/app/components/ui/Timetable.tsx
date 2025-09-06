@@ -1,8 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import useAppStore from 'src/data/app_state';
 import { useTimetableEstimateAPI } from 'src/data/queries/api/aggie_spirit';
 import { IRouteStopSchedule } from '../../../data/utils/interfaces';
