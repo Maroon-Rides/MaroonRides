@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import moment from 'moment';
 import {
   Amenity,
   Bus,
@@ -7,11 +8,13 @@ import {
   Route,
   Stop,
   TimeEstimate,
+  Timetable,
 } from '../datatypes';
 import {
   useASRouteList,
   useASStopAmenities,
   useASStopEstimate,
+  useASTimetable,
   useASVehicles,
 } from './structure/aggie_spirit';
 
@@ -20,6 +23,7 @@ export enum QueryKey {
   VEHICLES = 'MRVehicles',
   STOP_ESTIMATE = 'MRStopEstimate',
   STOP_AMENITIES = 'MRStopAmenities',
+  TIMETABLE = 'MRTimetable',
 }
 
 export const useRouteList = () => {
@@ -96,6 +100,24 @@ export const useStopAmenities = (
       }
     },
     enabled: asStopAmenities?.isSuccess,
+  });
+
+  return query;
+};
+
+export const useTimetable = (stop: Stop, date: Date) => {
+  const apiTimetableQuery = useASTimetable(stop, date);
+  const query = useQuery<Timetable>({
+    queryKey: [QueryKey.TIMETABLE, stop.id, moment(date).format('YYYY-MM-DD')],
+    queryFn: async () => {
+      switch (stop.dataSource) {
+        case DataSource.AGGIE_SPIRIT:
+          return apiTimetableQuery.data!;
+        default:
+          return new Map<string, TimeEstimate[]>();
+      }
+    },
+    enabled: apiTimetableQuery?.isSuccess,
   });
 
   return query;

@@ -227,7 +227,11 @@ export const useASTimetable = (stop: Stop, date: Date) => {
   const apiStopEstimateQuery = useTimetableEstimateAPI(stop.id, date);
 
   const query = useQuery<Timetable>({
-    queryKey: [ASQueryKey.TIMETABLE, stop.id, date],
+    queryKey: [
+      ASQueryKey.TIMETABLE,
+      stop.id,
+      moment(date).format('YYYY-MM-DD'),
+    ],
     queryFn: async () => {
       const timetableData = apiStopEstimateQuery.data!;
       let finalTimetable: Timetable = new Map<string, TimeEstimate[]>();
