@@ -1,10 +1,10 @@
+import { SheetProps } from '@data/utils/utils';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SegmentedControl, {
   NativeSegmentedControlIOSChangeEvent,
 } from '@react-native-segmented-control/segmented-control';
-import { useQueryClient } from '@tanstack/react-query';
 import React, { memo, useEffect, useState } from 'react';
 import {
   Appearance,
@@ -20,7 +20,6 @@ import {
   defaultGroupMutation,
   useDefaultRouteGroup,
 } from 'src/data/queries/structure/storage';
-import { SheetProps } from 'src/utils';
 import SheetHeader from '../ui/SheetHeader';
 
 // Settings (for all routes and current route)
@@ -38,7 +37,6 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
   const { data: defaultGroup, refetch: refetchDefaultGroup } =
     useDefaultRouteGroup();
   const setDefaultGroup = defaultGroupMutation();
-  const client = useQueryClient();
 
   function setDefaultGroupValue(
     evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>,

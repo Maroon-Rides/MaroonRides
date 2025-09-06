@@ -1,7 +1,7 @@
+import { getLighterColor } from '@data/utils/utils';
 import React, { memo, useEffect } from 'react';
 import { View } from 'react-native';
 import { MapMarker, Marker } from 'react-native-maps';
-import { getLighterColor } from 'src/utils';
 import StopCallout from '../StopCallout';
 
 import useAppStore from 'src/data/app_state';

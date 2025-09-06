@@ -19,7 +19,7 @@ interface Props {
   route: Route;
   direction: Direction;
   color: string;
-  disabled: boolean;
+  hasTimetable: boolean;
   setSheetPos: (pos: number) => void;
 }
 
@@ -28,7 +28,7 @@ const StopCell: React.FC<Props> = ({
   route,
   direction,
   color,
-  disabled,
+  hasTimetable,
   setSheetPos,
 }) => {
   const [status, setStatus] = useState('On Time');
@@ -187,7 +187,7 @@ const StopCell: React.FC<Props> = ({
         />
 
         {/* <View style={{ flex: 1 }} /> */}
-        {!disabled && (
+        {hasTimetable && (
           <TouchableOpacity
             style={{
               alignItems: 'center',

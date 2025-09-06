@@ -1,12 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
-import { findBusStops, getTripPlan } from 'aggie-spirit-api';
-import { Stop } from 'src/data/datatypes';
 import {
   GetTripPlanResponseSchema,
   IFoundStop,
   ITripPlanResponse,
   SearchSuggestion,
-} from 'utils/interfaces';
+} from '@data/utils/interfaces';
+import { useQuery } from '@tanstack/react-query';
+import { findBusStops, getTripPlan } from 'aggie-spirit-api';
+import { Stop } from 'src/data/datatypes';
 import { useASRouteList } from '../structure/aggie_spirit';
 import { useAuthCodeAPI, useAuthTokenAPI } from './aggie_spirit';
 

@@ -1,8 +1,8 @@
+import { SearchSuggestion } from '@data/utils/interfaces';
+import { suggestionEqual } from '@data/utils/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Route } from 'src/data/datatypes';
-import { suggestionEqual } from 'src/utils';
-import { SearchSuggestion } from 'utils/interfaces';
 import { useRouteList } from '../app';
 
 export const useFavorites = () => {

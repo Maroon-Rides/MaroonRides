@@ -1,3 +1,4 @@
+import { findBoundingBox } from '@data/utils/geo';
 import { useQuery } from '@tanstack/react-query';
 import moment from 'moment';
 import getTheme from 'src/app/theme';
@@ -92,6 +93,11 @@ export const useASRouteList = () => {
           theme.busTints[baseRoute.shortName] ??
           baseRoute.directionList[0].lineColor;
 
+        const directionBounds: Location[] = directions.flatMap((direction) =>
+          findBoundingBox(direction.pathPoints),
+        );
+        const bounds: Location[] = findBoundingBox(directionBounds);
+
         return {
           dataSource: DataSource.AGGIE_SPIRIT,
           name: baseRoute.name,
@@ -99,6 +105,7 @@ export const useASRouteList = () => {
           routeCode: baseRoute.shortName,
           tintColor: tintColor,
           directions: directions,
+          bounds: bounds,
         };
       });
     },

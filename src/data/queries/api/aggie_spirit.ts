@@ -1,14 +1,4 @@
 import '@bacons/text-decoder/install';
-import { useQuery } from '@tanstack/react-query';
-import {
-  getBaseData,
-  getNextDepartureTimes,
-  getPatternPaths,
-  getStopEstimates,
-  getStopSchedules,
-  getVehicles,
-} from 'aggie-spirit-api';
-import moment from 'moment';
 import {
   GetBaseDataResponseSchema,
   GetNextDepartTimesResponseSchema,
@@ -23,7 +13,17 @@ import {
   IGetStopSchedulesResponse,
   IGetVehiclesResponse,
   IMapServiceInterruption,
-} from 'utils/interfaces';
+} from '@data/utils/interfaces';
+import { useQuery } from '@tanstack/react-query';
+import {
+  getBaseData,
+  getNextDepartureTimes,
+  getPatternPaths,
+  getStopEstimates,
+  getStopSchedules,
+  getVehicles,
+} from 'aggie-spirit-api';
+import moment from 'moment';
 
 export type Headers = { [key: string]: string };
 
@@ -159,7 +159,6 @@ export const useStopEstimateAPI = (
         authTokenQuery.data!,
       );
       GetNextDepartTimesResponseSchema.parse(response);
-      // TODO: dedup the stopTimes[].nextDeparts based on relative time in app query
 
       return response as IGetNextDepartTimesResponse;
     },

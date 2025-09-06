@@ -5,7 +5,7 @@ import { ActivityIndicator, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import useAppStore from 'src/data/app_state';
 import { useTimetableEstimateAPI } from 'src/data/queries/api/aggie_spirit';
-import { IRouteStopSchedule } from '../../../../utils/interfaces';
+import { IRouteStopSchedule } from '../../../data/utils/interfaces';
 import BusIcon from './BusIcon';
 
 interface Props {

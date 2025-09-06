@@ -1,3 +1,4 @@
+import { SheetProps } from '@data/utils/utils';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useState } from 'react';
@@ -5,7 +6,6 @@ import { TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import RenderHtml from 'react-native-render-html';
 import useAppStore from 'src/data/app_state';
 import { useRouteList } from 'src/data/queries/app';
-import { SheetProps } from 'src/utils';
 import SheetHeader from '../ui/SheetHeader';
 
 const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {

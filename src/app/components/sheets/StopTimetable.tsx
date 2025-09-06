@@ -1,3 +1,4 @@
+import { SheetProps } from '@data/utils/utils';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import moment from 'moment-strftime';
@@ -7,8 +8,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import useAppStore from 'src/data/app_state';
 import { useScheduleAPI } from 'src/data/queries/api/aggie_spirit';
 import { useRouteList } from 'src/data/queries/app';
-import { SheetProps } from 'src/utils';
-import { IRouteStopSchedule } from '../../../../utils/interfaces';
+import { IRouteStopSchedule } from '../../../data/utils/interfaces';
 import DateSelector from '../ui/DateSelector';
 import SheetHeader from '../ui/SheetHeader';
 import Timetable from '../ui/Timetable';

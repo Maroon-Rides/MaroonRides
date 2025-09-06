@@ -1,3 +1,4 @@
+import { SheetProps } from '@data/utils/utils';
 import {
   FontAwesome,
   FontAwesome6,
@@ -8,7 +9,6 @@ import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet';
 import SegmentedControl, {
   NativeSegmentedControlIOSChangeEvent,
 } from '@react-native-segmented-control/segmented-control';
-import { useQueryClient } from '@tanstack/react-query';
 import React, { memo, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -25,7 +25,6 @@ import {
   useDefaultRouteGroup,
   useFavorites,
 } from 'src/data/queries/structure/storage';
-import { SheetProps } from 'src/utils';
 import BusIcon from '../ui/BusIcon';
 import IconPill from '../ui/IconPill';
 import SheetHeader from '../ui/SheetHeader';
@@ -46,13 +45,10 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
   const presentSheet = useAppStore((state) => state.presentSheet);
   const theme = useAppStore((state) => state.theme);
 
-  const queryClient = useQueryClient();
   const {
     data: routes,
     isLoading: isRoutesLoading,
     isError: routeError,
-    isRefetching: isRefreshing,
-    refetch: refetchRoutes,
   } = useRouteList();
 
   const {
@@ -233,15 +229,13 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
       </View>
 
       <BottomSheetFlatList
-        contentContainerStyle={{ paddingBottom: 35, marginLeft: 16 }}
+        contentContainerStyle={{
+          paddingBottom: 35,
+          paddingTop: 4,
+          marginLeft: 16,
+        }}
         data={filterRoutes()}
         keyExtractor={(route: Route) => route.id}
-        refreshing={isRefreshing}
-        onRefresh={() => {
-          queryClient.invalidateQueries({ queryKey: ['baseData'] });
-          queryClient.invalidateQueries({ queryKey: ['patternPaths'] });
-          queryClient.invalidateQueries({ queryKey: ['routes'] });
-        }}
         renderItem={({ item: route }) => {
           return (
             <TouchableOpacity

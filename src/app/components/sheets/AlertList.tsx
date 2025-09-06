@@ -1,11 +1,11 @@
+import { IMapServiceInterruption } from '@data/utils/interfaces';
+import { SheetProps } from '@data/utils/utils';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet';
 import React, { memo, useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import useAppStore from 'src/data/app_state';
 import { useServiceInterruptionsAPI } from 'src/data/queries/api/aggie_spirit';
-import { SheetProps } from 'src/utils';
-import { IMapServiceInterruption } from 'utils/interfaces';
 import SheetHeader from '../ui/SheetHeader';
 
 // AlertList (for all routes and current route)

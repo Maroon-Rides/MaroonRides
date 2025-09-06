@@ -1,9 +1,9 @@
+import { MyLocationSuggestion, SearchSuggestion } from '@data/utils/interfaces';
 import { memo, useEffect, useState } from 'react';
 import { Keyboard, Platform, TextInput, View } from 'react-native';
 import useAppStore from 'src/data/app_state';
 import { useSearchSuggestionAPI } from 'src/data/queries/api/route_planning';
 import { useFavoriteLocations } from 'src/data/queries/structure/storage';
-import { MyLocationSuggestion, SearchSuggestion } from 'utils/interfaces';
 
 interface Props {
   location: SearchSuggestion | null;

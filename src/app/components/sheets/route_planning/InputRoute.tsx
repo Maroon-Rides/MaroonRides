@@ -1,3 +1,5 @@
+import { MyLocationSuggestion, SearchSuggestion } from '@data/utils/interfaces';
+import { SheetProps } from '@data/utils/utils';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -20,8 +22,6 @@ import TimeInput from 'src/app/components/ui/TimeInput';
 import TripPlanCell from 'src/app/components/ui/TripPlanCell';
 import useAppStore from 'src/data/app_state';
 import { useTripPlanAPI } from 'src/data/queries/api/route_planning';
-import { SheetProps } from 'src/utils';
-import { MyLocationSuggestion, SearchSuggestion } from 'utils/interfaces';
 import SheetHeader from '../../ui/SheetHeader';
 
 // AlertList (for all routes and current route)

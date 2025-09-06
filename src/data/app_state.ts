@@ -1,11 +1,11 @@
 import { Theme, lightMode } from 'src/app/theme';
+import { create } from 'zustand';
+import { Direction, Route, Stop } from './datatypes';
 import {
   IMapServiceInterruption,
   IOptionDetail,
   SearchSuggestion,
-} from 'utils/interfaces';
-import { create } from 'zustand';
-import { Direction, Route, Stop } from './datatypes';
+} from './utils/interfaces';
 
 interface AppState {
   theme: Theme;

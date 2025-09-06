@@ -1,3 +1,4 @@
+import { SheetProps } from '@data/utils/utils';
 import { Ionicons } from '@expo/vector-icons';
 import {
   BottomSheetFlatList,
@@ -18,7 +19,6 @@ import {
 } from 'react-native';
 import useAppStore from 'src/data/app_state';
 import { Direction, Route } from 'src/data/datatypes';
-import { SheetProps } from 'src/utils';
 import AlertPill from '../ui/AlertPill';
 import BusIcon from '../ui/BusIcon';
 import FavoritePill from '../ui/FavoritePill';
@@ -227,8 +227,13 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
           ref={flatListRef}
           data={selectedDirection?.stops}
           // extraData={stopEstimates?.routeDirectionTimes[0]}
+          keyExtractor={(_, idx) => idx.toString()}
           style={{ height: '100%' }}
-          contentContainerStyle={{ paddingBottom: 35, paddingLeft: 16 }}
+          contentContainerStyle={{
+            paddingBottom: 35,
+            paddingLeft: 16,
+            paddingTop: 4,
+          }}
           onRefresh={() =>
             client.invalidateQueries({ queryKey: ['stopEstimate'] })
           }
@@ -261,7 +266,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                 route={selectedRoute}
                 direction={direction}
                 color={selectedRoute!.tintColor}
-                disabled={index === selectedDirection!.stops.length - 1}
+                hasTimetable={!isLastStop}
                 setSheetPos={(pos) => sheetRef.current?.snapToIndex(pos)}
               />
             );

@@ -12,7 +12,7 @@ import { useVehicles } from 'src/data/queries/app';
 import {
   RoutePlanMapMarker,
   RoutePlanPolylinePoint,
-} from '../../../../utils/interfaces';
+} from '../../../data/utils/interfaces';
 import BusMarker from './markers/BusMarker';
 import RoutePlanMarker from './markers/RoutePlanMarker';
 import StopMarker from './markers/StopMarker';
@@ -254,38 +254,11 @@ const RouteMap: React.FC = () => {
   }, []);
 
   const centerViewOnRoutes = () => {
-    // TODO: clean this up
-    let coords: LatLng[] = [];
-
-    if (selectedRoute) {
-      selectedRoute.directions.forEach((direction) => {
-        direction.pathPoints.forEach((point) => {
-          coords.push({
-            latitude: point.latitude,
-            longitude: point.longitude,
-          });
-        });
-      });
-    }
-
-    drawnRoutes.forEach((route) => {
-      route.directions.forEach((direction) => {
-        direction.pathPoints.forEach((point) => {
-          coords.push({
-            latitude: point.latitude,
-            longitude: point.longitude,
-          });
-        });
-      });
-    });
-
-    // add the selected route plan path to coords
-    selectedRoutePlanPath.forEach((point) => {
-      coords.push({
-        latitude: point.latitude,
-        longitude: point.longitude,
-      });
-    });
+    const coords: LatLng[] = [
+      ...(selectedRoute?.bounds ?? []),
+      ...(drawnRoutes?.flatMap((route) => route.bounds) ?? []),
+      ...selectedRoutePlanPath,
+    ];
 
     if (coords.length > 0) {
       mapViewRef.current?.fitToCoordinates(coords, {

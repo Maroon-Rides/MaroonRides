@@ -2,10 +2,7 @@ import {
   BottomSheetModal,
   BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
-import { Query, QueryClient } from '@tanstack/react-query';
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { Appearance, BackHandler, StatusBar, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -82,36 +79,26 @@ const Home = () => {
     });
 
     setDismissSheet((sheet) => {
-      // run any defined close sheet steps
       callSheetCloseCallback(sheet);
+
+      // run any defined close sheet steps
       const prevSheet = sheetRefs[sheet];
-      prevSheet?.current?.close();
+      prevSheet?.current?.dismiss();
       sheetStack.pop();
     });
   }, []);
 
-  const queryClient = new QueryClient();
-  const asyncStoragePersister = createAsyncStoragePersister({
-    storage: AsyncStorage,
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+      },
+    },
   });
 
   return (
-    <PersistQueryClientProvider
-      client={queryClient}
-      persistOptions={{
-        persister: asyncStoragePersister,
-        dehydrateOptions: {
-          shouldDehydrateQuery: (query: Query): boolean => {
-            // only persist queries who ask for it and are successful
-            return (
-              (query.meta?.persist as boolean) &&
-              query.state.status === 'success'
-            );
-          },
-        },
-        maxAge: 2 * 3600 * 1000,
-      }}
-    >
+    <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <BottomSheetModalProvider>
           <StatusBar
@@ -142,7 +129,7 @@ const Home = () => {
           <TripPlanDetail sheetRef={sheetRefs['tripPlanDetail']} />
         </BottomSheetModalProvider>
       </GestureHandlerRootView>
-    </PersistQueryClientProvider>
+    </QueryClientProvider>
   );
 };
 

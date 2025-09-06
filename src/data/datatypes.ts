@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { LatLng } from 'react-native-maps';
-import { IAmenity } from 'utils/interfaces';
+import { IAmenity } from './utils/interfaces';
 
 export enum Amenity {
   AIR_CONDITIONING = 'Air Conditioning',
@@ -47,6 +47,7 @@ export interface Route extends FromDataSource {
   routeCode: string;
   tintColor: string;
   directions: Direction[];
+  bounds: Location[];
 }
 
 export interface Direction extends FromDataSource {
