@@ -4,15 +4,13 @@ import {
   GetNextDepartTimesResponseSchema,
   GetPatternPathsResponseSchema,
   GetStopEstimatesResponseSchema,
-  GetStopSchedulesResponseSchema,
   GetVehiclesResponseSchema,
   IGetBaseDataResponse,
   IGetNextDepartTimesResponse,
   IGetPatternPathsResponse,
   IGetStopEstimatesResponse,
-  IGetStopSchedulesResponse,
   IGetVehiclesResponse,
-  IMapServiceInterruption,
+  IMapServiceInterruption
 } from '@data/utils/interfaces';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -20,16 +18,28 @@ import {
   getNextDepartureTimes,
   getPatternPaths,
   getStopEstimates,
-  getStopSchedules,
-  getVehicles,
+  getVehicles
 } from 'aggie-spirit-api';
 import moment from 'moment';
 
 export type Headers = { [key: string]: string };
 
+enum ASAPIQueryKey {
+  AUTH_CODE = 'ASAPIAuthCode',
+  AUTH_TOKEN = 'ASAPIAuthToken',
+  ROUTE_PLAN_AUTH_TOKEN = 'ASAPIRoutePlanAuthToken',
+  BASE_DATA = 'ASAPIBaseData',
+  PATTERN_PATHS = 'ASAPIPatternPaths',
+  SERVICE_INTERRUPTIONS = 'ASAPIServiceInterruptions',
+  STOP_ESTIMATE = 'ASAPIStopEstimate',
+  STOP_AMENITIES = 'ASAPIStopAmenities',
+  STOP_SCHEDULE = 'ASAPIStopSchedule',
+  VEHICLES = 'ASAPIVehicles',
+}
+
 export const useAuthCodeAPI = () => {
   const query = useQuery<string>({
-    queryKey: ['authCode'],
+    queryKey: [ASAPIQueryKey.AUTH_CODE],
     queryFn: async () => {
       const authCodeB64 = await (
         await fetch('https://auth.maroonrides.app')
@@ -46,7 +56,7 @@ export const useAuthTokenAPI = () => {
   const authCodeQuery = useAuthCodeAPI();
 
   const query = useQuery<Headers>({
-    queryKey: ['authToken'],
+    queryKey: [ASAPIQueryKey.AUTH_TOKEN],
     queryFn: async () => {
       let data = authCodeQuery.data!;
       data += '\ngetAuthentication()';
@@ -65,7 +75,7 @@ export const useRoutePlanAuthTokenAPI = (queryString: string) => {
   const authCodeQuery = useAuthCodeAPI();
 
   const query = useQuery<Headers>({
-    queryKey: ['routePlanAuthToken'],
+    queryKey: [ASAPIQueryKey.ROUTE_PLAN_AUTH_TOKEN],
     queryFn: async () => {
       let qsAdded = authCodeQuery.data!.replace(
         'ROUTE_PLAN_QUERY_STRING',
@@ -88,7 +98,7 @@ export const useBaseDataAPI = () => {
   const authTokenQuery = useAuthTokenAPI();
 
   const query = useQuery<IGetBaseDataResponse>({
-    queryKey: ['baseData'],
+    queryKey: [ASAPIQueryKey.BASE_DATA],
     queryFn: async () => {
       const baseData = await getBaseData(authTokenQuery.data!);
       GetBaseDataResponseSchema.parse(baseData);
@@ -107,7 +117,7 @@ export const usePatternPathsAPI = () => {
   const baseDataQuery = useBaseDataAPI();
 
   const query = useQuery<IGetPatternPathsResponse>({
-    queryKey: ['patternPaths', baseDataQuery.data],
+    queryKey: [ASAPIQueryKey.PATTERN_PATHS, baseDataQuery.data],
     queryFn: async () => {
       const baseData = baseDataQuery.data as IGetBaseDataResponse;
 
@@ -131,7 +141,7 @@ export const useServiceInterruptionsAPI = () => {
   const baseDataQuery = useBaseDataAPI();
 
   return useQuery<IMapServiceInterruption[]>({
-    queryKey: ['serviceInterruptions'],
+    queryKey: [ASAPIQueryKey.SERVICE_INTERRUPTIONS],
     queryFn: async () => {
       const baseData = baseDataQuery.data as IGetBaseDataResponse;
       return baseData.serviceInterruptions;
@@ -150,7 +160,7 @@ export const useStopEstimateAPI = (
   const authTokenQuery = useAuthTokenAPI();
 
   return useQuery<IGetNextDepartTimesResponse>({
-    queryKey: ['stopEstimate', routeKey, directionKey, stopCode],
+    queryKey: [ASAPIQueryKey.STOP_ESTIMATE, routeKey, directionKey, stopCode],
     queryFn: async () => {
       const response = await getNextDepartureTimes(
         routeKey,
@@ -177,7 +187,7 @@ export const useStopScheduleAPI = (stopCode: string, date: Date) => {
 
   return useQuery<IGetStopEstimatesResponse>({
     queryKey: [
-      'timetableEstimate',
+      ASAPIQueryKey.STOP_SCHEDULE,
       stopCode,
       moment(date).format('YYYY-MM-DD'),
     ],
@@ -197,32 +207,11 @@ export const useStopScheduleAPI = (stopCode: string, date: Date) => {
   });
 };
 
-// TODO: DELETE
-export const useScheduleAPI = (stopCode: string, date: Date) => {
-  const authTokenQuery = useAuthTokenAPI();
-
-  return useQuery<IGetStopSchedulesResponse>({
-    queryKey: ['schedule', stopCode, date],
-    queryFn: async () => {
-      const stopSchedulesResponse = await getStopSchedules(
-        stopCode,
-        date,
-        authTokenQuery.data!,
-      );
-      GetStopSchedulesResponseSchema.parse(stopSchedulesResponse);
-
-      return stopSchedulesResponse;
-    },
-    enabled: authTokenQuery.isSuccess && stopCode !== '' && date !== null,
-    staleTime: Infinity,
-  });
-};
-
 export const useVehiclesAPI = (routeKey: string) => {
   const authTokenQuery = useAuthTokenAPI();
 
   return useQuery<IGetVehiclesResponse[0]>({
-    queryKey: ['vehicles', routeKey],
+    queryKey: [ASAPIQueryKey.VEHICLES, routeKey],
     queryFn: async () => {
       let busesResponse = (await getVehicles(
         [routeKey],

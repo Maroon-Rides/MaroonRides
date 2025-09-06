@@ -18,7 +18,7 @@ import {
   useASVehicles,
 } from './structure/aggie_spirit';
 
-export enum QueryKey {
+enum QueryKey {
   ROUTE_LIST = 'MRRouteList',
   VEHICLES = 'MRVehicles',
   STOP_ESTIMATE = 'MRStopEstimate',
