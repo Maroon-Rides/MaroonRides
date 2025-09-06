@@ -1,16 +1,14 @@
+import { StopSchedule } from '@data/datatypes';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import useAppStore from 'src/data/app_state';
-import { useStopScheduleAPI } from 'src/data/queries/api/aggie_spirit';
-import { IRouteStopSchedule } from '../../../data/utils/interfaces';
 import BusIcon from './BusIcon';
 
 interface Props {
-  item: IRouteStopSchedule;
+  item: StopSchedule;
   tintColor: string;
-  stopCode: string;
   dismissBack?: () => void;
 }
 
@@ -27,22 +25,13 @@ interface TableItemRow {
   shouldHighlight: boolean;
 }
 
-const Timetable: React.FC<Props> = ({
-  item,
-  tintColor,
-  stopCode,
-  dismissBack,
-}) => {
+const Timetable: React.FC<Props> = ({ item, tintColor, dismissBack }) => {
   const selectedTimetableDate = useAppStore(
     (state) => state.selectedTimetableDate,
   );
   const theme = useAppStore((state) => state.theme);
 
   const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
-  const { data: estimate, isLoading } = useStopScheduleAPI(
-    stopCode,
-    selectedTimetableDate || moment().toDate(),
-  );
 
   useEffect(() => {
     const now = moment().toDate();
@@ -51,24 +40,18 @@ const Timetable: React.FC<Props> = ({
 
     const sliceLength = 5;
 
-    let processed = item.stopTimes.map((time) => {
-      const foundEstimate = estimate?.routeStopSchedules.find(
-        (schedule) =>
-          schedule.directionName === item.directionName &&
-          schedule.routeName === item.routeName,
-      );
-
-      const timeEstimateIndex = foundEstimate?.stopTimes.findIndex(
+    let processed = item.timetable.map((time) => {
+      const timeEstimateIndex = item.timetable.findIndex(
         (stopTime) => stopTime.tripPointId === time.tripPointId,
       );
-      const timeEstimate = foundEstimate?.stopTimes[timeEstimateIndex!];
+      const timeEstimate = item.timetable[timeEstimateIndex!];
 
       // have to check if it isnt undefined because if it is undefined, moment will default to current time
       const estimatedTime =
-        timeEstimate && moment(timeEstimate?.estimatedDepartTimeUtc).isValid()
-          ? moment(timeEstimate?.estimatedDepartTimeUtc)
+        timeEstimate && moment(timeEstimate?.estimatedTime).isValid()
+          ? moment(timeEstimate?.estimatedTime)
           : null;
-      const scheduledTime = moment(time.scheduledDepartTimeUtc);
+      const scheduledTime = moment(time.scheduledTime);
 
       // switch to scheduled time if estimated time is invalid
       let departTime = estimatedTime ?? scheduledTime;
@@ -83,7 +66,7 @@ const Timetable: React.FC<Props> = ({
       if (
         (departTime.isSame(now, 'day') &&
           departTime.diff(now, 'minutes') >= 0) ||
-        (timeEstimate?.isRealtime && !timeEstimate?.isCancelled)
+        (timeEstimate?.isRealTime && !timeEstimate?.isCancelled)
       ) {
         color = theme.text;
         shouldHighlight = true;
@@ -98,7 +81,7 @@ const Timetable: React.FC<Props> = ({
         time: departTime.format('h:mm'),
         color: color,
         shouldHighlight: shouldHighlight,
-        live: (timeEstimate && timeEstimate.isRealtime) ?? false,
+        live: (timeEstimate && timeEstimate.isRealTime) ?? false,
         cancelled: timeEstimate?.isCancelled ?? false,
       };
     });
@@ -134,7 +117,7 @@ const Timetable: React.FC<Props> = ({
     }
 
     setTableRows(stopRows);
-  }, [estimate, selectedTimetableDate]);
+  }, [selectedTimetableDate]);
 
   return (
     <View style={{ marginLeft: 16, paddingTop: 8 }}>
@@ -161,7 +144,6 @@ const Timetable: React.FC<Props> = ({
             >
               {item.routeName}
             </Text>
-            {isLoading && <ActivityIndicator style={{ marginLeft: 8 }} />}
           </View>
           <Text style={{ color: theme.subtitle }}>{item.directionName}</Text>
         </View>
@@ -231,7 +213,7 @@ const Timetable: React.FC<Props> = ({
             </View>
           );
         })}
-        {item.stopTimes.length === 0 && !item.isEndOfRoute && (
+        {item.timetable.length === 0 && !item.isEndOfRoute && (
           <Text style={{ color: 'grey', textAlign: 'center' }}>
             No Timetable for Today
           </Text>

@@ -181,18 +181,16 @@ export const useASStopEstimate = (
     queryFn: async () => {
       const stopEstimates = apiStopEstimateQuery.data!;
 
-      return stopEstimates.routeDirectionTimes[0].nextDeparts.map(
-        (e): TimeEstimate => {
-          return {
-            dataSource: DataSource.AGGIE_SPIRIT,
-            estimatedTime: e.estimatedDepartTimeUtc
-              ? moment.utc(e.estimatedDepartTimeUtc)
-              : null,
-            scheduledTime: moment.utc(e.scheduledDepartTimeUtc),
-            isRealTime: e.estimatedDepartTimeUtc == null,
-          };
-        },
-      );
+      return stopEstimates.routeDirectionTimes[0].nextDeparts.map((e) => {
+        return {
+          dataSource: DataSource.AGGIE_SPIRIT,
+          estimatedTime: e.estimatedDepartTimeUtc
+            ? moment.utc(e.estimatedDepartTimeUtc)
+            : null,
+          scheduledTime: moment.utc(e.scheduledDepartTimeUtc),
+          isRealTime: e.estimatedDepartTimeUtc == null,
+        } as TimeEstimate;
+      });
     },
     enabled: apiStopEstimateQuery.isSuccess,
   });
@@ -223,17 +221,18 @@ export const useASStopAmenities = (
   return query;
 };
 
-export const useASStopSchedule = (stop: Stop, date: Date) => {
-  const apiStopScheduleQuery = useStopScheduleAPI(stop.id, date);
+export const useASStopSchedule = (stop: Stop | null, date: Date) => {
+  const apiStopScheduleQuery = useStopScheduleAPI(stop?.id ?? '', date);
 
   const query = useQuery<StopSchedule[]>({
     queryKey: [
       ASQueryKey.STOP_SCHEDULE,
-      stop.id,
+      stop?.id,
       moment(date).format('YYYY-MM-DD'),
     ],
     queryFn: async () => {
       const stopScheduleData = apiStopScheduleQuery.data!;
+      console.log('Stop Schedule Data:', stopScheduleData);
       let finalStopSchedule: StopSchedule[] = [];
 
       for (let routeStop of stopScheduleData.routeStopSchedules) {
@@ -245,7 +244,9 @@ export const useASStopSchedule = (stop: Stop, date: Date) => {
                 ? moment.utc(stopTime.estimatedDepartTimeUtc)
                 : null,
               scheduledTime: moment.utc(stopTime.scheduledDepartTimeUtc),
+              tripPointId: stopTime.tripPointId,
               isRealTime: stopTime.estimatedDepartTimeUtc != null,
+              isCancelled: stopTime.isCancelled,
             }) as TimeEstimate,
         );
         finalStopSchedule.push({

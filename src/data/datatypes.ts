@@ -72,7 +72,9 @@ export interface Bus extends FromDataSource {
 export interface TimeEstimate extends FromDataSource {
   estimatedTime: moment.Moment | null;
   scheduledTime: moment.Moment;
+  tripPointId?: string;
   isRealTime: boolean;
+  isCancelled?: boolean;
 }
 
 export interface StopSchedule extends FromDataSource {

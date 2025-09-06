@@ -105,16 +105,16 @@ export const useStopAmenities = (
   return query;
 };
 
-export const useStopSchedule = (stop: Stop, date: Date) => {
+export const useStopSchedule = (stop: Stop | null, date: Date) => {
   const apiStopScheduleQuery = useASStopSchedule(stop, date);
   const query = useQuery<StopSchedule[]>({
     queryKey: [
       QueryKey.STOP_SCHEDULE,
-      stop.id,
+      stop?.id,
       moment(date).format('YYYY-MM-DD'),
     ],
     queryFn: async () => {
-      switch (stop.dataSource) {
+      switch (stop?.dataSource) {
         case DataSource.AGGIE_SPIRIT:
           return apiStopScheduleQuery.data!;
         default:

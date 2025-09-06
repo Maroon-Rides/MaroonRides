@@ -1,3 +1,4 @@
+import { StopSchedule } from '@data/datatypes';
 import { SheetProps } from '@data/utils/utils';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
@@ -6,9 +7,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import useAppStore from 'src/data/app_state';
-import { useScheduleAPI } from 'src/data/queries/api/aggie_spirit';
-import { useRouteList } from 'src/data/queries/app';
-import { IRouteStopSchedule } from '../../../data/utils/interfaces';
+import { useRouteList, useStopSchedule } from 'src/data/queries/app';
 import DateSelector from '../ui/DateSelector';
 import SheetHeader from '../ui/SheetHeader';
 import Timetable from '../ui/Timetable';
@@ -37,11 +36,11 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
   const [showNonRouteSchedules, setShowNonRouteSchedules] =
     useState<boolean>(false);
   const [nonRouteSchedules, setNonRouteSchedules] = useState<
-    IRouteStopSchedule[] | null
+    StopSchedule[] | null
   >(null);
-  const [routeSchedules, setRouteSchedules] = useState<
-    IRouteStopSchedule[] | null
-  >(null);
+  const [routeSchedules, setRouteSchedules] = useState<StopSchedule[] | null>(
+    null,
+  );
   const theme = useAppStore((state) => state.theme);
 
   const { data: routes } = useRouteList();
@@ -49,8 +48,8 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     data: stopSchedule,
     isError: scheduleError,
     isLoading: scheduleLoading,
-  } = useScheduleAPI(
-    selectedStop?.id ?? '',
+  } = useStopSchedule(
+    selectedStop!,
     selectedTimetableDate ?? moment().toDate(),
   );
 
@@ -78,7 +77,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     if (!stopSchedule) return;
 
     // find the schedules for the selected route
-    let routeStops = stopSchedule.routeStopSchedules.filter(
+    let routeStops = stopSchedule.filter(
       (schedule) =>
         schedule.routeName === selectedRoute?.name &&
         schedule.routeNumber === selectedRoute?.routeCode,
@@ -89,7 +88,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     setRouteSchedules(routeStops);
 
     // filter out non route schedules
-    let nonRouteStops = stopSchedule.routeStopSchedules.filter(
+    let nonRouteStops = stopSchedule.filter(
       (schedule) =>
         schedule.routeName !== selectedRoute?.name ||
         schedule.routeNumber !== selectedRoute?.routeCode,
@@ -97,7 +96,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
     // filter anything that doesnt have stop times
     nonRouteStops = nonRouteStops.filter(
-      (schedule) => schedule.stopTimes.length > 0,
+      (schedule) => schedule.timetable.length > 0,
     );
     setNonRouteSchedules(nonRouteStops);
   }, [stopSchedule]);
@@ -188,6 +187,18 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
           {scheduleLoading && <ActivityIndicator style={{ marginBottom: 8 }} />}
 
+          {routeSchedules && routeSchedules.length === 0 && (
+            <Text
+              style={{
+                textAlign: 'center',
+                marginTop: 10,
+                color: theme.subtitle,
+              }}
+            >
+              No scheduled routes for this date
+            </Text>
+          )}
+
           {routeSchedules && (
             <FlatList
               data={routeSchedules}
@@ -208,8 +219,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                   <View key={index} style={{ flex: 1 }}>
                     <Timetable
                       item={item}
-                      tintColor={getLineColor(item.routeNumber)}
-                      stopCode={selectedStop?.id ?? ''}
+                      tintColor={selectedRoute?.tintColor ?? 'black'}
                     />
                   </View>
                 );
@@ -258,8 +268,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                             presentSheet('routeDetails');
                           }
                         }}
-                        tintColor={getLineColor(item.routeNumber)}
-                        stopCode={selectedStop?.id ?? ''}
+                        tintColor={selectedRoute?.tintColor ?? 'black'}
                       />
                     </View>
                   );
