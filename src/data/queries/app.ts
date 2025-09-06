@@ -139,6 +139,7 @@ export const useAlerts = (route: Route | null) => {
           return [];
       }
     },
+    enabled: route !== null,
     dependents: [apiAlertQuery],
   });
 

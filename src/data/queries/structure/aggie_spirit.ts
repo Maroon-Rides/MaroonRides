@@ -40,7 +40,6 @@ export const useASRoutes = () => {
   const query = useDependencyQuery<Route[]>({
     queryKey: [ASQueryKey.ROUTE_LIST],
     queryFn: async () => {
-      console.log('Fetching route list with theme');
       let apiBaseData = apiBaseDataQuery.data!;
       let apiPatternPathData = apiPatternPathsQuery.data!;
 
@@ -270,10 +269,7 @@ export const useASAlerts = (route: Route | null) => {
 
   // Aggie Spirit does not have alerts
   const query = useDependencyQuery<Alert[]>({
-    queryKey: [
-      ASQueryKey.ALERTS,
-      route,
-    ],
+    queryKey: [ASQueryKey.ALERTS, route],
     queryFn: async () => {
       if (!route) return [];
 
@@ -317,8 +313,9 @@ export const useASAlerts = (route: Route | null) => {
         };
       });
     },
+    enabled: route !== null,
     dependents: [apiServiceInterruptionsQuery, apiBaseDataQuery, routesQuery],
   });
 
   return query;
-}
+};

@@ -12,7 +12,6 @@ import {
   IGetVehiclesResponse,
   IMapServiceInterruption,
 } from '@data/utils/interfaces';
-import { useQuery } from '@tanstack/react-query';
 import {
   getBaseData,
   getNextDepartureTimes,
@@ -21,7 +20,7 @@ import {
   getVehicles,
 } from 'aggie-spirit-api';
 import moment from 'moment';
-import { useDependencyQuery } from '../utils';
+import { useDependencyQuery, useLoggingQuery } from '../utils';
 
 export type Headers = { [key: string]: string };
 
@@ -39,7 +38,8 @@ enum ASAPIQueryKey {
 }
 
 export const useAuthCodeAPI = () => {
-  const query = useQuery<string>({
+  const query = useLoggingQuery<string>({
+    label: ASAPIQueryKey.AUTH_CODE,
     queryKey: [ASAPIQueryKey.AUTH_CODE],
     queryFn: async () => {
       const authCodeB64 = await (

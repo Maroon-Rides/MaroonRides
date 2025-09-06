@@ -1,14 +1,15 @@
 import { SearchSuggestion } from '@data/utils/interfaces';
 import { suggestionEqual } from '@data/utils/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Route } from 'src/data/datatypes';
 import { useRoutes } from '../app';
+import { useLoggingQuery } from '../utils';
 
 export const useFavorites = () => {
   const routesQuery = useRoutes();
 
-  const query = useQuery<Route[]>({
+  const query = useLoggingQuery<Route[]>({
     queryKey: ['favorites'],
     queryFn: async () => {
       const routes = routesQuery.data as Route[];
@@ -30,7 +31,7 @@ export const useFavorites = () => {
 };
 
 export const useFavorite = (routeShortName: string) => {
-  const query = useQuery({
+  const query = useLoggingQuery({
     queryKey: ['favorite', routeShortName],
     queryFn: async () => {
       const favorites = await AsyncStorage.getItem('favorites');
@@ -95,7 +96,7 @@ export const removeFavoriteMutation = () => {
 };
 
 export const useDefaultRouteGroup = () => {
-  const query = useQuery({
+  const query = useLoggingQuery({
     queryKey: ['defaultRouteGroup'],
     queryFn: async () => {
       const defaultGroup = await AsyncStorage.getItem('default-group');
@@ -124,7 +125,7 @@ export const defaultGroupMutation = () => {
 };
 
 export const useFavoriteLocations = () => {
-  const query = useQuery<SearchSuggestion[]>({
+  const query = useLoggingQuery<SearchSuggestion[]>({
     queryKey: ['favoriteLocations'],
     queryFn: async () => {
       const favorites = await AsyncStorage.getItem('favoriteLocations');

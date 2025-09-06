@@ -4,15 +4,15 @@ import {
   ITripPlanResponse,
   SearchSuggestion,
 } from '@data/utils/interfaces';
-import { useQuery } from '@tanstack/react-query';
 import { findBusStops, getTripPlan } from 'aggie-spirit-api';
 import { useASRoutes } from '../structure/aggie_spirit';
+import { useLoggingQuery } from '../utils';
 import { useAuthCodeAPI, useAuthTokenAPI } from './aggie_spirit';
 
 export const useRoutePlanAuthTokenAPI = (queryString: string) => {
   const authCodeQuery = useAuthCodeAPI();
 
-  const query = useQuery<{ [key: string]: string }>({
+  const query = useLoggingQuery<{ [key: string]: string }>({
     queryKey: ['routePlanAuthToken'],
     queryFn: async () => {
       let qsAdded = authCodeQuery.data!.replace(
@@ -35,7 +35,7 @@ export const useSearchSuggestionAPI = (query: string) => {
   const authTokenQuery = useAuthTokenAPI();
   const routesQuery = useASRoutes();
 
-  return useQuery<any, Error, SearchSuggestion[]>({
+  return useLoggingQuery<any, Error, SearchSuggestion[]>({
     queryKey: ['searchSuggestion', query],
     queryFn: async () => {
       // we need data from pattern paths to get the stop GPS locations
@@ -72,7 +72,6 @@ export const useSearchSuggestionAPI = (query: string) => {
       return busStops;
     },
     enabled: authTokenQuery.isSuccess && query !== '',
-    throwOnError: true,
     staleTime: Infinity,
   });
 };
@@ -98,7 +97,7 @@ export const useTripPlanAPI = (
 
   const routePlanAuthToken = useRoutePlanAuthTokenAPI(queryString);
 
-  return useQuery<ITripPlanResponse>({
+  return useLoggingQuery<ITripPlanResponse>({
     queryKey: ['tripPlan', origin, destination, date, deadline],
     queryFn: async () => {
       let response = await getTripPlan(
@@ -122,7 +121,6 @@ export const useTripPlanAPI = (
       date !== null &&
       deadline !== null,
     staleTime: 60000, // 2 minutes
-    throwOnError: true,
   });
 };
 
