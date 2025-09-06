@@ -171,7 +171,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
           >
             <View style={{ flex: 1 }} />
             <DateSelector
-              text={selectedTimetableDate.format('%A, %B %d')}
+              text={selectedTimetableDate.format('dddd, MMM D')}
               leftArrowShown={moment().isBefore(selectedTimetableDate, 'day')}
               onLeftClick={dayDecrement}
               onRightClick={dayIncrement}
