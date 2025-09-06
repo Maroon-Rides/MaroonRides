@@ -10,7 +10,7 @@ import {
   IGetPatternPathsResponse,
   IGetStopEstimatesResponse,
   IGetVehiclesResponse,
-  IMapServiceInterruption
+  IMapServiceInterruption,
 } from '@data/utils/interfaces';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -18,9 +18,10 @@ import {
   getNextDepartureTimes,
   getPatternPaths,
   getStopEstimates,
-  getVehicles
+  getVehicles,
 } from 'aggie-spirit-api';
 import moment from 'moment';
+import { useDependencyQuery } from '../utils';
 
 export type Headers = { [key: string]: string };
 
@@ -55,7 +56,7 @@ export const useAuthCodeAPI = () => {
 export const useAuthTokenAPI = () => {
   const authCodeQuery = useAuthCodeAPI();
 
-  const query = useQuery<Headers>({
+  const query = useDependencyQuery<Headers>({
     queryKey: [ASAPIQueryKey.AUTH_TOKEN],
     queryFn: async () => {
       let data = authCodeQuery.data!;
@@ -63,9 +64,9 @@ export const useAuthTokenAPI = () => {
       const headers = await eval(data);
       return headers;
     },
-    staleTime: moment.duration(15, 'minutes').asMilliseconds(),
-    refetchInterval: moment.duration(15, 'minutes').asMilliseconds(),
-    enabled: authCodeQuery.isSuccess,
+    staleTime: moment.duration(15, 'minutes'),
+    refetchInterval: moment.duration(15, 'minutes'),
+    dependents: [authCodeQuery],
   });
 
   return query;
@@ -74,7 +75,7 @@ export const useAuthTokenAPI = () => {
 export const useRoutePlanAuthTokenAPI = (queryString: string) => {
   const authCodeQuery = useAuthCodeAPI();
 
-  const query = useQuery<Headers>({
+  const query = useDependencyQuery<Headers>({
     queryKey: [ASAPIQueryKey.ROUTE_PLAN_AUTH_TOKEN],
     queryFn: async () => {
       let qsAdded = authCodeQuery.data!.replace(
@@ -86,9 +87,10 @@ export const useRoutePlanAuthTokenAPI = (queryString: string) => {
       const headers = await eval(qsAdded);
       return headers;
     },
-    staleTime: moment.duration(15, 'minutes').asMilliseconds(),
-    refetchInterval: moment.duration(15, 'minutes').asMilliseconds(),
-    enabled: authCodeQuery.isSuccess && queryString !== '',
+    staleTime: moment.duration(15, 'minutes'),
+    refetchInterval: moment.duration(15, 'minutes'),
+    enabled: queryString !== '',
+    dependents: [authCodeQuery],
   });
 
   return query;
@@ -97,7 +99,7 @@ export const useRoutePlanAuthTokenAPI = (queryString: string) => {
 export const useBaseDataAPI = () => {
   const authTokenQuery = useAuthTokenAPI();
 
-  const query = useQuery<IGetBaseDataResponse>({
+  const query = useDependencyQuery<IGetBaseDataResponse>({
     queryKey: [ASAPIQueryKey.BASE_DATA],
     queryFn: async () => {
       const baseData = await getBaseData(authTokenQuery.data!);
@@ -105,8 +107,8 @@ export const useBaseDataAPI = () => {
 
       return baseData;
     },
-    enabled: authTokenQuery.isSuccess,
     staleTime: Infinity,
+    dependents: [authTokenQuery],
   });
 
   return query;
@@ -116,8 +118,8 @@ export const usePatternPathsAPI = () => {
   const authTokenQuery = useAuthTokenAPI();
   const baseDataQuery = useBaseDataAPI();
 
-  const query = useQuery<IGetPatternPathsResponse>({
-    queryKey: [ASAPIQueryKey.PATTERN_PATHS, baseDataQuery.data],
+  const query = useDependencyQuery<IGetPatternPathsResponse>({
+    queryKey: [ASAPIQueryKey.PATTERN_PATHS],
     queryFn: async () => {
       const baseData = baseDataQuery.data as IGetBaseDataResponse;
 
@@ -129,9 +131,9 @@ export const usePatternPathsAPI = () => {
 
       return patternPaths;
     },
-    enabled: baseDataQuery.isSuccess,
-    staleTime: moment.duration(30, 'minutes').asMilliseconds(),
-    refetchInterval: moment.duration(30, 'minutes').asMilliseconds(),
+    dependents: [authTokenQuery, baseDataQuery],
+    staleTime: moment.duration(30, 'minutes'),
+    refetchInterval: moment.duration(30, 'minutes'),
   });
 
   return query;
@@ -140,15 +142,16 @@ export const usePatternPathsAPI = () => {
 export const useServiceInterruptionsAPI = () => {
   const baseDataQuery = useBaseDataAPI();
 
-  return useQuery<IMapServiceInterruption[]>({
+  return useDependencyQuery<IMapServiceInterruption[]>({
     queryKey: [ASAPIQueryKey.SERVICE_INTERRUPTIONS],
     queryFn: async () => {
       const baseData = baseDataQuery.data as IGetBaseDataResponse;
       return baseData.serviceInterruptions;
     },
     enabled: baseDataQuery.isSuccess,
-    staleTime: moment.duration(30, 'minutes').asMilliseconds(),
-    refetchInterval: moment.duration(30, 'minutes').asMilliseconds(),
+    staleTime: moment.duration(30, 'minutes'),
+    refetchInterval: moment.duration(30, 'minutes'),
+    dependents: [baseDataQuery],
   });
 };
 
@@ -159,7 +162,7 @@ export const useStopEstimateAPI = (
 ) => {
   const authTokenQuery = useAuthTokenAPI();
 
-  return useQuery<IGetNextDepartTimesResponse>({
+  return useDependencyQuery<IGetNextDepartTimesResponse>({
     queryKey: [ASAPIQueryKey.STOP_ESTIMATE, routeKey, directionKey, stopCode],
     queryFn: async () => {
       const response = await getNextDepartureTimes(
@@ -172,20 +175,17 @@ export const useStopEstimateAPI = (
 
       return response as IGetNextDepartTimesResponse;
     },
-    enabled:
-      authTokenQuery.isSuccess &&
-      routeKey !== '' &&
-      directionKey !== '' &&
-      stopCode !== '',
-    staleTime: moment.duration(30, 'seconds').asMilliseconds(),
-    refetchInterval: moment.duration(30, 'seconds').asMilliseconds(),
+    enabled: routeKey !== '' && directionKey !== '' && stopCode !== '',
+    dependents: [authTokenQuery],
+    staleTime: moment.duration(30, 'seconds'),
+    refetchInterval: moment.duration(30, 'seconds'),
   });
 };
 
 export const useStopScheduleAPI = (stopCode: string, date: Date) => {
   const authTokenQuery = useAuthTokenAPI();
 
-  return useQuery<IGetStopEstimatesResponse>({
+  return useDependencyQuery<IGetStopEstimatesResponse>({
     queryKey: [
       ASAPIQueryKey.STOP_SCHEDULE,
       stopCode,
@@ -201,16 +201,17 @@ export const useStopScheduleAPI = (stopCode: string, date: Date) => {
 
       return response;
     },
-    enabled: authTokenQuery.isSuccess && stopCode !== '' && date !== null,
-    staleTime: moment.duration(30, 'seconds').asMilliseconds(),
-    refetchInterval: moment.duration(30, 'seconds').asMilliseconds(),
+    enabled: stopCode !== '' && date !== null,
+    dependents: [authTokenQuery],
+    staleTime: moment.duration(30, 'seconds'),
+    refetchInterval: moment.duration(30, 'seconds'),
   });
 };
 
 export const useVehiclesAPI = (routeKey: string) => {
   const authTokenQuery = useAuthTokenAPI();
 
-  return useQuery<IGetVehiclesResponse[0]>({
+  return useDependencyQuery<IGetVehiclesResponse[0]>({
     queryKey: [ASAPIQueryKey.VEHICLES, routeKey],
     queryFn: async () => {
       let busesResponse = (await getVehicles(
@@ -225,8 +226,9 @@ export const useVehiclesAPI = (routeKey: string) => {
 
       return busesResponse[0];
     },
-    enabled: authTokenQuery.isSuccess && routeKey !== '',
-    staleTime: moment.duration(10, 'seconds').asMilliseconds(),
-    refetchInterval: moment.duration(10, 'seconds').asMilliseconds(),
+    enabled: routeKey !== '',
+    dependents: [authTokenQuery],
+    staleTime: moment.duration(10, 'seconds'),
+    refetchInterval: moment.duration(10, 'seconds'),
   });
 };

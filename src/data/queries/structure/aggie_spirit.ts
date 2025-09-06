@@ -1,5 +1,4 @@
 import { findBoundingBox } from '@data/utils/geo';
-import { useQuery } from '@tanstack/react-query';
 import moment from 'moment';
 import getTheme from 'src/app/theme';
 import {
@@ -23,6 +22,7 @@ import {
   useStopScheduleAPI,
   useVehiclesAPI,
 } from '../api/aggie_spirit';
+import { useDependencyQuery } from '../utils';
 
 export enum ASQueryKey {
   ROUTE_LIST = 'ASRouteList',
@@ -37,12 +37,8 @@ export const useASRoutes = () => {
   const apiBaseDataQuery = useBaseDataAPI();
   const apiPatternPathsQuery = usePatternPathsAPI();
 
-  const query = useQuery<Route[]>({
-    queryKey: [
-      ASQueryKey.ROUTE_LIST,
-      apiBaseDataQuery.data,
-      apiPatternPathsQuery.data,
-    ],
+  const query = useDependencyQuery<Route[]>({
+    queryKey: [ASQueryKey.ROUTE_LIST],
     queryFn: async () => {
       console.log('Fetching route list with theme');
       let apiBaseData = apiBaseDataQuery.data!;
@@ -115,7 +111,7 @@ export const useASRoutes = () => {
         };
       });
     },
-    enabled: apiBaseDataQuery.isSuccess && apiPatternPathsQuery.isSuccess,
+    dependents: [apiBaseDataQuery, apiPatternPathsQuery],
   });
 
   return query;
@@ -124,8 +120,8 @@ export const useASRoutes = () => {
 export const useASVehicles = (route: Route | null) => {
   const apiBusesQuery = useVehiclesAPI(route?.id ?? '');
 
-  const query = useQuery<Bus[]>({
-    queryKey: [ASQueryKey.VEHICLES, apiBusesQuery.data],
+  const query = useDependencyQuery<Bus[]>({
+    queryKey: [ASQueryKey.VEHICLES],
     queryFn: async () => {
       let apiBuses = apiBusesQuery.data!;
 
@@ -162,7 +158,7 @@ export const useASVehicles = (route: Route | null) => {
         },
       );
     },
-    enabled: apiBusesQuery.isSuccess,
+    dependents: [apiBusesQuery],
   });
 
   return query;
@@ -179,8 +175,8 @@ export const useASStopEstimate = (
     stop.id,
   );
 
-  const query = useQuery<TimeEstimate[]>({
-    queryKey: [ASQueryKey.STOP_ESTIMATE, apiStopEstimateQuery.data],
+  const query = useDependencyQuery<TimeEstimate[]>({
+    queryKey: [ASQueryKey.STOP_ESTIMATE],
     queryFn: async () => {
       const stopEstimates = apiStopEstimateQuery.data!;
 
@@ -195,7 +191,7 @@ export const useASStopEstimate = (
         } as TimeEstimate;
       });
     },
-    enabled: apiStopEstimateQuery.isSuccess,
+    dependents: [apiStopEstimateQuery],
   });
 
   return query;
@@ -212,26 +208,28 @@ export const useASStopAmenities = (
     stop.id,
   );
 
-  const query = useQuery<Amenity[]>({
-    queryKey: [ASQueryKey.STOP_AMENITIES, apiStopEstimateQuery.data],
+  const query = useDependencyQuery<Amenity[]>({
+    queryKey: [ASQueryKey.STOP_AMENITIES],
     queryFn: async () => {
       const stopEstimates = apiStopEstimateQuery.data!;
       return Amenity.fromAPI(stopEstimates.amenities);
     },
-    enabled: apiStopEstimateQuery.isSuccess,
+    dependents: [apiStopEstimateQuery],
   });
 
   return query;
 };
 
-export const useASStopSchedule = (stop: Stop | null, date: Date) => {
-  const apiStopScheduleQuery = useStopScheduleAPI(stop?.id ?? '', date);
+export const useASStopSchedule = (stop: Stop | null, date: moment.Moment) => {
+  const apiStopScheduleQuery = useStopScheduleAPI(
+    stop?.id ?? '',
+    date.toDate(),
+  );
 
-  const query = useQuery<StopSchedule[]>({
-    queryKey: [ASQueryKey.STOP_SCHEDULE, apiStopScheduleQuery.data],
+  const query = useDependencyQuery<StopSchedule[]>({
+    queryKey: [ASQueryKey.STOP_SCHEDULE],
     queryFn: async () => {
       const stopScheduleData = apiStopScheduleQuery.data!;
-      console.log('Stop Schedule Data:', stopScheduleData);
       let finalStopSchedule: StopSchedule[] = [];
 
       for (let routeStop of stopScheduleData.routeStopSchedules) {
@@ -259,7 +257,7 @@ export const useASStopSchedule = (stop: Stop | null, date: Date) => {
       }
       return finalStopSchedule;
     },
-    enabled: apiStopScheduleQuery.isSuccess,
+    dependents: [apiStopScheduleQuery],
   });
 
   return query;
@@ -271,12 +269,9 @@ export const useASAlerts = (route: Route | null) => {
   const routesQuery = useASRoutes();
 
   // Aggie Spirit does not have alerts
-  const query = useQuery<Alert[]>({
+  const query = useDependencyQuery<Alert[]>({
     queryKey: [
       ASQueryKey.ALERTS,
-      apiServiceInterruptionsQuery.data,
-      apiBaseDataQuery.data,
-      routesQuery.data,
       route,
     ],
     queryFn: async () => {
@@ -318,11 +313,12 @@ export const useASAlerts = (route: Route | null) => {
           title: alert.name,
           description: alert.description ?? '',
           affectedRoutes: affectedAPIRoutes,
-          originalRoute: route
+          originalRoute: route,
         };
       });
     },
+    dependents: [apiServiceInterruptionsQuery, apiBaseDataQuery, routesQuery],
   });
 
   return query;
-};
+}

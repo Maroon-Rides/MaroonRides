@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
 import moment from 'moment';
 import {
   Alert,
@@ -19,6 +18,7 @@ import {
   useASStopSchedule,
   useASVehicles,
 } from './structure/aggie_spirit';
+import { useDependencyQuery } from './utils';
 
 enum QueryKey {
   ROUTE_LIST = 'MRRouteList',
@@ -32,12 +32,12 @@ enum QueryKey {
 export const useRoutes = () => {
   const asRouteList = useASRoutes();
 
-  const query = useQuery<Route[]>({
+  const query = useDependencyQuery<Route[]>({
     queryKey: [QueryKey.ROUTE_LIST],
     queryFn: async () => {
       return asRouteList.data!;
     },
-    enabled: asRouteList.isSuccess,
+    dependents: [asRouteList],
   });
 
   return query;
@@ -46,7 +46,7 @@ export const useRoutes = () => {
 export const useVehicles = (route: Route | null) => {
   const asVehiclesQuery = useASVehicles(route);
 
-  const query = useQuery<Bus[]>({
+  const query = useDependencyQuery<Bus[]>({
     queryKey: [QueryKey.VEHICLES, route?.id],
     queryFn: async () => {
       switch (route?.dataSource) {
@@ -56,7 +56,7 @@ export const useVehicles = (route: Route | null) => {
           return [];
       }
     },
-    enabled: asVehiclesQuery?.isSuccess && !!route,
+    dependents: asVehiclesQuery ? [asVehiclesQuery] : [],
   });
 
   return query;
@@ -69,7 +69,7 @@ export const useStopEstimate = (
 ) => {
   const asEstimateQuery = useASStopEstimate(route, direction, stop);
 
-  const query = useQuery<TimeEstimate[]>({
+  const query = useDependencyQuery<TimeEstimate[]>({
     queryKey: [QueryKey.STOP_ESTIMATE, route.id, direction.id, stop.id],
     queryFn: async () => {
       switch (route?.dataSource) {
@@ -79,7 +79,7 @@ export const useStopEstimate = (
           return [];
       }
     },
-    enabled: asEstimateQuery?.isSuccess,
+    dependents: [asEstimateQuery],
   });
 
   return query;
@@ -92,7 +92,7 @@ export const useStopAmenities = (
 ) => {
   const asStopAmenities = useASStopAmenities(route, direction, stop);
 
-  const query = useQuery<Amenity[]>({
+  const query = useDependencyQuery<Amenity[]>({
     queryKey: [QueryKey.STOP_AMENITIES, route.id, direction.id, stop.id],
     queryFn: async () => {
       switch (route.dataSource) {
@@ -102,20 +102,16 @@ export const useStopAmenities = (
           return [];
       }
     },
-    enabled: asStopAmenities?.isSuccess,
+    dependents: [asStopAmenities],
   });
 
   return query;
 };
 
-export const useStopSchedule = (stop: Stop | null, date: Date) => {
+export const useStopSchedule = (stop: Stop | null, date: moment.Moment) => {
   const apiStopScheduleQuery = useASStopSchedule(stop, date);
-  const query = useQuery<StopSchedule[]>({
-    queryKey: [
-      QueryKey.STOP_SCHEDULE,
-      stop?.id,
-      moment(date).format('YYYY-MM-DD'),
-    ],
+  const query = useDependencyQuery<StopSchedule[]>({
+    queryKey: [QueryKey.STOP_SCHEDULE, stop?.id, date.format('YYYY-MM-DD')],
     queryFn: async () => {
       switch (stop?.dataSource) {
         case DataSource.AGGIE_SPIRIT:
@@ -124,7 +120,7 @@ export const useStopSchedule = (stop: Stop | null, date: Date) => {
           return [];
       }
     },
-    enabled: apiStopScheduleQuery?.isSuccess,
+    dependents: [apiStopScheduleQuery],
   });
 
   return query;
@@ -133,12 +129,8 @@ export const useStopSchedule = (stop: Stop | null, date: Date) => {
 export const useAlerts = (route: Route | null) => {
   const apiAlertQuery = useASAlerts(route);
 
-  const query = useQuery<Alert[]>({
-    queryKey: [
-      QueryKey.STOP_SCHEDULE,
-      apiAlertQuery.data,
-      route,
-    ],
+  const query = useDependencyQuery<Alert[]>({
+    queryKey: [QueryKey.ALERTS, route],
     queryFn: async () => {
       switch (route?.dataSource) {
         case DataSource.AGGIE_SPIRIT:
@@ -147,8 +139,8 @@ export const useAlerts = (route: Route | null) => {
           return [];
       }
     },
-    enabled: apiAlertQuery?.isSuccess,
+    dependents: [apiAlertQuery],
   });
 
   return query;
-}
+};
