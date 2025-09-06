@@ -14,5 +14,6 @@
       "rule": "prettier/prettier",
       "severity": "off"
     }
-  ]
+  ],
+  "editor.tabSize": 2,
 }
