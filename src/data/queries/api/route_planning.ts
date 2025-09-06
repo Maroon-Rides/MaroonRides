@@ -6,8 +6,7 @@ import {
 } from '@data/utils/interfaces';
 import { useQuery } from '@tanstack/react-query';
 import { findBusStops, getTripPlan } from 'aggie-spirit-api';
-import { Stop } from 'src/data/datatypes';
-import { useASRouteList } from '../structure/aggie_spirit';
+import { useASRoutes } from '../structure/aggie_spirit';
 import { useAuthCodeAPI, useAuthTokenAPI } from './aggie_spirit';
 
 export const useRoutePlanAuthTokenAPI = (queryString: string) => {
@@ -34,7 +33,7 @@ export const useRoutePlanAuthTokenAPI = (queryString: string) => {
 
 export const useSearchSuggestionAPI = (query: string) => {
   const authTokenQuery = useAuthTokenAPI();
-  const routesQuery = useASRouteList();
+  const routesQuery = useASRoutes();
 
   return useQuery<any, Error, SearchSuggestion[]>({
     queryKey: ['searchSuggestion', query],
@@ -55,23 +54,10 @@ export const useSearchSuggestionAPI = (query: string) => {
       let busStops: SearchSuggestion[] = [];
 
       busStops = stops.map((stop: IFoundStop) => {
-        // find the stop location (lat/long) in baseData patternPaths
-        // TODO: convert this processing to be on the BaseData loading
-        let foundLocation: Stop | undefined = undefined;
-        for (let route of routesQuery.data!) {
-          for (let path of route.directions) {
-            const stops = path.stops;
-            for (let point of stops) {
-              if (point.id === stop.stopCode) {
-                foundLocation = point;
-                break;
-              }
-            }
-            if (foundLocation) break;
-          }
-
-          if (foundLocation) break;
-        }
+        const foundLocation = routesQuery.data
+          ?.flatMap((route) => route.directions)
+          .flatMap((path) => path.stops)
+          .find((point) => point.id === stop.stopCode);
 
         return {
           type: 'stop',
