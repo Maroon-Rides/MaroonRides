@@ -11,14 +11,14 @@ import {
   PathLocation,
   Route,
   Stop,
+  StopSchedule,
   TimeEstimate,
-  Timetable,
 } from 'src/data/datatypes';
 import {
   useBaseDataAPI,
   usePatternPathsAPI,
   useStopEstimateAPI,
-  useTimetableEstimateAPI,
+  useStopScheduleAPI,
   useVehiclesAPI,
 } from '../api/aggie_spirit';
 
@@ -27,7 +27,7 @@ export enum ASQueryKey {
   VEHICLES = 'ASVehicles',
   STOP_ESTIMATE = 'ASStopEstimate',
   STOP_AMENITIES = 'ASStopAmenities',
-  TIMETABLE = 'ASTimetable',
+  STOP_SCHEDULE = 'ASStopSchedule',
 }
 
 export const useASRouteList = () => {
@@ -223,20 +223,20 @@ export const useASStopAmenities = (
   return query;
 };
 
-export const useASTimetable = (stop: Stop, date: Date) => {
-  const apiStopEstimateQuery = useTimetableEstimateAPI(stop.id, date);
+export const useASStopSchedule = (stop: Stop, date: Date) => {
+  const apiStopScheduleQuery = useStopScheduleAPI(stop.id, date);
 
-  const query = useQuery<Timetable>({
+  const query = useQuery<StopSchedule[]>({
     queryKey: [
-      ASQueryKey.TIMETABLE,
+      ASQueryKey.STOP_SCHEDULE,
       stop.id,
       moment(date).format('YYYY-MM-DD'),
     ],
     queryFn: async () => {
-      const timetableData = apiStopEstimateQuery.data!;
-      let finalTimetable: Timetable = new Map<string, TimeEstimate[]>();
+      const stopScheduleData = apiStopScheduleQuery.data!;
+      let finalStopSchedule: StopSchedule[] = [];
 
-      for (let routeStop of timetableData.routeStopSchedules) {
+      for (let routeStop of stopScheduleData.routeStopSchedules) {
         const timeEstimates = routeStop.stopTimes.map(
           (stopTime) =>
             ({
@@ -248,11 +248,18 @@ export const useASTimetable = (stop: Stop, date: Date) => {
               isRealTime: stopTime.estimatedDepartTimeUtc != null,
             }) as TimeEstimate,
         );
-        finalTimetable.set(routeStop.routeName, timeEstimates);
+        finalStopSchedule.push({
+          dataSource: DataSource.AGGIE_SPIRIT,
+          routeName: routeStop.routeName,
+          routeNumber: routeStop.routeNumber,
+          directionName: routeStop.directionName,
+          timetable: timeEstimates,
+          isEndOfRoute: routeStop.isEndOfRoute,
+        } as StopSchedule);
       }
-      return finalTimetable;
+      return finalStopSchedule;
     },
-    enabled: apiStopEstimateQuery.isSuccess,
+    enabled: apiStopScheduleQuery.isSuccess,
   });
 
   return query;

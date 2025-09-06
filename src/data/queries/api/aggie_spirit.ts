@@ -172,7 +172,7 @@ export const useStopEstimateAPI = (
   });
 };
 
-export const useTimetableEstimateAPI = (stopCode: string, date: Date) => {
+export const useStopScheduleAPI = (stopCode: string, date: Date) => {
   const authTokenQuery = useAuthTokenAPI();
 
   return useQuery<IGetStopEstimatesResponse>({
@@ -197,6 +197,7 @@ export const useTimetableEstimateAPI = (stopCode: string, date: Date) => {
   });
 };
 
+// TODO: DELETE
 export const useScheduleAPI = (stopCode: string, date: Date) => {
   const authTokenQuery = useAuthTokenAPI();
 

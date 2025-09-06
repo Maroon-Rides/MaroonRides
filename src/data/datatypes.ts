@@ -75,10 +75,16 @@ export interface TimeEstimate extends FromDataSource {
   isRealTime: boolean;
 }
 
+export interface StopSchedule extends FromDataSource {
+  routeName: string;
+  routeNumber: string;
+  directionName: string;
+  timetable: TimeEstimate[];
+  isEndOfRoute: boolean;
+}
+
 export interface Alert extends FromDataSource {
   title: string;
   description: string;
   affectedRoutes: Route[];
 }
-
-export type Timetable = Map<string, TimeEstimate[]>;

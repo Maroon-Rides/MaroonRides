@@ -3,7 +3,7 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import useAppStore from 'src/data/app_state';
-import { useTimetableEstimateAPI } from 'src/data/queries/api/aggie_spirit';
+import { useStopScheduleAPI } from 'src/data/queries/api/aggie_spirit';
 import { IRouteStopSchedule } from '../../../data/utils/interfaces';
 import BusIcon from './BusIcon';
 
@@ -39,7 +39,7 @@ const Timetable: React.FC<Props> = ({
   const theme = useAppStore((state) => state.theme);
 
   const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
-  const { data: estimate, isLoading } = useTimetableEstimateAPI(
+  const { data: estimate, isLoading } = useStopScheduleAPI(
     stopCode,
     selectedTimetableDate || moment().toDate(),
   );

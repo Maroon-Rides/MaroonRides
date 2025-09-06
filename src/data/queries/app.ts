@@ -7,14 +7,14 @@ import {
   Direction,
   Route,
   Stop,
+  StopSchedule,
   TimeEstimate,
-  Timetable,
 } from '../datatypes';
 import {
   useASRouteList,
   useASStopAmenities,
   useASStopEstimate,
-  useASTimetable,
+  useASStopSchedule,
   useASVehicles,
 } from './structure/aggie_spirit';
 
@@ -23,7 +23,7 @@ export enum QueryKey {
   VEHICLES = 'MRVehicles',
   STOP_ESTIMATE = 'MRStopEstimate',
   STOP_AMENITIES = 'MRStopAmenities',
-  TIMETABLE = 'MRTimetable',
+  STOP_SCHEDULE = 'MRStopSchedule',
 }
 
 export const useRouteList = () => {
@@ -105,19 +105,23 @@ export const useStopAmenities = (
   return query;
 };
 
-export const useTimetable = (stop: Stop, date: Date) => {
-  const apiTimetableQuery = useASTimetable(stop, date);
-  const query = useQuery<Timetable>({
-    queryKey: [QueryKey.TIMETABLE, stop.id, moment(date).format('YYYY-MM-DD')],
+export const useStopSchedule = (stop: Stop, date: Date) => {
+  const apiStopScheduleQuery = useASStopSchedule(stop, date);
+  const query = useQuery<StopSchedule[]>({
+    queryKey: [
+      QueryKey.STOP_SCHEDULE,
+      stop.id,
+      moment(date).format('YYYY-MM-DD'),
+    ],
     queryFn: async () => {
       switch (stop.dataSource) {
         case DataSource.AGGIE_SPIRIT:
-          return apiTimetableQuery.data!;
+          return apiStopScheduleQuery.data!;
         default:
-          return new Map<string, TimeEstimate[]>();
+          return [];
       }
     },
-    enabled: apiTimetableQuery?.isSuccess,
+    enabled: apiStopScheduleQuery?.isSuccess,
   });
 
   return query;
