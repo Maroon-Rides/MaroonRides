@@ -8,6 +8,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import RenderHTML from 'react-native-render-html';
 import Timeline from 'react-native-timeline-flatlist';
 import useAppStore from 'src/data/app_state';
+import { Sheets, useSheetController } from '../../providers/sheet-controller';
 import SheetHeader from '../../ui/SheetHeader';
 
 // TripPlanDetail (for all routes and current route)
@@ -29,7 +30,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
   const selectedRoutePlanPathPart = useAppStore(
     (state) => state.selectedRoutePlanPathPart,
   );
-  const dismissSheet = useAppStore((state) => state.dismissSheet);
+  const { dismissSheet } = useSheetController();
 
   const htmlStyles = {
     titleBase: {
@@ -60,7 +61,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
     setSheetCloseCallback(() => {
       setSelectedRoutePlanPathPart(-1);
       setSelectedRoutePlan(null);
-    }, 'tripPlanDetail');
+    }, Sheets.TRIP_PLAN_DETAIL);
   }, []);
 
   function processRoutePlan(plan: IOptionDetail) {
@@ -165,7 +166,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
           icon={
             <TouchableOpacity
               style={{ marginLeft: 10 }}
-              onPress={() => dismissSheet('tripPlanDetail')}
+              onPress={() => dismissSheet(Sheets.TRIP_PLAN_DETAIL)}
             >
               <Ionicons
                 name="close-circle"

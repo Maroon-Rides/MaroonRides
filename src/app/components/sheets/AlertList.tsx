@@ -1,11 +1,12 @@
-import { IMapServiceInterruption } from '@data/utils/interfaces';
+import { Alert } from '@data/datatypes';
+import { useAlerts } from '@data/queries/app';
 import { SheetProps } from '@data/utils/utils';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet';
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import useAppStore from 'src/data/app_state';
-import { useServiceInterruptionsAPI } from 'src/data/queries/api/aggie_spirit';
+import { Sheets, useSheetController } from '../providers/sheet-controller';
 import SheetHeader from '../ui/SheetHeader';
 
 // AlertList (for all routes and current route)
@@ -19,46 +20,18 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
   const setSelectedDirection = useAppStore(
     (state) => state.setSelectedDirection,
   );
-  const setOldSelectedRoute = useAppStore((state) => state.setOldSelectedRoute);
-  const presentSheet = useAppStore((state) => state.presentSheet);
   const setSelectedAlert = useAppStore((state) => state.setSelectedAlert);
-  const dismissSheet = useAppStore((state) => state.dismissSheet);
+  const { dismissSheet, presentSheet } = useSheetController();
 
-  const [shownAlerts, setShownAlerts] = useState<IMapServiceInterruption[]>([]);
+  const { data: alerts, isError } = useAlerts(selectedRoute);
 
-  const { data: alerts, isError } = useServiceInterruptionsAPI();
-
-  // If no route is selected, we're looking at all routes, therefore show all alerts
-  // If a route is selected, only show the alerts for that route
-  useEffect(() => {
-    if (!alerts) {
-      setShownAlerts([]);
-      return;
-    }
-
-    if (!selectedRoute) {
-      setShownAlerts(alerts);
-      return;
-    }
-
-    // TODO: Fix this
-    // const alertKeys = selectedRoute.directions.flatMap(
-    //   (direction) => direction.id,
-    // );
-    // const filteredAlerts = alerts.filter((alert) =>
-    //   alertKeys.includes(Number(alert.key)),
-    // );
-
-    // setShownAlerts(filteredAlerts);
-  }, [selectedRoute, alerts]);
-
-  const displayDetailAlert = (alert: IMapServiceInterruption) => {
+  const displayDetailAlert = (alert: Alert) => {
     setSelectedAlert(alert);
-    presentSheet('alertsDetail');
+    presentSheet(Sheets.ALERTS_DETAIL);
   };
 
   const handleDismiss = () => {
-    dismissSheet('alerts');
+    dismissSheet(Sheets.ALERTS);
   };
 
   return (
@@ -101,7 +74,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
             </Text>
           </View>
         ) : (
-          shownAlerts.length === 0 && (
+          alerts?.length === 0 && (
             <View style={{ alignItems: 'center', paddingTop: 16 }}>
               <Text style={{ color: theme.subtitle }}>
                 There are no active alerts at this time.
@@ -112,19 +85,14 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
       </View>
 
       <BottomSheetFlatList
-        data={shownAlerts.filter(
-          (obj, index, self) =>
-            self.findIndex((o) => o.name === obj.name) === index,
-        )}
-        keyExtractor={(alert) => alert.key}
+        data={alerts}
+        keyExtractor={(alert) => alert.id}
         style={{ height: '100%', marginLeft: 16, paddingTop: 8 }}
         contentContainerStyle={{ paddingBottom: 35, paddingRight: 16 }}
         renderItem={({ item: alert }) => {
           return (
             <TouchableOpacity
               onPress={() => {
-                const selectedRouteCopy = selectedRoute;
-                setOldSelectedRoute(selectedRouteCopy); // Will be referenced again when dismissing AlertDetail sheet
                 setSelectedRoute(null);
                 setSelectedDirection(null);
                 displayDetailAlert(alert);
@@ -144,7 +112,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
                 color={theme.alertSymbol}
                 style={{ marginRight: 8 }}
               />
-              <Text style={{ flex: 1, color: theme.text }}>{alert.name}</Text>
+              <Text style={{ flex: 1, color: theme.text }}>{alert.title}</Text>
               <Ionicons name="chevron-forward" size={24} color="grey" />
             </TouchableOpacity>
           );

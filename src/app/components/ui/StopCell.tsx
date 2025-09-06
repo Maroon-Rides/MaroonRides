@@ -8,9 +8,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import useAppStore from 'src/data/app_state';
 import { Direction, Route, Stop } from 'src/data/datatypes';
 import { useStopAmenities, useStopEstimate } from 'src/data/queries/app';
+import { Sheets, useSheetController } from '../providers/sheet-controller';
 import AmenityRow from './AmenityRow';
 import TimeBubble from './TimeBubble';
 
@@ -33,13 +35,13 @@ const StopCell: React.FC<Props> = ({
 }) => {
   const [status, setStatus] = useState('On Time');
 
-  const presentSheet = useAppStore((state) => state.presentSheet);
   const setSelectedStop = useAppStore((state) => state.setSelectedStop);
   const zoomToStopLatLng = useAppStore((state) => state.zoomToStopLatLng);
   const setPoppedUpStopCallout = useAppStore(
     (state) => state.setPoppedUpStopCallout,
   );
   const theme = useAppStore((state) => state.theme);
+  const { presentSheet } = useSheetController();
 
   const {
     data: stopEstimates,
@@ -88,7 +90,7 @@ const StopCell: React.FC<Props> = ({
   // when cell is tapped, open the stop timetable
   function toTimetable() {
     setSelectedStop(stop);
-    presentSheet('stopTimetable');
+    presentSheet(Sheets.STOP_TIMETABLE);
   }
 
   function zoomToStop() {

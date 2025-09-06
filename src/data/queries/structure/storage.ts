@@ -3,10 +3,10 @@ import { suggestionEqual } from '@data/utils/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Route } from 'src/data/datatypes';
-import { useRouteList } from '../app';
+import { useRoutes } from '../app';
 
 export const useFavorites = () => {
-  const routesQuery = useRouteList();
+  const routesQuery = useRoutes();
 
   const query = useQuery<Route[]>({
     queryKey: ['favorites'],

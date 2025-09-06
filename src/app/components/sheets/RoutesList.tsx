@@ -18,13 +18,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import useAppStore from 'src/data/app_state';
 import { Route } from 'src/data/datatypes';
-import { useRouteList } from 'src/data/queries/app';
+import { useRoutes } from 'src/data/queries/app';
 import {
   useDefaultRouteGroup,
   useFavorites,
 } from 'src/data/queries/structure/storage';
+import { Sheets, useSheetController } from '../providers/sheet-controller';
 import BusIcon from '../ui/BusIcon';
 import IconPill from '../ui/IconPill';
 import SheetHeader from '../ui/SheetHeader';
@@ -42,14 +44,14 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     (state) => state.setSelectedRouteCategory,
   );
   const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
-  const presentSheet = useAppStore((state) => state.presentSheet);
   const theme = useAppStore((state) => state.theme);
+  const { presentSheet } = useSheetController();
 
   const {
     data: routes,
     isLoading: isRoutesLoading,
     isError: routeError,
-  } = useRouteList();
+  } = useRoutes();
 
   const {
     data: favorites,
@@ -63,7 +65,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
   const handleRouteSelected = (selectedRoute: Route) => {
     setSelectedRoute(selectedRoute);
     setDrawnRoutes([selectedRoute]);
-    presentSheet('routeDetails');
+    presentSheet(Sheets.ROUTE_DETAILS);
   };
 
   function filterRoutes(): Route[] {
@@ -146,7 +148,9 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
           icon={
             <View style={{ flexDirection: 'row', alignContent: 'center' }}>
               {/* Route Planning */}
-              <TouchableOpacity onPress={() => presentSheet('inputRoute')}>
+              <TouchableOpacity
+                onPress={() => presentSheet(Sheets.INPUT_ROUTE)}
+              >
                 <IconPill
                   icon={
                     <FontAwesome6
@@ -162,7 +166,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
               {/* Settings */}
               <TouchableOpacity
                 style={{ marginLeft: 8 }}
-                onPress={() => presentSheet('settings')}
+                onPress={() => presentSheet(Sheets.SETTINGS)}
               >
                 <IconPill
                   icon={

@@ -8,6 +8,7 @@ import { Appearance, BackHandler, StatusBar, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import useAppStore from 'src/data/app_state';
 import RouteMap from './components/map/MapView';
+import { SheetControllerContext, Sheets } from './components/providers/sheet-controller';
 import AlertDetail from './components/sheets/AlertDetail';
 import AlertList from './components/sheets/AlertList';
 import InputRoute from './components/sheets/route_planning/InputRoute';
@@ -18,24 +19,11 @@ import Settings from './components/sheets/Settings';
 import StopTimetable from './components/sheets/StopTimetable';
 import getTheme from './theme';
 
-type Sheets =
-  | 'routeList'
-  | 'alerts'
-  | 'routeDetails'
-  | 'stopTimetable'
-  | 'settings'
-  | 'alertsDetail'
-  | 'inputRoute'
-  | 'tripPlanDetail';
-
 // this needs to be out of component and not a state
 // weird stuff happens if it is a state
 let sheetStack: Sheets[] = [];
 
 const Home = () => {
-  const setPresentSheet = useAppStore((state) => state.setPresentSheet);
-  const setDismissSheet = useAppStore((state) => state.setDismissSheet);
-  const dismissSheet = useAppStore((state) => state.dismissSheet);
   const setTheme = useAppStore((state) => state.setTheme);
   const callSheetCloseCallback = useAppStore(
     (state) => state.callSheetCloseCallback,
@@ -61,6 +49,21 @@ const Home = () => {
     return true;
   });
 
+  function dismissSheet(sheet: Sheets) {
+    callSheetCloseCallback(sheet);
+
+    // run any defined close sheet steps
+    const prevSheet = sheetRefs[sheet];
+    prevSheet?.current?.dismiss();
+    sheetStack.pop();
+  }
+
+  function presentSheet(sheet: Sheets) {
+    const newSheet = sheetRefs[sheet];
+    newSheet?.current?.present();
+    sheetStack.push(sheet);
+  }
+
   // set the theme based on the user's preference
   // Show the routes list sheet on app start
   useEffect(() => {
@@ -69,23 +72,8 @@ const Home = () => {
       Appearance.setColorScheme(theme.mode);
     });
 
-    sheetRefs['routeList'].current?.present();
-    sheetStack = ['routeList'];
-
-    setPresentSheet((sheet) => {
-      const newSheet = sheetRefs[sheet];
-      newSheet?.current?.present();
-      sheetStack.push(sheet);
-    });
-
-    setDismissSheet((sheet) => {
-      callSheetCloseCallback(sheet);
-
-      // run any defined close sheet steps
-      const prevSheet = sheetRefs[sheet];
-      prevSheet?.current?.dismiss();
-      sheetStack.pop();
-    });
+    sheetRefs[Sheets.ROUTE_LIST].current?.present();
+    sheetStack = [Sheets.ROUTE_LIST];
   }, []);
 
   const queryClient = new QueryClient({
@@ -100,34 +88,43 @@ const Home = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <BottomSheetModalProvider>
-          <StatusBar
-            barStyle={theme.mode === 'dark' ? 'light-content' : 'dark-content'}
-            backgroundColor={theme.background}
-          />
-          <View
-            style={{
-              display: 'flex',
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <RouteMap />
-          </View>
+        <SheetControllerContext.Provider
+          value={{
+            presentSheet: presentSheet,
+            dismissSheet: dismissSheet,
+          }}
+        >
+          <BottomSheetModalProvider>
+            <StatusBar
+              barStyle={
+                theme.mode === 'dark' ? 'light-content' : 'dark-content'
+              }
+              backgroundColor={theme.background}
+            />
+            <View
+              style={{
+                display: 'flex',
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <RouteMap />
+            </View>
 
-          {/* Sheets */}
-          <RoutesList sheetRef={sheetRefs['routeList']} />
-          <RouteDetails sheetRef={sheetRefs['routeDetails']} />
-          <StopTimetable sheetRef={sheetRefs['stopTimetable']} />
-          <AlertList sheetRef={sheetRefs['alerts']} />
-          <AlertDetail sheetRef={sheetRefs['alertsDetail']} />
-          <Settings sheetRef={sheetRefs['settings']} />
+            {/* Sheets */}
+            <RoutesList sheetRef={sheetRefs['routeList']} />
+            <RouteDetails sheetRef={sheetRefs['routeDetails']} />
+            <StopTimetable sheetRef={sheetRefs['stopTimetable']} />
+            <AlertList sheetRef={sheetRefs['alerts']} />
+            <AlertDetail sheetRef={sheetRefs['alertsDetail']} />
+            <Settings sheetRef={sheetRefs['settings']} />
 
-          {/* Route Planning Sheets*/}
-          <InputRoute sheetRef={sheetRefs['inputRoute']} />
-          <TripPlanDetail sheetRef={sheetRefs['tripPlanDetail']} />
-        </BottomSheetModalProvider>
+            {/* Route Planning Sheets*/}
+            <InputRoute sheetRef={sheetRefs['inputRoute']} />
+            <TripPlanDetail sheetRef={sheetRefs['tripPlanDetail']} />
+          </BottomSheetModalProvider>
+        </SheetControllerContext.Provider>
       </GestureHandlerRootView>
     </QueryClientProvider>
   );

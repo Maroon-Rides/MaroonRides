@@ -86,7 +86,9 @@ export interface StopSchedule extends FromDataSource {
 }
 
 export interface Alert extends FromDataSource {
+  id: string;
   title: string;
   description: string;
   affectedRoutes: Route[];
+  originalRoute: Route;
 }

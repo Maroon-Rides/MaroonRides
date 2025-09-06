@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import moment from 'moment';
 import {
+  Alert,
   Amenity,
   Bus,
   DataSource,
@@ -11,7 +12,8 @@ import {
   TimeEstimate,
 } from '../datatypes';
 import {
-  useASRouteList,
+  useASAlerts,
+  useASRoutes,
   useASStopAmenities,
   useASStopEstimate,
   useASStopSchedule,
@@ -24,10 +26,11 @@ enum QueryKey {
   STOP_ESTIMATE = 'MRStopEstimate',
   STOP_AMENITIES = 'MRStopAmenities',
   STOP_SCHEDULE = 'MRStopSchedule',
+  ALERTS = 'MRAlerts',
 }
 
-export const useRouteList = () => {
-  const asRouteList = useASRouteList();
+export const useRoutes = () => {
+  const asRouteList = useASRoutes();
 
   const query = useQuery<Route[]>({
     queryKey: [QueryKey.ROUTE_LIST],
@@ -126,3 +129,26 @@ export const useStopSchedule = (stop: Stop | null, date: Date) => {
 
   return query;
 };
+
+export const useAlerts = (route: Route | null) => {
+  const apiAlertQuery = useASAlerts(route);
+
+  const query = useQuery<Alert[]>({
+    queryKey: [
+      QueryKey.STOP_SCHEDULE,
+      apiAlertQuery.data,
+      route,
+    ],
+    queryFn: async () => {
+      switch (route?.dataSource) {
+        case DataSource.AGGIE_SPIRIT:
+          return apiAlertQuery.data!;
+        default:
+          return [];
+      }
+    },
+    enabled: apiAlertQuery?.isSuccess,
+  });
+
+  return query;
+}

@@ -14,12 +14,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import getTheme from 'src/app/theme';
 import useAppStore from 'src/data/app_state';
 import {
   defaultGroupMutation,
   useDefaultRouteGroup,
 } from 'src/data/queries/structure/storage';
+import { Sheets, useSheetController } from '../providers/sheet-controller';
 import SheetHeader from '../ui/SheetHeader';
 
 // Settings (for all routes and current route)
@@ -32,7 +34,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
 
   const theme = useAppStore((state) => state.theme);
   const setAppTheme = useAppStore((state) => state.setTheme);
-  const dismissSheet = useAppStore((state) => state.dismissSheet);
+  const { dismissSheet } = useSheetController();
 
   const { data: defaultGroup, refetch: refetchDefaultGroup } =
     useDefaultRouteGroup();
@@ -97,7 +99,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
           icon={
             <TouchableOpacity
               style={{ marginLeft: 10 }}
-              onPress={() => dismissSheet('settings')}
+              onPress={() => dismissSheet(Sheets.SETTINGS)}
             >
               <Ionicons
                 name="close-circle"

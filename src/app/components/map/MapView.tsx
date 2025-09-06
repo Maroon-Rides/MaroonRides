@@ -1,10 +1,11 @@
+import { defaultMapRegion } from '@data/utils/geo';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { decode } from '@googlemaps/polyline-codec';
 import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, Platform, TouchableOpacity, View } from 'react-native';
-import MapView, { LatLng, Polyline, Region } from 'react-native-maps';
+import MapView, { LatLng, Polyline } from 'react-native-maps';
 import { DarkGoogleMaps } from 'src/app/theme';
 import useAppStore from 'src/data/app_state';
 import { Direction, Route } from 'src/data/datatypes';
@@ -13,6 +14,7 @@ import {
   RoutePlanMapMarker,
   RoutePlanPolylinePoint,
 } from '../../../data/utils/interfaces';
+import { Sheets, useSheetController } from '../providers/sheet-controller';
 import BusMarker from './markers/BusMarker';
 import RoutePlanMarker from './markers/RoutePlanMarker';
 import StopMarker from './markers/StopMarker';
@@ -25,7 +27,6 @@ const RouteMap: React.FC = () => {
   const selectedRoute = useAppStore((state) => state.selectedRoute);
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
   const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
-  const presentSheet = useAppStore((state) => state.presentSheet);
   const drawnRoutes = useAppStore((state) => state.drawnRoutes);
   const setZoomToStopLatLng = useAppStore((state) => state.setZoomToStopLatLng);
   const selectedDirection = useAppStore((state) => state.selectedDirection);
@@ -37,6 +38,8 @@ const RouteMap: React.FC = () => {
   const poppedUpStopCallout = useAppStore((state) => state.poppedUpStopCallout);
 
   const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
+
+  const { presentSheet } = useSheetController();
 
   const [selectedRoutePlanPath, setSelectedRoutePlanPath] = useState<
     RoutePlanPolylinePoint[]
@@ -53,13 +56,6 @@ const RouteMap: React.FC = () => {
 
   const { data: buses } = useVehicles(selectedRoute);
 
-  const defaultMapRegion: Region = {
-    latitude: 30.606,
-    longitude: -96.3462,
-    latitudeDelta: 0.1,
-    longitudeDelta: 0.01,
-  };
-
   function selectRoute(route: Route, direction: Direction) {
     if (selectedDirection?.id !== direction.id) setSelectedDirection(direction);
 
@@ -67,7 +63,7 @@ const RouteMap: React.FC = () => {
 
     setSelectedRoute(route);
     setDrawnRoutes([route]);
-    presentSheet('routeDetails');
+    presentSheet(Sheets.ROUTE_DETAILS);
   }
 
   // center the view on the drawn routes

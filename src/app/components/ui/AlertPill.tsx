@@ -1,9 +1,11 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { memo, useEffect, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
+
 import useAppStore from 'src/data/app_state';
 import { useServiceInterruptionsAPI } from 'src/data/queries/api/aggie_spirit';
-import { useRouteList } from 'src/data/queries/app';
+import { useRoutes } from 'src/data/queries/app';
+import { Sheets, useSheetController } from '../providers/sheet-controller';
 import IconPill from './IconPill';
 
 interface Props {
@@ -12,14 +14,14 @@ interface Props {
 }
 
 const AlertPill: React.FC<Props> = ({ routeId, showText }) => {
-  const presentSheet = useAppStore((state) => state.presentSheet);
+  const { presentSheet } = useSheetController();
   const theme = useAppStore((state) => state.theme);
   const [alertIcon, setAlertIcon] = useState<'bell-badge' | 'bell-outline'>(
     'bell-outline',
   );
 
   const { data: alerts } = useServiceInterruptionsAPI();
-  const { data: routes } = useRouteList();
+  const { data: routes } = useRoutes();
 
   // Update the alert icon when the alerts change
   useEffect(() => {
@@ -49,7 +51,7 @@ const AlertPill: React.FC<Props> = ({ routeId, showText }) => {
   }, [alerts, routeId]);
 
   return (
-    <TouchableOpacity onPress={() => presentSheet('alerts')}>
+    <TouchableOpacity onPress={() => presentSheet(Sheets.ALERTS)}>
       <IconPill
         icon={
           <MaterialCommunityIcons

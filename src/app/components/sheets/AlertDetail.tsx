@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import RenderHtml from 'react-native-render-html';
 import useAppStore from 'src/data/app_state';
-import { useRouteList } from 'src/data/queries/app';
+import { Sheets, useSheetController } from '../providers/sheet-controller';
 import SheetHeader from '../ui/SheetHeader';
 
 const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
@@ -14,10 +14,7 @@ const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const theme = useAppStore((state) => state.theme);
   const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
-  const oldSelectedRoute = useAppStore((state) => state.oldSelectedRoute);
-  const dismissSheet = useAppStore((state) => state.dismissSheet);
-
-  const { data: routes } = useRouteList();
+  const { dismissSheet } = useSheetController();
 
   const tagStyles = {
     h3: {
@@ -49,11 +46,11 @@ const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const [snap, _] = useState(1);
 
   const handleDismiss = () => {
-    if (oldSelectedRoute) {
-      setSelectedRoute(oldSelectedRoute);
-      setDrawnRoutes([oldSelectedRoute]);
-    }
-    dismissSheet('alertsDetail');
+    if (!alert) return;
+
+    setSelectedRoute(alert.originalRoute);
+    setDrawnRoutes([alert.originalRoute]);
+    dismissSheet(Sheets.ALERTS_DETAIL);
   };
 
   return (
@@ -65,13 +62,7 @@ const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
       handleIndicatorStyle={{ backgroundColor: theme.divider }}
       onAnimate={(_, to) => {
         if (to === 1) {
-          // const affectedRoutes = routes?.filter((route) =>
-          //   route.directions
-          //     .flatMap((direction) => direction.serviceInterruptionKeys)
-          //     .includes(Number(alert?.key)),
-          // );
-          // setDrawnRoutes(affectedRoutes ?? []);
-          setDrawnRoutes([]);
+          setDrawnRoutes(alert?.affectedRoutes ?? []);
         }
       }}
       enablePanDownToClose={false}

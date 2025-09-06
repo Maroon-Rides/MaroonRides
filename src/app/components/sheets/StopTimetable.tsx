@@ -6,8 +6,10 @@ import moment from 'moment-strftime';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
+
 import useAppStore from 'src/data/app_state';
-import { useRouteList, useStopSchedule } from 'src/data/queries/app';
+import { useRoutes, useStopSchedule } from 'src/data/queries/app';
+import { Sheets, useSheetController } from '../providers/sheet-controller';
 import DateSelector from '../ui/DateSelector';
 import SheetHeader from '../ui/SheetHeader';
 import Timetable from '../ui/Timetable';
@@ -20,8 +22,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
   const selectedRoute = useAppStore((state) => state.selectedRoute);
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
   const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
-  const presentSheet = useAppStore((state) => state.presentSheet);
-  const dismissSheet = useAppStore((state) => state.dismissSheet);
+  const { presentSheet, dismissSheet } = useSheetController();
   const setSheetCloseCallback = useAppStore(
     (state) => state.setSheetCloseCallback,
   );
@@ -43,7 +44,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
   );
   const theme = useAppStore((state) => state.theme);
 
-  const { data: routes } = useRouteList();
+  const { data: routes } = useRoutes();
   const {
     data: stopSchedule,
     isError: scheduleError,
@@ -113,7 +114,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
       setSelectedStop(null);
       setShowNonRouteSchedules(false);
       setSelectedTimetableDate(null);
-    }, 'stopTimetable');
+    }, Sheets.STOP_TIMETABLE);
   }, []);
 
   const snapPoints = ['25%', '45%', '85%'];
@@ -135,7 +136,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
           icon={
             <TouchableOpacity
               style={{ marginLeft: 10 }}
-              onPress={() => dismissSheet('stopTimetable')}
+              onPress={() => dismissSheet(Sheets.STOP_TIMETABLE)}
             >
               <Ionicons
                 name="close-circle"
@@ -261,11 +262,10 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                           );
 
                           if (route) {
-                            dismissSheet('stopTimetable');
-
+                            dismissSheet(Sheets.STOP_TIMETABLE);
                             setSelectedRoute(route);
                             setDrawnRoutes([route]);
-                            presentSheet('routeDetails');
+                            presentSheet(Sheets.ROUTE_DETAILS);
                           }
                         }}
                         tintColor={selectedRoute?.tintColor ?? 'black'}

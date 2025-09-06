@@ -17,11 +17,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import SuggestionInput from 'src/app/components/ui/SuggestionInput';
 import TimeInput from 'src/app/components/ui/TimeInput';
 import TripPlanCell from 'src/app/components/ui/TripPlanCell';
 import useAppStore from 'src/data/app_state';
 import { useTripPlanAPI } from 'src/data/queries/api/route_planning';
+import { Sheets, useSheetController } from '../../providers/sheet-controller';
 import SheetHeader from '../../ui/SheetHeader';
 
 // AlertList (for all routes and current route)
@@ -49,7 +51,8 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
   const setSuggestions = useAppStore((state) => state.setSuggestions);
   const setSuggesionOutput = useAppStore((state) => state.setSuggestionOutput);
   const [routeInfoError, setRouteInfoError] = useState('');
-  const dismissSheet = useAppStore((state) => state.dismissSheet);
+  const { dismissSheet } = useSheetController();
+
   const setSheetCloseCallback = useAppStore(
     (state) => state.setSheetCloseCallback,
   );
@@ -89,7 +92,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         setEndLocation(null);
         setSuggesionOutput(null);
       }, 500);
-    }, 'inputRoute');
+    }, Sheets.INPUT_ROUTE);
   }, []);
 
   useEffect(() => {
@@ -161,7 +164,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
               style={{ marginLeft: 10 }}
               onPress={() => {
                 Keyboard.dismiss();
-                dismissSheet('inputRoute');
+                dismissSheet(Sheets.INPUT_ROUTE);
               }}
             >
               <Ionicons

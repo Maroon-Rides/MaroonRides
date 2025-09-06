@@ -17,8 +17,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import useAppStore from 'src/data/app_state';
 import { Direction, Route } from 'src/data/datatypes';
+import { Sheets, useSheetController } from '../providers/sheet-controller';
 import AlertPill from '../ui/AlertPill';
 import BusIcon from '../ui/BusIcon';
 import FavoritePill from '../ui/FavoritePill';
@@ -45,7 +47,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     (state) => state.setSheetCloseCallback,
   );
   const setScrollToStop = useAppStore((state) => state.setScrollToStop);
-  const dismissSheet = useAppStore((state) => state.dismissSheet);
+  const { dismissSheet } = useSheetController();
   const theme = useAppStore((state) => state.theme);
 
   // Controls SegmentedControl
@@ -64,7 +66,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   }
 
   const handleDismiss = () => {
-    dismissSheet('routeDetails');
+    dismissSheet(Sheets.ROUTE_DETAILS);
   };
 
   // Update the selected route when the currentSelectedRoute changes but only if it is not null
@@ -113,7 +115,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
       // reset direction selector
       setSelectedDirectionIndex(0);
-    }, 'routeDetails');
+    }, Sheets.ROUTE_DETAILS);
 
     return () => setSelectedDirection(null);
   }, []);

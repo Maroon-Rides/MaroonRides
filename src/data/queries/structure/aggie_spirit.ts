@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import moment from 'moment';
 import getTheme from 'src/app/theme';
 import {
+  Alert,
   Amenity,
   Bus,
   DataSource,
@@ -17,6 +18,7 @@ import {
 import {
   useBaseDataAPI,
   usePatternPathsAPI,
+  useServiceInterruptionsAPI,
   useStopEstimateAPI,
   useStopScheduleAPI,
   useVehiclesAPI,
@@ -28,9 +30,10 @@ export enum ASQueryKey {
   STOP_ESTIMATE = 'ASStopEstimate',
   STOP_AMENITIES = 'ASStopAmenities',
   STOP_SCHEDULE = 'ASStopSchedule',
+  ALERTS = 'ASAlerts',
 }
 
-export const useASRouteList = () => {
+export const useASRoutes = () => {
   const apiBaseDataQuery = useBaseDataAPI();
   const apiPatternPathsQuery = usePatternPathsAPI();
 
@@ -177,7 +180,7 @@ export const useASStopEstimate = (
   );
 
   const query = useQuery<TimeEstimate[]>({
-    queryKey: [ASQueryKey.STOP_ESTIMATE, route.id, direction.id, stop.id],
+    queryKey: [ASQueryKey.STOP_ESTIMATE, apiStopEstimateQuery.data],
     queryFn: async () => {
       const stopEstimates = apiStopEstimateQuery.data!;
 
@@ -210,7 +213,7 @@ export const useASStopAmenities = (
   );
 
   const query = useQuery<Amenity[]>({
-    queryKey: [ASQueryKey.STOP_AMENITIES, route.id, direction.id, stop.id],
+    queryKey: [ASQueryKey.STOP_AMENITIES, apiStopEstimateQuery.data],
     queryFn: async () => {
       const stopEstimates = apiStopEstimateQuery.data!;
       return Amenity.fromAPI(stopEstimates.amenities);
@@ -225,11 +228,7 @@ export const useASStopSchedule = (stop: Stop | null, date: Date) => {
   const apiStopScheduleQuery = useStopScheduleAPI(stop?.id ?? '', date);
 
   const query = useQuery<StopSchedule[]>({
-    queryKey: [
-      ASQueryKey.STOP_SCHEDULE,
-      stop?.id,
-      moment(date).format('YYYY-MM-DD'),
-    ],
+    queryKey: [ASQueryKey.STOP_SCHEDULE, apiStopScheduleQuery.data],
     queryFn: async () => {
       const stopScheduleData = apiStopScheduleQuery.data!;
       console.log('Stop Schedule Data:', stopScheduleData);
@@ -261,6 +260,68 @@ export const useASStopSchedule = (stop: Stop | null, date: Date) => {
       return finalStopSchedule;
     },
     enabled: apiStopScheduleQuery.isSuccess,
+  });
+
+  return query;
+};
+
+export const useASAlerts = (route: Route | null) => {
+  const apiServiceInterruptionsQuery = useServiceInterruptionsAPI();
+  const apiBaseDataQuery = useBaseDataAPI();
+  const routesQuery = useASRoutes();
+
+  // Aggie Spirit does not have alerts
+  const query = useQuery<Alert[]>({
+    queryKey: [
+      ASQueryKey.ALERTS,
+      apiServiceInterruptionsQuery.data,
+      apiBaseDataQuery.data,
+      routesQuery.data,
+      route,
+    ],
+    queryFn: async () => {
+      if (!route) return [];
+
+      const alerts = apiServiceInterruptionsQuery.data!;
+      const baseData = apiBaseDataQuery.data!;
+      const routes = routesQuery.data!;
+
+      const selectedAPIRoute = baseData.routes.find((r) => r.key === route.id);
+      if (!selectedAPIRoute) return [];
+
+      // Find any service interruptions that apply to this route
+      const routeAlertKeys = selectedAPIRoute.directionList
+        .flatMap((d) => d.serviceInterruptionKeys)
+        .map((s) => s.toString());
+
+      const routeAlerts = alerts.filter((si) =>
+        routeAlertKeys.includes(si.key),
+      );
+
+      return routeAlerts.map((alert): Alert => {
+        // Find all routes affected by this alert
+        // used for showing all routes affected on map when tapped
+        const affectedAPIRoutes = baseData.routes
+          .filter((r) =>
+            r.directionList.some((d) =>
+              d.serviceInterruptionKeys
+                .map((s) => s.toString())
+                .includes(alert.key),
+            ),
+          )
+          .map((r) => routes.find((route) => route.id === r.key))
+          .filter((r): r is Route => r !== undefined);
+
+        return {
+          dataSource: DataSource.AGGIE_SPIRIT,
+          id: alert.key,
+          title: alert.name,
+          description: alert.description ?? '',
+          affectedRoutes: affectedAPIRoutes,
+          originalRoute: route
+        };
+      });
+    },
   });
 
   return query;

@@ -1,11 +1,7 @@
 import { Theme, lightMode } from 'src/app/theme';
 import { create } from 'zustand';
-import { Direction, Route, Stop } from './datatypes';
-import {
-  IMapServiceInterruption,
-  IOptionDetail,
-  SearchSuggestion,
-} from './utils/interfaces';
+import { Alert, Direction, Route, Stop } from './datatypes';
+import { IOptionDetail, SearchSuggestion } from './utils/interfaces';
 
 interface AppState {
   theme: Theme;
@@ -21,9 +17,6 @@ interface AppState {
   selectedDirection: Direction | null;
   setSelectedDirection: (selectedDirection: Direction | null) => void;
 
-  oldSelectedRoute: Route | null;
-  setOldSelectedRoute: (oldSelectedRouteDirection: Route | null) => void;
-
   selectedRouteCategory: 'Favorites' | 'All Routes' | 'Gameday';
   setSelectedRouteCategory: (
     selectedRouteCategory: 'Favorites' | 'All Routes' | 'Gameday',
@@ -32,93 +25,18 @@ interface AppState {
   selectedStop: Stop | null;
   setSelectedStop: (selectedStop: Stop | null) => void;
 
-  // TODO: Switch to Provider Functions
-  presentSheet: (
-    sheet:
-      | 'routeDetails'
-      | 'alerts'
-      | 'stopTimetable'
-      | 'settings'
-      | 'alertsDetail'
-      | 'inputRoute'
-      | 'tripPlanDetail',
-  ) => void;
-  setPresentSheet: (
-    presentSheet: (
-      sheet:
-        | 'routeDetails'
-        | 'alerts'
-        | 'stopTimetable'
-        | 'settings'
-        | 'alertsDetail'
-        | 'inputRoute'
-        | 'tripPlanDetail',
-    ) => void,
-  ) => void;
-
-  // TODO: Switch to Provider Functions
-  dismissSheet: (
-    sheet:
-      | 'routeDetails'
-      | 'alerts'
-      | 'stopTimetable'
-      | 'settings'
-      | 'alertsDetail'
-      | 'inputRoute'
-      | 'tripPlanDetail',
-  ) => void;
-  setDismissSheet: (
-    dismissSheet: (
-      sheet:
-        | 'routeDetails'
-        | 'alerts'
-        | 'stopTimetable'
-        | 'settings'
-        | 'alertsDetail'
-        | 'inputRoute'
-        | 'tripPlanDetail',
-    ) => void,
-  ) => void;
-
   sheetCloseCallback: {
-    [key in
-    | 'routeDetails'
-    | 'alerts'
-    | 'stopTimetable'
-    | 'settings'
-    | 'alertsDetail'
-    | 'inputRoute'
-    | 'tripPlanDetail']: () => void;
+    [key in Sheets]: () => void;
   };
-  setSheetCloseCallback: (
-    fn: () => void,
-    key:
-      | 'routeDetails'
-      | 'alerts'
-      | 'stopTimetable'
-      | 'settings'
-      | 'alertsDetail'
-      | 'inputRoute'
-      | 'tripPlanDetail',
-  ) => void;
-  callSheetCloseCallback: (
-    key:
-      | 'routeDetails'
-      | 'alerts'
-      | 'stopTimetable'
-      | 'settings'
-      | 'alertsDetail'
-      | 'inputRoute'
-      | 'tripPlanDetail',
-  ) => void;
+  setSheetCloseCallback: (fn: () => void, key: Sheets) => void;
+  callSheetCloseCallback: (key: Sheets) => void;
 
-  selectedAlert: IMapServiceInterruption | null;
-  setSelectedAlert: (selectedAlert: IMapServiceInterruption | null) => void;
+  selectedAlert: Alert | null;
+  setSelectedAlert: (selectedAlert: Alert | null) => void;
 
   selectedTimetableDate: Date | null;
   setSelectedTimetableDate: (selectedTimetableDate: Date | null) => void;
 
-  // TODO: Switch to Context Provider Functions
   zoomToStopLatLng: (lat: number, lng: number) => void;
   setZoomToStopLatLng: (
     zoomToStopLatLng: (lat: number, lng: number) => void,
@@ -159,10 +77,6 @@ const useAppStore = create<AppState>()((set, get) => ({
   setSelectedDirection: (selectedDirection) =>
     set(() => ({ selectedDirection })),
 
-  oldSelectedRoute: null,
-  setOldSelectedRoute: (oldSelectedRoute) =>
-    set(() => ({ oldSelectedRoute: oldSelectedRoute })),
-
   selectedRouteCategory: 'All Routes',
   setSelectedRouteCategory: (selectedRouteCategory) =>
     set(() => ({ selectedRouteCategory })),
@@ -173,16 +87,6 @@ const useAppStore = create<AppState>()((set, get) => ({
   selectedTimetableDate: null,
   setSelectedTimetableDate: (selectedTimetableDate) =>
     set(() => ({ selectedTimetableDate })),
-
-  presentSheet: (sheet) => {
-    console.log(sheet);
-  },
-  setPresentSheet: (presentSheet) => set(() => ({ presentSheet })),
-
-  dismissSheet: (sheet) => {
-    console.log(sheet);
-  },
-  setDismissSheet: (dismissSheet) => set(() => ({ dismissSheet })),
 
   sheetCloseCallback: {
     routeDetails: function (): void {
@@ -204,6 +108,9 @@ const useAppStore = create<AppState>()((set, get) => ({
       // console.log("not implemented")
     },
     tripPlanDetail: function (): void {
+      // console.log("not implemented")
+    },
+    routeList: function (): void {
       // console.log("not implemented")
     },
   },

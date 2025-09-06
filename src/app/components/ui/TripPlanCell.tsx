@@ -2,7 +2,9 @@ import { IOptionDetail } from '@data/utils/interfaces';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Keyboard, Text, TouchableOpacity, View } from 'react-native';
+
 import useAppStore from 'src/data/app_state';
+import { Sheets, useSheetController } from '../providers/sheet-controller';
 
 interface TripPlanCellProps {
   plan: IOptionDetail;
@@ -13,7 +15,7 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
   const setSelectedRoutePlan = useAppStore(
     (state) => state.setSelectedRoutePlan,
   );
-  const presentSheet = useAppStore((state) => state.presentSheet);
+  const { presentSheet } = useSheetController();
   const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
 
   const relativeTime = (time: number) => {
@@ -71,7 +73,7 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
         Keyboard.dismiss();
         setSelectedRoutePlan(plan);
         setDrawnRoutes([]);
-        presentSheet('tripPlanDetail');
+        presentSheet(Sheets.TRIP_PLAN_DETAIL);
       }}
     >
       <View
