@@ -4,18 +4,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Route } from 'src/data/datatypes';
 import { useRoutes } from '../app';
-import { useLoggingQuery } from '../utils';
+import { useDependencyQuery, useLoggingQuery } from '../utils';
 
 export const useFavorites = () => {
   const routesQuery = useRoutes();
 
-  const query = useLoggingQuery<Route[]>({
+  const query = useDependencyQuery<Route[]>({
     queryKey: ['favorites'],
     queryFn: async () => {
-      const routes = routesQuery.data as Route[];
+      const routes = routesQuery.data!;
 
       const favorites = await AsyncStorage.getItem('favorites');
-      if (!favorites) return [] as Route[];
+      if (!favorites) return [];
 
       let favoritesArray = JSON.parse(favorites);
 
@@ -24,7 +24,7 @@ export const useFavorites = () => {
     },
 
     staleTime: Infinity,
-    enabled: routesQuery.isSuccess,
+    dependents: [routesQuery],
   });
 
   return query;
