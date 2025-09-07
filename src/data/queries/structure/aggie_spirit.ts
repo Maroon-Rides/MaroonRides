@@ -20,6 +20,7 @@ import {
   useServiceInterruptionsAPI,
   useStopEstimateAPI,
   useStopScheduleAPI,
+  useTimetableEstimateAPI,
   useVehiclesAPI,
 } from '../api/aggie_spirit';
 import { useDependencyQuery } from '../utils';
@@ -28,6 +29,7 @@ export enum ASQueryKey {
   ROUTE_LIST = 'ASRouteList',
   VEHICLES = 'ASVehicles',
   STOP_ESTIMATE = 'ASStopEstimate',
+  TIMETABLE_ESTIMATE = 'ASTimetableEstimate',
   STOP_AMENITIES = 'ASStopAmenities',
   STOP_SCHEDULE = 'ASStopSchedule',
   ALERTS = 'ASAlerts',
@@ -191,6 +193,52 @@ export const useASStopEstimate = (
       });
     },
     dependents: [apiStopEstimateQuery],
+  });
+
+  return query;
+};
+
+export const useASTimetableEstimate = (
+  stop: Stop | null,
+  date: moment.Moment,
+) => {
+  const apiTimetableEstimateQuery = useTimetableEstimateAPI(
+    stop?.id ?? '',
+    date.toDate(),
+  );
+
+  const query = useDependencyQuery<StopSchedule[]>({
+    queryKey: [ASQueryKey.TIMETABLE_ESTIMATE],
+    queryFn: async () => {
+      const timetableEstimateData = apiTimetableEstimateQuery.data!;
+      let finalTimetableEstimate: StopSchedule[] = [];
+
+      for (let routeStop of timetableEstimateData.routeStopSchedules) {
+        const timeEstimates = routeStop.stopTimes.map(
+          (stopTime) =>
+            ({
+              dataSource: DataSource.AGGIE_SPIRIT,
+              estimatedTime: stopTime.estimatedDepartTimeUtc
+                ? moment.utc(stopTime.estimatedDepartTimeUtc)
+                : null,
+              scheduledTime: moment.utc(stopTime.scheduledDepartTimeUtc),
+              tripPointId: stopTime.tripPointId,
+              isRealTime: stopTime.estimatedDepartTimeUtc != null,
+              isCancelled: stopTime.isCancelled,
+            }) as TimeEstimate,
+        );
+        finalTimetableEstimate.push({
+          dataSource: DataSource.AGGIE_SPIRIT,
+          routeName: routeStop.routeName,
+          routeNumber: routeStop.routeNumber,
+          directionName: routeStop.directionName,
+          timetable: timeEstimates,
+          isEndOfRoute: routeStop.isEndOfRoute,
+        } as StopSchedule);
+      }
+      return finalTimetableEstimate;
+    },
+    dependents: [apiTimetableEstimateQuery],
   });
 
   return query;

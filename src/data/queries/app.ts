@@ -16,6 +16,7 @@ import {
   useASStopAmenities,
   useASStopEstimate,
   useASStopSchedule,
+  useASTimetableEstimate,
   useASVehicles,
 } from './structure/aggie_spirit';
 import { useDependencyQuery } from './utils';
@@ -24,6 +25,7 @@ enum QueryKey {
   ROUTE_LIST = 'MRRouteList',
   VEHICLES = 'MRVehicles',
   STOP_ESTIMATE = 'MRStopEstimate',
+  TIMETABLE_ESTIMATE = 'MRTimetableEstimate',
   STOP_AMENITIES = 'MRStopAmenities',
   STOP_SCHEDULE = 'MRStopSchedule',
   ALERTS = 'MRAlerts',
@@ -85,6 +87,31 @@ export const useStopEstimate = (
   return query;
 };
 
+export const useTimetableEstimate = (
+  stop: Stop | null,
+  date: moment.Moment,
+) => {
+  const asTimetableEstimateQuery = useASTimetableEstimate(stop, date);
+  const query = useDependencyQuery<StopSchedule[]>({
+    queryKey: [
+      QueryKey.TIMETABLE_ESTIMATE,
+      stop?.id,
+      date.format('YYYY-MM-DD'),
+    ],
+    queryFn: async () => {
+      switch (stop?.dataSource) {
+        case DataSource.AGGIE_SPIRIT:
+          return asTimetableEstimateQuery.data!;
+        default:
+          return [];
+      }
+    },
+    dependents: [asTimetableEstimateQuery],
+  });
+
+  return query;
+};
+
 export const useStopAmenities = (
   route: Route,
   direction: Direction,
@@ -109,18 +136,18 @@ export const useStopAmenities = (
 };
 
 export const useStopSchedule = (stop: Stop | null, date: moment.Moment) => {
-  const apiStopScheduleQuery = useASStopSchedule(stop, date);
+  const asStopScheduleQuery = useASStopSchedule(stop, date);
   const query = useDependencyQuery<StopSchedule[]>({
     queryKey: [QueryKey.STOP_SCHEDULE, stop?.id, date.format('YYYY-MM-DD')],
     queryFn: async () => {
       switch (stop?.dataSource) {
         case DataSource.AGGIE_SPIRIT:
-          return apiStopScheduleQuery.data!;
+          return asStopScheduleQuery.data!;
         default:
           return [];
       }
     },
-    dependents: [apiStopScheduleQuery],
+    dependents: [asStopScheduleQuery],
   });
 
   return query;

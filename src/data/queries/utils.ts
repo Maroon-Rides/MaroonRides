@@ -12,17 +12,12 @@ interface DependencyQueryParams<T> extends Params<T> {
   dependents: UseQueryResult<any>[];
 }
 
-export function useDependencyQuery<T>(
-  params: DependencyQueryParams<T>,
-) {
+export function useDependencyQuery<T>(params: DependencyQueryParams<T>) {
   const enabled = params.dependents.every((q) => q.isSuccess);
 
-  const query = useLoggingQuery<T>({
-    label: `DependencyQuery: ${params.queryKey.join('/')}`,
-    queryKey: [
-      ...params.queryKey,
-      ...params.dependents.map((q) => q.data),
-    ],
+  const query = useQuery<T>({
+    // label: `DependencyQuery: ${params.queryKey.join('/')}`,
+    queryKey: [...params.queryKey, ...params.dependents.map((q) => q.data)],
     queryFn: params.queryFn,
     enabled: enabled && params.enabled,
     staleTime:
@@ -47,9 +42,7 @@ interface LoggingQueryParams extends Params<any> {
   label?: string;
 }
 
-export function useLoggingQuery<T>(
-  params: LoggingQueryParams,
-) {
+export function useLoggingQuery<T>(params: LoggingQueryParams) {
   const label = params.label || params.queryKey.join('/');
 
   const query = useQuery<T>({

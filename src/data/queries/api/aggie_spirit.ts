@@ -4,6 +4,7 @@ import {
   GetNextDepartTimesResponseSchema,
   GetPatternPathsResponseSchema,
   GetStopEstimatesResponseSchema,
+  GetStopSchedulesResponseSchema,
   GetVehiclesResponseSchema,
   IGetBaseDataResponse,
   IGetNextDepartTimesResponse,
@@ -17,6 +18,7 @@ import {
   getNextDepartureTimes,
   getPatternPaths,
   getStopEstimates,
+  getStopSchedules,
   getVehicles,
 } from 'aggie-spirit-api';
 import moment from 'moment';
@@ -32,6 +34,7 @@ enum ASAPIQueryKey {
   PATTERN_PATHS = 'ASAPIPatternPaths',
   SERVICE_INTERRUPTIONS = 'ASAPIServiceInterruptions',
   STOP_ESTIMATE = 'ASAPIStopEstimate',
+  TIMETABLE_ESTIMATE = 'ASAPITimetableEstimate',
   STOP_AMENITIES = 'ASAPIStopAmenities',
   STOP_SCHEDULE = 'ASAPIStopSchedule',
   VEHICLES = 'ASAPIVehicles',
@@ -182,12 +185,12 @@ export const useStopEstimateAPI = (
   });
 };
 
-export const useStopScheduleAPI = (stopCode: string, date: Date) => {
+export const useTimetableEstimateAPI = (stopCode: string, date: Date) => {
   const authTokenQuery = useAuthTokenAPI();
 
   return useDependencyQuery<IGetStopEstimatesResponse>({
     queryKey: [
-      ASAPIQueryKey.STOP_SCHEDULE,
+      ASAPIQueryKey.TIMETABLE_ESTIMATE,
       stopCode,
       moment(date).format('YYYY-MM-DD'),
     ],
@@ -198,6 +201,32 @@ export const useStopScheduleAPI = (stopCode: string, date: Date) => {
         authTokenQuery.data!,
       );
       GetStopEstimatesResponseSchema.parse(response);
+
+      return response;
+    },
+    enabled: authTokenQuery.isSuccess && stopCode !== '' && date !== null,
+    staleTime: 30000,
+    refetchInterval: 30000,
+    dependents: [authTokenQuery],
+  });
+};
+
+export const useStopScheduleAPI = (stopCode: string, date: Date) => {
+  const authTokenQuery = useAuthTokenAPI();
+
+  return useDependencyQuery<IGetStopEstimatesResponse>({
+    queryKey: [
+      ASAPIQueryKey.STOP_SCHEDULE,
+      stopCode,
+      moment(date).format('YYYY-MM-DD'),
+    ],
+    queryFn: async () => {
+      const response = await getStopSchedules(
+        stopCode,
+        date,
+        authTokenQuery.data!,
+      );
+      GetStopSchedulesResponseSchema.parse(response);
 
       return response;
     },

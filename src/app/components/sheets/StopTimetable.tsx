@@ -99,9 +99,9 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     setNonRouteSchedules(nonRouteStops);
   }, [stopSchedule]);
 
-  function getLineColor(shortName: string) {
-    const route = routes?.find((route) => route.routeCode === shortName);
-    return route!.tintColor;
+  function getLineColor(routeCode: string) {
+    const route = routes?.find((route) => route.routeCode === routeCode);
+    return route?.tintColor ?? theme.text;
   }
 
   useEffect(() => {
@@ -213,7 +213,8 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                   <View key={index} style={{ flex: 1 }}>
                     <Timetable
                       item={item}
-                      tintColor={selectedRoute?.tintColor ?? 'black'}
+                      stop={selectedStop!}
+                      tintColor={getLineColor(item.routeNumber)}
                     />
                   </View>
                 );
@@ -249,6 +250,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                     <View key={index} style={{ flex: 1 }}>
                       <Timetable
                         item={item}
+                        stop={selectedStop!}
                         dismissBack={() => {
                           const route = routes!.find(
                             (route) => route.routeCode === item.routeNumber,
@@ -261,7 +263,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                             presentSheet(Sheets.ROUTE_DETAILS);
                           }
                         }}
-                        tintColor={selectedRoute?.tintColor ?? 'black'}
+                        tintColor={getLineColor(item.routeNumber)}
                       />
                     </View>
                   );

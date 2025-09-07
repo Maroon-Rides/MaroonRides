@@ -1,13 +1,15 @@
-import { StopSchedule } from '@data/datatypes';
+import { Stop, StopSchedule } from '@data/datatypes';
+import { useTimetableEstimate } from '@data/queries/app';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import useAppStore from 'src/data/app_state';
 import BusIcon from './BusIcon';
 
 interface Props {
   item: StopSchedule;
+  stop: Stop;
   tintColor: string;
   dismissBack?: () => void;
 }
@@ -25,15 +27,21 @@ interface TableItemRow {
   shouldHighlight: boolean;
 }
 
-const Timetable: React.FC<Props> = ({ item, tintColor, dismissBack }) => {
+const Timetable: React.FC<Props> = ({ item, stop, tintColor, dismissBack }) => {
   const selectedTimetableDate = useAppStore(
     (state) => state.selectedTimetableDate,
   );
   const theme = useAppStore((state) => state.theme);
 
   const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
+  const { data: estimate, isLoading } = useTimetableEstimate(
+    stop,
+    selectedTimetableDate || moment().toDate(),
+  );
 
   useEffect(() => {
+    if (!estimate) return;
+
     const now = moment();
 
     let foundNextStop = false;
@@ -41,10 +49,15 @@ const Timetable: React.FC<Props> = ({ item, tintColor, dismissBack }) => {
     const sliceLength = 5;
 
     let processed = item.timetable.map((time) => {
-      const timeEstimateIndex = item.timetable.findIndex(
+      const foundEstimate = estimate?.find(
+        (schedule) =>
+          schedule.directionName === item.directionName &&
+          schedule.routeName === item.routeName,
+      );
+      const timeEstimateIndex = foundEstimate?.timetable.findIndex(
         (stopTime) => stopTime.tripPointId === time.tripPointId,
       );
-      const timeEstimate = item.timetable[timeEstimateIndex!];
+      const timeEstimate = foundEstimate?.timetable[timeEstimateIndex!];
 
       // have to check if it isnt undefined because if it is undefined, moment will default to current time
       const estimatedTime =
@@ -78,7 +91,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, dismissBack }) => {
       }
 
       return {
-        time: departTime.format('h:mm'),
+        time: departTime.local().format('h:mm'),
         color: color,
         shouldHighlight: shouldHighlight,
         live: (timeEstimate && timeEstimate.isRealTime) ?? false,
@@ -117,7 +130,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, dismissBack }) => {
     }
 
     setTableRows(stopRows);
-  }, [selectedTimetableDate]);
+  }, [estimate, selectedTimetableDate]);
 
   return (
     <View style={{ marginLeft: 16, paddingTop: 8 }}>
@@ -144,6 +157,7 @@ const Timetable: React.FC<Props> = ({ item, tintColor, dismissBack }) => {
             >
               {item.routeName}
             </Text>
+            {isLoading && <ActivityIndicator style={{ marginLeft: 8 }} />}
           </View>
           <Text style={{ color: theme.subtitle }}>{item.directionName}</Text>
         </View>
