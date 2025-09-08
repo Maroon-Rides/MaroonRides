@@ -92,14 +92,14 @@ const useAppStore = create<AppState>()((set, get) => ({
     set(() => ({ selectedTimetableDate })),
 
   sheetCloseCallback: {
-    routeDetails: function (): void { },
-    alerts: function (): void { },
-    stopTimetable: function (): void { },
-    settings: function (): void { },
-    alertsDetail: function (): void { },
-    inputRoute: function (): void { },
-    tripPlanDetail: function (): void { },
-    routeList: function (): void { },
+    routeDetails: function (): void {},
+    alerts: function (): void {},
+    stopTimetable: function (): void {},
+    settings: function (): void {},
+    alertsDetail: function (): void {},
+    inputRoute: function (): void {},
+    tripPlanDetail: function (): void {},
+    routeList: function (): void {},
   },
   setSheetCloseCallback: (fn, key) =>
     set((state) => ({
@@ -120,14 +120,14 @@ const useAppStore = create<AppState>()((set, get) => ({
   selectedAlert: null,
   setSelectedAlert: (selectedAlert) => set(() => ({ selectedAlert })),
 
-  zoomToStopLatLng: () => { },
+  zoomToStopLatLng: () => {},
   setZoomToStopLatLng: (zoomToStopLatLng) => set(() => ({ zoomToStopLatLng })),
 
   poppedUpStopCallout: null,
   setPoppedUpStopCallout: (poppedUpStopCallout) =>
     set(() => ({ poppedUpStopCallout })),
 
-  scrollToStop: () => { },
+  scrollToStop: () => {},
   setScrollToStop: (scrollToStop) =>
     set(() => ({ scrollToStop: scrollToStop })),
 
