@@ -1,3 +1,4 @@
+import { queryLogger } from '@data/utils/logger';
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import moment from 'moment';
 
@@ -53,10 +54,10 @@ export function useLoggingQuery<T>(params: LoggingQueryParams) {
         const start = moment.now();
         const data = await params.queryFn();
 
-        console.debug(`Query ${label} succeeded in ${moment.now() - start} ms`);
+        queryLogger.d(`Query ${label} succeeded in ${moment.now() - start} ms`);
         return data;
       } catch (e) {
-        console.error(`Query ${label} failed:`, e);
+        queryLogger.e(`Query ${label} failed: ${e}`);
         throw e;
       }
     },

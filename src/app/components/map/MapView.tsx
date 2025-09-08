@@ -1,4 +1,5 @@
 import { defaultMapRegion } from '@data/utils/geo';
+import { appLogger } from '@data/utils/logger';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { decode } from '@googlemaps/polyline-codec';
@@ -61,6 +62,7 @@ const RouteMap: React.FC = () => {
 
     if (selectedRoute?.id === route.id) return;
 
+    appLogger.i(`Route selected from map: ${route.routeCode} - ${route.name}`);
     setSelectedRoute(route);
     setDrawnRoutes([route]);
     presentSheet(Sheets.ROUTE_DETAILS);

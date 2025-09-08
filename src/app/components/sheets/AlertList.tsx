@@ -1,5 +1,6 @@
 import { Alert } from '@data/datatypes';
 import { useAlerts } from '@data/queries/app';
+import { appLogger } from '@data/utils/logger';
 import { SheetProps } from '@data/utils/utils';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -93,6 +94,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
           return (
             <TouchableOpacity
               onPress={() => {
+                appLogger.i(`Loading alert details for: ${alert.title}`);
                 setSelectedRoute(null);
                 setSelectedDirection(null);
                 displayDetailAlert(alert);

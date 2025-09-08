@@ -4,6 +4,7 @@ import { Theme, lightMode } from 'src/app/theme';
 import { create } from 'zustand';
 import { Alert, Direction, Route, Stop } from './datatypes';
 import { IOptionDetail, SearchSuggestion } from './utils/interfaces';
+import { appLogger } from './utils/logger';
 
 interface AppState {
   theme: Theme;
@@ -91,30 +92,14 @@ const useAppStore = create<AppState>()((set, get) => ({
     set(() => ({ selectedTimetableDate })),
 
   sheetCloseCallback: {
-    routeDetails: function (): void {
-      // console.log("not implemented")
-    },
-    alerts: function (): void {
-      // console.log("not implemented")
-    },
-    stopTimetable: function (): void {
-      // console.log("not implemented")
-    },
-    settings: function (): void {
-      // console.log("not implemented")
-    },
-    alertsDetail: function (): void {
-      // console.log("not implemented")
-    },
-    inputRoute: function (): void {
-      // console.log("not implemented")
-    },
-    tripPlanDetail: function (): void {
-      // console.log("not implemented")
-    },
-    routeList: function (): void {
-      // console.log("not implemented")
-    },
+    routeDetails: function (): void { },
+    alerts: function (): void { },
+    stopTimetable: function (): void { },
+    settings: function (): void { },
+    alertsDetail: function (): void { },
+    inputRoute: function (): void { },
+    tripPlanDetail: function (): void { },
+    routeList: function (): void { },
   },
   setSheetCloseCallback: (fn, key) =>
     set((state) => ({
@@ -128,25 +113,21 @@ const useAppStore = create<AppState>()((set, get) => ({
     if (callback) {
       callback();
     } else {
-      console.warn(`No callback found for key: ${key}`);
+      appLogger.w(`No callback found for key: ${key}`);
     }
   },
 
   selectedAlert: null,
   setSelectedAlert: (selectedAlert) => set(() => ({ selectedAlert })),
 
-  zoomToStopLatLng: (lat, lng) => {
-    console.log(lat + ' ' + lng);
-  },
+  zoomToStopLatLng: () => { },
   setZoomToStopLatLng: (zoomToStopLatLng) => set(() => ({ zoomToStopLatLng })),
 
   poppedUpStopCallout: null,
   setPoppedUpStopCallout: (poppedUpStopCallout) =>
     set(() => ({ poppedUpStopCallout })),
 
-  scrollToStop: (stop) => {
-    console.log(stop);
-  },
+  scrollToStop: () => { },
   setScrollToStop: (scrollToStop) =>
     set(() => ({ scrollToStop: scrollToStop })),
 

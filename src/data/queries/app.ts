@@ -1,3 +1,4 @@
+import { queryLogger } from '@data/utils/logger';
 import moment from 'moment';
 import {
   Alert,
@@ -37,6 +38,7 @@ export const useRoutes = () => {
   const query = useDependencyQuery<Route[]>({
     queryKey: [QueryKey.ROUTE_LIST],
     queryFn: async () => {
+      queryLogger.i(`Loaded ${asRouteList.data?.length} routes from Aggie Spirit`);
       return asRouteList.data!;
     },
     dependents: [asRouteList],

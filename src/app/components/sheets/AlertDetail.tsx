@@ -1,3 +1,4 @@
+import { appLogger } from '@data/utils/logger';
 import { SheetProps } from '@data/utils/utils';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
@@ -48,6 +49,7 @@ const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const handleDismiss = () => {
     if (!alert) return;
 
+    appLogger.i(`Loading previous selected route: ${alert.originalRoute.name}`);
     setSelectedRoute(alert.originalRoute);
     setDrawnRoutes([alert.originalRoute]);
     dismissSheet(Sheets.ALERTS_DETAIL);

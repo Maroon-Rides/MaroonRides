@@ -19,6 +19,7 @@ import {
   View,
 } from 'react-native';
 
+import { appLogger } from '@data/utils/logger';
 import useAppStore from 'src/data/app_state';
 import { Route } from 'src/data/datatypes';
 import { useRoutes } from 'src/data/queries/app';
@@ -63,6 +64,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     useDefaultRouteGroup();
 
   const handleRouteSelected = (selectedRoute: Route) => {
+    appLogger.i(`Route selected from list: ${selectedRoute.routeCode} - ${selectedRoute.name}`);
     setSelectedRoute(selectedRoute);
     setDrawnRoutes([selectedRoute]);
     presentSheet(Sheets.ROUTE_DETAILS);

@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
+import { appLogger } from '@data/utils/logger';
 import useAppStore from 'src/data/app_state';
 import { useRoutes, useStopSchedule } from 'src/data/queries/app';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
@@ -257,6 +258,8 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                           );
 
                           if (route) {
+                            appLogger.i(`Route selected from timetable: ${route.routeCode} - ${route.name}`);
+
                             dismissSheet(Sheets.STOP_TIMETABLE);
                             setSelectedRoute(route);
                             setDrawnRoutes([route]);
