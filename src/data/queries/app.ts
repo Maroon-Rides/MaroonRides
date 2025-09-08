@@ -157,7 +157,7 @@ export const useAlerts = (route: Route | null) => {
   const apiAlertQuery = useASAlerts(route);
 
   const query = useDependencyQuery<Alert[]>({
-    queryKey: [QueryKey.ALERTS, route],
+    queryKey: [QueryKey.ALERTS, route?.id],
     queryFn: async () => {
       switch (route?.dataSource) {
         case DataSource.AGGIE_SPIRIT:

@@ -1,4 +1,5 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
+import moment from 'moment';
 
 interface Params<T> {
   queryFn: () => Promise<T>;
@@ -15,8 +16,8 @@ interface DependencyQueryParams<T> extends Params<T> {
 export function useDependencyQuery<T>(params: DependencyQueryParams<T>) {
   const enabled = params.dependents.every((q) => q.isSuccess);
 
-  const query = useQuery<T>({
-    // label: `DependencyQuery: ${params.queryKey.join('/')}`,
+  const query = useLoggingQuery<T>({
+    label: params.queryKey.join('/'),
     queryKey: [...params.queryKey, ...params.dependents.map((q) => q.data)],
     queryFn: params.queryFn,
     enabled: enabled && params.enabled,
@@ -49,16 +50,13 @@ export function useLoggingQuery<T>(params: LoggingQueryParams) {
     queryKey: params.queryKey,
     queryFn: async () => {
       try {
-        console.debug('Running query function for', label);
+        const start = moment.now();
         const data = await params.queryFn();
-        console.debug(
-          'Query function for',
-          params.label,
-          'completed successfully',
-        );
+
+        console.debug(`Query ${label} succeeded in ${moment.now() - start} ms`);
         return data;
       } catch (e) {
-        console.error(`Error in query function for ${label}:`, e);
+        console.error(`Query ${label} failed:`, e);
         throw e;
       }
     },

@@ -1,20 +1,38 @@
 import { SearchSuggestion } from '@data/utils/interfaces';
-import { suggestionEqual } from '@data/utils/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Route } from 'src/data/datatypes';
 import { useRoutes } from '../app';
 import { useDependencyQuery, useLoggingQuery } from '../utils';
 
+export enum StorageQueryKey {
+  FAVORITES = 'favorites',
+  FAVORITE = 'favorite',
+  DEFAULT_ROUTE_GROUP = 'defaultRouteGroup',
+  FAVORITE_LOCATIONS = 'favoriteLocations',
+}
+
+export enum StorageMutationKey {
+  ADD_FAVORITE = 'addFavorite',
+  REMOVE_FAVORITE = 'removeFavorite',
+  DEFAULT_ROUTE_GROUP = 'defaultRouteGroup',
+}
+
+export enum StorageKey {
+  FAVORITES = 'favorites',
+  DEFAULT_ROUTE_GROUP = 'default-group',
+  FAVORITE_LOCATIONS = 'favoriteLocations',
+}
+
 export const useFavorites = () => {
   const routesQuery = useRoutes();
 
   const query = useDependencyQuery<Route[]>({
-    queryKey: ['favorites'],
+    queryKey: [StorageQueryKey.FAVORITES],
     queryFn: async () => {
       const routes = routesQuery.data!;
 
-      const favorites = await AsyncStorage.getItem('favorites');
+      const favorites = await AsyncStorage.getItem(StorageKey.FAVORITES);
       if (!favorites) return [];
 
       let favoritesArray = JSON.parse(favorites);
@@ -32,9 +50,9 @@ export const useFavorites = () => {
 
 export const useFavorite = (routeShortName: string) => {
   const query = useLoggingQuery({
-    queryKey: ['favorite', routeShortName],
+    queryKey: [StorageQueryKey.FAVORITE, routeShortName],
     queryFn: async () => {
-      const favorites = await AsyncStorage.getItem('favorites');
+      const favorites = await AsyncStorage.getItem(StorageKey.FAVORITES);
       if (!favorites) return false;
 
       let favoritesArray = JSON.parse(favorites);
@@ -51,19 +69,22 @@ export const addFavoriteMutation = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationKey: ['addFavorite'],
+    mutationKey: [StorageMutationKey.ADD_FAVORITE],
     mutationFn: async (routeShortName: string) => {
-      const favorites = await AsyncStorage.getItem('favorites');
+      const favorites = await AsyncStorage.getItem(StorageKey.FAVORITES);
 
       let favoritesArray = JSON.parse(favorites ?? '[]');
 
       favoritesArray.push(routeShortName);
 
-      await AsyncStorage.setItem('favorites', JSON.stringify(favoritesArray));
+      await AsyncStorage.setItem(
+        StorageKey.FAVORITES,
+        JSON.stringify(favoritesArray),
+      );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['favorites'] });
-      queryClient.invalidateQueries({ queryKey: ['favorite'] });
+      queryClient.invalidateQueries({ queryKey: [StorageQueryKey.FAVORITES] });
+      queryClient.invalidateQueries({ queryKey: [StorageQueryKey.FAVORITE] });
     },
   });
 
@@ -74,9 +95,9 @@ export const removeFavoriteMutation = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationKey: ['removeFavorite'],
+    mutationKey: [StorageMutationKey.REMOVE_FAVORITE],
     mutationFn: async (routeShortName: string) => {
-      const favorites = await AsyncStorage.getItem('favorites');
+      const favorites = await AsyncStorage.getItem(StorageKey.FAVORITES);
 
       let favoritesArray = JSON.parse(favorites ?? '[]');
 
@@ -84,11 +105,14 @@ export const removeFavoriteMutation = () => {
         (fav: string) => fav !== routeShortName,
       );
 
-      await AsyncStorage.setItem('favorites', JSON.stringify(newFavorites));
+      await AsyncStorage.setItem(
+        StorageKey.FAVORITES,
+        JSON.stringify(newFavorites),
+      );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['favorites'] });
-      queryClient.invalidateQueries({ queryKey: ['favorite'] });
+      queryClient.invalidateQueries({ queryKey: [StorageQueryKey.FAVORITES] });
+      queryClient.invalidateQueries({ queryKey: [StorageQueryKey.FAVORITE] });
     },
   });
 
@@ -97,9 +121,11 @@ export const removeFavoriteMutation = () => {
 
 export const useDefaultRouteGroup = () => {
   const query = useLoggingQuery({
-    queryKey: ['defaultRouteGroup'],
+    queryKey: [StorageQueryKey.DEFAULT_ROUTE_GROUP],
     queryFn: async () => {
-      const defaultGroup = await AsyncStorage.getItem('default-group');
+      const defaultGroup = await AsyncStorage.getItem(
+        StorageKey.DEFAULT_ROUTE_GROUP,
+      );
       if (!defaultGroup) return 0;
 
       return Number(defaultGroup);
@@ -114,10 +140,15 @@ export const defaultGroupMutation = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationKey: ['defaultGroup'],
+    mutationKey: [StorageMutationKey.DEFAULT_ROUTE_GROUP],
     mutationFn: async (group: number) => {
-      await AsyncStorage.setItem('default-group', group.toString());
-      queryClient.invalidateQueries({ queryKey: ['defaultRouteGroup'] });
+      await AsyncStorage.setItem(
+        StorageKey.DEFAULT_ROUTE_GROUP,
+        group.toString(),
+      );
+      queryClient.invalidateQueries({
+        queryKey: [StorageQueryKey.DEFAULT_ROUTE_GROUP],
+      });
     },
   });
 
@@ -126,9 +157,11 @@ export const defaultGroupMutation = () => {
 
 export const useFavoriteLocations = () => {
   const query = useLoggingQuery<SearchSuggestion[]>({
-    queryKey: ['favoriteLocations'],
+    queryKey: [StorageQueryKey.FAVORITE_LOCATIONS],
     queryFn: async () => {
-      const favorites = await AsyncStorage.getItem('favoriteLocations');
+      const favorites = await AsyncStorage.getItem(
+        StorageKey.FAVORITE_LOCATIONS,
+      );
       if (!favorites) return [];
 
       return JSON.parse(favorites);
@@ -137,64 +170,6 @@ export const useFavoriteLocations = () => {
   });
 
   return query;
-};
-
-export const addFavoriteLocationMutation = () => {
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationKey: ['addFavoriteLocation'],
-    mutationFn: async (location: SearchSuggestion) => {
-      const favorites = await AsyncStorage.getItem('favoriteLocations');
-
-      let favoritesArray: SearchSuggestion[] = JSON.parse(favorites ?? '[]');
-
-      // dont add if its already there
-      if (
-        favoritesArray.findIndex((fav: SearchSuggestion) =>
-          suggestionEqual(fav, location),
-        ) !== -1
-      )
-        return;
-
-      favoritesArray.push(location);
-
-      await AsyncStorage.setItem(
-        'favoriteLocations',
-        JSON.stringify(favoritesArray),
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['favoriteLocations'] });
-    },
-  });
-
-  return mutation;
-};
-
-export const removeFavoriteLocationMutation = () => {
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationKey: ['removeFavoriteLocations'],
-    mutationFn: async (location: SearchSuggestion) => {
-      const favorites = await AsyncStorage.getItem('favoriteLocations');
-
-      let favoritesArray = JSON.parse(favorites ?? '[]');
-      const newFavorites = favoritesArray.filter(
-        (fav: SearchSuggestion) => !suggestionEqual(fav, location),
-      );
-      await AsyncStorage.setItem(
-        'favoriteLocations',
-        JSON.stringify(newFavorites),
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['favoriteLocations'] });
-    },
-  });
-
-  return mutation;
 };
 
 export default useFavorites;

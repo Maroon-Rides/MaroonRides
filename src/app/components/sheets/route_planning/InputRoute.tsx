@@ -61,25 +61,8 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     useState(false);
 
   const client = useQueryClient();
-
-  // // Favorite Location
-  // const { data: favoriteLocations, refetch: refetchFavoriteLocations } = useFavoriteLocations();
-  // const addLocationFavorite = addFavoriteLocationMutation();
-  // const removeLocationFavorite = removeFavoriteLocationMutation();
-
   const [timeInputFocused, setTimeInputFocused] = useState(false);
   const [segmentedIndex, setSegmentedIndex] = useState<number>(0);
-
-  // function toggleFavoriteLocation(location: SearchSuggestion) {
-  //     if (favoriteLocations && favoriteLocations.find((item) => suggestionEqual(item, location)))
-  //     {
-  //         removeLocationFavorite.mutate(location)
-  //     } else {
-  //         addLocationFavorite.mutate(location)
-  //     }
-
-  //     refetchFavoriteLocations()
-  // }
 
   function toggleTimeInputFocused(newValue: boolean) {
     setTimeInputFocused(newValue);

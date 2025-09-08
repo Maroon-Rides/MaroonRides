@@ -9,11 +9,17 @@ import { useASRoutes } from '../structure/aggie_spirit';
 import { useLoggingQuery } from '../utils';
 import { useAuthCodeAPI, useAuthTokenAPI } from './aggie_spirit';
 
+export enum ASRoutePlanQueryKey {
+  AUTH_TOKEN = 'ASAPIRoutePlanAuthToken',
+  SEARCH_SUGGESTION = 'ASAPISearchSuggestion',
+  TRIP_PLAN = 'ASAPITripPlan',
+}
+
 export const useRoutePlanAuthTokenAPI = (queryString: string) => {
   const authCodeQuery = useAuthCodeAPI();
 
   const query = useLoggingQuery<{ [key: string]: string }>({
-    queryKey: ['routePlanAuthToken'],
+    queryKey: [ASRoutePlanQueryKey.AUTH_TOKEN],
     queryFn: async () => {
       let qsAdded = authCodeQuery.data!.replace(
         'ROUTE_PLAN_QUERY_STRING',
@@ -36,7 +42,7 @@ export const useSearchSuggestionAPI = (query: string) => {
   const routesQuery = useASRoutes();
 
   return useLoggingQuery<SearchSuggestion[]>({
-    queryKey: ['searchSuggestion', query],
+    queryKey: [ASRoutePlanQueryKey.SEARCH_SUGGESTION, query],
     queryFn: async () => {
       // we need data from pattern paths to get the stop GPS locations
       // This is limitation of the API where we can't get the GPS location of a stop directly
@@ -98,7 +104,7 @@ export const useTripPlanAPI = (
   const routePlanAuthToken = useRoutePlanAuthTokenAPI(queryString);
 
   return useLoggingQuery<ITripPlanResponse>({
-    queryKey: ['tripPlan', origin, destination, date, deadline],
+    queryKey: [ASRoutePlanQueryKey.TRIP_PLAN, origin, destination, date, deadline],
     queryFn: async () => {
       let response = await getTripPlan(
         routePlanAuthToken.data!,

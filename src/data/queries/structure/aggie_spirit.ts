@@ -317,7 +317,7 @@ export const useASAlerts = (route: Route | null) => {
 
   // Aggie Spirit does not have alerts
   const query = useDependencyQuery<Alert[]>({
-    queryKey: [ASQueryKey.ALERTS, route],
+    queryKey: [ASQueryKey.ALERTS, route?.id],
     queryFn: async () => {
       if (!route) return [];
 
