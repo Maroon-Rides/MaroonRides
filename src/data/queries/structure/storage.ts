@@ -120,7 +120,7 @@ export const removeFavoriteMutation = () => {
 };
 
 export const useDefaultRouteGroup = () => {
-  const query = useLoggingQuery({
+  const query = useLoggingQuery<number>({
     queryKey: [StorageQueryKey.DEFAULT_ROUTE_GROUP],
     queryFn: async () => {
       const defaultGroup = await AsyncStorage.getItem(
