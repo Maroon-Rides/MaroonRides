@@ -185,10 +185,10 @@ export const useASStopEstimate = (
         return {
           dataSource: DataSource.AGGIE_SPIRIT,
           estimatedTime: e.estimatedDepartTimeUtc
-            ? moment.utc(e.estimatedDepartTimeUtc)
+            ? moment.utc(e.estimatedDepartTimeUtc).local()
             : null,
-          scheduledTime: moment.utc(e.scheduledDepartTimeUtc),
-          isRealTime: e.estimatedDepartTimeUtc == null,
+          scheduledTime: moment.utc(e.scheduledDepartTimeUtc).local(),
+          isRealTime: e.estimatedDepartTimeUtc != null,
         } as TimeEstimate;
       });
     },
@@ -219,9 +219,11 @@ export const useASTimetableEstimate = (
             ({
               dataSource: DataSource.AGGIE_SPIRIT,
               estimatedTime: stopTime.estimatedDepartTimeUtc
-                ? moment.utc(stopTime.estimatedDepartTimeUtc)
+                ? moment.utc(stopTime.estimatedDepartTimeUtc).local()
                 : null,
-              scheduledTime: moment.utc(stopTime.scheduledDepartTimeUtc),
+              scheduledTime: moment
+                .utc(stopTime.scheduledDepartTimeUtc)
+                .local(),
               tripPointId: stopTime.tripPointId,
               isRealTime: stopTime.estimatedDepartTimeUtc != null,
               isCancelled: stopTime.isCancelled,
@@ -285,9 +287,11 @@ export const useASStopSchedule = (stop: Stop | null, date: moment.Moment) => {
             ({
               dataSource: DataSource.AGGIE_SPIRIT,
               estimatedTime: stopTime.estimatedDepartTimeUtc
-                ? moment.utc(stopTime.estimatedDepartTimeUtc)
+                ? moment.utc(stopTime.estimatedDepartTimeUtc).local()
                 : null,
-              scheduledTime: moment.utc(stopTime.scheduledDepartTimeUtc),
+              scheduledTime: moment
+                .utc(stopTime.scheduledDepartTimeUtc)
+                .local(),
               tripPointId: stopTime.tripPointId,
               isRealTime: stopTime.estimatedDepartTimeUtc != null,
               isCancelled: stopTime.isCancelled,

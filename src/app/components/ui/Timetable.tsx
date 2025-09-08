@@ -91,7 +91,7 @@ const Timetable: React.FC<Props> = ({ item, stop, tintColor, dismissBack }) => {
       }
 
       return {
-        time: departTime.local().format('h:mm'),
+        time: departTime.format('h:mm'),
         color: color,
         shouldHighlight: shouldHighlight,
         live: (timeEstimate && timeEstimate.isRealTime) ?? false,
