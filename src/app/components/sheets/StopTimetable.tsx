@@ -258,7 +258,9 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                           );
 
                           if (route) {
-                            appLogger.i(`Route selected from timetable: ${route.routeCode} - ${route.name}`);
+                            appLogger.i(
+                              `Route selected from timetable: ${route.routeCode} - ${route.name}`,
+                            );
 
                             dismissSheet(Sheets.STOP_TIMETABLE);
                             setSelectedRoute(route);

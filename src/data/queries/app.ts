@@ -38,7 +38,9 @@ export const useRoutes = () => {
   const query = useDependencyQuery<Route[]>({
     queryKey: [QueryKey.ROUTE_LIST],
     queryFn: async () => {
-      queryLogger.i(`Loaded ${asRouteList.data?.length} routes from Aggie Spirit`);
+      queryLogger.i(
+        `Loaded ${asRouteList.data?.length} routes from Aggie Spirit`,
+      );
       return asRouteList.data!;
     },
     dependents: [asRouteList],

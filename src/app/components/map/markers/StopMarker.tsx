@@ -8,7 +8,7 @@ import useAppStore from 'src/data/app_state';
 import { Direction, Route, Stop } from 'src/data/datatypes';
 
 interface Props {
-  stop: Stop
+  stop: Stop;
   tintColor: string;
   route: Route;
   direction: Direction;

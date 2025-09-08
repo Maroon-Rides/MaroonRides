@@ -8,7 +8,10 @@ import { Appearance, BackHandler, StatusBar, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import useAppStore from 'src/data/app_state';
 import RouteMap from './components/map/MapView';
-import { SheetControllerContext, Sheets } from './components/providers/sheet-controller';
+import {
+  SheetControllerContext,
+  Sheets,
+} from './components/providers/sheet-controller';
 import AlertDetail from './components/sheets/AlertDetail';
 import AlertList from './components/sheets/AlertList';
 import InputRoute from './components/sheets/route_planning/InputRoute';

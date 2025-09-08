@@ -104,7 +104,13 @@ export const useTripPlanAPI = (
   const routePlanAuthToken = useRoutePlanAuthTokenAPI(queryString);
 
   return useLoggingQuery<ITripPlanResponse>({
-    queryKey: [ASRoutePlanQueryKey.TRIP_PLAN, origin, destination, date, deadline],
+    queryKey: [
+      ASRoutePlanQueryKey.TRIP_PLAN,
+      origin,
+      destination,
+      date,
+      deadline,
+    ],
     queryFn: async () => {
       let response = await getTripPlan(
         routePlanAuthToken.data!,

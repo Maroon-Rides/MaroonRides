@@ -64,7 +64,9 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     useDefaultRouteGroup();
 
   const handleRouteSelected = (selectedRoute: Route) => {
-    appLogger.i(`Route selected from list: ${selectedRoute.routeCode} - ${selectedRoute.name}`);
+    appLogger.i(
+      `Route selected from list: ${selectedRoute.routeCode} - ${selectedRoute.name}`,
+    );
     setSelectedRoute(selectedRoute);
     setDrawnRoutes([selectedRoute]);
     presentSheet(Sheets.ROUTE_DETAILS);
