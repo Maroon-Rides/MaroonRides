@@ -277,8 +277,9 @@ const StepDetail: React.FC<StepDetailProps> = ({
               style={{
                 backgroundColor: theme.tertiaryBackground,
                 borderRadius: 8,
-                paddingTop: 16,
+                paddingVertical: 12,
                 marginRight: 16,
+                marginLeft: 8,
                 paddingHorizontal: 16,
               }}
             >
