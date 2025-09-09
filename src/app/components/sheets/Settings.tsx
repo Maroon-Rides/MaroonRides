@@ -57,7 +57,6 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
     Appearance.setColorScheme(newTheme.mode);
 
     // refresh routes
-    console.log('Refreshing routes due to theme change');
     await queryClient.invalidateQueries({ queryKey: [ASQueryKey.ROUTE_LIST] });
   }
 

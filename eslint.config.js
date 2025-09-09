@@ -14,7 +14,7 @@ module.exports = defineConfig([
       },
     },
     rules: {
-      // Disable the rule
+      'no-console': 'warn',
       'react-hooks/rules-of-hooks': 'off',
       'react-hooks/exhaustive-deps': 'off',
       'react/no-unescaped-entities': 'off',
@@ -25,6 +25,12 @@ module.exports = defineConfig([
           varsIgnorePattern: '^_$',
         },
       ],
+    },
+  },
+  {
+    files: ["src/data/utils/logger.ts"], // path to your logger
+    rules: {
+      "no-console": "off", // allow console here
     },
   },
 ]);
