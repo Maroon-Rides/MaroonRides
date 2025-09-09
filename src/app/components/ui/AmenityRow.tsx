@@ -37,7 +37,7 @@ const AmenityRow: React.FC<Props> = ({ amenities, color, size, style }) => {
       case Amenity.SHELTER:
         return (
           <MaterialCommunityIcons
-            name="bus-stop"
+            name="bus-stop-covered"
             size={size + 4}
             color={color}
           />
