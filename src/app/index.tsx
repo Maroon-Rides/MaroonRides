@@ -70,7 +70,7 @@ const Home = () => {
   // set the theme based on the user's preference
   // Show the routes list sheet on app start
   useEffect(() => {
-    getTheme().then((theme) => {
+    void getTheme().then((theme) => {
       setTheme(theme);
       Appearance.setColorScheme(theme.mode);
     });

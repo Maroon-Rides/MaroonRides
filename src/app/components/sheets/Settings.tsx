@@ -45,34 +45,33 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
   ) {
     setDefaultGroupState(evt.nativeEvent.selectedSegmentIndex);
     setDefaultGroup.mutate(evt.nativeEvent.selectedSegmentIndex, {
-      onSuccess: () => {
-        refetchDefaultGroup();
+      onSuccess: async () => {
+        await refetchDefaultGroup();
       },
     });
   }
 
-  function setAppThemeValue(
+  async function setAppThemeValue(
     evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>,
   ) {
     setTheme(evt.nativeEvent.selectedSegmentIndex);
-    AsyncStorage.setItem(
+    await AsyncStorage.setItem(
       'app-theme',
       evt.nativeEvent.selectedSegmentIndex.toString(),
     );
 
-    getTheme().then((theme) => {
-      setAppTheme(theme);
-      Appearance.setColorScheme(theme.mode);
-    });
+    const newTheme = await getTheme();
+    setAppTheme(newTheme);
+    Appearance.setColorScheme(newTheme.mode);
   }
 
   useEffect(() => {
-    AsyncStorage.getItem('app-theme').then((value) => {
+    void AsyncStorage.getItem('app-theme').then(async (value) => {
       if (value) {
         setTheme(Number(value));
       }
       const systemTheme = Appearance.getColorScheme() ?? 'light';
-      AsyncStorage.setItem('system-theme', systemTheme);
+      await AsyncStorage.setItem('system-theme', systemTheme);
     });
   }, []);
 

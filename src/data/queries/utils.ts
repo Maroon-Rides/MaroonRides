@@ -111,4 +111,3 @@ export function useSelectableQuery<T, S extends Enum>(
     error: (query.error || (selectedQuery?.error as Error | null))!,
   } as UseQueryResult<T, Error>;
 }
-

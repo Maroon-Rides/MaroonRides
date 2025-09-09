@@ -96,7 +96,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
       endLocation?.type === 'my-location'
     ) {
       // Request location permissions
-      Location.requestForegroundPermissionsAsync().then(async (status) => {
+      void Location.requestForegroundPermissionsAsync().then(async (status) => {
         // Check if permission is granted
         if (!status.granted) {
           setRouteInfoError(
@@ -520,8 +520,8 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
               )
               .sort((a, b) => a.endTime - b.endTime)}
             keyExtractor={(_, index) => index.toString()}
-            onRefresh={() => {
-              client.invalidateQueries({
+            onRefresh={async () => {
+              await client.invalidateQueries({
                 queryKey: [
                   'tripPlan',
                   startLocation,

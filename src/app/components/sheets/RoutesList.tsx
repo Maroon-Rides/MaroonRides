@@ -96,11 +96,11 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
   }, [selectedRouteCategory, routes, favorites]);
 
   // Update the favorites when the view is focused
-  function onAnimate(from: number, to: number) {
+  async function onAnimate(from: number, to: number) {
     setSnap(to);
     if (from === -1) {
-      refetchDefaultGroup();
-      if (favorites) refetchFavorites();
+      await refetchDefaultGroup();
+      if (favorites) await refetchFavorites();
 
       setDrawnRoutes(filterRoutes());
     }
@@ -115,10 +115,10 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     return ['All Routes', 'Favorites'];
   }
 
-  function androidHandleDismss(to: number) {
+  async function androidHandleDismiss(to: number) {
     if (to !== -1) {
-      refetchDefaultGroup();
-      if (favorites) refetchFavorites();
+      await refetchDefaultGroup();
+      if (favorites) await refetchFavorites();
 
       setDrawnRoutes(filterRoutes());
     }
@@ -142,7 +142,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
       enablePanDownToClose={false}
       enableDynamicSizing={false}
       onAnimate={onAnimate}
-      onChange={Platform.OS === 'android' ? androidHandleDismss : undefined}
+      onChange={Platform.OS === 'android' ? androidHandleDismiss : undefined}
       backgroundStyle={{ backgroundColor: theme.background }}
       handleIndicatorStyle={{ backgroundColor: theme.divider }}
     >

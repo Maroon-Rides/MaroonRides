@@ -82,9 +82,13 @@ export const addFavoriteMutation = () => {
         JSON.stringify(favoritesArray),
       );
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [StorageQueryKey.FAVORITES] });
-      queryClient.invalidateQueries({ queryKey: [StorageQueryKey.FAVORITE] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: [StorageQueryKey.FAVORITES],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: [StorageQueryKey.FAVORITE],
+      });
     },
   });
 
@@ -110,9 +114,13 @@ export const removeFavoriteMutation = () => {
         JSON.stringify(newFavorites),
       );
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [StorageQueryKey.FAVORITES] });
-      queryClient.invalidateQueries({ queryKey: [StorageQueryKey.FAVORITE] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: [StorageQueryKey.FAVORITES],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: [StorageQueryKey.FAVORITE],
+      });
     },
   });
 
@@ -146,7 +154,7 @@ export const defaultGroupMutation = () => {
         StorageKey.DEFAULT_ROUTE_GROUP,
         group.toString(),
       );
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: [StorageQueryKey.DEFAULT_ROUTE_GROUP],
       });
     },
