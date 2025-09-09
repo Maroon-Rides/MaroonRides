@@ -20,7 +20,7 @@ import {
   useASTimetableEstimate,
   useASVehicles,
 } from './structure/aggie_spirit';
-import { useDependencyQuery } from './utils';
+import { useDependencyQuery, useSelectableQuery } from './utils';
 
 enum QueryKey {
   ROUTE_LIST = 'MRRouteList',
@@ -52,17 +52,14 @@ export const useRoutes = () => {
 export const useVehicles = (route: Route | null) => {
   const asVehiclesQuery = useASVehicles(route);
 
-  const query = useDependencyQuery<Bus[]>({
+  const query = useSelectableQuery<Bus[], DataSource>({
     queryKey: [QueryKey.VEHICLES, route?.id],
-    queryFn: async () => {
-      switch (route?.dataSource) {
-        case DataSource.AGGIE_SPIRIT:
-          return asVehiclesQuery!.data!;
-        default:
-          return [];
-      }
+    selector: route?.dataSource,
+    queries: {
+      [DataSource.AGGIE_SPIRIT]: asVehiclesQuery,
     },
-    dependents: asVehiclesQuery ? [asVehiclesQuery] : [],
+    unsupportedValue: [],
+    enabled: route !== null,
   });
 
   return query;
@@ -75,17 +72,14 @@ export const useStopEstimate = (
 ) => {
   const asEstimateQuery = useASStopEstimate(route, direction, stop);
 
-  const query = useDependencyQuery<TimeEstimate[]>({
+  const query = useSelectableQuery<TimeEstimate[], DataSource>({
     queryKey: [QueryKey.STOP_ESTIMATE, route.id, direction.id, stop.id],
-    queryFn: async () => {
-      switch (route?.dataSource) {
-        case DataSource.AGGIE_SPIRIT:
-          return asEstimateQuery.data!;
-        default:
-          return [];
-      }
+    selector: route?.dataSource,
+    queries: {
+      [DataSource.AGGIE_SPIRIT]: asEstimateQuery,
     },
-    dependents: [asEstimateQuery],
+    unsupportedValue: [],
+    enabled: route !== null,
   });
 
   return query;
@@ -96,21 +90,19 @@ export const useTimetableEstimate = (
   date: moment.Moment,
 ) => {
   const asTimetableEstimateQuery = useASTimetableEstimate(stop, date);
-  const query = useDependencyQuery<StopSchedule[]>({
+
+  const query = useSelectableQuery<StopSchedule[], DataSource>({
     queryKey: [
       QueryKey.TIMETABLE_ESTIMATE,
       stop?.id,
       date.format('YYYY-MM-DD'),
     ],
-    queryFn: async () => {
-      switch (stop?.dataSource) {
-        case DataSource.AGGIE_SPIRIT:
-          return asTimetableEstimateQuery.data!;
-        default:
-          return [];
-      }
+    selector: stop?.dataSource,
+    queries: {
+      [DataSource.AGGIE_SPIRIT]: asTimetableEstimateQuery,
     },
-    dependents: [asTimetableEstimateQuery],
+    unsupportedValue: [],
+    enabled: stop !== null,
   });
 
   return query;
@@ -123,17 +115,14 @@ export const useStopAmenities = (
 ) => {
   const asStopAmenities = useASStopAmenities(route, direction, stop);
 
-  const query = useDependencyQuery<Amenity[]>({
+  const query = useSelectableQuery<Amenity[], DataSource>({
     queryKey: [QueryKey.STOP_AMENITIES, route.id, direction.id, stop.id],
-    queryFn: async () => {
-      switch (route.dataSource) {
-        case DataSource.AGGIE_SPIRIT:
-          return asStopAmenities.data!;
-        case DataSource.BRAZOS_TRANSIT:
-          return [];
-      }
+    selector: stop?.dataSource,
+    queries: {
+      [DataSource.AGGIE_SPIRIT]: asStopAmenities,
     },
-    dependents: [asStopAmenities],
+    unsupportedValue: [],
+    enabled: stop !== null,
   });
 
   return query;
@@ -141,17 +130,15 @@ export const useStopAmenities = (
 
 export const useStopSchedule = (stop: Stop | null, date: moment.Moment) => {
   const asStopScheduleQuery = useASStopSchedule(stop, date);
-  const query = useDependencyQuery<StopSchedule[]>({
+
+  const query = useSelectableQuery<StopSchedule[], DataSource>({
     queryKey: [QueryKey.STOP_SCHEDULE, stop?.id, date.format('YYYY-MM-DD')],
-    queryFn: async () => {
-      switch (stop?.dataSource) {
-        case DataSource.AGGIE_SPIRIT:
-          return asStopScheduleQuery.data!;
-        default:
-          return [];
-      }
+    selector: stop?.dataSource,
+    queries: {
+      [DataSource.AGGIE_SPIRIT]: asStopScheduleQuery,
     },
-    dependents: [asStopScheduleQuery],
+    unsupportedValue: [],
+    enabled: stop !== null,
   });
 
   return query;
@@ -160,18 +147,14 @@ export const useStopSchedule = (stop: Stop | null, date: moment.Moment) => {
 export const useAlerts = (route: Route | null) => {
   const apiAlertQuery = useASAlerts(route);
 
-  const query = useDependencyQuery<Alert[]>({
+  const query = useSelectableQuery<Alert[], DataSource>({
     queryKey: [QueryKey.ALERTS, route?.id],
-    queryFn: async () => {
-      switch (route?.dataSource) {
-        case DataSource.AGGIE_SPIRIT:
-          return apiAlertQuery.data!;
-        default:
-          return [];
-      }
+    selector: route?.dataSource,
+    queries: {
+      [DataSource.AGGIE_SPIRIT]: apiAlertQuery,
     },
+    unsupportedValue: [],
     enabled: route !== null,
-    dependents: [apiAlertQuery],
   });
 
   return query;
