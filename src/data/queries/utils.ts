@@ -72,6 +72,7 @@ export function useLoggingQuery<T>(params: LoggingQueryParams) {
   return query;
 }
 
+// Enum type shim
 type Enum = string | number | symbol;
 
 interface SelectableQueryParams<T, S extends Enum> {
@@ -94,11 +95,7 @@ export function useSelectableQuery<T, S extends Enum>(
     label: params.queryKey.join('/'),
     queryKey: [...params.queryKey, selectedQuery?.data],
     queryFn: async () => {
-      if (!selectedQuery) {
-        return params.unsupportedValue;
-      }
-
-      return selectedQuery.data!;
+      return selectedQuery?.data ?? params.unsupportedValue;
     },
     enabled: params.enabled && selectedQuery?.isSuccess,
     staleTime: parseTime(params.staleTime),
