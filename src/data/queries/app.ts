@@ -22,7 +22,7 @@ import {
 } from './structure/aggie_spirit';
 import { useDependencyQuery, useSelectableQuery } from './utils';
 
-enum QueryKey {
+export enum QueryKey {
   ROUTE_LIST = 'MRRouteList',
   VEHICLES = 'MRVehicles',
   STOP_ESTIMATE = 'MRStopEstimate',

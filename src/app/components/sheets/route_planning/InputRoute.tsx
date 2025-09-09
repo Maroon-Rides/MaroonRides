@@ -1,8 +1,7 @@
 import { MyLocationSuggestion, SearchSuggestion } from '@data/utils/interfaces';
-import { SheetProps } from '@data/utils/utils';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet';
+import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { useQueryClient } from '@tanstack/react-query';
 import * as Location from 'expo-location';
@@ -25,11 +24,10 @@ import useAppStore from 'src/data/app_state';
 import { useTripPlanAPI } from 'src/data/queries/api/route_planning';
 import { Sheets, useSheetController } from '../../providers/sheet-controller';
 import SheetHeader from '../../ui/SheetHeader';
+import BaseSheet, { SheetProps } from '../BaseSheet';
 
 // AlertList (for all routes and current route)
 const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
-  const snapPoints = ['85%'];
-
   const theme = useAppStore((state) => state.theme);
 
   // Planning Inputs
@@ -53,10 +51,6 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
   const [routeInfoError, setRouteInfoError] = useState('');
   const { dismissSheet } = useSheetController();
 
-  const setSheetCloseCallback = useAppStore(
-    (state) => state.setSheetCloseCallback,
-  );
-
   const [searchSuggestionsLoading, setSearchSuggestionsLoading] =
     useState(false);
 
@@ -67,16 +61,6 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
   function toggleTimeInputFocused(newValue: boolean) {
     setTimeInputFocused(newValue);
   }
-
-  useEffect(() => {
-    setSheetCloseCallback(() => {
-      setTimeout(() => {
-        setStartLocation(MyLocationSuggestion);
-        setEndLocation(null);
-        setSuggesionOutput(null);
-      }, 500);
-    }, Sheets.INPUT_ROUTE);
-  }, []);
 
   // TODO: this needs a lot of cleaning up
   useEffect(() => {
@@ -125,14 +109,21 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     setRouteInfoError('');
   }, [startLocation, endLocation, suggestionOutput]);
 
+  function onDismiss() {
+    setTimeout(() => {
+      setStartLocation(MyLocationSuggestion);
+      setEndLocation(null);
+      setSuggesionOutput(null);
+    }, 500);
+  }
+
   return (
-    <BottomSheetModal
-      ref={sheetRef}
-      snapPoints={snapPoints}
-      backgroundStyle={{ backgroundColor: theme.background }}
-      handleIndicatorStyle={{ backgroundColor: theme.divider }}
-      enablePanDownToClose={false}
-      enableDynamicSizing={false}
+    <BaseSheet
+      sheetRef={sheetRef}
+      sheetKey={Sheets.INPUT_ROUTE}
+      snapPoints={['85%']}
+      initialSnapIndex={0}
+      onDismiss={onDismiss}
     >
       <View
         onTouchStart={() => {
@@ -580,7 +571,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             }}
           />
         ))}
-    </BottomSheetModal>
+    </BaseSheet>
   );
 };
 

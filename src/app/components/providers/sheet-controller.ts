@@ -14,6 +14,8 @@ export enum Sheets {
 export const SheetControllerContext = createContext<{
   presentSheet: (sheet: Sheets) => void;
   dismissSheet: (sheet: Sheets) => void;
+  setPresentCallback: (callback: () => void, sheet: Sheets) => void;
+  setDismissCallback: (callback: () => void, sheet: Sheets) => void;
 } | null>(null);
 
 export const useSheetController = () => {

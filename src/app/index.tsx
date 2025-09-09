@@ -3,7 +3,7 @@ import {
   BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Appearance, BackHandler, StatusBar, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import useAppStore from 'src/data/app_state';
@@ -28,9 +28,6 @@ let sheetStack: Sheets[] = [];
 
 const Home = () => {
   const setTheme = useAppStore((state) => state.setTheme);
-  const callSheetCloseCallback = useAppStore(
-    (state) => state.callSheetCloseCallback,
-  );
   const theme = useAppStore((state) => state.theme);
 
   const sheetRefs: Record<Sheets, React.RefObject<BottomSheetModal | null>> = {
@@ -44,6 +41,13 @@ const Home = () => {
     tripPlanDetail: useRef<BottomSheetModal>(null),
   };
 
+  const [sheetDismissCallbacks, setSheetDismissCallbacks] = useState<
+    Record<Sheets, () => void>
+  >({} as Record<Sheets, () => void>);
+  const [sheetPresentCallbacks, setSheetPresentCallbacks] = useState<
+    Record<Sheets, () => void>
+  >({} as Record<Sheets, () => void>);
+
   BackHandler.addEventListener('hardwareBackPress', () => {
     const currentSheet = sheetStack.at(-1);
     if (!currentSheet || currentSheet === Sheets.ROUTE_LIST) return false;
@@ -53,18 +57,35 @@ const Home = () => {
   });
 
   function dismissSheet(sheet: Sheets) {
-    callSheetCloseCallback(sheet);
+    sheetDismissCallbacks[sheet]?.();
 
-    // run any defined close sheet steps
     const prevSheet = sheetRefs[sheet];
     prevSheet?.current?.dismiss();
     sheetStack.pop();
+
+    sheetPresentCallbacks[sheetStack[sheetStack.length - 1]]?.();
   }
 
   function presentSheet(sheet: Sheets) {
+    sheetPresentCallbacks[sheet]?.();
+
     const newSheet = sheetRefs[sheet];
     newSheet?.current?.present();
     sheetStack.push(sheet);
+  }
+
+  function setSheetDismissCallback(callback: () => void, sheet: Sheets) {
+    setSheetDismissCallbacks((prev) => ({
+      ...prev,
+      [sheet]: callback,
+    }));
+  }
+
+  function setSheetPresentCallback(callback: () => void, sheet: Sheets) {
+    setSheetPresentCallbacks((prev) => ({
+      ...prev,
+      [sheet]: callback,
+    }));
   }
 
   // set the theme based on the user's preference
@@ -94,6 +115,8 @@ const Home = () => {
           value={{
             presentSheet: presentSheet,
             dismissSheet: dismissSheet,
+            setPresentCallback: setSheetPresentCallback,
+            setDismissCallback: setSheetDismissCallback,
           }}
         >
           <BottomSheetModalProvider>

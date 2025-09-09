@@ -1,10 +1,8 @@
 import moment from 'moment';
-import { Sheets } from 'src/app/components/providers/sheet-controller';
 import { Theme, lightMode } from 'src/app/theme';
 import { create } from 'zustand';
 import { Alert, Direction, Route, Stop } from './datatypes';
 import { IOptionDetail, SearchSuggestion } from './utils/interfaces';
-import { appLogger } from './utils/logger';
 
 interface AppState {
   theme: Theme;
@@ -27,12 +25,6 @@ interface AppState {
 
   selectedStop: Stop | null;
   setSelectedStop: (selectedStop: Stop | null) => void;
-
-  sheetCloseCallback: {
-    [key in Sheets]: () => void;
-  };
-  setSheetCloseCallback: (fn: () => void, key: Sheets) => void;
-  callSheetCloseCallback: (key: Sheets) => void;
 
   selectedAlert: Alert | null;
   setSelectedAlert: (selectedAlert: Alert | null) => void;
@@ -65,7 +57,7 @@ interface AppState {
   setSelectedRoutePlanPathPart: (selectedRoutePlanPathPart: number) => void;
 }
 
-const useAppStore = create<AppState>()((set, get) => ({
+const useAppStore = create<AppState>()((set) => ({
   theme: lightMode,
   setTheme: (theme) => set(() => ({ theme })),
 
@@ -91,43 +83,17 @@ const useAppStore = create<AppState>()((set, get) => ({
   setSelectedTimetableDate: (selectedTimetableDate) =>
     set(() => ({ selectedTimetableDate })),
 
-  sheetCloseCallback: {
-    routeDetails: function (): void {},
-    alerts: function (): void {},
-    stopTimetable: function (): void {},
-    settings: function (): void {},
-    alertsDetail: function (): void {},
-    inputRoute: function (): void {},
-    tripPlanDetail: function (): void {},
-    routeList: function (): void {},
-  },
-  setSheetCloseCallback: (fn, key) =>
-    set((state) => ({
-      sheetCloseCallback: {
-        ...state.sheetCloseCallback,
-        [key]: fn,
-      },
-    })),
-  callSheetCloseCallback: (key) => {
-    const callback = get().sheetCloseCallback[key];
-    if (callback) {
-      callback();
-    } else {
-      appLogger.w(`No callback found for key: ${key}`);
-    }
-  },
-
   selectedAlert: null,
   setSelectedAlert: (selectedAlert) => set(() => ({ selectedAlert })),
 
-  zoomToStopLatLng: () => {},
+  zoomToStopLatLng: () => { },
   setZoomToStopLatLng: (zoomToStopLatLng) => set(() => ({ zoomToStopLatLng })),
 
   poppedUpStopCallout: null,
   setPoppedUpStopCallout: (poppedUpStopCallout) =>
     set(() => ({ poppedUpStopCallout })),
 
-  scrollToStop: () => {},
+  scrollToStop: () => { },
   setScrollToStop: (scrollToStop) =>
     set(() => ({ scrollToStop: scrollToStop })),
 

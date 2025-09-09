@@ -1,9 +1,8 @@
-import { SegmentedControlEvent, SheetProps } from '@data/utils/utils';
+import { SegmentedControlEvent } from '@data/utils/utils';
 import { Ionicons } from '@expo/vector-icons';
 import {
   BottomSheetFlatList,
   BottomSheetFlatListMethods,
-  BottomSheetModal,
 } from '@gorhom/bottom-sheet';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,12 +10,12 @@ import React, { useEffect, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 
 import useAppStore from 'src/data/app_state';
-import { Direction } from 'src/data/datatypes';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import AlertPill from '../ui/AlertPill';
 import BusIcon from '../ui/BusIcon';
 import FavoritePill from '../ui/FavoritePill';
 import StopCell from '../ui/StopCell';
+import BaseSheet, { SheetProps } from './BaseSheet';
 
 // Display details when a route is selected
 const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
@@ -24,8 +23,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
   const selectedRoute = useAppStore((state) => state.selectedRoute);
   const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
-
-  const [futurePosition, setFuturePosition] = useState(-1);
 
   const selectedDirection = useAppStore((state) => state.selectedDirection);
   const setSelectedDirection = useAppStore(
@@ -35,30 +32,13 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const setPoppedUpStopCallout = useAppStore(
     (state) => state.setPoppedUpStopCallout,
   );
-  const setSheetCloseCallback = useAppStore(
-    (state) => state.setSheetCloseCallback,
-  );
   const setScrollToStop = useAppStore((state) => state.setScrollToStop);
   const { dismissSheet } = useSheetController();
   const theme = useAppStore((state) => state.theme);
 
   // Controls SegmentedControl
   const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
-
   const client = useQueryClient();
-
-  // Filters patternPaths for only the selected route from all patternPaths
-  function getPatternPathForSelectedRoute(): Direction | undefined {
-    if (!selectedRoute) return undefined;
-    return selectedRoute.directions.find(
-      (direction) =>
-        direction.id === selectedRoute.directions[selectedDirectionIndex].id,
-    );
-  }
-
-  const handleDismiss = () => {
-    dismissSheet(Sheets.ROUTE_DETAILS);
-  };
 
   // Update the selected route when the currentSelectedRoute changes but only if it is not null
   // Prevents visual glitch when the sheet is closed and the selected route is null
@@ -82,35 +62,33 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     setSelectedDirectionIndex(directionIndex);
   }, [selectedDirection]);
 
-  // TODO: does this really need dependencies?
-  useEffect(() => {
-    setScrollToStop((stop) => {
-      const index = getPatternPathForSelectedRoute()?.stops.findIndex(
+  // TODO: this had [selectedRoute, selectedDirection] before
+  function onPresent() {
+    setScrollToStop(async (stop) => {
+      const index = selectedDirection?.stops.findIndex(
         (st) => st.id === stop.id,
       );
 
       if (index && index !== -1) {
-        sheetRef.current?.snapToIndex(2);
-        setFuturePosition(index);
+        // sheetRef.current?.snapToIndex(2);
+        flatListRef.current?.scrollToIndex({
+          index: index,
+          animated: true,
+        });
       }
     });
-  }, [selectedRoute, selectedDirection]);
+  }
 
-  useEffect(() => {
-    setSheetCloseCallback(() => {
-      clearSelectedRoute();
-      setSelectedDirection(null);
+  function onDismiss() {
+    clearSelectedRoute();
+    setSelectedDirection(null);
 
-      setSelectedStop(null);
-      setPoppedUpStopCallout(null);
+    setSelectedStop(null);
+    setPoppedUpStopCallout(null);
 
-      // reset direction selector
-      setSelectedDirectionIndex(0);
-    }, Sheets.ROUTE_DETAILS);
-
-    // TODO: is this needed here?
-    return () => setSelectedDirection(null);
-  }, []);
+    // reset direction selector
+    setSelectedDirectionIndex(0);
+  }
 
   const handleSetSelectedDirection = (evt: SegmentedControlEvent) => {
     const index = evt.nativeEvent.selectedSegmentIndex;
@@ -119,27 +97,14 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     setSelectedDirection(selectedRoute?.directions[index] ?? null);
   };
 
-  const snapPoints = ['25%', '45%', '85%'];
-  const [snap, _] = useState(1);
-
   return (
-    <BottomSheetModal
-      ref={sheetRef}
-      snapPoints={snapPoints}
-      index={snap}
-      enablePanDownToClose={false}
-      enableDynamicSizing={false}
-      backgroundStyle={{ backgroundColor: theme.background }}
-      handleIndicatorStyle={{ backgroundColor: theme.divider }}
-      onChange={() => {
-        if (futurePosition !== -1) {
-          flatListRef.current?.scrollToIndex({
-            index: futurePosition,
-            animated: true,
-          });
-          setFuturePosition(-1);
-        }
-      }}
+    <BaseSheet
+      sheetKey={Sheets.ROUTE_DETAILS}
+      sheetRef={sheetRef}
+      snapPoints={['25%', '45%', '85%']}
+      initialSnapIndex={1}
+      onDismiss={onDismiss}
+      onPresent={onPresent}
     >
       {selectedRoute && (
         <View>
@@ -169,7 +134,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
             <TouchableOpacity
               style={{ alignContent: 'center', justifyContent: 'flex-end' }}
-              onPress={handleDismiss}
+              onPress={() => dismissSheet(Sheets.ROUTE_DETAILS)}
             >
               <Ionicons
                 name="close-circle"
@@ -272,7 +237,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
           <Text style={{ color: theme.text }}>Something went wrong.</Text>
         </View>
       )}
-    </BottomSheetModal>
+    </BaseSheet>
   );
 };
 

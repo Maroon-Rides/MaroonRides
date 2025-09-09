@@ -1,7 +1,6 @@
 import { StopSchedule } from '@data/datatypes';
-import { SheetProps } from '@data/utils/utils';
 import { Ionicons } from '@expo/vector-icons';
-import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import moment from 'moment-strftime';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
@@ -14,6 +13,7 @@ import { Sheets, useSheetController } from '../providers/sheet-controller';
 import DateSelector from '../ui/DateSelector';
 import SheetHeader from '../ui/SheetHeader';
 import Timetable from '../ui/Timetable';
+import BaseSheet, { SheetProps } from './BaseSheet';
 
 // Timtable with upcoming routes
 const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
@@ -24,9 +24,6 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
   const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
   const { presentSheet, dismissSheet } = useSheetController();
-  const setSheetCloseCallback = useAppStore(
-    (state) => state.setSheetCloseCallback,
-  );
 
   const selectedTimetableDate = useAppStore(
     (state) => state.selectedTimetableDate,
@@ -105,29 +102,21 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     return route?.tintColor ?? theme.text;
   }
 
-  // TODO: migrate our sheets to a wrapper component that handles this
-  useEffect(() => {
-    setSheetCloseCallback(() => {
-      setRouteSchedules(null);
-      setNonRouteSchedules(null);
-      setSelectedStop(null);
-      setShowNonRouteSchedules(false);
-      setSelectedTimetableDate(moment());
-    }, Sheets.STOP_TIMETABLE);
-  }, []);
-
-  const snapPoints = ['25%', '45%', '85%'];
-  const [snap, _] = useState(2);
+  function onDismiss() {
+    setRouteSchedules(null);
+    setNonRouteSchedules(null);
+    setSelectedStop(null);
+    setShowNonRouteSchedules(false);
+    setSelectedTimetableDate(moment());
+  }
 
   return (
-    <BottomSheetModal
-      ref={sheetRef}
-      snapPoints={snapPoints}
-      index={snap}
-      enablePanDownToClose={false}
-      enableDynamicSizing={false}
-      backgroundStyle={{ backgroundColor: theme.background }}
-      handleIndicatorStyle={{ backgroundColor: theme.divider }}
+    <BaseSheet
+      sheetKey={Sheets.STOP_TIMETABLE}
+      sheetRef={sheetRef}
+      snapPoints={['25%', '45%', '85%']}
+      initialSnapIndex={2}
+      onDismiss={onDismiss}
     >
       <View>
         <SheetHeader
@@ -299,7 +288,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
           )}
         </BottomSheetScrollView>
       )}
-    </BottomSheetModal>
+    </BaseSheet>
   );
 };
 

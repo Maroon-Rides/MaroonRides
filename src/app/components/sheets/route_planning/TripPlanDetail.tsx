@@ -1,8 +1,7 @@
 import { IOptionDetail, IWalkingInstruction } from '@data/utils/interfaces';
-import { SheetProps } from '@data/utils/utils';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import React, { memo, useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import RenderHTML from 'react-native-render-html';
@@ -10,19 +9,14 @@ import Timeline from 'react-native-timeline-flatlist';
 import useAppStore from 'src/data/app_state';
 import { Sheets, useSheetController } from '../../providers/sheet-controller';
 import SheetHeader from '../../ui/SheetHeader';
+import BaseSheet, { SheetProps } from '../BaseSheet';
 
 // TripPlanDetail (for all routes and current route)
 const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
-  const snapPoints = ['25%', '45%', '85%'];
-  const [snap, _] = useState(1);
-
   const theme = useAppStore((state) => state.theme);
   const selectedRoutePlan = useAppStore((state) => state.selectedRoutePlan);
   const setSelectedRoutePlan = useAppStore(
     (state) => state.setSelectedRoutePlan,
-  );
-  const setSheetCloseCallback = useAppStore(
-    (state) => state.setSheetCloseCallback,
   );
   const setSelectedRoutePlanPathPart = useAppStore(
     (state) => state.setSelectedRoutePlanPathPart,
@@ -54,16 +48,6 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
       p: { marginTop: 0 },
     },
   };
-
-  useEffect(() => {
-    // todo: reset on open, use the sheet wrapper we create
-    setSelectedRoutePlanPathPart(-1);
-
-    setSheetCloseCallback(() => {
-      setSelectedRoutePlanPathPart(-1);
-      setSelectedRoutePlan(null);
-    }, Sheets.TRIP_PLAN_DETAIL);
-  }, []);
 
   function processRoutePlan(plan: IOptionDetail) {
     if (!plan) return [];
@@ -148,15 +132,23 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
     sheetRef.current?.snapToIndex(1);
   }, [selectedRoutePlanPathPart]);
 
+  function onPresent() {
+    setSelectedRoutePlanPathPart(-1);
+  }
+
+  function onDismiss() {
+    setSelectedRoutePlan(null);
+    setSelectedRoutePlanPathPart(-1);
+  }
+
   return (
-    <BottomSheetModal
-      ref={sheetRef}
-      snapPoints={snapPoints}
-      index={snap}
-      backgroundStyle={{ backgroundColor: theme.background }}
-      handleIndicatorStyle={{ backgroundColor: theme.divider }}
-      enablePanDownToClose={false}
-      enableDynamicSizing={false}
+    <BaseSheet
+      sheetRef={sheetRef}
+      sheetKey={Sheets.TRIP_PLAN_DETAIL}
+      snapPoints={['25%', '45%', '85%']}
+      initialSnapIndex={1}
+      onPresent={onPresent}
+      onDismiss={onDismiss}
     >
       <View>
         {/* header */}
@@ -228,7 +220,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
           Route Directions Provided by Google
         </Text>
       </BottomSheetScrollView>
-    </BottomSheetModal>
+    </BaseSheet>
   );
 };
 

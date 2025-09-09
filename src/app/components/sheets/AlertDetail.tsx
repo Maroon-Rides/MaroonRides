@@ -1,17 +1,16 @@
 import { appLogger } from '@data/utils/logger';
-import { SheetProps } from '@data/utils/utils';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { useState } from 'react';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import RenderHtml from 'react-native-render-html';
 import useAppStore from 'src/data/app_state';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import SheetHeader from '../ui/SheetHeader';
+import BaseSheet, { SheetProps } from './BaseSheet';
 
 const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
-  const snapPoints = ['25%', '45%', '85%'];
   const alert = useAppStore((state) => state.selectedAlert);
+  const setSelectedAlert = useAppStore((state) => state.setSelectedAlert);
   const theme = useAppStore((state) => state.theme);
   const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
@@ -44,31 +43,24 @@ const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     div: { paddingBottom: 0, marginBottom: 0, color: theme.text },
   };
 
-  const [snap, _] = useState(1);
-
-  const handleDismiss = () => {
+  // for whatever reason, alerts gets set to null if we use onDismiss
+  // thus we have to do cleanup before calling dismiss
+  function handleDismiss() {
     if (!alert) return;
 
     appLogger.i(`Loading previous selected route: ${alert.originalRoute.name}`);
     setSelectedRoute(alert.originalRoute);
     setDrawnRoutes([alert.originalRoute]);
+    setSelectedAlert(null);
     dismissSheet(Sheets.ALERTS_DETAIL);
-  };
+  }
 
   return (
-    <BottomSheetModal
-      ref={sheetRef}
-      snapPoints={snapPoints}
-      index={snap}
-      backgroundStyle={{ backgroundColor: theme.background }}
-      handleIndicatorStyle={{ backgroundColor: theme.divider }}
-      onAnimate={(_, to) => {
-        if (to === 1) {
-          setDrawnRoutes(alert?.affectedRoutes ?? []);
-        }
-      }}
-      enablePanDownToClose={false}
-      enableDynamicSizing={false}
+    <BaseSheet
+      sheetRef={sheetRef}
+      sheetKey={Sheets.ALERTS_DETAIL}
+      snapPoints={['25%', '45%', '85%']}
+      initialSnapIndex={1}
     >
       <View>
         <SheetHeader
@@ -76,7 +68,7 @@ const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
           icon={
             <TouchableOpacity
               style={{ marginLeft: 10 }}
-              onPress={() => handleDismiss()}
+              onPress={handleDismiss}
             >
               <Ionicons
                 name="close-circle"
@@ -104,7 +96,7 @@ const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
           tagsStyles={tagStyles}
         />
       </BottomSheetScrollView>
-    </BottomSheetModal>
+    </BaseSheet>
   );
 };
 

@@ -1,19 +1,19 @@
-import { SegmentedControlEvent, SheetProps } from '@data/utils/utils';
+import { SegmentedControlEvent } from '@data/utils/utils';
 import {
   FontAwesome,
   FontAwesome6,
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons';
-import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet';
+import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 import {
   ActivityIndicator,
   Platform,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 
 import { appLogger } from '@data/utils/logger';
@@ -28,13 +28,14 @@ import { Sheets, useSheetController } from '../providers/sheet-controller';
 import BusIcon from '../ui/BusIcon';
 import IconPill from '../ui/IconPill';
 import SheetHeader from '../ui/SheetHeader';
+import BaseSheet, { SheetProps } from './BaseSheet';
 
 // Display routes list for all routes and favorite routes
 const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
   const snapPoints = ['25%', '45%', '85%'];
-  const [snap, setSnap] = useState(1);
 
   const { presentSheet } = useSheetController();
+  const selectedAlert = useAppStore((state) => state.selectedAlert);
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
   const selectedRoute = useAppStore((state) => state.selectedRoute);
   const selectedRouteCategory = useAppStore(
@@ -98,28 +99,9 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     setSelectedRouteCategory(defaultGroup === 0 ? 'All Routes' : 'Favorites');
   }, [defaultGroup]);
 
-  // only update the map if we have routes 
+  // only update the map if we have routes
   // and there is no selected route (route details handles state)
-  useEffect(() => {
-    if (!routes || selectedRoute) return;
-    setDrawnRoutes(filteredRoutes);
-  }, [filteredRoutes, selectedRoute]);
-
-  // Update the favorites when the view is focused
-  async function onAnimate(from: number, to: number) {
-    setSnap(to);
-    if (from === -1) {
-      await refetchDefaultGroup();
-      if (favorites) await refetchFavorites();
-    }
-  }
-
-  async function androidHandleDismiss(to: number) {
-    if (to !== -1) {
-      await refetchDefaultGroup();
-      if (favorites) await refetchFavorites();
-    }
-  }
+  useEffect(updateDrawnRoutes, [filteredRoutes, selectedRoute]);
 
   const setCategory = (evt: SegmentedControlEvent) => {
     setSelectedRouteCategory(
@@ -127,18 +109,30 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     );
   };
 
+  function updateDrawnRoutes() {
+    if (!routes || selectedRoute || selectedAlert) return;
+    setDrawnRoutes(filteredRoutes);
+  }
+
+  async function onPresent() {
+    await refetchDefaultGroup();
+    await refetchFavorites();
+
+    // trigger a rerender
+    appLogger.i('Refetched route groups and favorites on sheet present');
+  }
+
+
   return (
-    <BottomSheetModal
-      ref={sheetRef}
+    <BaseSheet
+      sheetRef={sheetRef}
       snapPoints={snapPoints}
-      index={snap}
+      initialSnapIndex={1}
       enableDismissOnClose={false}
-      enablePanDownToClose={false}
-      enableDynamicSizing={false}
-      onAnimate={onAnimate}
-      onChange={Platform.OS === 'android' ? androidHandleDismiss : undefined}
-      backgroundStyle={{ backgroundColor: theme.background }}
-      handleIndicatorStyle={{ backgroundColor: theme.divider }}
+      enableGestureClose={false}
+      sheetKey={Sheets.ROUTE_LIST}
+      onPresent={onPresent}
+      onSnap={updateDrawnRoutes}
     >
       <View>
         <SheetHeader
@@ -305,7 +299,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
           );
         }}
       />
-    </BottomSheetModal>
+    </BaseSheet>
   );
 };
 

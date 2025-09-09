@@ -1,6 +1,6 @@
-import { SegmentedControlEvent, SheetProps } from '@data/utils/utils';
+import { SegmentedControlEvent } from '@data/utils/utils';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import React, { memo, useEffect, useState } from 'react';
@@ -22,12 +22,10 @@ import {
 } from 'src/data/queries/structure/storage';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import SheetHeader from '../ui/SheetHeader';
+import BaseSheet, { SheetProps } from './BaseSheet';
 
 // Settings (for all routes and current route)
 const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
-  const snapPoints = ['25%', '45%', '85%'];
-  const [snap, _] = useState(1);
-
   const [themeSetting, setTheme] = useState(0);
 
   const theme = useAppStore((state) => state.theme);
@@ -75,14 +73,11 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
   }, []);
 
   return (
-    <BottomSheetModal
-      ref={sheetRef}
-      snapPoints={snapPoints}
-      index={snap}
-      backgroundStyle={{ backgroundColor: theme.background }}
-      handleIndicatorStyle={{ backgroundColor: theme.divider }}
-      enablePanDownToClose={false}
-      enableDynamicSizing={false}
+    <BaseSheet
+      sheetKey={Sheets.SETTINGS}
+      sheetRef={sheetRef}
+      snapPoints={['25%', '45%', '85%']}
+      initialSnapIndex={1}
     >
       <View>
         {/* header */}
@@ -147,7 +142,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
           />
         </View>
       </BottomSheetScrollView>
-    </BottomSheetModal>
+    </BaseSheet>
   );
 };
 

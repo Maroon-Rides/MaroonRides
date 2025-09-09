@@ -1,20 +1,17 @@
 import { Alert } from '@data/datatypes';
 import { useAlerts } from '@data/queries/app';
 import { appLogger } from '@data/utils/logger';
-import { SheetProps } from '@data/utils/utils';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet';
-import React, { memo, useState } from 'react';
+import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
+import React, { memo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import useAppStore from 'src/data/app_state';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import SheetHeader from '../ui/SheetHeader';
+import BaseSheet, { SheetProps } from './BaseSheet';
 
 // AlertList (for all routes and current route)
 const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
-  const snapPoints = ['25%', '45%', '85%'];
-  const [snap, _] = useState(1);
-
   const theme = useAppStore((state) => state.theme);
   const selectedRoute = useAppStore((state) => state.selectedRoute);
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
@@ -36,14 +33,11 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
   };
 
   return (
-    <BottomSheetModal
-      ref={sheetRef}
-      snapPoints={snapPoints}
-      index={snap}
-      backgroundStyle={{ backgroundColor: theme.background }}
-      handleIndicatorStyle={{ backgroundColor: theme.divider }}
-      enablePanDownToClose={false}
-      enableDynamicSizing={false}
+    <BaseSheet
+      sheetKey={Sheets.ALERTS}
+      sheetRef={sheetRef}
+      snapPoints={['25%', '45%', '85%']}
+      initialSnapIndex={1}
     >
       <View>
         {/* header */}
@@ -120,7 +114,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
           );
         }}
       />
-    </BottomSheetModal>
+    </BaseSheet>
   );
 };
 
