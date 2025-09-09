@@ -14,6 +14,14 @@ interface DependencyQueryParams<T> extends Params<T> {
   dependents: UseQueryResult<any>[];
 }
 
+function parseTime(time?: moment.Duration | number) {
+  if (typeof time === 'number') {
+    return time;
+  } else if (moment.isDuration(time)) {
+    return time.asMilliseconds();
+  }
+}
+
 export function useDependencyQuery<T>(params: DependencyQueryParams<T>) {
   const enabled = params.dependents.every((q) => q.isSuccess);
 
@@ -22,14 +30,8 @@ export function useDependencyQuery<T>(params: DependencyQueryParams<T>) {
     queryKey: [...params.queryKey, ...params.dependents.map((q) => q.data)],
     queryFn: params.queryFn,
     enabled: enabled && params.enabled,
-    staleTime:
-      typeof params.staleTime === 'number'
-        ? params.staleTime
-        : params.staleTime?.asMilliseconds(),
-    refetchInterval:
-      typeof params.refetchInterval === 'number'
-        ? params.refetchInterval
-        : params.refetchInterval?.asMilliseconds(),
+    staleTime: parseTime(params.staleTime),
+    refetchInterval: parseTime(params.refetchInterval),
   });
 
   return {
@@ -63,14 +65,8 @@ export function useLoggingQuery<T>(params: LoggingQueryParams) {
     },
 
     enabled: params.enabled,
-    staleTime:
-      typeof params.staleTime === 'number'
-        ? params.staleTime
-        : params.staleTime?.asMilliseconds(),
-    refetchInterval:
-      typeof params.refetchInterval === 'number'
-        ? params.refetchInterval
-        : params.refetchInterval?.asMilliseconds(),
+    staleTime: parseTime(params.staleTime),
+    refetchInterval: parseTime(params.refetchInterval),
   });
 
   return query;
