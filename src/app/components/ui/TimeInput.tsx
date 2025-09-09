@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, TextInput, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import useAppStore from 'src/data/app_state';
 
 interface Props {
@@ -58,6 +57,7 @@ const TimeInput: React.FC<Props> = ({ onTimeChange, onTimeInputFocused }) => {
   }, [time, meridiem]);
 
   // set initial time to current time
+  //convert this to a useMemo for time/meridiem
   useEffect(() => {
     let date = new Date();
     date.setMinutes(date.getMinutes());

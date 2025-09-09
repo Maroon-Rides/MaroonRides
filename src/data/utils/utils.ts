@@ -1,10 +1,15 @@
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NativeSegmentedControlIOSChangeEvent } from '@react-native-segmented-control/segmented-control';
+import { NativeSyntheticEvent } from 'react-native';
 import { SearchSuggestion } from './interfaces';
 
 export interface SheetProps {
   sheetRef: React.RefObject<BottomSheetModal | null>;
 }
+
+export type SegmentedControlEvent =
+  NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>;
 
 // given a hex code without the #, return a lighter version of it
 export function getLighterColor(color: string): string {

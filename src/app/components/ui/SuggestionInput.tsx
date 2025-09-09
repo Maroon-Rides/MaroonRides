@@ -32,6 +32,7 @@ const SuggestionInput: React.FC<Props> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const { data: suggestions, isLoading } = useSearchSuggestionAPI(searchTerm);
 
+  // figure out if this could be reactive state somehow. Maybe a context provider or a useRef?
   useEffect(() => {
     setSuggestionLoading(isLoading);
   }, [isLoading]);

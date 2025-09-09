@@ -1,4 +1,4 @@
-import { SheetProps } from '@data/utils/utils';
+import { SegmentedControlEvent, SheetProps } from '@data/utils/utils';
 import {
   FontAwesome,
   FontAwesome6,
@@ -6,17 +6,14 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons';
 import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet';
-import SegmentedControl, {
-  NativeSegmentedControlIOSChangeEvent,
-} from '@react-native-segmented-control/segmented-control';
-import React, { memo, useEffect, useState } from 'react';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  NativeSyntheticEvent,
   Platform,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 
 import { appLogger } from '@data/utils/logger';
@@ -37,6 +34,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
   const snapPoints = ['25%', '45%', '85%'];
   const [snap, setSnap] = useState(1);
 
+  const { presentSheet } = useSheetController();
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
   const selectedRouteCategory = useAppStore(
     (state) => state.selectedRouteCategory,
@@ -46,8 +44,8 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
   );
   const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
   const theme = useAppStore((state) => state.theme);
-  const { presentSheet } = useSheetController();
 
+  // Queries
   const {
     data: routes,
     isLoading: isRoutesLoading,
@@ -60,10 +58,11 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     isError: isFavoritesError,
     refetch: refetchFavorites,
   } = useFavorites();
+
   const { data: defaultGroup, refetch: refetchDefaultGroup } =
     useDefaultRouteGroup();
 
-  const handleRouteSelected = (selectedRoute: Route) => {
+  const selectRoute = (selectedRoute: Route) => {
     appLogger.i(
       `Route selected from list: ${selectedRoute.routeCode} - ${selectedRoute.name}`,
     );
@@ -72,7 +71,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     presentSheet(Sheets.ROUTE_DETAILS);
   };
 
-  function filterRoutes(): Route[] {
+  const filteredRoutes = useMemo(() => {
     if (!routes) return [];
 
     switch (selectedRouteCategory) {
@@ -83,7 +82,17 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
       case 'Favorites':
         return favorites ?? [];
     }
-  }
+  }, [selectedRouteCategory, routes, favorites]);
+
+  type RouteCategory = 'All Routes' | 'Gameday' | 'Favorites';
+
+  const routeCategories = useMemo<RouteCategory[]>(() => {
+    if (routes && routes.some((element) => element.name.includes('Gameday'))) {
+      return ['All Routes', 'Gameday', 'Favorites'];
+    }
+
+    return ['All Routes', 'Favorites'];
+  }, [routes]);
 
   useEffect(() => {
     setSelectedRouteCategory(defaultGroup === 0 ? 'All Routes' : 'Favorites');
@@ -91,9 +100,14 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
   // Update the shown routes when the selectedRouteCategory changes
   useEffect(() => {
-    const filteredRoutes = filterRoutes();
+    // no reason to filter if there are no routes or if the sheet is closed
+    // TODO: handle updating when user changes theme in settings
+    // and when user unfavorites while favorites group is selected
+    // if (!routes || snap === -1) return; // make sure to have snap in deps
+
+    if (!routes) return;
     setDrawnRoutes(filteredRoutes);
-  }, [selectedRouteCategory, routes, favorites]);
+  }, [filteredRoutes]);
 
   // Update the favorites when the view is focused
   async function onAnimate(from: number, to: number) {
@@ -101,35 +115,19 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     if (from === -1) {
       await refetchDefaultGroup();
       if (favorites) await refetchFavorites();
-
-      setDrawnRoutes(filterRoutes());
     }
-  }
-
-  function getRouteCategories(): ('All Routes' | 'Gameday' | 'Favorites')[] {
-    // if gameday routes are available
-    if (routes && routes.some((element) => element.name.includes('Gameday'))) {
-      return ['All Routes', 'Gameday', 'Favorites'];
-    }
-
-    return ['All Routes', 'Favorites'];
   }
 
   async function androidHandleDismiss(to: number) {
     if (to !== -1) {
       await refetchDefaultGroup();
       if (favorites) await refetchFavorites();
-
-      setDrawnRoutes(filterRoutes());
     }
   }
 
-  const handleSetSelectedRouteCategory = (
-    evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>,
-  ) => {
+  const setCategory = (evt: SegmentedControlEvent) => {
     setSelectedRouteCategory(
-      getRouteCategories()[evt.nativeEvent.selectedSegmentIndex] ??
-        'All Routes',
+      routeCategories[evt.nativeEvent.selectedSegmentIndex] ?? 'All Routes',
     );
   };
 
@@ -187,15 +185,15 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
         />
 
         <SegmentedControl
-          values={getRouteCategories()}
-          selectedIndex={getRouteCategories().indexOf(selectedRouteCategory)}
+          values={routeCategories}
+          selectedIndex={routeCategories.indexOf(selectedRouteCategory)}
           style={{ marginHorizontal: 16 }}
           backgroundColor={
             Platform.OS === 'android'
               ? theme.androidSegmentedBackground
               : undefined
           }
-          onChange={handleSetSelectedRouteCategory}
+          onChange={setCategory}
         />
         <View
           style={{ height: 1, backgroundColor: theme.divider, marginTop: 8 }}
@@ -242,7 +240,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
           paddingTop: 4,
           marginLeft: 16,
         }}
-        data={filterRoutes()}
+        data={filteredRoutes}
         keyExtractor={(route: Route) => route.id}
         renderItem={({ item: route }) => {
           return (
@@ -252,7 +250,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                 alignItems: 'center',
                 marginVertical: 8,
               }}
-              onPress={() => handleRouteSelected(route)}
+              onPress={() => selectRoute(route)}
             >
               <BusIcon
                 name={route.routeCode}
@@ -271,16 +269,16 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                   >
                     {route.name}
                   </Text>
-                  {favorites?.some(
+                  {favorites?.find(
                     (fav) => fav.routeCode === route.routeCode,
                   ) && (
-                    <FontAwesome
-                      name="star"
-                      size={16}
-                      color={theme.starColor}
-                      style={{ marginLeft: 4 }}
-                    />
-                  )}
+                      <FontAwesome
+                        name="star"
+                        size={16}
+                        color={theme.starColor}
+                        style={{ marginLeft: 4 }}
+                      />
+                    )}
                 </View>
                 {route.directions.length === 2 ? (
                   <View

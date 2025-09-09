@@ -56,6 +56,7 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
   };
 
   useEffect(() => {
+    // todo: reset on open, use the sheet wrapper we create
     setSelectedRoutePlanPathPart(-1);
 
     setSheetCloseCallback(() => {

@@ -105,6 +105,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     return route?.tintColor ?? theme.text;
   }
 
+  // TODO: migrate our sheets to a wrapper component that handles this
   useEffect(() => {
     setSheetCloseCallback(() => {
       setRouteSchedules(null);

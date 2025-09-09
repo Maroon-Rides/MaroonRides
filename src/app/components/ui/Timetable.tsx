@@ -39,6 +39,7 @@ const Timetable: React.FC<Props> = ({ item, stop, tintColor, dismissBack }) => {
     selectedTimetableDate || moment().toDate(),
   );
 
+  // TODO move this to query
   useEffect(() => {
     if (!estimate) return;
 

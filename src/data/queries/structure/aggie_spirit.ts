@@ -1,3 +1,4 @@
+import useAppStore from '@data/app_state';
 import { findBoundingBox } from '@data/utils/geo';
 import moment from 'moment';
 import getTheme from 'src/app/theme';
@@ -39,8 +40,10 @@ export const useASRoutes = () => {
   const apiBaseDataQuery = useBaseDataAPI();
   const apiPatternPathsQuery = usePatternPathsAPI();
 
+  const theme = useAppStore((state) => state.theme);
+
   const query = useDependencyQuery<Route[]>({
-    queryKey: [ASQueryKey.ROUTE_LIST],
+    queryKey: [ASQueryKey.ROUTE_LIST, theme.mode],
     queryFn: async () => {
       let apiBaseData = apiBaseDataQuery.data!;
       let apiPatternPathData = apiPatternPathsQuery.data!;

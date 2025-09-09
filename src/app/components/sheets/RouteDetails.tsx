@@ -1,25 +1,17 @@
-import { SheetProps } from '@data/utils/utils';
+import { SegmentedControlEvent, SheetProps } from '@data/utils/utils';
 import { Ionicons } from '@expo/vector-icons';
 import {
   BottomSheetFlatList,
   BottomSheetFlatListMethods,
   BottomSheetModal,
 } from '@gorhom/bottom-sheet';
-import SegmentedControl, {
-  NativeSegmentedControlIOSChangeEvent,
-} from '@react-native-segmented-control/segmented-control';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
-import {
-  NativeSyntheticEvent,
-  Platform,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Platform, Text, TouchableOpacity, View } from 'react-native';
 
 import useAppStore from 'src/data/app_state';
-import { Direction, Route } from 'src/data/datatypes';
+import { Direction } from 'src/data/datatypes';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import AlertPill from '../ui/AlertPill';
 import BusIcon from '../ui/BusIcon';
@@ -30,7 +22,7 @@ import StopCell from '../ui/StopCell';
 const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const flatListRef = React.useRef<BottomSheetFlatListMethods>(null);
 
-  const currentSelectedRoute = useAppStore((state) => state.selectedRoute);
+  const selectedRoute = useAppStore((state) => state.selectedRoute);
   const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
 
   const [futurePosition, setFuturePosition] = useState(-1);
@@ -52,7 +44,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
   // Controls SegmentedControl
   const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
-  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
 
   const client = useQueryClient();
 
@@ -72,13 +63,12 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   // Update the selected route when the currentSelectedRoute changes but only if it is not null
   // Prevents visual glitch when the sheet is closed and the selected route is null
   useEffect(() => {
-    if (!currentSelectedRoute) return;
-    setSelectedRoute(currentSelectedRoute);
+    if (!selectedRoute) return;
 
     // reset direction selector
-    setSelectedDirection(currentSelectedRoute.directions[0] ?? null);
+    setSelectedDirection(selectedRoute.directions[0] ?? null);
     setSelectedDirectionIndex(0);
-  }, [currentSelectedRoute]);
+  }, [selectedRoute]);
 
   // update the segmented control when the selected direction changes
   useEffect(() => {
@@ -92,6 +82,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     setSelectedDirectionIndex(directionIndex);
   }, [selectedDirection]);
 
+  // TODO: does this really need dependencies?
   useEffect(() => {
     setScrollToStop((stop) => {
       const index = getPatternPathForSelectedRoute()?.stops.findIndex(
@@ -117,12 +108,11 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
       setSelectedDirectionIndex(0);
     }, Sheets.ROUTE_DETAILS);
 
+    // TODO: is this needed here?
     return () => setSelectedDirection(null);
   }, []);
 
-  const handleSetSelectedDirection = (
-    evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>,
-  ) => {
+  const handleSetSelectedDirection = (evt: SegmentedControlEvent) => {
     const index = evt.nativeEvent.selectedSegmentIndex;
 
     setSelectedDirectionIndex(index);
@@ -199,7 +189,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             }}
           >
             <FavoritePill routeShortName={selectedRoute.routeCode} />
-            <AlertPill routeId={selectedRoute.id} showText />
+            <AlertPill route={selectedRoute} />
           </View>
 
           {selectedRoute?.directions.length > 1 && (
@@ -251,6 +241,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
           )}
           renderItem={({ item: stop, index }) => {
             // handle the last cell showing No upcoming departures
+            // TODO: move this to structure query
             let direction;
             let isLastStop = index === selectedDirection!.stops.length - 1;
             let hasAlternativeDirection = selectedRoute.directions.length > 1;

@@ -74,6 +74,7 @@ const RouteMap: React.FC = () => {
   }, [drawnRoutes, selectedRoutePlanPath]);
 
   // Generate the path points for the selected route plan
+  // TODO: make this a useMemo and useEffect
   useEffect(() => {
     if (!selectedRoutePlan) {
       setSelectedRoutePlanPath([]);
@@ -125,6 +126,7 @@ const RouteMap: React.FC = () => {
   }, [selectedRoutePlan]);
 
   // Adjust the zoom and the path to show the selected part of the route plan
+  // TODO: needs to be a query
   useEffect(() => {
     if (!selectedRoutePlan) return;
 

@@ -1,20 +1,19 @@
-import { SheetProps } from '@data/utils/utils';
+import { SegmentedControlEvent, SheetProps } from '@data/utils/utils';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import SegmentedControl, {
-  NativeSegmentedControlIOSChangeEvent,
-} from '@react-native-segmented-control/segmented-control';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import React, { memo, useEffect, useState } from 'react';
 import {
   Appearance,
-  NativeSyntheticEvent,
   Platform,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 
+import { ASQueryKey } from '@data/queries/structure/aggie_spirit';
+import { useQueryClient } from '@tanstack/react-query';
 import getTheme from 'src/app/theme';
 import useAppStore from 'src/data/app_state';
 import {
@@ -30,7 +29,6 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
   const [snap, _] = useState(1);
 
   const [themeSetting, setTheme] = useState(0);
-  const [defaultGroupSetting, setDefaultGroupState] = useState(0);
 
   const theme = useAppStore((state) => state.theme);
   const setAppTheme = useAppStore((state) => state.setTheme);
@@ -39,11 +37,9 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
   const { data: defaultGroup, refetch: refetchDefaultGroup } =
     useDefaultRouteGroup();
   const setDefaultGroup = defaultGroupMutation();
+  const queryClient = useQueryClient();
 
-  function setDefaultGroupValue(
-    evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>,
-  ) {
-    setDefaultGroupState(evt.nativeEvent.selectedSegmentIndex);
+  function setDefaultGroupValue(evt: SegmentedControlEvent) {
     setDefaultGroup.mutate(evt.nativeEvent.selectedSegmentIndex, {
       onSuccess: async () => {
         await refetchDefaultGroup();
@@ -51,9 +47,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
     });
   }
 
-  async function setAppThemeValue(
-    evt: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>,
-  ) {
+  async function setAppThemeValue(evt: SegmentedControlEvent) {
     setTheme(evt.nativeEvent.selectedSegmentIndex);
     await AsyncStorage.setItem(
       'app-theme',
@@ -63,8 +57,13 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
     const newTheme = await getTheme();
     setAppTheme(newTheme);
     Appearance.setColorScheme(newTheme.mode);
+
+    // refresh routes
+    console.log('Refreshing routes due to theme change');
+    await queryClient.invalidateQueries({ queryKey: [ASQueryKey.ROUTE_LIST] });
   }
 
+  // TODO: move this an app state load with a mutation?
   useEffect(() => {
     void AsyncStorage.getItem('app-theme').then(async (value) => {
       if (value) {
@@ -74,12 +73,6 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
       await AsyncStorage.setItem('system-theme', systemTheme);
     });
   }, []);
-
-  useEffect(() => {
-    if (defaultGroup) {
-      setDefaultGroupState(defaultGroup);
-    }
-  }, [defaultGroup]);
 
   return (
     <BottomSheetModal
@@ -123,7 +116,7 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
           </Text>
           <SegmentedControl
             values={['All Routes', 'Favorites']}
-            selectedIndex={defaultGroupSetting}
+            selectedIndex={defaultGroup}
             style={{ marginTop: 8 }}
             onChange={setDefaultGroupValue}
             backgroundColor={

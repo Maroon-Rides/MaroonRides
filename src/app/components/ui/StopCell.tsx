@@ -51,6 +51,7 @@ const StopCell: React.FC<Props> = ({
 
   const { data: stopAmenities } = useStopAmenities(route, direction, stop);
 
+  // TODO: useMemo
   useEffect(() => {
     if (!stopEstimates) return;
 

@@ -78,6 +78,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     }, Sheets.INPUT_ROUTE);
   }, []);
 
+  // TODO: this needs a lot of cleaning up
   useEffect(() => {
     if (suggestionOutput) {
       setRouteInfoError('');
@@ -340,11 +341,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
               {routeInfoError ===
                 'Location Unavailable, enable location in Settings.' && (
-                <Button
-                  title="Open Settings"
-                  onPress={() => Linking.openSettings()}
-                />
-              )}
+                  <Button
+                    title="Open Settings"
+                    onPress={() => Linking.openSettings()}
+                  />
+                )}
             </View>
           )}
         </View>

@@ -32,6 +32,8 @@ enum QueryKey {
   ALERTS = 'MRAlerts',
 }
 
+// TODO: probably best if we apply colors and favorited status here too
+// prevents having to reprocess data every time theme or favorites change
 export const useRoutes = () => {
   const asRouteList = useASRoutes();
 

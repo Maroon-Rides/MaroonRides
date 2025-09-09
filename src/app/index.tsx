@@ -46,7 +46,7 @@ const Home = () => {
 
   BackHandler.addEventListener('hardwareBackPress', () => {
     const currentSheet = sheetStack.at(-1);
-    if (!currentSheet || currentSheet === 'routeList') return false;
+    if (!currentSheet || currentSheet === Sheets.ROUTE_LIST) return false;
 
     dismissSheet(currentSheet);
     return true;
@@ -75,8 +75,7 @@ const Home = () => {
       Appearance.setColorScheme(theme.mode);
     });
 
-    sheetRefs[Sheets.ROUTE_LIST].current?.present();
-    sheetStack = [Sheets.ROUTE_LIST];
+    presentSheet(Sheets.ROUTE_LIST);
   }, []);
 
   const queryClient = new QueryClient({
