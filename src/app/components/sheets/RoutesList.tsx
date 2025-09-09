@@ -36,6 +36,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
 
   const { presentSheet } = useSheetController();
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
+  const selectedRoute = useAppStore((state) => state.selectedRoute);
   const selectedRouteCategory = useAppStore(
     (state) => state.selectedRouteCategory,
   );
@@ -85,7 +86,6 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
   }, [selectedRouteCategory, routes, favorites]);
 
   type RouteCategory = 'All Routes' | 'Gameday' | 'Favorites';
-
   const routeCategories = useMemo<RouteCategory[]>(() => {
     if (routes && routes.some((element) => element.name.includes('Gameday'))) {
       return ['All Routes', 'Gameday', 'Favorites'];
@@ -98,16 +98,12 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     setSelectedRouteCategory(defaultGroup === 0 ? 'All Routes' : 'Favorites');
   }, [defaultGroup]);
 
-  // Update the shown routes when the selectedRouteCategory changes
+  // only update the map if we have routes 
+  // and there is no selected route (route details handles state)
   useEffect(() => {
-    // no reason to filter if there are no routes or if the sheet is closed
-    // TODO: handle updating when user changes theme in settings
-    // and when user unfavorites while favorites group is selected
-    // if (!routes || snap === -1) return; // make sure to have snap in deps
-
-    if (!routes) return;
+    if (!routes || selectedRoute) return;
     setDrawnRoutes(filteredRoutes);
-  }, [filteredRoutes]);
+  }, [filteredRoutes, selectedRoute]);
 
   // Update the favorites when the view is focused
   async function onAnimate(from: number, to: number) {
