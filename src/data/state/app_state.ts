@@ -1,5 +1,5 @@
-import { IOptionDetail, SearchSuggestion } from '@data/typecheck/aggie_spirit';
-import { Alert, Direction, Route, Stop } from '@data/types';
+import { IOptionDetail } from '@data/typecheck/aggie_spirit';
+import { Alert, Direction, PlaceSuggestion, Route, Stop } from '@data/types';
 import moment from 'moment';
 import { Theme, lightMode } from 'src/app/theme';
 import { create } from 'zustand';
@@ -44,8 +44,8 @@ interface AppState {
   setScrollToStop: (scrollToStop: (stop: Stop) => void) => void;
 
   // route planning
-  suggestions: SearchSuggestion[];
-  setSuggestions: (suggestions: SearchSuggestion[]) => void;
+  suggestions: PlaceSuggestion[];
+  setSuggestions: (suggestions: PlaceSuggestion[]) => void;
 
   suggestionOutput: 'start' | 'end' | null;
   setSuggestionOutput: (suggestionOutput: 'start' | 'end' | null) => void;

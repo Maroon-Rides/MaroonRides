@@ -1,4 +1,3 @@
-import { SearchSuggestion } from '@data/typecheck/aggie_spirit';
 import { Route } from '@data/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -163,23 +162,6 @@ export const defaultGroupMutation = () => {
   });
 
   return mutation;
-};
-
-export const useFavoriteLocations = () => {
-  const query = useLoggingQuery<SearchSuggestion[]>({
-    queryKey: [StorageQueryKey.FAVORITE_LOCATIONS],
-    queryFn: async () => {
-      const favorites = await AsyncStorage.getItem(
-        StorageKey.FAVORITE_LOCATIONS,
-      );
-      if (!favorites) return [];
-
-      return JSON.parse(favorites);
-    },
-    staleTime: Infinity,
-  });
-
-  return query;
 };
 
 export default useFavorites;

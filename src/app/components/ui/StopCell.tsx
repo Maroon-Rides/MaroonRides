@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -34,8 +34,6 @@ const StopCell: React.FC<Props> = ({
   hasTimetable,
   setSheetPos,
 }) => {
-  const [status, setStatus] = useState('On Time');
-
   const setSelectedStop = useAppStore((state) => state.setSelectedStop);
   const zoomToStopLatLng = useAppStore((state) => state.zoomToStopLatLng);
   const setPoppedUpStopCallout = useAppStore(
@@ -52,45 +50,36 @@ const StopCell: React.FC<Props> = ({
 
   const { data: stopAmenities } = useStopAmenities(route, direction, stop);
 
-  // TODO: useMemo
-  useEffect(() => {
-    if (!stopEstimates) return;
-
-    let deviation = 0;
-    for (const estimate of stopEstimates) {
-      if (!estimate.estimatedTime) continue;
-      const delayLength = estimate.estimatedTime.diff(
-        estimate.scheduledTime,
-        'seconds',
-      );
-
-      if (!isNaN(delayLength)) {
-        deviation = delayLength;
-        break;
-      }
+  const status = useMemo(() => {
+    if (!stopEstimates || stopEstimates.length === 0) {
+      return 'No upcoming departures';
     }
 
-    const roundedDeviation = Math.round(deviation / 60);
-
-    let status = 'N/A';
-    if (isLoading) {
-      status = 'Loading';
-    } else if (stopEstimates.length === 0) {
-      status = 'No upcoming departures';
-    } else if (roundedDeviation === 0) {
-      status = 'On time';
-    } else {
-      const deviationType = roundedDeviation > 0 ? 'late' : 'early';
-      const pluralizedMinute =
-        Math.abs(roundedDeviation) > 1 ? 'minutes' : 'minute';
-      status = `${Math.abs(roundedDeviation)} ${pluralizedMinute} ${deviationType}`;
+    const firstEstimate = stopEstimates.find(
+      (estimate) => estimate.estimatedTime,
+    );
+    if (!firstEstimate?.estimatedTime) {
+      return 'On time';
     }
 
-    setStatus(status);
-  }, [stopEstimates]);
+    const deviationMinutes = Math.round(
+      firstEstimate.estimatedTime.diff(firstEstimate.scheduledTime, 'minutes'),
+    );
+
+    if (deviationMinutes === 0) {
+      return 'On time';
+    }
+
+    const isLate = deviationMinutes > 0;
+    const absDeviation = Math.abs(deviationMinutes);
+    const minuteText = absDeviation === 1 ? 'minute' : 'minutes';
+    const statusText = isLate ? 'late' : 'early';
+
+    return `${absDeviation} ${minuteText} ${statusText}`;
+  }, [stopEstimates, isLoading]);
 
   // when cell is tapped, open the stop timetable
-  function toTimetable() {
+  function openTimetable() {
     setSelectedStop(stop);
     presentSheet(Sheets.STOP_TIMETABLE);
   }
@@ -191,7 +180,7 @@ const StopCell: React.FC<Props> = ({
               paddingVertical: 4, // increase touch area
               paddingLeft: 8, // increase touch area
             }}
-            onPress={toTimetable}
+            onPress={openTimetable}
           >
             {/* <MaterialCommunityIcons name="clock-outline" size={20} />                 */}
             <Text

@@ -32,7 +32,6 @@ export enum QueryKey {
   ALERTS = 'MRAlerts',
 }
 
-// TODO: probably best if we apply colors and favorited status here too
 // prevents having to reprocess data every time theme or favorites change
 export const useRoutes = () => {
   const asRouteList = useASRoutes();
@@ -147,13 +146,13 @@ export const useStopSchedule = (stop: Stop | null, date: moment.Moment) => {
 };
 
 export const useAlerts = (route: Route | null) => {
-  const apiAlertQuery = useASAlerts(route);
+  const asAlertQuery = useASAlerts(route);
 
   const query = useSelectableQuery<Alert[], DataSource>({
     queryKey: [QueryKey.ALERTS, route?.id],
     selector: route?.dataSource,
     queries: {
-      [DataSource.AGGIE_SPIRIT]: apiAlertQuery,
+      [DataSource.AGGIE_SPIRIT]: asAlertQuery,
     },
     unsupportedValue: [],
     enabled: route !== null,

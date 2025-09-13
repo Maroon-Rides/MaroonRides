@@ -70,20 +70,23 @@ export const useASRoutes = () => {
               isStop: !!pt.stop,
             })) || [];
 
-          const stops: Stop[] = patternPathForDirection.patternPoints
-            .filter((pt) => !!pt.stop)
-            .map((pt) => {
-              // Build Stop
-              return {
-                dataSource: DataSource.AGGIE_SPIRIT,
-                name: pt.stop!.name || '',
-                id: pt.stop!.stopCode || '',
-                location: {
-                  latitude: pt.latitude,
-                  longitude: pt.longitude,
-                } as Location,
-              };
-            });
+          const filteredPoints = patternPathForDirection.patternPoints.filter(
+            (pt) => !!pt.stop,
+          );
+
+          const stops: Stop[] = filteredPoints.map((pt, i) => {
+            // Build Stop
+            return {
+              dataSource: DataSource.AGGIE_SPIRIT,
+              name: pt.stop!.name || '',
+              id: pt.stop!.stopCode || '',
+              location: {
+                latitude: pt.latitude,
+                longitude: pt.longitude,
+              } as Location,
+              isLastOnDirection: i === filteredPoints.length - 1,
+            };
+          });
 
           return {
             dataSource: DataSource.AGGIE_SPIRIT,
@@ -210,13 +213,14 @@ export const useASTimetableEstimate = (
     date.toDate(),
   );
 
+  const apiRoutes = useASRoutes();
+
   const query = useDependencyQuery<StopSchedule[]>({
     queryKey: [ASQueryKey.TIMETABLE_ESTIMATE],
     queryFn: async () => {
       const timetableEstimateData = apiTimetableEstimateQuery.data!;
-      let finalTimetableEstimate: StopSchedule[] = [];
 
-      for (let routeStop of timetableEstimateData.routeStopSchedules) {
+      return timetableEstimateData.routeStopSchedules.map((routeStop) => {
         const timeEstimates = routeStop.stopTimes.map(
           (stopTime) =>
             ({
@@ -232,18 +236,28 @@ export const useASTimetableEstimate = (
               isCancelled: stopTime.isCancelled,
             }) as TimeEstimate,
         );
-        finalTimetableEstimate.push({
+
+        const route = apiRoutes.data?.find(
+          (r) => r.routeCode === routeStop.routeNumber,
+        )!;
+
+        const direction =
+          route?.directions.length === 1
+            ? route.directions[0]
+            : route?.directions.find((d) => {
+              return d.name === routeStop.directionName;
+            });
+
+        return {
           dataSource: DataSource.AGGIE_SPIRIT,
-          routeName: routeStop.routeName,
-          routeNumber: routeStop.routeNumber,
-          directionName: routeStop.directionName,
+          route: route,
+          direction: direction,
+          stop: stop!,
           timetable: timeEstimates,
-          isEndOfRoute: routeStop.isEndOfRoute,
-        } as StopSchedule);
-      }
-      return finalTimetableEstimate;
+        } as StopSchedule;
+      });
     },
-    dependents: [apiTimetableEstimateQuery],
+    dependents: [apiTimetableEstimateQuery, apiRoutes],
   });
 
   return query;
@@ -278,13 +292,14 @@ export const useASStopSchedule = (stop: Stop | null, date: moment.Moment) => {
     date.toDate(),
   );
 
+  const apiRoutes = useASRoutes();
+
   const query = useDependencyQuery<StopSchedule[]>({
     queryKey: [ASQueryKey.STOP_SCHEDULE],
     queryFn: async () => {
       const stopScheduleData = apiStopScheduleQuery.data!;
-      let finalStopSchedule: StopSchedule[] = [];
 
-      for (let routeStop of stopScheduleData.routeStopSchedules) {
+      return stopScheduleData.routeStopSchedules.map((routeStop) => {
         const timeEstimates = routeStop.stopTimes.map(
           (stopTime) =>
             ({
@@ -300,18 +315,29 @@ export const useASStopSchedule = (stop: Stop | null, date: moment.Moment) => {
               isCancelled: stopTime.isCancelled,
             }) as TimeEstimate,
         );
-        finalStopSchedule.push({
+
+        const route = apiRoutes.data?.find(
+          (r) => r.routeCode === routeStop.routeNumber,
+        );
+
+        const direction =
+          route?.directions.length === 1
+            ? route.directions[0]
+            : route?.directions.find((d) => {
+              return d.name === routeStop.directionName;
+            });
+
+        return {
           dataSource: DataSource.AGGIE_SPIRIT,
-          routeName: routeStop.routeName,
-          routeNumber: routeStop.routeNumber,
-          directionName: routeStop.directionName,
+          route: route,
+          direction: direction,
+          stop: stop!,
           timetable: timeEstimates,
           isEndOfRoute: routeStop.isEndOfRoute,
-        } as StopSchedule);
-      }
-      return finalStopSchedule;
+        } as StopSchedule;
+      });
     },
-    dependents: [apiStopScheduleQuery],
+    dependents: [apiStopScheduleQuery, apiRoutes],
   });
 
   return query;

@@ -38,9 +38,7 @@ const RouteMap: React.FC = () => {
   );
   const theme = useTheme();
   const poppedUpStopCallout = useAppStore((state) => state.poppedUpStopCallout);
-
   const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
-
   const { presentSheet } = useSheetController();
 
   const [selectedRoutePlanPath, setSelectedRoutePlanPath] = useState<
@@ -127,7 +125,7 @@ const RouteMap: React.FC = () => {
   }, [selectedRoutePlan]);
 
   // Adjust the zoom and the path to show the selected part of the route plan
-  // TODO: needs to be a query
+  // TODO: needs to be a memo?
   useEffect(() => {
     if (!selectedRoutePlan) return;
 
@@ -226,36 +224,20 @@ const RouteMap: React.FC = () => {
     }
 
     // animate to the selected part of the route plan
-    mapViewRef.current?.fitToCoordinates(highlighted, {
-      edgePadding: {
-        top: Dimensions.get('window').height * 0.05,
-        right: 40,
-        bottom: Dimensions.get('window').height * 0.45 + 8,
-        left: 40,
-      },
-      animated: true,
-    });
+    centerViewOnRoutes(highlighted);
   }, [selectedRoutePlanPathPart]);
 
   // handle weird edge case where map does not pick up on the initial region
   useEffect(() => {
     mapViewRef.current?.animateToRegion(defaultMapRegion);
 
-    setZoomToStopLatLng((lat, lng) => {
-      // Animate map to the current location
-      const region = {
-        latitude: lat - 0.002,
-        longitude: lng,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
-      };
-
-      mapViewRef.current?.animateToRegion(region, 250);
+    setZoomToStopLatLng(async (lat, lng) => {
+      await centerViewOnLocation({ latitude: lat, longitude: lng }, 0.005);
     });
   }, []);
 
-  const centerViewOnRoutes = () => {
-    const coords: LatLng[] = [
+  function centerViewOnRoutes(routes?: LatLng[]) {
+    const coords: LatLng[] = routes ?? [
       ...(selectedRoute?.bounds ?? []),
       ...(drawnRoutes?.flatMap((route) => route.bounds) ?? []),
       ...selectedRoutePlanPath,
@@ -274,35 +256,38 @@ const RouteMap: React.FC = () => {
     }
 
     setIsViewCenteredOnUser(false);
-  };
+  }
 
-  const recenterView = async () => {
-    // Request location permissions
-    const { status } = await Location.requestForegroundPermissionsAsync();
+  async function centerViewOnLocation(location?: LatLng, delta = 0.01) {
+    if (!location) {
+      // Request location permissions
+      const { status } = await Location.requestForegroundPermissionsAsync();
 
-    // Check if permission is granted
-    if (status !== 'granted') {
-      return;
+      // Check if permission is granted
+      if (status !== 'granted') {
+        return;
+      }
+
+      // Get current location
+      location = (
+        await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+          timeInterval: 2,
+        })
+      ).coords;
     }
-
-    // Get current location
-    const location = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.Balanced,
-      timeInterval: 2,
-    });
 
     // Animate map to the current location
     const region = {
-      latitude: location.coords.latitude - 0.002,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
+      latitude: location.latitude - 0.002,
+      longitude: location.longitude,
+      latitudeDelta: delta,
+      longitudeDelta: delta,
     };
 
     mapViewRef.current?.animateToRegion(region, 250);
-
     setIsViewCenteredOnUser(true);
-  };
+  }
 
   return (
     <>
@@ -316,7 +301,7 @@ const RouteMap: React.FC = () => {
         // this deprcation is ok, we only use it on android
         maxZoomLevel={Platform.OS === 'android' ? 18 : undefined}
         showsMyLocationButton={false} // we have our own
-        // fix dark mode android map syling
+        // dark mode android map syling
         customMapStyle={
           Platform.OS === 'android' && theme.mode === 'dark'
             ? DarkGoogleMaps
@@ -325,63 +310,50 @@ const RouteMap: React.FC = () => {
       >
         {/* Route Polylines */}
         {drawnRoutes.map((drawnRoute) => {
-          const lineColor = drawnRoute.tintColor;
-          let coordDirections = new Map<Direction, LatLng[]>([]);
+          return drawnRoute.directions.map((direction) => {
+            const active =
+              !selectedDirection || direction.id === selectedDirection.id;
+            const tintColor = drawnRoute.tintColor + (active ? '' : '60');
 
-          drawnRoute.directions.forEach((direction) => {
-            coordDirections.set(direction, direction.pathPoints);
+            return (
+              <Polyline
+                key={`${direction.id}`}
+                coordinates={direction.pathPoints}
+                strokeColor={tintColor}
+                strokeWidth={5}
+                tappable={true}
+                onPress={() => selectRoute(drawnRoute, direction)}
+                style={{
+                  zIndex: active ? 600 : 300,
+                  elevation: active ? 600 : 300,
+                }}
+              />
+            );
           });
-
-          return Array.from(coordDirections.entries()).map(
-            ([direction, coords]) => {
-              const active =
-                direction.id === selectedDirection?.id ||
-                selectedDirection === null;
-              return (
-                <Polyline
-                  key={`${direction.id}`}
-                  coordinates={coords}
-                  strokeColor={active ? lineColor : lineColor + '60'}
-                  strokeWidth={5}
-                  tappable={true}
-                  onPress={() => selectRoute(drawnRoute, direction)}
-                  style={{
-                    zIndex: active ? 600 : 300,
-                    elevation: active ? 600 : 300,
-                  }}
-                />
-              );
-            },
-          );
         })}
 
         {/* Stops */}
-        {selectedRoute &&
-          selectedRoute?.directions.flatMap((direction, index1) =>
-            direction.stops.map((stop, index2) => {
-              // if it is the end of the route, dont put a marker
-              if (index2 === direction.stops.length - 1) return;
+        {selectedRoute?.directions.flatMap((direction) =>
+          direction.stops.map((stop) => {
+            // if it is the end of the route, dont put a marker
+            if (stop.isLastOnDirection) return;
 
-              if (stop) {
-                return (
-                  <StopMarker
-                    key={`${stop.id}-${index1}-${index2}`}
-                    stop={stop}
-                    tintColor={selectedRoute?.tintColor ?? '#FFFF'}
-                    active={direction.id === selectedDirection?.id}
-                    route={selectedRoute}
-                    direction={direction}
-                    isCalloutShown={
-                      poppedUpStopCallout?.id === stop.id &&
-                      selectedDirection?.id === direction.id
-                    }
-                  />
-                );
-              }
-
-              return null;
-            }),
-          )}
+            return (
+              <StopMarker
+                key={`${stop.id}-${direction.id}`}
+                stop={stop}
+                tintColor={selectedRoute.tintColor}
+                active={direction.id === selectedDirection?.id}
+                route={selectedRoute}
+                direction={direction}
+                isCalloutShown={
+                  poppedUpStopCallout?.id === stop.id &&
+                  selectedDirection?.id === direction.id
+                }
+              />
+            );
+          }),
+        )}
 
         {/* Route Plan Highlighted */}
         {selectedRoutePlan && (
@@ -445,14 +417,14 @@ const RouteMap: React.FC = () => {
         }}
       >
         <TouchableOpacity
-          onPress={() => recenterView()}
+          onPress={() => centerViewOnLocation()}
           style={{ padding: 12 }}
         >
-          {isViewCenteredOnUser ? (
-            <MaterialIcons name="my-location" size={24} color="gray" />
-          ) : (
-            <MaterialIcons name="location-searching" size={24} color="gray" />
-          )}
+          <MaterialIcons
+            name={isViewCenteredOnUser ? 'my-location' : 'location-searching'}
+            size={24}
+            color="gray"
+          />
         </TouchableOpacity>
       </View>
     </>

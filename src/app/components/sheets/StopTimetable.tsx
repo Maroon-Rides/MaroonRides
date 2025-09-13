@@ -1,15 +1,14 @@
-import { StopSchedule } from '@data/types';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import moment from 'moment-strftime';
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
 import useAppStore from '@data/state/app_state';
 import { useTheme } from '@data/state/utils';
 import { appLogger } from '@data/utils/logger';
-import { useRoutes, useStopSchedule } from 'src/data/queries/app';
+import { useStopSchedule } from 'src/data/queries/app';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import DateSelector from '../ui/DateSelector';
 import SheetHeader from '../ui/SheetHeader';
@@ -35,15 +34,8 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
 
   const [showNonRouteSchedules, setShowNonRouteSchedules] =
     useState<boolean>(false);
-  const [nonRouteSchedules, setNonRouteSchedules] = useState<
-    StopSchedule[] | null
-  >(null);
-  const [routeSchedules, setRouteSchedules] = useState<StopSchedule[] | null>(
-    null,
-  );
   const theme = useTheme();
 
-  const { data: routes } = useRoutes();
   const {
     data: stopSchedule,
     isError: scheduleError,
@@ -56,56 +48,44 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
   const dayDecrement = () => {
     // Decrease the date by one day
     const prevDate = selectedTimetableDate.subtract(1, 'days');
-    setRouteSchedules(null);
-    setNonRouteSchedules(null);
     setSelectedTimetableDate(prevDate);
   };
 
   const dayIncrement = () => {
     // Increase the date by one day
     const nextDate = selectedTimetableDate.add(1, 'days');
-    setRouteSchedules(null);
-    setNonRouteSchedules(null);
     setSelectedTimetableDate(nextDate);
   };
 
-  // TODO move this to a query
-  useEffect(() => {
-    if (!stopSchedule) return;
+  const routeSchedules = useMemo(() => {
+    if (!stopSchedule) return null;
 
     // find the schedules for the selected route
     let routeStops = stopSchedule.filter(
-      (schedule) =>
-        schedule.routeName === selectedRoute?.name &&
-        schedule.routeNumber === selectedRoute?.routeCode,
+      (schedule) => schedule.route.id === selectedRoute?.id,
     );
 
     // filter anything that is end of route
-    routeStops = routeStops.filter((schedule) => !schedule.isEndOfRoute);
-    setRouteSchedules(routeStops);
+    return routeStops.filter((schedule) => !schedule.isEndOfRoute);
+  }, [stopSchedule]);
+
+  const nonRouteSchedules = useMemo(() => {
+    if (!stopSchedule) return null;
 
     // filter out non route schedules
     let nonRouteStops = stopSchedule.filter(
-      (schedule) =>
-        schedule.routeName !== selectedRoute?.name ||
-        schedule.routeNumber !== selectedRoute?.routeCode,
+      (schedule) => schedule.route.id !== selectedRoute?.id,
     );
 
     // filter anything that doesnt have stop times
     nonRouteStops = nonRouteStops.filter(
       (schedule) => schedule.timetable.length > 0,
     );
-    setNonRouteSchedules(nonRouteStops);
+
+    return nonRouteStops;
   }, [stopSchedule]);
 
-  function getLineColor(routeCode: string) {
-    const route = routes?.find((route) => route.routeCode === routeCode);
-    return route?.tintColor ?? theme.text;
-  }
-
   function onDismiss() {
-    setRouteSchedules(null);
-    setNonRouteSchedules(null);
     setSelectedStop(null);
     setShowNonRouteSchedules(false);
     setSelectedTimetableDate(moment());
@@ -200,13 +180,13 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                 />
               )}
               style={{ marginRight: 16 }}
-              renderItem={({ item, index }) => {
+              renderItem={({ item: schedule, index }) => {
                 return (
                   <View key={index} style={{ flex: 1 }}>
                     <Timetable
-                      item={item}
+                      route={schedule.route}
+                      fullSchedule={schedule}
                       stop={selectedStop!}
-                      tintColor={getLineColor(item.routeNumber)}
                     />
                   </View>
                 );
@@ -237,17 +217,15 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                     }}
                   />
                 )}
-                renderItem={({ item, index }) => {
+                renderItem={({ item: schedule, index }) => {
                   return (
                     <View key={index} style={{ flex: 1 }}>
                       <Timetable
-                        item={item}
+                        fullSchedule={schedule}
+                        route={schedule.route}
                         stop={selectedStop!}
                         dismissBack={() => {
-                          const route = routes!.find(
-                            (route) => route.routeCode === item.routeNumber,
-                          );
-
+                          const route = schedule.route;
                           if (route) {
                             appLogger.i(
                               `Route selected from timetable: ${route.routeCode} - ${route.name}`,
@@ -259,7 +237,6 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                             presentSheet(Sheets.ROUTE_DETAILS);
                           }
                         }}
-                        tintColor={getLineColor(item.routeNumber)}
                       />
                     </View>
                   );
@@ -278,7 +255,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                 borderRadius: 8,
                 marginTop: 16,
                 alignSelf: 'center',
-                backgroundColor: getLineColor(selectedRoute!.routeCode),
+                backgroundColor: selectedRoute!.tintColor,
               }}
               onPress={() => setShowNonRouteSchedules(!showNonRouteSchedules)}
             >

@@ -206,7 +206,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
           )}
           renderItem={({ item: stop, index }) => {
             // handle the last cell showing No upcoming departures
-            // TODO: move this to structure query
             let direction;
             let isLastStop = index === selectedDirection!.stops.length - 1;
             let hasAlternativeDirection = selectedRoute.directions.length > 1;

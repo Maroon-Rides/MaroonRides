@@ -1,6 +1,5 @@
 import {
-  MyLocationSuggestion,
-  SearchSuggestion,
+  MyLocationSuggestion
 } from '@data/typecheck/aggie_spirit';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -22,6 +21,7 @@ import {
 
 import useAppStore from '@data/state/app_state';
 import { useTheme } from '@data/state/utils';
+import { MyLocation, PlaceSuggestion } from '@data/types';
 import SuggestionInput from 'src/app/components/ui/SuggestionInput';
 import TimeInput from 'src/app/components/ui/TimeInput';
 import TripPlanCell from 'src/app/components/ui/TripPlanCell';
@@ -35,10 +35,10 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
   const theme = useTheme();
 
   // Planning Inputs
-  const [startLocation, setStartLocation] = useState<SearchSuggestion | null>(
-    MyLocationSuggestion,
+  const [startLocation, setStartLocation] = useState<PlaceSuggestion | null>(
+    MyLocation,
   );
-  const [endLocation, setEndLocation] = useState<SearchSuggestion | null>(null);
+  const [endLocation, setEndLocation] = useState<PlaceSuggestion | null>(null);
   const [deadline, setDeadline] = useState<'leave' | 'arrive'>('leave');
   const [time, setTime] = useState<Date>(new Date());
 

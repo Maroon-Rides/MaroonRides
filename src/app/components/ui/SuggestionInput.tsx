@@ -1,10 +1,10 @@
+import { useSearchSuggestions } from '@data/queries/route_planning';
 import useAppStore from '@data/state/app_state';
 import { useTheme } from '@data/state/utils';
-import { MyLocationSuggestion, SearchSuggestion } from '@data/typecheck/aggie_spirit';
+import { SearchSuggestion } from '@data/typecheck/aggie_spirit';
+import { MyLocation } from '@data/types';
 import { memo, useEffect, useState } from 'react';
 import { Keyboard, Platform, TextInput, View } from 'react-native';
-import { useSearchSuggestionAPI } from 'src/data/queries/api/route_planning';
-import { useFavoriteLocations } from 'src/data/queries/structure/storage';
 
 interface Props {
   location: SearchSuggestion | null;
@@ -28,10 +28,8 @@ const SuggestionInput: React.FC<Props> = ({
     (state) => state.setSuggestionOutput,
   );
 
-  const { data: favoriteLocations } = useFavoriteLocations();
-
   const [searchTerm, setSearchTerm] = useState('');
-  const { data: suggestions, isLoading } = useSearchSuggestionAPI(searchTerm);
+  const { data: suggestions, isLoading } = useSearchSuggestions(searchTerm);
 
   // figure out if this could be reactive state somehow. Maybe a context provider or a useRef?
   useEffect(() => {
@@ -52,7 +50,7 @@ const SuggestionInput: React.FC<Props> = ({
     if (!searchTerm) return;
 
     if (searchTerm.trim() === '' && suggestionsOutput) {
-      setSuggestions([MyLocationSuggestion, ...(favoriteLocations ?? [])]);
+      setSuggestions([MyLocation]);
       return;
     }
 
@@ -99,10 +97,7 @@ const SuggestionInput: React.FC<Props> = ({
           setSearchTerm(text);
           setSuggestionsOutput(outputName);
           if (text.trim() === '') {
-            setSuggestions([
-              MyLocationSuggestion,
-              ...(favoriteLocations ?? []),
-            ]);
+            setSuggestions([MyLocation]);
             return;
           }
         }}
@@ -112,10 +107,7 @@ const SuggestionInput: React.FC<Props> = ({
             setSearchTerm('');
           }
           if (searchTerm.trim() === '') {
-            setSuggestions([
-              MyLocationSuggestion,
-              ...(favoriteLocations ?? []),
-            ]);
+            setSuggestions([MyLocation]);
           } else {
             setSuggestions(suggestions ?? []);
           }

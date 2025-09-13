@@ -13,6 +13,7 @@ import {
   IGetVehiclesResponse,
   IMapServiceInterruption,
 } from '@data/typecheck/aggie_spirit';
+import { appLogger } from '@data/utils/logger';
 import {
   getBaseData,
   getNextDepartureTimes,
@@ -250,8 +251,10 @@ export const useVehiclesAPI = (routeKey: string) => {
 
       GetVehiclesResponseSchema.parse(busesResponse);
 
-      // TODO: make this a logger
-      if (busesResponse.length === 0) throw Error('No buses returned');
+      if (busesResponse.length === 0) {
+        appLogger.w(`No vehicles data returned for route: ${routeKey}`);
+        return null;
+      }
 
       return busesResponse[0];
     },

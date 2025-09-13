@@ -35,6 +35,7 @@ export interface Stop extends FromDataSource {
   name: string;
   id: string;
   location: Location;
+  isLastOnDirection: boolean;
 }
 
 export interface PathLocation extends Location {
@@ -78,9 +79,9 @@ export interface TimeEstimate extends FromDataSource {
 }
 
 export interface StopSchedule extends FromDataSource {
-  routeName: string;
-  routeNumber: string;
-  directionName: string;
+  route: Route;
+  direction: Direction;
+  stop: Stop;
   timetable: TimeEstimate[];
   isEndOfRoute: boolean;
 }
@@ -92,3 +93,31 @@ export interface Alert extends FromDataSource {
   affectedRoutes: Route[];
   originalRoute: Route;
 }
+
+// Route Planning
+export enum PlaceType {
+  STOP = 'stop',
+  MY_LOCATION = 'my_location',
+}
+export enum Deadline {
+  LEAVE_BY = 'leave',
+  ARRIVE_BY = 'arrive',
+}
+
+export const MY_LOCATION_ID = 'my-location';
+
+export interface PlaceSuggestion extends FromDataSource {
+  id: string;
+  name: string;
+  description: string;
+  location?: Location;
+  type: PlaceType;
+}
+
+export const MyLocation = {
+  id: MY_LOCATION_ID,
+  name: 'My Location',
+  description: '',
+  location: undefined,
+  type: PlaceType.MY_LOCATION,
+} as PlaceSuggestion;
