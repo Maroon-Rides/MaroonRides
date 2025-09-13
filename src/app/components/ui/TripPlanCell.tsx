@@ -4,6 +4,7 @@ import React from 'react';
 import { Keyboard, Text, TouchableOpacity, View } from 'react-native';
 
 import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 
 interface TripPlanCellProps {
@@ -11,7 +12,7 @@ interface TripPlanCellProps {
 }
 
 const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
   const setSelectedRoutePlan = useAppStore(
     (state) => state.setSelectedRoutePlan,
   );

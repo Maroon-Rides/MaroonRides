@@ -1,4 +1,5 @@
 import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { appLogger } from '@data/utils/logger';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
@@ -11,7 +12,7 @@ import BaseSheet, { SheetProps } from './BaseSheet';
 const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const alert = useAppStore((state) => state.selectedAlert);
   const setSelectedAlert = useAppStore((state) => state.setSelectedAlert);
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
   const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
   const { dismissSheet } = useSheetController();

@@ -21,6 +21,7 @@ import {
 } from 'react-native';
 
 import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import SuggestionInput from 'src/app/components/ui/SuggestionInput';
 import TimeInput from 'src/app/components/ui/TimeInput';
 import TripPlanCell from 'src/app/components/ui/TripPlanCell';
@@ -31,7 +32,7 @@ import BaseSheet, { SheetProps } from '../BaseSheet';
 
 // AlertList (for all routes and current route)
 const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
 
   // Planning Inputs
   const [startLocation, setStartLocation] = useState<SearchSuggestion | null>(

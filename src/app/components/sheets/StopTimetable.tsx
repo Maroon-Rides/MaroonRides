@@ -7,6 +7,7 @@ import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
 import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { appLogger } from '@data/utils/logger';
 import { useRoutes, useStopSchedule } from 'src/data/queries/app';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
@@ -40,7 +41,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
   const [routeSchedules, setRouteSchedules] = useState<StopSchedule[] | null>(
     null,
   );
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
 
   const { data: routes } = useRoutes();
   const {

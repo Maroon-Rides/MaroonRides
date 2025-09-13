@@ -1,4 +1,5 @@
 import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -28,7 +29,7 @@ let sheetStack: Sheets[] = [];
 
 const Home = () => {
   const setTheme = useAppStore((state) => state.setTheme);
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
 
   const sheetRefs: Record<Sheets, React.RefObject<BottomSheetModal | null>> = {
     routeList: useRef<BottomSheetModal>(null),

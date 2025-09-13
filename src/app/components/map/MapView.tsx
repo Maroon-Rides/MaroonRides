@@ -1,4 +1,5 @@
 import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { Direction, Route } from '@data/types';
 import { defaultMapRegion } from '@data/utils/geo';
 import { appLogger } from '@data/utils/logger';
@@ -35,7 +36,7 @@ const RouteMap: React.FC = () => {
   const selectedRoutePlanPathPart = useAppStore(
     (state) => state.selectedRoutePlanPathPart,
   );
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
   const poppedUpStopCallout = useAppStore((state) => state.poppedUpStopCallout);
 
   const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);

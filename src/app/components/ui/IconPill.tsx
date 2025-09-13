@@ -1,4 +1,4 @@
-import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import React, { memo } from 'react';
 import { Text, View, ViewProps } from 'react-native';
 
@@ -8,7 +8,7 @@ interface Props extends ViewProps {
 }
 
 const IconPill: React.FC<Props> = ({ text, icon, style }) => {
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
 
   return (
     <View

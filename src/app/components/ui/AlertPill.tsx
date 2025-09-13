@@ -1,4 +1,4 @@
-import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { Route } from '@data/types';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { memo } from 'react';
@@ -13,7 +13,7 @@ interface Props {
 
 const AlertPill: React.FC<Props> = ({ route }) => {
   const { presentSheet } = useSheetController();
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
   const { data: alerts } = useAlerts(route);
 
   return (

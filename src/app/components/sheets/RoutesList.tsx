@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 
 import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { Route } from '@data/types';
 import { appLogger } from '@data/utils/logger';
 import { useRoutes } from 'src/data/queries/app';
@@ -45,7 +46,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     (state) => state.setSelectedRouteCategory,
   );
   const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
 
   // Queries
   const {

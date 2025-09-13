@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 
 import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import AlertPill from '../ui/AlertPill';
 import BusIcon from '../ui/BusIcon';
@@ -34,7 +35,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   );
   const setScrollToStop = useAppStore((state) => state.setScrollToStop);
   const { dismissSheet } = useSheetController();
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
 
   // Controls SegmentedControl
   const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);

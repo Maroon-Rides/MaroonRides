@@ -1,4 +1,4 @@
-import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -17,7 +17,7 @@ const DateSelector: React.FC<DateSelectorComponentProps> = ({
   onLeftClick,
   onRightClick,
 }) => {
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
 
   return (
     <View

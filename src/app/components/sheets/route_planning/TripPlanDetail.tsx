@@ -1,5 +1,9 @@
 import useAppStore from '@data/state/app_state';
-import { IOptionDetail, IWalkingInstruction } from '@data/typecheck/aggie_spirit';
+import { useTheme } from '@data/state/utils';
+import {
+  IOptionDetail,
+  IWalkingInstruction,
+} from '@data/typecheck/aggie_spirit';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
@@ -13,7 +17,7 @@ import BaseSheet, { SheetProps } from '../BaseSheet';
 
 // TripPlanDetail (for all routes and current route)
 const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
   const selectedRoutePlan = useAppStore((state) => state.selectedRoutePlan);
   const setSelectedRoutePlan = useAppStore(
     (state) => state.setSelectedRoutePlan,
@@ -238,7 +242,7 @@ const StepDetail: React.FC<StepDetailProps> = ({
   step,
   styles: htmlStyles,
 }) => {
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
   const [showInstructions, setShowInstructions] = useState(false);
 
   return (
@@ -295,7 +299,7 @@ interface StepIconProps {
 }
 
 const StepIcon: React.FC<StepIconProps> = ({ icon }) => {
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
 
   return (
     <View

@@ -1,5 +1,6 @@
 import { useAlerts } from '@data/queries/app';
 import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { Alert } from '@data/types';
 import { appLogger } from '@data/utils/logger';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -12,7 +13,7 @@ import BaseSheet, { SheetProps } from './BaseSheet';
 
 // AlertList (for all routes and current route)
 const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
   const selectedRoute = useAppStore((state) => state.selectedRoute);
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
   const setSelectedDirection = useAppStore(

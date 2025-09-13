@@ -1,4 +1,4 @@
-import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import {
   Alert,
   Amenity,
@@ -40,7 +40,7 @@ export const useASRoutes = () => {
   const apiBaseDataQuery = useBaseDataAPI();
   const apiPatternPathsQuery = usePatternPathsAPI();
 
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
 
   const query = useDependencyQuery<Route[]>({
     queryKey: [ASQueryKey.ROUTE_LIST, theme.mode],

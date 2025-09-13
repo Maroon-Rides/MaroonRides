@@ -1,5 +1,6 @@
 import { useTimetableEstimate } from '@data/queries/app';
 import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { Stop, StopSchedule } from '@data/types';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import moment from 'moment';
@@ -31,7 +32,7 @@ const Timetable: React.FC<Props> = ({ item, stop, tintColor, dismissBack }) => {
   const selectedTimetableDate = useAppStore(
     (state) => state.selectedTimetableDate,
   );
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
 
   const [tableRows, setTableRows] = useState<TableItemRow[]>([]);
   const { data: estimate, isLoading } = useTimetableEstimate(

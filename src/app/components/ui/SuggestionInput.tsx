@@ -1,4 +1,5 @@
 import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { MyLocationSuggestion, SearchSuggestion } from '@data/typecheck/aggie_spirit';
 import { memo, useEffect, useState } from 'react';
 import { Keyboard, Platform, TextInput, View } from 'react-native';
@@ -20,7 +21,7 @@ const SuggestionInput: React.FC<Props> = ({
   outputName,
   setSuggestionLoading,
 }) => {
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
   const setSuggestions = useAppStore((state) => state.setSuggestions);
   const suggestionsOutput = useAppStore((state) => state.suggestionOutput);
   const setSuggestionsOutput = useAppStore(

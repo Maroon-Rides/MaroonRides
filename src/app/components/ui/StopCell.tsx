@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { Direction, Route, Stop } from '@data/types';
 import { useStopAmenities, useStopEstimate } from 'src/data/queries/app';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
@@ -40,7 +41,7 @@ const StopCell: React.FC<Props> = ({
   const setPoppedUpStopCallout = useAppStore(
     (state) => state.setPoppedUpStopCallout,
   );
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
   const { presentSheet } = useSheetController();
 
   const {

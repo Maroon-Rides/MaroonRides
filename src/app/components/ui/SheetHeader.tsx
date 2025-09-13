@@ -1,4 +1,4 @@
-import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import React, { memo } from 'react';
 import { Dimensions, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -16,7 +16,7 @@ const SheetHeader: React.FC<Props> = ({
   icon,
   onTitlePress,
 }) => {
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
 
   const screenWidth = Dimensions.get('window').width;
   return (

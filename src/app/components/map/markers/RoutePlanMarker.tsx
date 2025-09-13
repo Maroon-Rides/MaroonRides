@@ -1,4 +1,4 @@
-import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { RoutePlanMapMarker } from '@data/typecheck/aggie_spirit';
 import { getLighterColor } from '@data/utils/utils';
 import React, { memo } from 'react';
@@ -12,7 +12,7 @@ interface Props {
 // Stop marker with callout
 const RoutePlanMarker: React.FC<Props> = ({ marker }) => {
   const markerRef = React.useRef<MapMarker>(null);
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
 
   return (
     <Marker

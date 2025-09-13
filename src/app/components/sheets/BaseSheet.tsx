@@ -1,7 +1,7 @@
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import React, { ReactNode, useEffect, useState } from 'react';
 
-import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 
 export interface SheetProps {
@@ -24,7 +24,7 @@ interface Props extends SheetProps {
 // Settings (for all routes and current route)
 const BaseSheet: React.FC<Props> = (props) => {
   const [snap, _] = useState(props.initialSnapIndex ?? 1);
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
   const { setPresentCallback, setDismissCallback } = useSheetController();
 
   useEffect(() => {

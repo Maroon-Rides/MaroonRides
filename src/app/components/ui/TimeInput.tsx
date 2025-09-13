@@ -1,4 +1,4 @@
-import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import React, { useEffect, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -14,7 +14,7 @@ const TimeInput: React.FC<Props> = ({ onTimeChange, onTimeInputFocused }) => {
 
   const textInputRef = React.createRef<TextInput>();
 
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
 
   const formatTime = (value: string) => {
     // replace non-numeric characters

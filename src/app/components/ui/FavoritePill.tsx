@@ -1,4 +1,4 @@
-import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { FontAwesome } from '@expo/vector-icons';
 import React, { memo } from 'react';
 import { TouchableOpacity } from 'react-native';
@@ -14,7 +14,7 @@ interface Props {
 }
 
 const FavoritePill: React.FC<Props> = ({ routeShortName }) => {
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
 
   const { data: isFavorite } = useFavorite(routeShortName);
   const addFavorite = addFavoriteMutation();

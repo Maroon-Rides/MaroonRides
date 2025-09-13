@@ -14,6 +14,7 @@ import {
 
 import { ASQueryKey } from '@data/queries/structure/aggie_spirit';
 import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import getTheme from 'src/app/theme';
 import {
@@ -29,7 +30,7 @@ import BaseSheet, { SheetProps } from './BaseSheet';
 const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
   const [themeSetting, setTheme] = useState(0);
 
-  const theme = useAppStore((state) => state.theme);
+  const theme = useTheme();
   const setAppTheme = useAppStore((state) => state.setTheme);
   const { dismissSheet } = useSheetController();
 
