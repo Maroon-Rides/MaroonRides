@@ -1,6 +1,6 @@
+import useAppStore from '@data/state/app_state';
 import React from 'react';
 import { SafeAreaView, Text } from 'react-native';
-import useAppStore from 'src/data/app_state';
 
 const Error: React.FC = () => {
   const theme = useAppStore((state) => state.theme);

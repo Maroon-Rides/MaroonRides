@@ -1,7 +1,4 @@
-import useAppStore from '@data/app_state';
-import { findBoundingBox } from '@data/utils/geo';
-import moment from 'moment';
-import getTheme from 'src/app/theme';
+import useAppStore from '@data/state/app_state';
 import {
   Alert,
   Amenity,
@@ -14,7 +11,10 @@ import {
   Stop,
   StopSchedule,
   TimeEstimate,
-} from 'src/data/datatypes';
+} from '@data/types';
+import { findBoundingBox } from '@data/utils/geo';
+import moment from 'moment';
+import getTheme from 'src/app/theme';
 import {
   useBaseDataAPI,
   usePatternPathsAPI,

@@ -1,9 +1,9 @@
+import useAppStore from '@data/state/app_state';
 import { appLogger } from '@data/utils/logger';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import RenderHtml from 'react-native-render-html';
-import useAppStore from 'src/data/app_state';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import SheetHeader from '../ui/SheetHeader';
 import BaseSheet, { SheetProps } from './BaseSheet';

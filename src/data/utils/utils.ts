@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeSegmentedControlIOSChangeEvent } from '@react-native-segmented-control/segmented-control';
 import { NativeSyntheticEvent } from 'react-native';
-import { SearchSuggestion } from './interfaces';
+import { SearchSuggestion } from '../typecheck/aggie_spirit';
 
 export type SegmentedControlEvent =
   NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>;

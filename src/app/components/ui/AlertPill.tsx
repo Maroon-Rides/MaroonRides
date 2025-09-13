@@ -1,8 +1,8 @@
-import { Route } from '@data/datatypes';
+import useAppStore from '@data/state/app_state';
+import { Route } from '@data/types';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { memo } from 'react';
 import { TouchableOpacity } from 'react-native';
-import useAppStore from 'src/data/app_state';
 import { useAlerts } from 'src/data/queries/app';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import IconPill from './IconPill';

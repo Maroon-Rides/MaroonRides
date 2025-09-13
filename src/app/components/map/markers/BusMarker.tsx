@@ -1,8 +1,8 @@
+import useAppStore from '@data/state/app_state';
+import { Bus, Route } from '@data/types';
 import React, { memo } from 'react';
 import { Platform } from 'react-native';
 import { Marker } from 'react-native-maps';
-import useAppStore from 'src/data/app_state';
-import { Bus, Route } from 'src/data/datatypes';
 import BusCallout from '../BusCallout';
 import BusMapIcon from '../mapIcons/BusMapIcon';
 

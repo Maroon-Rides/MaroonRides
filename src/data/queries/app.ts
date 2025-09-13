@@ -10,7 +10,7 @@ import {
   Stop,
   StopSchedule,
   TimeEstimate,
-} from '../datatypes';
+} from '../types';
 import {
   useASAlerts,
   useASRoutes,

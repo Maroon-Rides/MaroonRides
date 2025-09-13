@@ -1,7 +1,7 @@
+import useAppStore from '@data/state/app_state';
 import { FontAwesome } from '@expo/vector-icons';
 import React, { memo } from 'react';
 import { TouchableOpacity } from 'react-native';
-import useAppStore from 'src/data/app_state';
 import {
   addFavoriteMutation,
   removeFavoriteMutation,

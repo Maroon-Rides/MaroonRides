@@ -1,6 +1,6 @@
+import useAppStore from '@data/state/app_state';
 import React, { useEffect, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
-import useAppStore from 'src/data/app_state';
 
 interface Props {
   onTimeChange: (time: Date) => void;

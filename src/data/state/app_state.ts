@@ -1,8 +1,8 @@
+import { IOptionDetail, SearchSuggestion } from '@data/typecheck/aggie_spirit';
+import { Alert, Direction, Route, Stop } from '@data/types';
 import moment from 'moment';
 import { Theme, lightMode } from 'src/app/theme';
 import { create } from 'zustand';
-import { Alert, Direction, Route, Stop } from './datatypes';
-import { IOptionDetail, SearchSuggestion } from './utils/interfaces';
 
 interface AppState {
   theme: Theme;
@@ -86,14 +86,14 @@ const useAppStore = create<AppState>()((set) => ({
   selectedAlert: null,
   setSelectedAlert: (selectedAlert) => set(() => ({ selectedAlert })),
 
-  zoomToStopLatLng: () => {},
+  zoomToStopLatLng: () => { },
   setZoomToStopLatLng: (zoomToStopLatLng) => set(() => ({ zoomToStopLatLng })),
 
   poppedUpStopCallout: null,
   setPoppedUpStopCallout: (poppedUpStopCallout) =>
     set(() => ({ poppedUpStopCallout })),
 
-  scrollToStop: () => {},
+  scrollToStop: () => { },
   setScrollToStop: (scrollToStop) =>
     set(() => ({ scrollToStop: scrollToStop })),
 

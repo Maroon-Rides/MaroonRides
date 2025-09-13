@@ -1,10 +1,10 @@
-import { Stop, StopSchedule } from '@data/datatypes';
 import { useTimetableEstimate } from '@data/queries/app';
+import useAppStore from '@data/state/app_state';
+import { Stop, StopSchedule } from '@data/types';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
-import useAppStore from 'src/data/app_state';
 import BusIcon from './BusIcon';
 
 interface Props {

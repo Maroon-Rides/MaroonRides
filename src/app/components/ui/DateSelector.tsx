@@ -1,7 +1,7 @@
+import useAppStore from '@data/state/app_state';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import useAppStore from 'src/data/app_state';
 
 // Define the types for the props
 interface DateSelectorComponentProps {

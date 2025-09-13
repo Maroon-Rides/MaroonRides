@@ -1,4 +1,7 @@
-import { MyLocationSuggestion, SearchSuggestion } from '@data/utils/interfaces';
+import {
+  MyLocationSuggestion,
+  SearchSuggestion,
+} from '@data/typecheck/aggie_spirit';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
@@ -17,10 +20,10 @@ import {
   View,
 } from 'react-native';
 
+import useAppStore from '@data/state/app_state';
 import SuggestionInput from 'src/app/components/ui/SuggestionInput';
 import TimeInput from 'src/app/components/ui/TimeInput';
 import TripPlanCell from 'src/app/components/ui/TripPlanCell';
-import useAppStore from 'src/data/app_state';
 import { useTripPlanAPI } from 'src/data/queries/api/route_planning';
 import { Sheets, useSheetController } from '../../providers/sheet-controller';
 import SheetHeader from '../../ui/SheetHeader';
@@ -332,11 +335,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
               {routeInfoError ===
                 'Location Unavailable, enable location in Settings.' && (
-                <Button
-                  title="Open Settings"
-                  onPress={() => Linking.openSettings()}
-                />
-              )}
+                  <Button
+                    title="Open Settings"
+                    onPress={() => Linking.openSettings()}
+                  />
+                )}
             </View>
           )}
         </View>

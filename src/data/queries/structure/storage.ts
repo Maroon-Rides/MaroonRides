@@ -1,7 +1,7 @@
-import { SearchSuggestion } from '@data/utils/interfaces';
+import { SearchSuggestion } from '@data/typecheck/aggie_spirit';
+import { Route } from '@data/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Route } from 'src/data/datatypes';
 import { useRoutes } from '../app';
 import { useDependencyQuery, useLoggingQuery } from '../utils';
 
@@ -22,6 +22,8 @@ export enum StorageKey {
   FAVORITES = 'favorites',
   DEFAULT_ROUTE_GROUP = 'default-group',
   FAVORITE_LOCATIONS = 'favoriteLocations',
+  SYSTEM_THEME = 'system-theme',
+  APP_THEME = 'app-theme',
 }
 
 export const useFavorites = () => {

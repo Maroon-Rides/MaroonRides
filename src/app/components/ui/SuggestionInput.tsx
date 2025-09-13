@@ -1,7 +1,7 @@
-import { MyLocationSuggestion, SearchSuggestion } from '@data/utils/interfaces';
+import useAppStore from '@data/state/app_state';
+import { MyLocationSuggestion, SearchSuggestion } from '@data/typecheck/aggie_spirit';
 import { memo, useEffect, useState } from 'react';
 import { Keyboard, Platform, TextInput, View } from 'react-native';
-import useAppStore from 'src/data/app_state';
 import { useSearchSuggestionAPI } from 'src/data/queries/api/route_planning';
 import { useFavoriteLocations } from 'src/data/queries/structure/storage';
 

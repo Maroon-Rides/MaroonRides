@@ -1,9 +1,9 @@
-import { RoutePlanMapMarker } from '@data/utils/interfaces';
+import useAppStore from '@data/state/app_state';
+import { RoutePlanMapMarker } from '@data/typecheck/aggie_spirit';
 import { getLighterColor } from '@data/utils/utils';
 import React, { memo } from 'react';
 import { Platform, View } from 'react-native';
 import { MapMarker, Marker } from 'react-native-maps';
-import useAppStore from 'src/data/app_state';
 
 interface Props {
   marker: RoutePlanMapMarker;

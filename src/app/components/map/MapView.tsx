@@ -1,3 +1,5 @@
+import useAppStore from '@data/state/app_state';
+import { Direction, Route } from '@data/types';
 import { defaultMapRegion } from '@data/utils/geo';
 import { appLogger } from '@data/utils/logger';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -8,13 +10,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, Platform, TouchableOpacity, View } from 'react-native';
 import MapView, { LatLng, Polyline } from 'react-native-maps';
 import { DarkGoogleMaps } from 'src/app/theme';
-import useAppStore from 'src/data/app_state';
-import { Direction, Route } from 'src/data/datatypes';
 import { useVehicles } from 'src/data/queries/app';
 import {
   RoutePlanMapMarker,
   RoutePlanPolylinePoint,
-} from '../../../data/utils/interfaces';
+} from '../../../data/typecheck/aggie_spirit';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import BusMarker from './markers/BusMarker';
 import RoutePlanMarker from './markers/RoutePlanMarker';

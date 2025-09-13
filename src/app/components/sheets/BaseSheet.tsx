@@ -1,7 +1,7 @@
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import React, { ReactNode, useEffect, useState } from 'react';
 
-import useAppStore from 'src/data/app_state';
+import useAppStore from '@data/state/app_state';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 
 export interface SheetProps {

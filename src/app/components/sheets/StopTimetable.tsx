@@ -1,4 +1,4 @@
-import { StopSchedule } from '@data/datatypes';
+import { StopSchedule } from '@data/types';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import moment from 'moment-strftime';
@@ -6,8 +6,8 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
+import useAppStore from '@data/state/app_state';
 import { appLogger } from '@data/utils/logger';
-import useAppStore from 'src/data/app_state';
 import { useRoutes, useStopSchedule } from 'src/data/queries/app';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import DateSelector from '../ui/DateSelector';

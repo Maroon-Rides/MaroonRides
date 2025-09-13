@@ -9,8 +9,8 @@ import {
   View,
 } from 'react-native';
 
-import useAppStore from 'src/data/app_state';
-import { Direction, Route, Stop } from 'src/data/datatypes';
+import useAppStore from '@data/state/app_state';
+import { Direction, Route, Stop } from '@data/types';
 import { useStopAmenities, useStopEstimate } from 'src/data/queries/app';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import AmenityRow from './AmenityRow';

@@ -1,6 +1,6 @@
+import useAppStore from '@data/state/app_state';
 import React, { memo } from 'react';
 import { Text, View, ViewProps } from 'react-native';
-import useAppStore from 'src/data/app_state';
 
 interface Props extends ViewProps {
   text?: string;

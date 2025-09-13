@@ -9,7 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 
-import useAppStore from 'src/data/app_state';
+import useAppStore from '@data/state/app_state';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import AlertPill from '../ui/AlertPill';
 import BusIcon from '../ui/BusIcon';
@@ -62,7 +62,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     setSelectedDirectionIndex(directionIndex);
   }, [selectedDirection]);
 
-  // TODO: this had [selectedRoute, selectedDirection] before
   function onPresent() {
     setScrollToStop(async (stop) => {
       const index = selectedDirection?.stops.findIndex(

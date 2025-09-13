@@ -12,7 +12,7 @@ import {
   IGetStopEstimatesResponse,
   IGetVehiclesResponse,
   IMapServiceInterruption,
-} from '@data/utils/interfaces';
+} from '@data/typecheck/aggie_spirit';
 import {
   getBaseData,
   getNextDepartureTimes,

@@ -3,7 +3,7 @@ import {
   IFoundStop,
   ITripPlanResponse,
   SearchSuggestion,
-} from '@data/utils/interfaces';
+} from '@data/typecheck/aggie_spirit';
 import { findBusStops, getTripPlan } from 'aggie-spirit-api';
 import { useASRoutes } from '../structure/aggie_spirit';
 import { useLoggingQuery } from '../utils';

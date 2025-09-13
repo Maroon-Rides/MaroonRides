@@ -16,9 +16,9 @@ import {
   View,
 } from 'react-native';
 
+import useAppStore from '@data/state/app_state';
+import { Route } from '@data/types';
 import { appLogger } from '@data/utils/logger';
-import useAppStore from 'src/data/app_state';
-import { Route } from 'src/data/datatypes';
 import { useRoutes } from 'src/data/queries/app';
 import {
   useDefaultRouteGroup,

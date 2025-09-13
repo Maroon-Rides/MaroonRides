@@ -1,4 +1,5 @@
-import { IOptionDetail, IWalkingInstruction } from '@data/utils/interfaces';
+import useAppStore from '@data/state/app_state';
+import { IOptionDetail, IWalkingInstruction } from '@data/typecheck/aggie_spirit';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
@@ -6,7 +7,6 @@ import React, { memo, useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import RenderHTML from 'react-native-render-html';
 import Timeline from 'react-native-timeline-flatlist';
-import useAppStore from 'src/data/app_state';
 import { Sheets, useSheetController } from '../../providers/sheet-controller';
 import SheetHeader from '../../ui/SheetHeader';
 import BaseSheet, { SheetProps } from '../BaseSheet';

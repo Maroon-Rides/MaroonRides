@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { LatLng } from 'react-native-maps';
-import { IAmenity } from './utils/interfaces';
+import { IAmenity } from './typecheck/aggie_spirit';
 
 export enum Amenity {
   AIR_CONDITIONING = 'Air Conditioning',

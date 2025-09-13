@@ -1,3 +1,4 @@
+import { Amenity } from '@data/types';
 import {
   FontAwesome5,
   MaterialCommunityIcons,
@@ -5,7 +6,6 @@ import {
 } from '@expo/vector-icons';
 import React, { memo, ReactElement } from 'react';
 import { View, ViewProps } from 'react-native';
-import { Amenity } from 'src/data/datatypes';
 
 interface Props extends ViewProps {
   amenities: Amenity[];

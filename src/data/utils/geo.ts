@@ -1,5 +1,5 @@
 import { Region } from 'react-native-maps';
-import { Location } from '../datatypes';
+import { Location } from '../types';
 
 export function findBoundingBox(coords: Location[]): Location[] {
   if (!coords || coords.length === 0) return [];

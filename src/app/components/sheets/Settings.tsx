@@ -13,11 +13,12 @@ import {
 } from 'react-native';
 
 import { ASQueryKey } from '@data/queries/structure/aggie_spirit';
+import useAppStore from '@data/state/app_state';
 import { useQueryClient } from '@tanstack/react-query';
 import getTheme from 'src/app/theme';
-import useAppStore from 'src/data/app_state';
 import {
   defaultGroupMutation,
+  StorageKey,
   useDefaultRouteGroup,
 } from 'src/data/queries/structure/storage';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
@@ -62,12 +63,12 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
 
   // TODO: move this an app state load with a mutation?
   useEffect(() => {
-    void AsyncStorage.getItem('app-theme').then(async (value) => {
+    void AsyncStorage.getItem(StorageKey.APP_THEME).then(async (value) => {
       if (value) {
         setTheme(Number(value));
       }
       const systemTheme = Appearance.getColorScheme() ?? 'light';
-      await AsyncStorage.setItem('system-theme', systemTheme);
+      await AsyncStorage.setItem(StorageKey.SYSTEM_THEME, systemTheme);
     });
   }, []);
 

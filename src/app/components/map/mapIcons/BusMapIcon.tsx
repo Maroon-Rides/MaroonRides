@@ -1,8 +1,8 @@
+import { Bus, Direction, Route } from '@data/types';
 import { getLighterColor } from '@data/utils/utils';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { View } from 'react-native';
-import { Bus, Direction, Route } from 'src/data/datatypes';
 
 interface Props {
   bus: Bus;

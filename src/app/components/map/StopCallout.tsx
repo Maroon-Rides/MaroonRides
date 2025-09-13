@@ -1,10 +1,10 @@
+import useAppStore from '@data/state/app_state';
+import { Direction, Route, Stop } from '@data/types';
 import moment from 'moment';
 import React, { memo } from 'react';
 import { ActivityIndicator, Platform, Text, View } from 'react-native';
 import { Callout } from 'react-native-maps';
 import { lightMode } from 'src/app/theme';
-import useAppStore from 'src/data/app_state';
-import { Direction, Route, Stop } from 'src/data/datatypes';
 import { useStopAmenities, useStopEstimate } from 'src/data/queries/app';
 import AmenityRow from '../ui/AmenityRow';
 import BusIcon from '../ui/BusIcon';

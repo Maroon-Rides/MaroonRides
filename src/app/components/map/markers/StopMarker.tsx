@@ -4,8 +4,8 @@ import { View } from 'react-native';
 import { MapMarker, Marker } from 'react-native-maps';
 import StopCallout from '../StopCallout';
 
-import useAppStore from 'src/data/app_state';
-import { Direction, Route, Stop } from 'src/data/datatypes';
+import useAppStore from '@data/state/app_state';
+import { Direction, Route, Stop } from '@data/types';
 
 interface Props {
   stop: Stop;
