@@ -424,33 +424,3 @@ export const GetTripPlanResponseSchema = z.object({
   options: z.array(OptionDetailSchema),
 });
 export type ITripPlanResponse = z.infer<typeof GetTripPlanResponseSchema>;
-
-export interface SearchSuggestion {
-  title: string;
-  subtitle: string;
-  lat?: number;
-  long?: number;
-  stopCode?: string;
-  placeId?: string;
-  type: 'stop' | 'map' | 'my-location';
-}
-
-export const MyLocationSuggestion: SearchSuggestion = {
-  title: 'My Location',
-  subtitle: '',
-  type: 'my-location',
-};
-
-export interface RoutePlanPolylinePoint {
-  latitude: number;
-  longitude: number;
-  stepIndex: number;
-  pathIndex: number;
-}
-
-export interface RoutePlanMapMarker {
-  latitude: number;
-  longitude: number;
-  icon: React.JSX.Element;
-  isOrigin?: boolean;
-}

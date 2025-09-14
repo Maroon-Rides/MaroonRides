@@ -139,6 +139,7 @@ export interface PlanInstruction {
   time: string;
   instruction: string;
   detailedWalkingInstructions: WalkingInstruction[];
+  pathPoints: Location[];
 }
 
 export interface PlanItem extends FromDataSource {
@@ -146,4 +147,14 @@ export interface PlanItem extends FromDataSource {
   endTime: number;
   endTimeText: string;
   instructions: PlanInstruction[];
+}
+
+export interface RoutePlanPoint extends Location {
+  stepIndex: number;
+  pathIndex: number;
+}
+
+export interface RoutePlanMarkedPoint extends Location {
+  icon: 'point' | 'wait';
+  isOrigin: boolean;
 }

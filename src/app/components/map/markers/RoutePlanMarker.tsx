@@ -1,18 +1,35 @@
 import { useTheme } from '@data/state/utils';
-import { RoutePlanMapMarker } from '@data/typecheck/aggie_spirit';
+import { RoutePlanMarkedPoint } from '@data/types';
 import { getLighterColor } from '@data/utils/utils';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { memo } from 'react';
 import { Platform, View } from 'react-native';
 import { MapMarker, Marker } from 'react-native-maps';
 
 interface Props {
-  marker: RoutePlanMapMarker;
+  marker: RoutePlanMarkedPoint;
 }
 
 // Stop marker with callout
 const RoutePlanMarker: React.FC<Props> = ({ marker }) => {
   const markerRef = React.useRef<MapMarker>(null);
   const theme = useTheme();
+
+  function getIcon(type: 'point' | 'wait') {
+    switch (type) {
+      case 'point':
+        return <MaterialCommunityIcons name="circle" size={10} color="white" />;
+      case 'wait':
+        return (
+          <Ionicons
+            name="time"
+            size={16}
+            color="white"
+            style={{ transform: [{ rotate: '-45deg' }] }}
+          />
+        );
+    }
+  }
 
   return (
     <Marker
@@ -48,7 +65,7 @@ const RoutePlanMarker: React.FC<Props> = ({ marker }) => {
             elevation: 800,
           }}
         >
-          {marker.icon}
+          {getIcon(marker.icon)}
         </View>
       ) : (
         <View
@@ -68,7 +85,7 @@ const RoutePlanMarker: React.FC<Props> = ({ marker }) => {
             elevation: 800,
           }}
         >
-          {marker.icon}
+          {getIcon(marker.icon)}
         </View>
       )}
     </Marker>

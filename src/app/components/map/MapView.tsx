@@ -3,19 +3,14 @@ import { useTheme } from '@data/state/utils';
 import { Direction, Route } from '@data/types';
 import { defaultMapRegion } from '@data/utils/geo';
 import { appLogger } from '@data/utils/logger';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { processRoutePlanMapComponents } from '@data/utils/route-planning';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { decode } from '@googlemaps/polyline-codec';
 import * as Location from 'expo-location';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, Platform, TouchableOpacity, View } from 'react-native';
 import MapView, { LatLng, Polyline } from 'react-native-maps';
 import { DarkGoogleMaps } from 'src/app/theme';
 import { useVehicles } from 'src/data/queries/app';
-import {
-  RoutePlanMapMarker,
-  RoutePlanPolylinePoint,
-} from '../../../data/typecheck/aggie_spirit';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import BusMarker from './markers/BusMarker';
 import RoutePlanMarker from './markers/RoutePlanMarker';
@@ -32,27 +27,21 @@ const RouteMap: React.FC = () => {
   const drawnRoutes = useAppStore((state) => state.drawnRoutes);
   const setZoomToStopLatLng = useAppStore((state) => state.setZoomToStopLatLng);
   const selectedDirection = useAppStore((state) => state.selectedDirection);
-  const selectedRoutePlan = useAppStore((state) => state.selectedRoutePlan);
-  const selectedRoutePlanPathPart = useAppStore(
-    (state) => state.selectedRoutePlanPathPart,
-  );
   const theme = useTheme();
   const poppedUpStopCallout = useAppStore((state) => state.poppedUpStopCallout);
   const [isViewCenteredOnUser, setIsViewCenteredOnUser] = useState(false);
   const { presentSheet } = useSheetController();
 
-  const [selectedRoutePlanPath, setSelectedRoutePlanPath] = useState<
-    RoutePlanPolylinePoint[]
-  >([]);
-  const [highlightedRoutePlanPath, setHighlightedRoutePlanPath] = useState<
-    RoutePlanPolylinePoint[]
-  >([]);
-  const [fadedRoutePlanPath, setFadedRoutePlanPath] = useState<
-    RoutePlanPolylinePoint[][]
-  >([]);
-  const [routePlanMapMarkers, setRoutePlanMapMarkers] = useState<
-    RoutePlanMapMarker[]
-  >([]);
+  const selectedRoutePlan = useAppStore((state) => state.selectedRoutePlan);
+  const selectedRoutePlanPathPart = useAppStore(
+    (state) => state.selectedRoutePlanPathPart,
+  );
+  const routePlanMapComponents = useMemo(() => {
+    return processRoutePlanMapComponents(
+      selectedRoutePlan,
+      selectedRoutePlanPathPart,
+    );
+  }, [selectedRoutePlan, selectedRoutePlanPathPart]);
 
   const { data: buses } = useVehicles(selectedRoute);
 
@@ -70,162 +59,13 @@ const RouteMap: React.FC = () => {
   // center the view on the drawn routes
   useEffect(() => {
     centerViewOnRoutes();
-  }, [drawnRoutes, selectedRoutePlanPath]);
+  }, [drawnRoutes, routePlanMapComponents.highlighted]);
 
-  // Generate the path points for the selected route plan
-  // TODO: make this a useMemo and useEffect
   useEffect(() => {
-    if (!selectedRoutePlan) {
-      setSelectedRoutePlanPath([]);
-      setHighlightedRoutePlanPath([]);
-      setFadedRoutePlanPath([]);
-      setRoutePlanMapMarkers([]);
-      return;
+    if (routePlanMapComponents.markers.length === 1) {
+      void centerViewOnLocation(routePlanMapComponents.markers[0], 0.005);
     }
-
-    let polyline: RoutePlanPolylinePoint[] = [];
-    selectedRoutePlan?.instructions.forEach((instruction, index) => {
-      if (instruction.polyline) {
-        decode(instruction.polyline).forEach((point) => {
-          polyline.push({
-            latitude: point[0],
-            longitude: point[1],
-            stepIndex: index,
-            pathIndex: polyline.length,
-          });
-        });
-      }
-    });
-
-    setSelectedRoutePlanPath(polyline);
-
-    // clear the highlighted path if no route plan is selected
-
-    setHighlightedRoutePlanPath(polyline);
-    setFadedRoutePlanPath([]);
-
-    if (polyline.length === 0) {
-      setRoutePlanMapMarkers([]);
-      return;
-    }
-
-    setRoutePlanMapMarkers([
-      {
-        icon: <MaterialCommunityIcons name="circle" size={12} color="white" />,
-        latitude: polyline[polyline.length - 1]!.latitude,
-        longitude: polyline[polyline.length - 1]!.longitude,
-      },
-      {
-        icon: <MaterialCommunityIcons name="circle" size={10} color="white" />,
-        latitude: polyline[0]!.latitude,
-        longitude: polyline[0]!.longitude,
-        isOrigin: true,
-      },
-    ]);
-  }, [selectedRoutePlan]);
-
-  // Adjust the zoom and the path to show the selected part of the route plan
-  // TODO: needs to be a memo?
-  useEffect(() => {
-    if (!selectedRoutePlan) return;
-
-    // filter the selected route plan path to only show the selected part
-    let highlighted: RoutePlanPolylinePoint[] = [];
-    if (selectedRoutePlanPathPart === -1) {
-      highlighted = selectedRoutePlanPath;
-      setHighlightedRoutePlanPath(selectedRoutePlanPath);
-      setFadedRoutePlanPath([]);
-      centerViewOnRoutes();
-    }
-
-    // filter the selected route plan path to only show the selected part
-    if (selectedRoutePlanPathPart >= 0) {
-      highlighted = selectedRoutePlanPath.filter(
-        (point) => point.stepIndex === selectedRoutePlanPathPart,
-      );
-      setHighlightedRoutePlanPath(highlighted);
-
-      // break the path into two parts, before and after the selected part
-      let faded: RoutePlanPolylinePoint[][] = [[], []];
-      selectedRoutePlanPath.forEach((point) => {
-        if (point.stepIndex < selectedRoutePlanPathPart) {
-          faded[0]!.push(point);
-        } else if (point.stepIndex > selectedRoutePlanPathPart) {
-          faded[1]!.push(point);
-        }
-      });
-
-      setFadedRoutePlanPath(faded);
-    }
-
-    if (highlighted.length === 0) {
-      // get the last point of the path index - 1 and zoom to that point
-      // do this by finding the last point that has a stepIndex of selectedRoutePlanPathPart - 1
-      const lastPoint = [...selectedRoutePlanPath]
-        .reverse()
-        .find((point) => point.stepIndex === selectedRoutePlanPathPart - 1);
-
-      if (lastPoint) {
-        // if its the last location, show the finish flag
-        if (lastPoint.pathIndex === selectedRoutePlanPath.length - 1) {
-          setRoutePlanMapMarkers([
-            {
-              icon: (
-                <MaterialCommunityIcons name="circle" size={14} color="white" />
-              ),
-              latitude: lastPoint.latitude,
-              longitude: lastPoint.longitude,
-            },
-          ]);
-        } else {
-          setRoutePlanMapMarkers([
-            {
-              icon: (
-                <Ionicons
-                  name="time"
-                  size={16}
-                  color="white"
-                  style={{ transform: [{ rotate: '-45deg' }] }}
-                />
-              ),
-              latitude: lastPoint.latitude,
-              longitude: lastPoint.longitude,
-            },
-          ]);
-        }
-
-        mapViewRef.current?.animateToRegion({
-          latitude: lastPoint.latitude - 0.002,
-          longitude: lastPoint.longitude,
-          latitudeDelta: 0.005,
-          longitudeDelta: 0.005,
-        });
-      }
-
-      return;
-    } else {
-      setRoutePlanMapMarkers([
-        {
-          icon: (
-            <MaterialCommunityIcons name="circle" size={12} color="white" />
-          ),
-          latitude: highlighted[highlighted.length - 1]!.latitude,
-          longitude: highlighted[highlighted.length - 1]!.longitude,
-        },
-        {
-          icon: (
-            <MaterialCommunityIcons name="circle" size={10} color="white" />
-          ),
-          latitude: highlighted[0]!.latitude,
-          longitude: highlighted[0]!.longitude,
-          isOrigin: true,
-        },
-      ]);
-    }
-
-    // animate to the selected part of the route plan
-    centerViewOnRoutes(highlighted);
-  }, [selectedRoutePlanPathPart]);
+  }, [routePlanMapComponents.markers]);
 
   // handle weird edge case where map does not pick up on the initial region
   useEffect(() => {
@@ -240,7 +80,7 @@ const RouteMap: React.FC = () => {
     const coords: LatLng[] = routes ?? [
       ...(selectedRoute?.bounds ?? []),
       ...(drawnRoutes?.flatMap((route) => route.bounds) ?? []),
-      ...selectedRoutePlanPath,
+      ...routePlanMapComponents.highlighted,
     ];
 
     if (coords.length > 0) {
@@ -359,7 +199,7 @@ const RouteMap: React.FC = () => {
         {selectedRoutePlan && (
           <Polyline
             key={'highlighted-route-plan'}
-            coordinates={highlightedRoutePlanPath}
+            coordinates={routePlanMapComponents.highlighted}
             strokeColor={theme.myLocation}
             strokeWidth={5}
           />
@@ -367,7 +207,7 @@ const RouteMap: React.FC = () => {
 
         {/* Route Plan Faded */}
         {selectedRoutePlan &&
-          fadedRoutePlanPath.map((path, index) => {
+          routePlanMapComponents.faded.map((path, index) => {
             return (
               <Polyline
                 key={`faded-route-plan-${index}`}
@@ -380,7 +220,7 @@ const RouteMap: React.FC = () => {
 
         {/* Route Plan Markers */}
         {selectedRoutePlan &&
-          routePlanMapMarkers.map((marker, index) => {
+          routePlanMapComponents.markers.map((marker, index) => {
             return (
               <RoutePlanMarker
                 key={`route-plan-marker-${index}`}
