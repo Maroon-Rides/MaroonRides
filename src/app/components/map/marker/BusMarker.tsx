@@ -16,17 +16,6 @@ interface Props {
 const BusMarker: React.FC<Props> = ({ bus, route }) => {
   const selectedDirection = useAppStore((state) => state.selectedDirection);
 
-  const setSelectedDirection = useAppStore(
-    (state) => state.setSelectedDirection,
-  );
-
-  //if direction is not selected and route is inactive, then call setSelectedDirection w/ parameter bus.directionKey
-  const busDefaultDirection = () => {
-    if (selectedDirection?.id !== bus.direction.id) {
-      setSelectedDirection(bus.direction);
-    }
-  };
-
   const getRotationProp = (bearing: number | undefined) => {
     return [
       {
@@ -59,7 +48,6 @@ const BusMarker: React.FC<Props> = ({ bus, route }) => {
           alignItems: 'center',
         },
       ]}
-      onPress={() => busDefaultDirection()}
     >
       {/* Bus Icon on Map*/}
       <View

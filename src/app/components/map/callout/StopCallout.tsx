@@ -1,4 +1,3 @@
-import useAppStore from '@data/state/app_state';
 import { Direction, Route, Stop } from '@data/types';
 import moment from 'moment';
 import React, { memo } from 'react';
@@ -24,11 +23,6 @@ const StopCallout: React.FC<Props> = ({
   route,
   direction,
 }) => {
-  const scrollToStop = useAppStore((state) => state.scrollToStop);
-  const setSelectedDirection = useAppStore(
-    (state) => state.setSelectedDirection,
-  );
-
   const { data: estimates, isLoading } = useStopEstimate(
     route,
     direction,
@@ -46,10 +40,6 @@ const StopCallout: React.FC<Props> = ({
         height: Platform.OS === 'android' ? 60 + 18 : 60,
         zIndex: 1000,
         elevation: 1000,
-      }}
-      onPress={() => {
-        setSelectedDirection(direction);
-        scrollToStop(stop);
       }}
     >
       <View

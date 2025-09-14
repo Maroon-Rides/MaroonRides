@@ -4,7 +4,6 @@ import { View } from 'react-native';
 import { MapMarker, Marker } from 'react-native-maps';
 import StopCallout from '../callout/StopCallout';
 
-import useAppStore from '@data/state/app_state';
 import { Direction, Route, Stop } from '@data/types';
 
 interface Props {
@@ -26,9 +25,6 @@ const StopMarker: React.FC<Props> = ({
   active,
 }) => {
   const markerRef = React.useRef<MapMarker>(null);
-  const setSelectedDirection = useAppStore(
-    (state) => state.setSelectedDirection,
-  );
 
   // If the global poppedUpStopCallout is the same as the current stop, show the callout on screen
   useEffect(() => {
@@ -37,11 +33,6 @@ const StopMarker: React.FC<Props> = ({
     }
   }, [isCalloutShown]);
 
-  const defaultDirection = () => {
-    if (active === false) {
-      setSelectedDirection(direction);
-    }
-  };
 
   return (
     <Marker
@@ -50,7 +41,6 @@ const StopMarker: React.FC<Props> = ({
       tracksViewChanges={false}
       anchor={{ x: 0.5, y: 0.5 }}
       pointerEvents="auto"
-      onPress={() => defaultDirection()}
     >
       <View
         style={{
