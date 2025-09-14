@@ -261,13 +261,13 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                   {favorites?.find(
                     (fav) => fav.routeCode === route.routeCode,
                   ) && (
-                      <FontAwesome
-                        name="star"
-                        size={16}
-                        color={theme.starColor}
-                        style={{ marginLeft: 4 }}
-                      />
-                    )}
+                    <FontAwesome
+                      name="star"
+                      size={16}
+                      color={theme.starColor}
+                      style={{ marginLeft: 4 }}
+                    />
+                  )}
                 </View>
                 {route.directions.length === 2 ? (
                   <View

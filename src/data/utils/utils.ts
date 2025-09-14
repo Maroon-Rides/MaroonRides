@@ -44,5 +44,3 @@ export async function getColorScheme(): Promise<string> {
       return systemTheme;
   }
 }
-
-

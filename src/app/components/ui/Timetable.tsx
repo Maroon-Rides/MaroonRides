@@ -12,7 +12,7 @@ interface Props {
   fullSchedule: StopSchedule;
   stop: Stop;
   route: Route;
-  date: moment.Moment
+  date: moment.Moment;
   dismissBack?: () => void;
 }
 
@@ -131,12 +131,11 @@ const Timetable: React.FC<Props> = ({
             </View>
           );
         })}
-        {fullSchedule.timetable.length === 0 &&
-          !fullSchedule.stop && (
-            <Text style={{ color: 'grey', textAlign: 'center' }}>
-              No Timetable for Today
-            </Text>
-          )}
+        {fullSchedule.timetable.length === 0 && !fullSchedule.stop && (
+          <Text style={{ color: 'grey', textAlign: 'center' }}>
+            No Timetable for Today
+          </Text>
+        )}
       </View>
     </View>
   );

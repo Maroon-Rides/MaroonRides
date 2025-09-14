@@ -72,10 +72,10 @@ export function processRoutePlanMapComponents(
         pathPoints.length === 0
           ? []
           : createMarkers(
-            pathPoints[0]!,
-            pathPoints[pathPoints.length - 1]!,
-            true,
-          ),
+              pathPoints[0]!,
+              pathPoints[pathPoints.length - 1]!,
+              true,
+            ),
     };
   }
 

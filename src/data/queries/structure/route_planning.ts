@@ -34,9 +34,9 @@ export const useASSearchSuggestions = (query: string) => {
         description: suggestion.subtitle,
         location: suggestion.stopCode
           ? {
-            latitude: suggestion.lat!,
-            longitude: suggestion.long!,
-          }
+              latitude: suggestion.lat!,
+              longitude: suggestion.long!,
+            }
           : null,
         type: suggestion.type,
       })) as PlaceSuggestion[];
@@ -55,24 +55,24 @@ export const useASTripPlan = (
   // Convert to old data types for api
   const orginSuggestion: SearchSuggestion | null = origin
     ? {
-      title: origin.name,
-      subtitle: origin.description,
-      stopCode: origin.id !== MY_LOCATION_ID ? origin.id : undefined,
-      lat: origin.location?.latitude,
-      long: origin.location?.longitude,
-      type: origin.type as 'stop' | 'my-location' | 'map',
-    }
+        title: origin.name,
+        subtitle: origin.description,
+        stopCode: origin.id !== MY_LOCATION_ID ? origin.id : undefined,
+        lat: origin.location?.latitude,
+        long: origin.location?.longitude,
+        type: origin.type as 'stop' | 'my-location' | 'map',
+      }
     : null;
   const destinationSuggestion: SearchSuggestion | null = destination
     ? {
-      title: destination.name,
-      subtitle: destination.description,
-      stopCode:
-        destination.id !== MY_LOCATION_ID ? destination.id : undefined,
-      lat: destination.location?.latitude,
-      long: destination.location?.longitude,
-      type: destination.type as 'stop' | 'my-location' | 'map',
-    }
+        title: destination.name,
+        subtitle: destination.description,
+        stopCode:
+          destination.id !== MY_LOCATION_ID ? destination.id : undefined,
+        lat: destination.location?.latitude,
+        long: destination.location?.longitude,
+        type: destination.type as 'stop' | 'my-location' | 'map',
+      }
     : null;
 
   const apiTripPlanQuery = useTripPlanAPI(

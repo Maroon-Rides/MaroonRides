@@ -338,11 +338,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
               {routeInfoError ===
                 'Location Unavailable, enable location in Settings.' && (
-                  <Button
-                    title="Open Settings"
-                    onPress={() => Linking.openSettings()}
-                  />
-                )}
+                <Button
+                  title="Open Settings"
+                  onPress={() => Linking.openSettings()}
+                />
+              )}
             </View>
           )}
         </View>
