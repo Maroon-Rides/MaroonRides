@@ -122,6 +122,10 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
     appLogger.i('Refetched route groups and favorites on sheet present');
   }
 
+  function isFavorite(route: Route) {
+    return !!favorites?.find((fav) => fav.routeCode === route.routeCode);
+  }
+
   return (
     <BaseSheet
       sheetRef={sheetRef}
@@ -258,9 +262,7 @@ const RoutesList: React.FC<SheetProps> = ({ sheetRef }) => {
                   >
                     {route.name}
                   </Text>
-                  {favorites?.find(
-                    (fav) => fav.routeCode === route.routeCode,
-                  ) && (
+                  {isFavorite(route) && (
                     <FontAwesome
                       name="star"
                       size={16}

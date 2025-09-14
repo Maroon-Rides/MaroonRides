@@ -16,7 +16,7 @@ interface Props {
 const SuggestionInput: React.FC<Props> = ({
   location,
   icon,
-  onFocus,
+  onFocus: onFocusCallback,
   outputName,
   setSuggestionLoading,
 }) => {
@@ -56,6 +56,30 @@ const SuggestionInput: React.FC<Props> = ({
     suggestionsOutput && setSuggestions(suggestions ?? []);
   }, [suggestions]);
 
+  function onFocus() {
+    // clear search so user can start typing immediately
+    if (location?.type === PlaceType.MY_LOCATION) {
+      setSearchTerm('');
+    }
+    if (searchTerm.trim() === '') {
+      setSuggestions([MyLocation]);
+    } else {
+      setSuggestions(suggestions ?? []);
+    }
+
+    setSuggestionsOutput(outputName);
+    onFocusCallback();
+  }
+
+  function onChangeText(text: string) {
+    setSearchTerm(text);
+    setSuggestionsOutput(outputName);
+    if (text.trim() === '') {
+      setSuggestions([MyLocation]);
+      return;
+    }
+  }
+
   return (
     <View
       style={{
@@ -94,28 +118,8 @@ const SuggestionInput: React.FC<Props> = ({
         }}
         clearButtonMode="while-editing"
         value={searchTerm}
-        onChangeText={(text) => {
-          setSearchTerm(text);
-          setSuggestionsOutput(outputName);
-          if (text.trim() === '') {
-            setSuggestions([MyLocation]);
-            return;
-          }
-        }}
-        onFocus={() => {
-          // clear search so user can start typing immediately
-          if (location?.type === PlaceType.MY_LOCATION) {
-            setSearchTerm('');
-          }
-          if (searchTerm.trim() === '') {
-            setSuggestions([MyLocation]);
-          } else {
-            setSuggestions(suggestions ?? []);
-          }
-
-          setSuggestionsOutput(outputName);
-          onFocus();
-        }}
+        onChangeText={onChangeText}
+        onFocus={onFocus}
         placeholder="Enter a location"
         placeholderTextColor={
           Platform.OS === 'android'

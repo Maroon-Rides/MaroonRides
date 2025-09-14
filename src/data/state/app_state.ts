@@ -67,8 +67,13 @@ const useAppStore = create<AppState>()((set) => ({
   setDrawnRoutes: (routes) => set(() => ({ drawnRoutes: routes })),
 
   selectedRoute: null,
-  setSelectedRoute: (selectedRoute) => set(() => ({ selectedRoute })),
-  clearSelectedRoute: () => set(() => ({ selectedRoute: null })),
+  setSelectedRoute: (selectedRoute) =>
+    set(() => ({
+      selectedRoute,
+      selectedDirection: selectedRoute?.directions[0] ?? null,
+    })),
+  clearSelectedRoute: () =>
+    set(() => ({ selectedRoute: null, selectedDirection: null })),
 
   selectedDirection: null,
   setSelectedDirection: (selectedDirection) =>
@@ -84,14 +89,14 @@ const useAppStore = create<AppState>()((set) => ({
   selectedAlert: null,
   setSelectedAlert: (selectedAlert) => set(() => ({ selectedAlert })),
 
-  zoomToStopLatLng: () => {},
+  zoomToStopLatLng: () => { },
   setZoomToStopLatLng: (zoomToStopLatLng) => set(() => ({ zoomToStopLatLng })),
 
   poppedUpStopCallout: null,
   setPoppedUpStopCallout: (poppedUpStopCallout) =>
     set(() => ({ poppedUpStopCallout })),
 
-  scrollToStop: () => {},
+  scrollToStop: () => { },
   setScrollToStop: (scrollToStop) =>
     set(() => ({ scrollToStop: scrollToStop })),
 

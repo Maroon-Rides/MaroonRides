@@ -46,7 +46,7 @@ const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
   // for whatever reason, alerts gets set to null if we use onDismiss
   // thus we have to do cleanup before calling dismiss
-  function handleDismiss() {
+  function dismiss() {
     if (!alert) return;
 
     appLogger.i(`Loading previous selected route: ${alert.originalRoute.name}`);
@@ -67,10 +67,7 @@ const AlertDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         <SheetHeader
           title="Alert Details"
           icon={
-            <TouchableOpacity
-              style={{ marginLeft: 10 }}
-              onPress={handleDismiss}
-            >
+            <TouchableOpacity style={{ marginLeft: 10 }} onPress={dismiss}>
               <Ionicons
                 name="close-circle"
                 size={28}

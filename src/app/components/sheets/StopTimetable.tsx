@@ -1,5 +1,6 @@
 import useAppStore from '@data/state/app_state';
 import { useTheme } from '@data/state/utils';
+import { Route } from '@data/types';
 import { appLogger } from '@data/utils/logger';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
@@ -77,6 +78,17 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
     setSelectedStop(null);
     setShowNonRouteSchedules(false);
     setSelectedTimetableDate(moment());
+  }
+
+  function dismissBack(route: Route) {
+    appLogger.i(
+      `Route selected from timetable: ${route.routeCode} - ${route.name}`,
+    );
+
+    dismissSheet(Sheets.STOP_TIMETABLE);
+    setSelectedRoute(route);
+    setDrawnRoutes([route]);
+    presentSheet(Sheets.ROUTE_DETAILS);
   }
 
   return (
@@ -214,19 +226,7 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                         route={schedule.route}
                         stop={selectedStop!}
                         date={selectedTimetableDate}
-                        dismissBack={() => {
-                          const route = schedule.route;
-                          if (route) {
-                            appLogger.i(
-                              `Route selected from timetable: ${route.routeCode} - ${route.name}`,
-                            );
-
-                            dismissSheet(Sheets.STOP_TIMETABLE);
-                            setSelectedRoute(route);
-                            setDrawnRoutes([route]);
-                            presentSheet(Sheets.ROUTE_DETAILS);
-                          }
-                        }}
+                        dismissBack={() => dismissBack(schedule.route)}
                       />
                     </View>
                   );

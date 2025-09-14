@@ -33,6 +33,13 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
     dismissSheet(Sheets.ALERTS);
   };
 
+  function selectAlert(alert: Alert) {
+    appLogger.i(`Loading alert details for: ${alert.title}`);
+    setSelectedRoute(null);
+    setSelectedDirection(null);
+    displayDetailAlert(alert);
+  }
+
   return (
     <BaseSheet
       sheetKey={Sheets.ALERTS}
@@ -88,12 +95,7 @@ const AlertList: React.FC<SheetProps> = ({ sheetRef }) => {
         renderItem={({ item: alert }) => {
           return (
             <TouchableOpacity
-              onPress={() => {
-                appLogger.i(`Loading alert details for: ${alert.title}`);
-                setSelectedRoute(null);
-                setSelectedDirection(null);
-                displayDetailAlert(alert);
-              }}
+              onPress={() => selectAlert(alert)}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',

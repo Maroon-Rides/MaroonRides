@@ -9,8 +9,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 
+import { QueryKey } from '@data/queries/app';
 import useAppStore from '@data/state/app_state';
 import { useTheme } from '@data/state/utils';
+import { Stop } from '@data/types';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import AlertPill from '../ui/AlertPill';
 import BusIcon from '../ui/BusIcon';
@@ -24,7 +26,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
   const selectedRoute = useAppStore((state) => state.selectedRoute);
   const clearSelectedRoute = useAppStore((state) => state.clearSelectedRoute);
-
   const selectedDirection = useAppStore((state) => state.selectedDirection);
   const setSelectedDirection = useAppStore(
     (state) => state.setSelectedDirection,
@@ -36,20 +37,10 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const setScrollToStop = useAppStore((state) => state.setScrollToStop);
   const { dismissSheet } = useSheetController();
   const theme = useTheme();
+  const client = useQueryClient();
 
   // Controls SegmentedControl
   const [selectedDirectionIndex, setSelectedDirectionIndex] = useState(0);
-  const client = useQueryClient();
-
-  // Update the selected route when the currentSelectedRoute changes but only if it is not null
-  // Prevents visual glitch when the sheet is closed and the selected route is null
-  useEffect(() => {
-    if (!selectedRoute) return;
-
-    // reset direction selector
-    setSelectedDirection(selectedRoute.directions[0] ?? null);
-    setSelectedDirectionIndex(0);
-  }, [selectedRoute]);
 
   // update the segmented control when the selected direction changes
   useEffect(() => {
@@ -81,7 +72,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
 
   function onDismiss() {
     clearSelectedRoute();
-    setSelectedDirection(null);
 
     setSelectedStop(null);
     setPoppedUpStopCallout(null);
@@ -90,12 +80,21 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     setSelectedDirectionIndex(0);
   }
 
-  const handleSetSelectedDirection = (evt: SegmentedControlEvent) => {
+  const setDirection = (evt: SegmentedControlEvent) => {
     const index = evt.nativeEvent.selectedSegmentIndex;
-
-    setSelectedDirectionIndex(index);
     setSelectedDirection(selectedRoute?.directions[index] ?? null);
   };
+
+  function getStopDirection(stop: Stop, lastStop: boolean) {
+    // handle the last cell showing No upcoming departures
+    let hasAlternativeDirection = selectedRoute!.directions.length > 1;
+
+    if (lastStop && hasAlternativeDirection) {
+      return selectedRoute?.directions[selectedDirectionIndex === 0 ? 1 : 0]!;
+    } else {
+      return selectedRoute?.directions[selectedDirectionIndex]!;
+    }
+  }
 
   return (
     <BaseSheet
@@ -166,7 +165,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
                 ) ?? []
               }
               selectedIndex={selectedDirectionIndex}
-              onChange={handleSetSelectedDirection}
+              onChange={setDirection}
               backgroundColor={
                 Platform.OS === 'android'
                   ? theme.androidSegmentedBackground
@@ -183,8 +182,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
         <BottomSheetFlatList
           ref={flatListRef}
           data={selectedDirection?.stops}
-          // extraData={stopEstimates?.routeDirectionTimes[0]}
-          keyExtractor={(_, idx) => idx.toString()}
+          keyExtractor={(stop, idx) => `${stop.id}-${idx}`}
           style={{ height: '100%' }}
           contentContainerStyle={{
             paddingBottom: 35,
@@ -192,7 +190,7 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             paddingTop: 4,
           }}
           onRefresh={() =>
-            client.invalidateQueries({ queryKey: ['stopEstimate'] })
+            client.invalidateQueries({ queryKey: [QueryKey.STOP_ESTIMATE] })
           }
           refreshing={false}
           ItemSeparatorComponent={() => (
@@ -205,23 +203,13 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             />
           )}
           renderItem={({ item: stop, index }) => {
-            // handle the last cell showing No upcoming departures
-            let direction;
             let isLastStop = index === selectedDirection!.stops.length - 1;
-            let hasAlternativeDirection = selectedRoute.directions.length > 1;
-
-            if (isLastStop && hasAlternativeDirection) {
-              direction =
-                selectedRoute?.directions[selectedDirectionIndex === 0 ? 1 : 0];
-            } else {
-              direction = selectedRoute?.directions[selectedDirectionIndex];
-            }
 
             return (
               <StopCell
                 stop={stop}
                 route={selectedRoute}
-                direction={direction}
+                direction={getStopDirection(stop, isLastStop)}
                 color={selectedRoute!.tintColor}
                 hasTimetable={!isLastStop}
                 setSheetPos={(pos) => sheetRef.current?.snapToIndex(pos)}
