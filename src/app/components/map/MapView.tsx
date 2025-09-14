@@ -12,9 +12,9 @@ import MapView, { LatLng, Polyline } from 'react-native-maps';
 import { DarkGoogleMaps } from 'src/app/theme';
 import { useVehicles } from 'src/data/queries/app';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
-import BusMarker from './markers/BusMarker';
-import RoutePlanMarker from './markers/RoutePlanMarker';
-import StopMarker from './markers/StopMarker';
+import BusMarker from './marker/BusMarker';
+import RoutePlanMarker from './marker/RoutePlanMarker';
+import StopMarker from './marker/StopMarker';
 
 const RouteMap: React.FC = () => {
   const mapViewRef = useRef<MapView>(null);

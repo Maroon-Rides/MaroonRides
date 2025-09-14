@@ -2,8 +2,8 @@ import { Bus, Route } from '@data/types';
 import React, { memo } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { Callout } from 'react-native-maps';
-import AmenityRow from '../ui/AmenityRow';
-import BusIcon from '../ui/BusIcon';
+import AmenityRow from '../../ui/AmenityRow';
+import BusIcon from '../../ui/BusIcon';
 interface Props {
   bus: Bus;
   route: Route;

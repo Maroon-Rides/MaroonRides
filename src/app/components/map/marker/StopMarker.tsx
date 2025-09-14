@@ -2,7 +2,7 @@ import { getLighterColor } from '@data/utils/utils';
 import React, { memo, useEffect } from 'react';
 import { View } from 'react-native';
 import { MapMarker, Marker } from 'react-native-maps';
-import StopCallout from '../StopCallout';
+import StopCallout from '../callout/StopCallout';
 
 import useAppStore from '@data/state/app_state';
 import { Direction, Route, Stop } from '@data/types';

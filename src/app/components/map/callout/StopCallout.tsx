@@ -6,9 +6,9 @@ import { ActivityIndicator, Platform, Text, View } from 'react-native';
 import { Callout } from 'react-native-maps';
 import { lightMode } from 'src/app/theme';
 import { useStopAmenities, useStopEstimate } from 'src/data/queries/app';
-import AmenityRow from '../ui/AmenityRow';
-import BusIcon from '../ui/BusIcon';
-import CalloutTimeBubble from '../ui/CalloutTimeBubble';
+import AmenityRow from '../../ui/AmenityRow';
+import BusIcon from '../../ui/BusIcon';
+import CalloutTimeBubble from '../../ui/CalloutTimeBubble';
 
 interface Props {
   stop: Stop;
