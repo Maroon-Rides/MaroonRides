@@ -98,14 +98,13 @@ const TimeInput: React.FC<Props> = ({ onTimeChange, onTimeInputFocused }) => {
         }}
         style={{
           color: theme.text,
-          backgroundColor: 'green',
           fontWeight: 'bold',
           fontSize: 16,
           textAlign: 'center',
           marginHorizontal: 2,
           marginLeft: 2,
           width: 50,
-          lineHeight: 20,
+          paddingVertical: 0,
         }}
         onChangeText={formatTime}
         maxLength={5}
