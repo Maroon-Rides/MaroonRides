@@ -1,14 +1,14 @@
-import { IOptionDetail } from '@data/typecheck/aggie_spirit';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Keyboard, Text, TouchableOpacity, View } from 'react-native';
 
 import useAppStore from '@data/state/app_state';
 import { useTheme } from '@data/state/utils';
+import { PlanItem } from '@data/types';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 
 interface TripPlanCellProps {
-  plan: IOptionDetail;
+  plan: PlanItem;
 }
 
 const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
@@ -48,7 +48,7 @@ const TripPlanCell: React.FC<TripPlanCellProps> = ({ plan }) => {
 
   const transportationFormat = () => {
     for (const instruction of plan.instructions) {
-      if (instruction.className.includes('bus')) {
+      if (instruction.movementType.includes('bus')) {
         return 'bus';
       }
     }

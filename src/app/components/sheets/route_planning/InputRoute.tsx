@@ -1,6 +1,3 @@
-import {
-  MyLocationSuggestion
-} from '@data/typecheck/aggie_spirit';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
@@ -19,13 +16,13 @@ import {
   View,
 } from 'react-native';
 
+import { useTripPlan } from '@data/queries/route_planning';
 import useAppStore from '@data/state/app_state';
 import { useTheme } from '@data/state/utils';
-import { MyLocation, PlaceSuggestion } from '@data/types';
+import { MyLocation, PlaceSuggestion, PlaceType } from '@data/types';
 import SuggestionInput from 'src/app/components/ui/SuggestionInput';
 import TimeInput from 'src/app/components/ui/TimeInput';
 import TripPlanCell from 'src/app/components/ui/TripPlanCell';
-import { useTripPlanAPI } from 'src/data/queries/api/route_planning';
 import { Sheets, useSheetController } from '../../providers/sheet-controller';
 import SheetHeader from '../../ui/SheetHeader';
 import BaseSheet, { SheetProps } from '../BaseSheet';
@@ -46,7 +43,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     data: tripPlan,
     isError,
     isLoading: tripPlanLoading,
-  } = useTripPlanAPI(startLocation, endLocation, time, deadline);
+  } = useTripPlan(startLocation, endLocation, time, deadline);
 
   const searchSuggestions = useAppStore((state) => state.suggestions);
   const suggestionOutput = useAppStore((state) => state.suggestionOutput);
@@ -74,15 +71,15 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
     }
 
     if (startLocation && endLocation) {
-      if (startLocation.title === endLocation.title) {
+      if (startLocation.name === endLocation.name) {
         setRouteInfoError('Start and End locations cannot be the same');
         return;
       }
     }
 
     if (
-      startLocation?.type === 'my-location' ||
-      endLocation?.type === 'my-location'
+      startLocation?.type === PlaceType.MY_LOCATION ||
+      endLocation?.type === PlaceType.MY_LOCATION
     ) {
       // Request location permissions
       void Location.requestForegroundPermissionsAsync().then(async (status) => {
@@ -101,12 +98,16 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         });
 
         // Set the location coordinates
-        let location = MyLocationSuggestion;
-        location.lat = locationCoords.coords.latitude;
-        location.long = locationCoords.coords.longitude;
+        let location = MyLocation;
+        location.location = {
+          latitude: locationCoords.coords.latitude,
+          longitude: locationCoords.coords.longitude,
+        };
 
-        if (startLocation?.type === 'my-location') setStartLocation(location);
-        if (endLocation?.type === 'my-location') setEndLocation(location);
+        if (startLocation?.type === PlaceType.MY_LOCATION)
+          setStartLocation(location);
+        if (endLocation?.type === PlaceType.MY_LOCATION)
+          setEndLocation(location);
       });
     }
 
@@ -115,7 +116,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
   function onDismiss() {
     setTimeout(() => {
-      setStartLocation(MyLocationSuggestion);
+      setStartLocation(MyLocation);
       setEndLocation(null);
       setSuggesionOutput(null);
     }, 500);
@@ -173,11 +174,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                 outputName={'start'}
                 location={startLocation}
                 onFocus={() => {
-                  if (startLocation?.type === 'my-location')
+                  if (startLocation?.type === PlaceType.MY_LOCATION)
                     setStartLocation(null);
                 }}
                 icon={
-                  startLocation?.type === 'my-location' ? (
+                  startLocation?.type === PlaceType.MY_LOCATION ? (
                     <MaterialCommunityIcons
                       name="crosshairs-gps"
                       size={24}
@@ -234,10 +235,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                 outputName={'end'}
                 location={endLocation}
                 onFocus={() => {
-                  if (endLocation?.type === 'my-location') setEndLocation(null);
+                  if (endLocation?.type === PlaceType.MY_LOCATION)
+                    setEndLocation(null);
                 }}
                 icon={
-                  endLocation?.type === 'my-location' ? (
+                  endLocation?.type === PlaceType.MY_LOCATION ? (
                     <MaterialCommunityIcons
                       name="crosshairs-gps"
                       size={24}
@@ -336,11 +338,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
               {routeInfoError ===
                 'Location Unavailable, enable location in Settings.' && (
-                  <Button
-                    title="Open Settings"
-                    onPress={() => Linking.openSettings()}
-                  />
-                )}
+                <Button
+                  title="Open Settings"
+                  onPress={() => Linking.openSettings()}
+                />
+              )}
             </View>
           )}
         </View>
@@ -417,7 +419,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                     paddingVertical: 2,
                   }}
                 >
-                  {suggestion.type === 'my-location' && (
+                  {suggestion.type === PlaceType.MY_LOCATION && (
                     <MaterialCommunityIcons
                       name="crosshairs-gps"
                       size={24}
@@ -431,13 +433,13 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                       color={theme.subtitle}
                     />
                   )}
-                  {suggestion.type === 'map' && (
+                  {/* {suggestion.type === 'map' && (
                     <MaterialCommunityIcons
                       name="map-marker"
                       size={24}
                       color={theme.subtitle}
                     />
-                  )}
+                  )} */}
                 </View>
                 <View style={{ flex: 1, marginLeft: 12 }}>
                   {/* Title */}
@@ -448,13 +450,13 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                       fontWeight: 'bold',
                     }}
                   >
-                    {suggestion.title}
+                    {suggestion.name}
                   </Text>
 
-                  {/* Subtitle */}
-                  {suggestion.subtitle && (
+                  {/* Description */}
+                  {suggestion.description && (
                     <Text style={{ color: theme.subtitle, fontSize: 14 }}>
-                      {suggestion.subtitle}
+                      {suggestion.description}
                     </Text>
                   )}
                 </View>
@@ -510,8 +512,8 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         ) : (
           <BottomSheetFlatList
             // filter out plans that have already passed, sort by end time
-            data={tripPlan?.options
-              .filter(
+            data={tripPlan
+              ?.filter(
                 (plan) => plan.startTime > Math.floor(Date.now() / 1000) - 300,
               )
               .sort((a, b) => a.endTime - b.endTime)}
@@ -541,7 +543,7 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
             )}
             ListHeaderComponent={() => {
               const filtered =
-                tripPlan?.options.filter(
+                tripPlan?.filter(
                   (plan) =>
                     plan.startTime > Math.floor(Date.now() / 1000) - 300,
                 ) ?? [];

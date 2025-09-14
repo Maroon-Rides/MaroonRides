@@ -1,9 +1,6 @@
 import useAppStore from '@data/state/app_state';
 import { useTheme } from '@data/state/utils';
-import {
-  IOptionDetail,
-  IWalkingInstruction,
-} from '@data/typecheck/aggie_spirit';
+import { PlanItem, WalkingInstruction } from '@data/types';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
@@ -53,12 +50,12 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
     },
   };
 
-  function processRoutePlan(plan: IOptionDetail) {
+  function processRoutePlan(plan: PlanItem) {
     if (!plan) return [];
 
     return plan.instructions?.map((instruction, index) => {
       let icon;
-      switch (instruction.className) {
+      switch (instruction.movementType) {
         case 'bus':
           icon = (
             <StepIcon
@@ -118,11 +115,11 @@ const TripPlanDetail: React.FC<SheetProps> = ({ sheetRef }) => {
       }
 
       return {
-        time: instruction.startTime,
+        time: instruction.time,
         title: instruction.instruction?.replace('(ID:', ' (ID:'),
-        description: instruction.walkingInstructions
-          .map((step: IWalkingInstruction) => {
-            return `<p>${step.index}. ${step.instruction}</p>`;
+        description: instruction.detailedWalkingInstructions
+          .map((step: WalkingInstruction) => {
+            return `<p>${step.stepNumber}. ${step.instruction}</p>`;
           })
           .join(''),
         icon: icon,

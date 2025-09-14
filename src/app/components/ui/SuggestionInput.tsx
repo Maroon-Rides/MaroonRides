@@ -1,13 +1,12 @@
 import { useSearchSuggestions } from '@data/queries/route_planning';
 import useAppStore from '@data/state/app_state';
 import { useTheme } from '@data/state/utils';
-import { SearchSuggestion } from '@data/typecheck/aggie_spirit';
-import { MyLocation } from '@data/types';
+import { MyLocation, PlaceSuggestion, PlaceType } from '@data/types';
 import { memo, useEffect, useState } from 'react';
 import { Keyboard, Platform, TextInput, View } from 'react-native';
 
 interface Props {
-  location: SearchSuggestion | null;
+  location: PlaceSuggestion | null;
   icon: React.JSX.Element;
   onFocus: () => void;
   outputName: 'start' | 'end' | null;
@@ -38,7 +37,7 @@ const SuggestionInput: React.FC<Props> = ({
 
   useEffect(() => {
     if (location) {
-      setSearchTerm(location.title);
+      setSearchTerm(location.name);
       setSuggestions([]);
       Keyboard.dismiss();
     } else {
@@ -84,7 +83,9 @@ const SuggestionInput: React.FC<Props> = ({
         style={{
           backgroundColor: theme.tertiaryBackground,
           color:
-            location?.type === 'my-location' ? theme.myLocation : theme.text,
+            location?.type === PlaceType.MY_LOCATION
+              ? theme.myLocation
+              : theme.text,
           borderColor: theme.myLocation,
           padding: 8,
           borderRadius: 8,
@@ -103,7 +104,7 @@ const SuggestionInput: React.FC<Props> = ({
         }}
         onFocus={() => {
           // clear search so user can start typing immediately
-          if (location?.type === 'my-location') {
+          if (location?.type === PlaceType.MY_LOCATION) {
             setSearchTerm('');
           }
           if (searchTerm.trim() === '') {

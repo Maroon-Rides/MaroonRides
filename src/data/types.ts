@@ -121,3 +121,29 @@ export const MyLocation = {
   location: undefined,
   type: PlaceType.MY_LOCATION,
 } as PlaceSuggestion;
+
+export enum MovementType {
+  BUS = 'bus',
+  WALKING = 'walking',
+  END = 'end',
+  WAITING = 'waiting',
+}
+
+export interface WalkingInstruction {
+  stepNumber: number;
+  instruction: string;
+}
+
+export interface PlanInstruction {
+  movementType: MovementType;
+  time: string;
+  instruction: string;
+  detailedWalkingInstructions: WalkingInstruction[];
+}
+
+export interface PlanItem extends FromDataSource {
+  startTime: number;
+  endTime: number;
+  endTimeText: string;
+  instructions: PlanInstruction[];
+}

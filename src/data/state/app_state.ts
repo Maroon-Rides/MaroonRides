@@ -1,5 +1,11 @@
-import { IOptionDetail } from '@data/typecheck/aggie_spirit';
-import { Alert, Direction, PlaceSuggestion, Route, Stop } from '@data/types';
+import {
+  Alert,
+  Direction,
+  PlaceSuggestion,
+  PlanItem,
+  Route,
+  Stop,
+} from '@data/types';
 import moment from 'moment';
 import { Theme, lightMode } from 'src/app/theme';
 import { create } from 'zustand';
@@ -50,8 +56,8 @@ interface AppState {
   suggestionOutput: 'start' | 'end' | null;
   setSuggestionOutput: (suggestionOutput: 'start' | 'end' | null) => void;
 
-  selectedRoutePlan: IOptionDetail | null;
-  setSelectedRoutePlan: (selectedRoutePlan: IOptionDetail | null) => void;
+  selectedRoutePlan: PlanItem | null;
+  setSelectedRoutePlan: (selectedRoutePlan: PlanItem | null) => void;
 
   selectedRoutePlanPathPart: number;
   setSelectedRoutePlanPathPart: (selectedRoutePlanPathPart: number) => void;
@@ -86,14 +92,14 @@ const useAppStore = create<AppState>()((set) => ({
   selectedAlert: null,
   setSelectedAlert: (selectedAlert) => set(() => ({ selectedAlert })),
 
-  zoomToStopLatLng: () => { },
+  zoomToStopLatLng: () => {},
   setZoomToStopLatLng: (zoomToStopLatLng) => set(() => ({ zoomToStopLatLng })),
 
   poppedUpStopCallout: null,
   setPoppedUpStopCallout: (poppedUpStopCallout) =>
     set(() => ({ poppedUpStopCallout })),
 
-  scrollToStop: () => { },
+  scrollToStop: () => {},
   setScrollToStop: (scrollToStop) =>
     set(() => ({ scrollToStop: scrollToStop })),
 
