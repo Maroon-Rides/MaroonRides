@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeSegmentedControlIOSChangeEvent } from '@react-native-segmented-control/segmented-control';
 import { NativeSyntheticEvent } from 'react-native';
-import { SearchSuggestion } from '../typecheck/aggie_spirit';
 
 export type SegmentedControlEvent =
   NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>;
@@ -46,11 +45,4 @@ export async function getColorScheme(): Promise<string> {
   }
 }
 
-export function suggestionEqual(lhs: SearchSuggestion, rhs: SearchSuggestion) {
-  if (lhs.type !== rhs.type) return false;
 
-  if (lhs.type === 'map') return rhs.placeId === lhs.placeId;
-  if (lhs.type === 'stop') return rhs.stopCode === lhs.stopCode;
-
-  return false;
-}

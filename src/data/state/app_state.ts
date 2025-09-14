@@ -6,7 +6,6 @@ import {
   Route,
   Stop,
 } from '@data/types';
-import moment from 'moment';
 import { Theme, lightMode } from 'src/app/theme';
 import { create } from 'zustand';
 
@@ -34,9 +33,6 @@ interface AppState {
 
   selectedAlert: Alert | null;
   setSelectedAlert: (selectedAlert: Alert | null) => void;
-
-  selectedTimetableDate: moment.Moment;
-  setSelectedTimetableDate: (selectedTimetableDate: moment.Moment) => void;
 
   zoomToStopLatLng: (lat: number, lng: number) => void;
   setZoomToStopLatLng: (
@@ -85,21 +81,17 @@ const useAppStore = create<AppState>()((set) => ({
   selectedStop: null,
   setSelectedStop: (selectedStop) => set(() => ({ selectedStop })),
 
-  selectedTimetableDate: moment(),
-  setSelectedTimetableDate: (selectedTimetableDate) =>
-    set(() => ({ selectedTimetableDate })),
-
   selectedAlert: null,
   setSelectedAlert: (selectedAlert) => set(() => ({ selectedAlert })),
 
-  zoomToStopLatLng: () => {},
+  zoomToStopLatLng: () => { },
   setZoomToStopLatLng: (zoomToStopLatLng) => set(() => ({ zoomToStopLatLng })),
 
   poppedUpStopCallout: null,
   setPoppedUpStopCallout: (poppedUpStopCallout) =>
     set(() => ({ poppedUpStopCallout })),
 
-  scrollToStop: () => {},
+  scrollToStop: () => { },
   setScrollToStop: (scrollToStop) =>
     set(() => ({ scrollToStop: scrollToStop })),
 

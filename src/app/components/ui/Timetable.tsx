@@ -1,5 +1,4 @@
 import { useTimetableEstimate } from '@data/queries/app';
-import useAppStore from '@data/state/app_state';
 import { useTheme } from '@data/state/utils';
 import { Route, Stop, StopSchedule } from '@data/types';
 import buildTimetable from '@data/utils/timetable';
@@ -13,6 +12,7 @@ interface Props {
   fullSchedule: StopSchedule;
   stop: Stop;
   route: Route;
+  date: moment.Moment
   dismissBack?: () => void;
 }
 
@@ -20,16 +20,14 @@ const Timetable: React.FC<Props> = ({
   fullSchedule,
   stop,
   route,
+  date,
   dismissBack,
 }) => {
-  const selectedTimetableDate = useAppStore(
-    (state) => state.selectedTimetableDate,
-  );
   const theme = useTheme();
 
   const { data: estimates, isLoading } = useTimetableEstimate(
     stop,
-    selectedTimetableDate || moment().toDate(),
+    date || moment().toDate(),
   );
 
   const timetable = useMemo(() => {

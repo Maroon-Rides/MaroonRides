@@ -6,6 +6,7 @@ import {
   PlanInstruction,
   PlanItem,
 } from '@data/types';
+import { SearchSuggestion } from '@data/utils/route-planning';
 import { decode } from '@googlemaps/polyline-codec';
 import { useSearchSuggestionAPI, useTripPlanAPI } from '../api/route_planning';
 import { useDependencyQuery } from '../utils';

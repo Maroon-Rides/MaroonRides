@@ -338,11 +338,11 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
 
               {routeInfoError ===
                 'Location Unavailable, enable location in Settings.' && (
-                <Button
-                  title="Open Settings"
-                  onPress={() => Linking.openSettings()}
-                />
-              )}
+                  <Button
+                    title="Open Settings"
+                    onPress={() => Linking.openSettings()}
+                  />
+                )}
             </View>
           )}
         </View>
@@ -433,13 +433,6 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                       color={theme.subtitle}
                     />
                   )}
-                  {/* {suggestion.type === 'map' && (
-                    <MaterialCommunityIcons
-                      name="map-marker"
-                      size={24}
-                      color={theme.subtitle}
-                    />
-                  )} */}
                 </View>
                 <View style={{ flex: 1, marginLeft: 12 }}>
                   {/* Title */}
@@ -460,23 +453,6 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
                     </Text>
                   )}
                 </View>
-
-                {/* Favorite Location
-                                { suggestion.type !== "my-location" &&
-                                    <TouchableOpacity 
-                                        onPress={(e) => {
-                                            e.stopPropagation()
-                                            toggleFavoriteLocation(suggestion)
-                                        }} 
-                                        style={{ paddingLeft: 16, zIndex: 10000 }}
-                                    >
-                                        { favoriteLocations && favoriteLocations.find((item) => suggestionEqual(item, suggestion)) ?
-                                            <FontAwesome name="star" size={24} color="#ffcc01" />
-                                        :
-                                            <FontAwesome name="star-o" size={24} color={theme.subtitle} />
-                                        }
-                                    </TouchableOpacity>
-                                } */}
               </TouchableOpacity>
             )}
           />

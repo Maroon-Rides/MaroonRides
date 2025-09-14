@@ -1,13 +1,12 @@
+import useAppStore from '@data/state/app_state';
+import { useTheme } from '@data/state/utils';
+import { appLogger } from '@data/utils/logger';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import moment from 'moment-strftime';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
-
-import useAppStore from '@data/state/app_state';
-import { useTheme } from '@data/state/utils';
-import { appLogger } from '@data/utils/logger';
 import { useStopSchedule } from 'src/data/queries/app';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import DateSelector from '../ui/DateSelector';
@@ -24,26 +23,15 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
   const setSelectedRoute = useAppStore((state) => state.setSelectedRoute);
   const setDrawnRoutes = useAppStore((state) => state.setDrawnRoutes);
   const { presentSheet, dismissSheet } = useSheetController();
-
-  const selectedTimetableDate = useAppStore(
-    (state) => state.selectedTimetableDate,
-  );
-  const setSelectedTimetableDate = useAppStore(
-    (state) => state.setSelectedTimetableDate,
-  );
-
-  const [showNonRouteSchedules, setShowNonRouteSchedules] =
-    useState<boolean>(false);
+  const [selectedTimetableDate, setSelectedTimetableDate] = useState(moment());
+  const [showNonRouteSchedules, setShowNonRouteSchedules] = useState(false);
   const theme = useTheme();
 
   const {
     data: stopSchedule,
     isError: scheduleError,
     isLoading: scheduleLoading,
-  } = useStopSchedule(
-    selectedStop!,
-    selectedTimetableDate ?? moment().toDate(),
-  );
+  } = useStopSchedule(selectedStop!, selectedTimetableDate);
 
   const dayDecrement = () => {
     // Decrease the date by one day
@@ -180,10 +168,11 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                 />
               )}
               style={{ marginRight: 16 }}
-              renderItem={({ item: schedule, index }) => {
+              renderItem={({ item: schedule }) => {
                 return (
-                  <View key={index} style={{ flex: 1 }}>
+                  <View style={{ flex: 1 }}>
                     <Timetable
+                      date={selectedTimetableDate}
                       route={schedule.route}
                       fullSchedule={schedule}
                       stop={selectedStop!}
@@ -217,13 +206,14 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
                     }}
                   />
                 )}
-                renderItem={({ item: schedule, index }) => {
+                renderItem={({ item: schedule }) => {
                   return (
-                    <View key={index} style={{ flex: 1 }}>
+                    <View style={{ flex: 1 }}>
                       <Timetable
                         fullSchedule={schedule}
                         route={schedule.route}
                         stop={selectedStop!}
+                        date={selectedTimetableDate}
                         dismissBack={() => {
                           const route = schedule.route;
                           if (route) {
