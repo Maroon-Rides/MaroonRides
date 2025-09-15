@@ -33,7 +33,6 @@ const StopMarker: React.FC<Props> = ({
     }
   }, [isCalloutShown]);
 
-
   return (
     <Marker
       ref={markerRef}
