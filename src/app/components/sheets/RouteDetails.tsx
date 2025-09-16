@@ -34,7 +34,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
   const setPoppedUpStopCallout = useAppStore(
     (state) => state.setPoppedUpStopCallout,
   );
-  const setScrollToStop = useAppStore((state) => state.setScrollToStop);
   const { dismissSheet } = useSheetController();
   const theme = useTheme();
   const client = useQueryClient();
@@ -53,22 +52,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
     if (directionIndex === -1) return;
     setSelectedDirectionIndex(directionIndex);
   }, [selectedDirection]);
-
-  function onPresent() {
-    setScrollToStop(async (stop) => {
-      const index = selectedDirection?.stops.findIndex(
-        (st) => st.id === stop.id,
-      );
-
-      if (index && index !== -1) {
-        // sheetRef.current?.snapToIndex(2);
-        flatListRef.current?.scrollToIndex({
-          index: index,
-          animated: true,
-        });
-      }
-    });
-  }
 
   function onDismiss() {
     clearSelectedRoute();
@@ -103,7 +86,6 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
       snapPoints={['25%', '45%', '85%']}
       initialSnapIndex={1}
       onDismiss={onDismiss}
-      onPresent={onPresent}
     >
       {selectedRoute && (
         <View>

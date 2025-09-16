@@ -42,9 +42,6 @@ interface AppState {
   poppedUpStopCallout: Stop | null;
   setPoppedUpStopCallout: (poppedUpStopCallout: Stop | null) => void;
 
-  scrollToStop: (stop: Stop) => void;
-  setScrollToStop: (scrollToStop: (stop: Stop) => void) => void;
-
   // route planning
   suggestions: PlaceSuggestion[];
   setSuggestions: (suggestions: PlaceSuggestion[]) => void;
@@ -89,16 +86,12 @@ const useAppStore = create<AppState>()((set) => ({
   selectedAlert: null,
   setSelectedAlert: (selectedAlert) => set(() => ({ selectedAlert })),
 
-  zoomToStopLatLng: () => {},
+  zoomToStopLatLng: () => { },
   setZoomToStopLatLng: (zoomToStopLatLng) => set(() => ({ zoomToStopLatLng })),
 
   poppedUpStopCallout: null,
   setPoppedUpStopCallout: (poppedUpStopCallout) =>
     set(() => ({ poppedUpStopCallout })),
-
-  scrollToStop: () => {},
-  setScrollToStop: (scrollToStop) =>
-    set(() => ({ scrollToStop: scrollToStop })),
 
   // route planning
   suggestions: [],
