@@ -29,8 +29,8 @@ jobs:
       - name: List Xcode Installs
         run: sudo ls -1 /Applications | grep "Xcode"
 
-      - name: Select Xcode 16.4
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+      - name: Select Xcode 26.0
+        run: sudo xcode-select -s /Applications/Xcode_26.0.app/Contents/Developer
 
       - name: Check Xcode Version
         run: /usr/bin/xcodebuild -version
