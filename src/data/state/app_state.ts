@@ -86,7 +86,7 @@ const useAppStore = create<AppState>()((set) => ({
   selectedAlert: null,
   setSelectedAlert: (selectedAlert) => set(() => ({ selectedAlert })),
 
-  zoomToStopLatLng: () => { },
+  zoomToStopLatLng: () => {},
   setZoomToStopLatLng: (zoomToStopLatLng) => set(() => ({ zoomToStopLatLng })),
 
   poppedUpStopCallout: null,
