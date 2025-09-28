@@ -3,6 +3,7 @@ import {
   IRoute,
   IRouteStop,
   IVehicle,
+  IVehicleCapacity,
 } from '@data/typecheck/brazos_transit';
 import {
   getAnnouncements,
@@ -10,6 +11,7 @@ import {
   getMapVehicles,
   getRoutes,
   getStopArrivalTimes,
+  getVehicleCapacities,
 } from 'brazos-transit-api';
 import moment from 'moment';
 import { useDependencyQuery, useLoggingQuery } from '../utils';
@@ -18,6 +20,7 @@ enum BTAPIQueryKey {
   AUTH_TOKEN = 'BTAPIAuthToken',
   ROUTES = 'BTAPIRoutes',
   MAP_VEHICLES = 'BTAPIMapVehicles',
+  VEHICLE_CAPACITIES = 'BTAPIVehicleCapacities',
   STOP_ARRIVAL_TIMES = 'BTAPIStopArrivalTimes',
   ANNOUNCEMENTS = 'BTAPIAnnouncements',
 }
@@ -66,6 +69,19 @@ export const useMapVehiclesAPI = () => {
     staleTime: moment.duration(3, 'seconds'),
     refetchInterval: moment.duration(3, 'seconds'),
     dependents: [authTokenQuery],
+  });
+
+  return query;
+};
+
+export const useVehicleCapacitiesAPI = () => {
+  const query = useLoggingQuery<IVehicleCapacity[]>({
+    label: BTAPIQueryKey.VEHICLE_CAPACITIES,
+    queryKey: [BTAPIQueryKey.VEHICLE_CAPACITIES],
+    queryFn: async () => {
+      const vehicleCapacities = await getVehicleCapacities();
+      return vehicleCapacities;
+    },
   });
 
   return query;

@@ -91,6 +91,15 @@ export const VehicleSchema = z.object({
 });
 export type IVehicle = z.infer<typeof VehicleSchema>;
 
+// VehicleCapacity
+export const VehicleCapacitySchema = z.object({
+  Capacity: z.number(),
+  CurrentOccupation: z.number(),
+  Percentage: z.number(),
+  VehicleID: z.number(),
+});
+export type IVehicleCapacity = z.infer<typeof VehicleCapacitySchema>;
+
 // TimeEstimate
 export const TimeEstimateSchema = z.object({
   EstimateTime: z.string(),
