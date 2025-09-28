@@ -38,10 +38,6 @@ export interface Stop extends FromDataSource {
   isLastOnDirection: boolean;
 }
 
-export interface PathLocation extends Location {
-  isStop: boolean;
-}
-
 export interface Route extends FromDataSource {
   name: string;
   id: string;
@@ -52,7 +48,7 @@ export interface Route extends FromDataSource {
 }
 
 export interface Direction extends FromDataSource {
-  pathPoints: PathLocation[];
+  pathPoints: Location[];
   name: string;
   id: string;
   stops: Stop[];

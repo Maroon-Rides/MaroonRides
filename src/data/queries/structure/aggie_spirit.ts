@@ -6,7 +6,6 @@ import {
   DataSource,
   Direction,
   Location,
-  PathLocation,
   Route,
   Stop,
   StopSchedule,
@@ -63,11 +62,10 @@ export const useASRoutes = () => {
               (pp) => pp.directionKey === dir.direction.key,
             )!;
 
-          const points: PathLocation[] =
+          const points: Location[] =
             patternPathForDirection.patternPoints.map((pt) => ({
               latitude: pt.latitude,
               longitude: pt.longitude,
-              isStop: !!pt.stop,
             })) || [];
 
           const filteredPoints = patternPathForDirection.patternPoints.filter(
@@ -245,8 +243,8 @@ export const useASTimetableEstimate = (
           route?.directions.length === 1
             ? route.directions[0]
             : route?.directions.find((d) => {
-                return d.name === routeStop.directionName;
-              });
+              return d.name === routeStop.directionName;
+            });
 
         return {
           dataSource: DataSource.AGGIE_SPIRIT,
@@ -324,8 +322,8 @@ export const useASStopSchedule = (stop: Stop | null, date: moment.Moment) => {
           route?.directions.length === 1
             ? route.directions[0]
             : route?.directions.find((d) => {
-                return d.name === routeStop.directionName;
-              });
+              return d.name === routeStop.directionName;
+            });
 
         return {
           dataSource: DataSource.AGGIE_SPIRIT,

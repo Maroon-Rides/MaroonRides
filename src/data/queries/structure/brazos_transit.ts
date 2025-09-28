@@ -17,17 +17,9 @@ export const useBTRoutes = () => {
         const bounds = findBoundingBox(coordinates);
 
         // Create direction object
-        const TOLERANCE = 0.0001;
         const direction: Direction = {
           dataSource: DataSource.BRAZOS_TRANSIT,
-          pathPoints: coordinates.map((point) => ({
-            ...point,
-            isStop: route.Stops.some((stop) => {
-              const latDiff = Math.abs(point.latitude - stop.Latitude);
-              const lngDiff = Math.abs(point.longitude - stop.Longitude);
-              return latDiff <= TOLERANCE && lngDiff <= TOLERANCE;
-            }),
-          })),
+          pathPoints: coordinates,
           name: route.Description,
           id: route.RouteID.toString(),
           stops: route.Stops.map(
