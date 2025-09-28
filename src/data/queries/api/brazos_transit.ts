@@ -11,6 +11,7 @@ import {
   getRoutes,
   getStopArrivalTimes,
 } from 'brazos-transit-api';
+import moment from 'moment';
 import { useDependencyQuery, useLoggingQuery } from '../utils';
 
 enum BTAPIQueryKey {
@@ -62,7 +63,8 @@ export const useMapVehiclesAPI = () => {
       return mapVehicles;
     },
     enabled: authTokenQuery.isSuccess,
-    staleTime: Infinity,
+    staleTime: moment.duration(3, 'seconds'),
+    refetchInterval: moment.duration(3, 'seconds'),
     dependents: [authTokenQuery],
   });
 
@@ -82,7 +84,8 @@ export const useStopArrivalTimesAPI = (routes: string[]) => {
       return stopArrivalTimes;
     },
     enabled: authTokenQuery.isSuccess && routes.length > 0,
-    staleTime: Infinity,
+    staleTime: moment.duration(10, 'seconds'),
+    refetchInterval: moment.duration(10, 'seconds'),
     dependents: [authTokenQuery],
   });
 
