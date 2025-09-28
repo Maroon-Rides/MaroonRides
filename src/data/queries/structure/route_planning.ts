@@ -6,8 +6,8 @@ import {
   PlanInstruction,
   PlanItem,
 } from '@data/types';
+import { decodePolyline } from '@data/utils/geo';
 import { SearchSuggestion } from '@data/utils/route-planning';
-import { decode } from '@googlemaps/polyline-codec';
 import { useSearchSuggestionAPI, useTripPlanAPI } from '../api/route_planning';
 import { useDependencyQuery } from '../utils';
 
@@ -100,14 +100,9 @@ export const useASTripPlan = (
           endTimeText: plan.endTimeText,
           instructions: plan.instructions.map(
             (instruction): PlanInstruction => {
-              const polyline = instruction.polyline
-                ? decode(instruction.polyline)
+              const pathPoints = instruction.polyline
+                ? decodePolyline(instruction.polyline)
                 : [];
-
-              const pathPoints = polyline.map((point) => ({
-                latitude: point[0],
-                longitude: point[1],
-              }));
 
               return {
                 movementType: instruction.className as MovementType,
