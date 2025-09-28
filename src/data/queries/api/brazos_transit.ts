@@ -7,17 +7,17 @@ import {
 import {
   getAnnouncements,
   getAuthentication,
-  getBaseData,
-  getNextStopTimes,
-  getVehicleLocations,
+  getMapVehicles,
+  getRoutes,
+  getStopArrivalTimes,
 } from 'brazos-transit-api';
 import { useDependencyQuery, useLoggingQuery } from '../utils';
 
 enum BTAPIQueryKey {
   AUTH_TOKEN = 'BTAPIAuthToken',
-  BASE_DATA = 'BTAPIBaseData',
-  VEHICLE_LOCATIONS = 'BTAPIVehicleLocations',
-  NEXT_STOP_TIMES = 'BTAPINextStopTimes',
+  ROUTES = 'BTAPIRoutes',
+  MAP_VEHICLES = 'BTAPIMapVehicles',
+  STOP_ARRIVAL_TIMES = 'BTAPIStopArrivalTimes',
   ANNOUNCEMENTS = 'BTAPIAnnouncements',
 }
 
@@ -35,14 +35,14 @@ export const useAuthTokenAPI = () => {
   return query;
 };
 
-export const useBaseDataAPI = () => {
+export const useRoutesAPI = () => {
   const authTokenQuery = useAuthTokenAPI();
 
   const query = useDependencyQuery<IRoute[]>({
-    queryKey: [BTAPIQueryKey.BASE_DATA],
+    queryKey: [BTAPIQueryKey.ROUTES],
     queryFn: async () => {
-      const baseData = await getBaseData(authTokenQuery.data!);
-      return baseData;
+      const routes = await getRoutes(authTokenQuery.data!);
+      return routes;
     },
     enabled: authTokenQuery.isSuccess,
     staleTime: Infinity,
@@ -52,14 +52,14 @@ export const useBaseDataAPI = () => {
   return query;
 };
 
-export const useVehicleLocationsAPI = () => {
+export const useMapVehiclesAPI = () => {
   const authTokenQuery = useAuthTokenAPI();
 
   const query = useDependencyQuery<IVehicle[]>({
-    queryKey: [BTAPIQueryKey.VEHICLE_LOCATIONS],
+    queryKey: [BTAPIQueryKey.MAP_VEHICLES],
     queryFn: async () => {
-      const vehicleLocations = await getVehicleLocations(authTokenQuery.data!);
-      return vehicleLocations;
+      const mapVehicles = await getMapVehicles(authTokenQuery.data!);
+      return mapVehicles;
     },
     enabled: authTokenQuery.isSuccess,
     staleTime: Infinity,
@@ -69,17 +69,17 @@ export const useVehicleLocationsAPI = () => {
   return query;
 };
 
-export const useNextStopTimesAPI = (routes: string[]) => {
+export const useStopArrivalTimesAPI = (routes: string[]) => {
   const authTokenQuery = useAuthTokenAPI();
 
   const query = useDependencyQuery<IRouteStop[]>({
-    queryKey: [BTAPIQueryKey.NEXT_STOP_TIMES, ...routes],
+    queryKey: [BTAPIQueryKey.STOP_ARRIVAL_TIMES, ...routes],
     queryFn: async () => {
-      const nextStopTimes = await getNextStopTimes(
+      const stopArrivalTimes = await getStopArrivalTimes(
         routes,
         authTokenQuery.data!,
       );
-      return nextStopTimes;
+      return stopArrivalTimes;
     },
     enabled: authTokenQuery.isSuccess && routes.length > 0,
     staleTime: Infinity,
