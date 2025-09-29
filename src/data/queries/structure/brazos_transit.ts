@@ -1,10 +1,15 @@
-import { DataSource, Direction, Route, Stop } from '@data/types';
+import { Bus, DataSource, Direction, Route, Stop } from '@data/types';
 import { decodePolyline, findBoundingBox } from '@data/utils/geo';
-import { useRoutesAPI } from '../api/brazos_transit';
+import {
+  useMapVehiclesAPI,
+  useRoutesAPI,
+  useVehicleCapacitiesAPI,
+} from '../api/brazos_transit';
 import { useDependencyQuery } from '../utils';
 
 enum BTQueryKey {
   ROUTES = 'BTRoutes',
+  MAP_VEHICLES = 'BTMapVehicles',
 }
 
 export const useBTRoutes = () => {
@@ -47,8 +52,43 @@ export const useBTRoutes = () => {
         } as Route;
       });
     },
-    enabled: apiRoutesQuery.isSuccess,
     dependents: [apiRoutesQuery],
+  });
+
+  return query;
+};
+
+export const useBTMapVehicles = (route: Route | null) => {
+  const apiMapVehiclesQuery = useMapVehiclesAPI();
+  const apiVehicleCapacitiesQuery = useVehicleCapacitiesAPI();
+
+  const query = useDependencyQuery<Bus[]>({
+    queryKey: [BTQueryKey.MAP_VEHICLES],
+    queryFn: async () => {
+      return apiMapVehiclesQuery.data!.map(
+        (vehicle) =>
+          ({
+            dataSource: DataSource.BRAZOS_TRANSIT,
+            location: {
+              latitude: vehicle.Latitude,
+              longitude: vehicle.Longitude,
+            },
+            heading: vehicle.Heading,
+            amenities: [],
+            capacity:
+              apiVehicleCapacitiesQuery.data?.[
+                apiVehicleCapacitiesQuery.data!.findIndex(
+                  (capacity) => capacity.VehicleID === vehicle.VehicleID,
+                )
+              ] ?? 0,
+            speed: vehicle.GroundSpeed,
+            id: vehicle.VehicleID.toString(),
+            direction: route?.directions[0],
+            name: vehicle.Name,
+          }) as Bus,
+      );
+    },
+    dependents: [apiMapVehiclesQuery, apiVehicleCapacitiesQuery],
   });
 
   return query;
