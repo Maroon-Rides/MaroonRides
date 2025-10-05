@@ -1,8 +1,17 @@
-import { Bus, DataSource, Direction, Route, Stop } from '@data/types';
+import {
+  Bus,
+  DataSource,
+  Direction,
+  Route,
+  Stop,
+  TimeEstimate,
+} from '@data/types';
 import { decodePolyline, findBoundingBox } from '@data/utils/geo';
+import moment from 'moment';
 import {
   useMapVehiclesAPI,
   useRoutesAPI,
+  useStopArrivalTimesAPI,
   useVehicleCapacitiesAPI,
 } from '../api/brazos_transit';
 import { useDependencyQuery } from '../utils';
@@ -10,6 +19,7 @@ import { useDependencyQuery } from '../utils';
 enum BTQueryKey {
   ROUTES = 'BTRoutes',
   MAP_VEHICLES = 'BTMapVehicles',
+  STOP_ARRIVAL_TIMES = 'BTStopArrivalTimes',
 }
 
 export const useBTRoutes = () => {
@@ -89,6 +99,36 @@ export const useBTMapVehicles = (route: Route | null) => {
       );
     },
     dependents: [apiMapVehiclesQuery, apiVehicleCapacitiesQuery],
+  });
+
+  return query;
+};
+
+export const useBTStopEstimate = (route: Route, stop: Stop) => {
+  const apiStopEstimateQuery = useStopArrivalTimesAPI([route.id]);
+
+  const query = useDependencyQuery<TimeEstimate[]>({
+    queryKey: [BTQueryKey.STOP_ARRIVAL_TIMES, route.id, stop.id],
+    queryFn: async () => {
+      const stopTimes = apiStopEstimateQuery.data!.filter(
+        (stopTime) => stopTime.RouteStopId.toString() === stop.id,
+      )[0].Times;
+
+      return stopTimes.map(
+        (stopTime) =>
+          ({
+            dataSource: DataSource.BRAZOS_TRANSIT,
+            estimatedTime: stopTime.EstimateTime
+              ? moment(stopTime.EstimateTime)
+              : null,
+            scheduledTime: moment(stopTime.ScheduledDepartureTime),
+            tripPointId: 'N/A',
+            isRealTime: stopTime.EstimateTime !== null,
+            isCancelled: false,
+          }) as TimeEstimate,
+      );
+    },
+    dependents: [apiStopEstimateQuery],
   });
 
   return query;
