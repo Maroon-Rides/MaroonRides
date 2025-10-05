@@ -86,11 +86,9 @@ export const useBTMapVehicles = (route: Route | null) => {
             heading: vehicle.Heading,
             amenities: [],
             capacity:
-              apiVehicleCapacitiesQuery.data?.[
-                apiVehicleCapacitiesQuery.data!.findIndex(
-                  (capacity) => capacity.VehicleID === vehicle.VehicleID,
-                )
-              ] ?? 0,
+              apiVehicleCapacitiesQuery.data?.find(
+                (capacity) => capacity.VehicleID === vehicle.VehicleID,
+              )?.Percentage ?? 0,
             speed: vehicle.GroundSpeed,
             id: vehicle.VehicleID.toString(),
             direction: route?.directions[0],
