@@ -142,9 +142,8 @@ const RouteDetails: React.FC<SheetProps> = ({ sheetRef }) => {
             <SegmentedControl
               style={{ marginHorizontal: 16, marginBottom: 8 }}
               values={
-                selectedRoute?.directions.map(
-                  (direction) => 'to ' + direction.name,
-                ) ?? []
+                selectedRoute?.directions.map((direction) => direction.name) ??
+                []
               }
               selectedIndex={selectedDirectionIndex}
               onChange={setDirection}

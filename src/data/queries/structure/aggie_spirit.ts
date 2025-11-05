@@ -90,7 +90,7 @@ export const useASRoutes = () => {
 
           return {
             dataSource: DataSource.AGGIE_SPIRIT,
-            name: dir.direction.name.replace('to', '').trim(),
+            name: dir.direction.name,
             id: dir.direction.key,
             pathPoints: points,
             stops: stops,
