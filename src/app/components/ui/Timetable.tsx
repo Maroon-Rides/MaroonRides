@@ -57,7 +57,7 @@ const Timetable: React.FC<Props> = ({
               }}
               numberOfLines={1}
             >
-              {fullSchedule.route.name}
+              {fullSchedule.route?.name}
             </Text>
             {isLoading && <ActivityIndicator style={{ marginLeft: 8 }} />}
           </View>
