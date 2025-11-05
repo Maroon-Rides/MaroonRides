@@ -68,7 +68,7 @@ export const useBTRoutes = () => {
   return query;
 };
 
-export const useBTMapVehicles = (route: Route | null) => {
+export const useBTVehicles = (route: Route | null) => {
   const apiMapVehiclesQuery = useMapVehiclesAPI();
   const apiVehicleCapacitiesQuery = useVehicleCapacitiesAPI();
 
