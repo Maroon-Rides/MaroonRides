@@ -24,7 +24,7 @@ jobs:
         run: pnpm install
 
       - name: Lint with expo
-        run: npx expo lint --max-warnings 0
+        run: pnpm expo lint --max-warnings 0
 
       - name: Run TypeScript checks
-        run: npx tsc
+        run: pnpm tsc

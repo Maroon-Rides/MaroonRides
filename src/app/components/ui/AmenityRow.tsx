@@ -1,7 +1,7 @@
 import {
-    FontAwesome5,
-    MaterialCommunityIcons,
-    MaterialIcons,
+  FontAwesome5,
+  MaterialCommunityIcons,
+  MaterialIcons,
 } from '@expo/vector-icons';
 import { Amenity } from '@lib/types';
 import React, { memo, ReactElement } from 'react';

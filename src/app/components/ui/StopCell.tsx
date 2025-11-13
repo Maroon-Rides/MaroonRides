@@ -2,11 +2,11 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import moment from 'moment';
 import React, { useMemo } from 'react';
 import {
-    ActivityIndicator,
-    FlatList,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import { useStopAmenities, useStopEstimate } from '@lib/queries/app';

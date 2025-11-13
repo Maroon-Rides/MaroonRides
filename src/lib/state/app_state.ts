@@ -1,10 +1,10 @@
 import {
-    Alert,
-    Direction,
-    PlaceSuggestion,
-    PlanItem,
-    Route,
-    Stop,
+  Alert,
+  Direction,
+  PlaceSuggestion,
+  PlanItem,
+  Route,
+  Stop,
 } from '@lib/types';
 import { Theme, lightMode } from 'src/app/theme';
 import { create } from 'zustand';

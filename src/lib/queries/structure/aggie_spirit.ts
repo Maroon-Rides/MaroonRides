@@ -1,28 +1,28 @@
 import { useTheme } from '@lib/state/utils';
 import {
-    Alert,
-    Amenity,
-    Bus,
-    DataSource,
-    Direction,
-    Location,
-    PathLocation,
-    Route,
-    Stop,
-    StopSchedule,
-    TimeEstimate,
+  Alert,
+  Amenity,
+  Bus,
+  DataSource,
+  Direction,
+  Location,
+  PathLocation,
+  Route,
+  Stop,
+  StopSchedule,
+  TimeEstimate,
 } from '@lib/types';
 import { findBoundingBox } from '@lib/utils/geo';
 import moment from 'moment';
 import getTheme from 'src/app/theme';
 import {
-    useBaseDataAPI,
-    usePatternPathsAPI,
-    useServiceInterruptionsAPI,
-    useStopEstimateAPI,
-    useStopScheduleAPI,
-    useTimetableEstimateAPI,
-    useVehiclesAPI,
+  useBaseDataAPI,
+  usePatternPathsAPI,
+  useServiceInterruptionsAPI,
+  useStopEstimateAPI,
+  useStopScheduleAPI,
+  useTimetableEstimateAPI,
+  useVehiclesAPI,
 } from '../api/aggie_spirit';
 import { useDependencyQuery } from '../utils';
 

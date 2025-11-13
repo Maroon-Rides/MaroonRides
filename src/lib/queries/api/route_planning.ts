@@ -1,7 +1,7 @@
 import {
-    GetTripPlanResponseSchema,
-    IFoundStop,
-    ITripPlanResponse,
+  GetTripPlanResponseSchema,
+  IFoundStop,
+  ITripPlanResponse,
 } from '@lib/typecheck/aggie_spirit';
 import { SearchSuggestion } from '@lib/utils/route-planning';
 import { findBusStops, getTripPlan } from 'aggie-spirit-api';

@@ -1,7 +1,7 @@
 import { DataSource, PlaceSuggestion, PlanItem } from '@lib/types';
 import {
-    useASSearchSuggestions,
-    useASTripPlan,
+  useASSearchSuggestions,
+  useASTripPlan,
 } from './structure/route_planning';
 import { useSelectableQuery } from './utils';
 

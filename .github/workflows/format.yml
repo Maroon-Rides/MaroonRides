@@ -19,12 +19,12 @@ jobs:
 
       - name: Install dependencies with mise
         uses: jdx/mise-action@v3
-          
+
       - name: Install dependencies
         run: pnpm install
 
       - name: Lint with expo
-        run: npx expo lint --fix
+        run: pnpm expo lint --fix
 
       - name: Commit and push
         uses: EndBug/add-and-commit@v9

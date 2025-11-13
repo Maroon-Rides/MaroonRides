@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import {
-    BottomSheetFlatList,
-    BottomSheetFlatListMethods,
+  BottomSheetFlatList,
+  BottomSheetFlatListMethods,
 } from '@gorhom/bottom-sheet';
 import { SegmentedControlEvent } from '@lib/utils/utils';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';

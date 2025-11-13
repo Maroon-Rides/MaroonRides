@@ -1,13 +1,13 @@
 set quiet
 
 dev:
-    npx expo start -d
+    pnpm expo start -d
 
 prebuild PLATFORM="ios":
-    npx expo prebuild --platform {{PLATFORM}}
+    pnpm expo prebuild --platform {{PLATFORM}}
 
 typecheck:
-    npx tsc --noEmit
+    pnpm tsc --noEmit
 
 format:
-    npx expo lint --fix
+    pnpm expo lint --fix

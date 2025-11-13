@@ -52,7 +52,7 @@ jobs:
 
       - name: Expo Prebuild [iOS]
         run: |
-          npx expo prebuild --platform ios --npm
+          pnpm expo prebuild --platform ios --npm
 
       - name: Fastlane Build [iOS]
         run: fastlane ios build
@@ -106,7 +106,7 @@ jobs:
 
       - name: Expo Prebuild [Android]
         run: |
-          npx expo prebuild --platform android --npm
+          pnpm expo prebuild --platform android --npm
 
       - name: Modify build.gradle
         run: |

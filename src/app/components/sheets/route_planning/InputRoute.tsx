@@ -6,14 +6,14 @@ import { useQueryClient } from '@tanstack/react-query';
 import * as Location from 'expo-location';
 import React, { memo, useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Button,
-    Keyboard,
-    Linking,
-    Platform,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Button,
+  Keyboard,
+  Linking,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import { useTripPlan } from '@lib/queries/route_planning';

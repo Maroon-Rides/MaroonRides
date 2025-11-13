@@ -1,25 +1,25 @@
 import {
-    FontAwesome,
-    FontAwesome6,
-    MaterialCommunityIcons,
-    MaterialIcons,
+  FontAwesome,
+  FontAwesome6,
+  MaterialCommunityIcons,
+  MaterialIcons,
 } from '@expo/vector-icons';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { SegmentedControlEvent } from '@lib/utils/utils';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import React, { memo, useEffect, useMemo } from 'react';
 import {
-    ActivityIndicator,
-    Platform,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import { useRoutes } from '@lib/queries/app';
 import {
-    useDefaultRouteGroup,
-    useFavorites,
+  useDefaultRouteGroup,
+  useFavorites,
 } from '@lib/queries/structure/storage';
 import useAppStore from '@lib/state/app_state';
 import { useTheme } from '@lib/state/utils';

@@ -1,8 +1,8 @@
 import { FontAwesome } from '@expo/vector-icons';
 import {
-    addFavoriteMutation,
-    removeFavoriteMutation,
-    useFavorite,
+  addFavoriteMutation,
+  removeFavoriteMutation,
+  useFavorite,
 } from '@lib/queries/structure/storage';
 import { useTheme } from '@lib/state/utils';
 import React, { memo } from 'react';
