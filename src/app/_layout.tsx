@@ -14,11 +14,13 @@ Sentry.init({
 
 function Layout() {
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    />
+    <Sentry.ErrorBoundary>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      />
+    </Sentry.ErrorBoundary>
   );
 }
 
