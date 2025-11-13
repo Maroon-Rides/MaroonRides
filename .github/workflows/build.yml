@@ -24,6 +24,8 @@ jobs:
 
     # build for ios if platform is ios or all, or if triggered by a release
     if: github.event_name == 'release' || inputs.buildPlatform == 'all' || inputs.buildPlatform == 'ios'
+    env:
+      SENTRY_DISABLE_AUTO_UPLOAD: true
 
     steps:
       - name: List Xcode Installs
@@ -79,6 +81,9 @@ jobs:
 
     # build for android if platform is android or all, or if triggered by a release
     if: github.event_name == 'release' || inputs.buildPlatform == 'all' || inputs.buildPlatform == 'android'
+
+    env:
+      SENTRY_DISABLE_AUTO_UPLOAD: true
 
     steps:
       - name: Checkout Repository

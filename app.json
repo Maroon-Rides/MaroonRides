@@ -111,7 +111,15 @@
         }
       ],
       "expo-font",
-      "expo-router"
+      "expo-router",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://bugsink.maroonrides.app",
+          "project": "maroon-rides-app",
+          "organization": "maroon-rides"
+        }
+      ]
     ]
   }
 }
