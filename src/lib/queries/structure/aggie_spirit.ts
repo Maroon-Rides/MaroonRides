@@ -133,13 +133,14 @@ export const useASVehicles = (route: Route | null) => {
       let apiBuses = apiBusesQuery.data!;
 
       if (!apiBuses.vehiclesByDirections) return [];
+      if (!route || route.directions.length === 0) return [];
 
       return apiBuses.vehiclesByDirections.flatMap(
         (vehicleDirection): Bus[] => {
           let direction =
-            route?.directions.find(
+            route.directions.find(
               (dir) => dir.id === vehicleDirection.directionKey,
-            ) ?? route?.directions[0]!;
+            ) ?? route.directions[0];
 
           const directionBuses: Bus[] = vehicleDirection.vehicles.map(
             (vehicle) => {
