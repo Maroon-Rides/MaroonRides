@@ -64,6 +64,13 @@ jobs:
           GIT_AUTHORIZATION: ${{ secrets.GIT_AUTHORIZATION }}
           CHANGELOG: ${{ github.event.release.body }}
 
+      - name: Upload sourcemaps
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          pnpm expo export -s -p ios --output-dir dist-ios
+          pnpm dlx sentry-expo-upload-sourcemaps dist-ios
+
   build_android:
     runs-on: ubuntu-latest
 
@@ -78,7 +85,7 @@ jobs:
         run: |
           sudo gem install fastlane -NV
           fastlane --version
-          
+
       - name: Install JDK 17
         uses: actions/setup-java@v4
         with:
@@ -144,3 +151,10 @@ jobs:
           GOOGLE_PLAY_KEY: ${{ secrets.GOOGLE_PLAY_KEY }}
           RELEASE_NAME: ${{ github.event.release.tag_name || steps.git_sha.outputs.sha_short }}
           PACKAGE_NAME: 'com.maroonrides.maroonrides'
+
+      - name: Upload sourcemaps
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          pnpm expo export -s -p android --output-dir dist-android
+          pnpm dlx sentry-expo-upload-sourcemaps dist-android
