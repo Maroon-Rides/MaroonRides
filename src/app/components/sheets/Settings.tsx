@@ -9,7 +9,7 @@ import {
   Platform,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 
 import { ASQueryKey } from '@lib/queries/structure/aggie_spirit';
