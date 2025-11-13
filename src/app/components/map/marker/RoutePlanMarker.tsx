@@ -1,7 +1,7 @@
-import { useTheme } from '@data/state/utils';
-import { RoutePlanMarkedPoint } from '@data/types';
-import { getLighterColor } from '@data/utils/utils';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '@lib/state/utils';
+import { RoutePlanMarkedPoint } from '@lib/types';
+import { getLighterColor } from '@lib/utils/utils';
 import React, { memo } from 'react';
 import { Platform, View } from 'react-native';
 import { MapMarker, Marker } from 'react-native-maps';

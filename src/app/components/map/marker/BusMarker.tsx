@@ -1,7 +1,7 @@
-import useAppStore from '@data/state/app_state';
-import { Bus, Route } from '@data/types';
-import { getLighterColor } from '@data/utils/utils';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import useAppStore from '@lib/state/app_state';
+import { Bus, Route } from '@lib/types';
+import { getLighterColor } from '@lib/utils/utils';
 import React, { memo } from 'react';
 import { Platform, View } from 'react-native';
 import { Marker } from 'react-native-maps';

@@ -1,17 +1,17 @@
-import useAppStore from '@data/state/app_state';
-import { useTheme } from '@data/state/utils';
 import {
-  BottomSheetModal,
-  BottomSheetModalProvider,
+    BottomSheetModal,
+    BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet';
+import useAppStore from '@lib/state/app_state';
+import { useTheme } from '@lib/state/utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { Appearance, BackHandler, StatusBar, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RouteMap from './components/map/MapView';
 import {
-  SheetControllerContext,
-  Sheets,
+    SheetControllerContext,
+    Sheets,
 } from './components/providers/sheet-controller';
 import AlertDetail from './components/sheets/AlertDetail';
 import AlertList from './components/sheets/AlertList';

@@ -1,4 +1,4 @@
-import { Bus, Route } from '@data/types';
+import { Bus, Route } from '@lib/types';
 import React, { memo } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { Callout } from 'react-native-maps';

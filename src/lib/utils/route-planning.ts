@@ -1,6 +1,6 @@
 // // // Generate the path points for the selected route plan
 
-import { PlanItem, RoutePlanMarkedPoint, RoutePlanPoint } from '@data/types';
+import { PlanItem, RoutePlanMarkedPoint, RoutePlanPoint } from '@lib/types';
 
 export interface SearchSuggestion {
   title: string;

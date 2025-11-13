@@ -1,4 +1,4 @@
-import { queryLogger } from '@data/utils/logger';
+import { queryLogger } from '@lib/utils/logger';
 import moment from 'moment';
 import {
   Alert,

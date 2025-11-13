@@ -1,9 +1,9 @@
-import { useTheme } from '@data/state/utils';
-import { Route } from '@data/types';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useAlerts } from '@lib/queries/app';
+import { useTheme } from '@lib/state/utils';
+import { Route } from '@lib/types';
 import React, { memo } from 'react';
 import { TouchableOpacity } from 'react-native';
-import { useAlerts } from 'src/data/queries/app';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import IconPill from './IconPill';
 

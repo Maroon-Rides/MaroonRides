@@ -28,7 +28,7 @@ module.exports = defineConfig([
     },
   },
   {
-    files: ["src/data/utils/logger.ts"], // path to your logger
+    files: ["src/lib/utils/logger.ts"], // path to your logger
     rules: {
       "no-console": "off", // allow console here
     },

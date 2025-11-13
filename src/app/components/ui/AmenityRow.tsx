@@ -1,9 +1,9 @@
-import { Amenity } from '@data/types';
 import {
-  FontAwesome5,
-  MaterialCommunityIcons,
-  MaterialIcons,
+    FontAwesome5,
+    MaterialCommunityIcons,
+    MaterialIcons,
 } from '@expo/vector-icons';
+import { Amenity } from '@lib/types';
 import React, { memo, ReactElement } from 'react';
 import { View, ViewProps } from 'react-native';
 

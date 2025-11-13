@@ -1,7 +1,7 @@
-import { useSearchSuggestions } from '@data/queries/route_planning';
-import useAppStore from '@data/state/app_state';
-import { useTheme } from '@data/state/utils';
-import { MyLocation, PlaceSuggestion, PlaceType } from '@data/types';
+import { useSearchSuggestions } from '@lib/queries/route_planning';
+import useAppStore from '@lib/state/app_state';
+import { useTheme } from '@lib/state/utils';
+import { MyLocation, PlaceSuggestion, PlaceType } from '@lib/types';
 import { memo, useEffect, useState } from 'react';
 import { Keyboard, Platform, TextInput, View } from 'react-native';
 

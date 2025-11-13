@@ -1,8 +1,8 @@
-import { useTimetableEstimate } from '@data/queries/app';
-import { useTheme } from '@data/state/utils';
-import { Route, Stop, StopSchedule } from '@data/types';
-import buildTimetable from '@data/utils/timetable';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTimetableEstimate } from '@lib/queries/app';
+import { useTheme } from '@lib/state/utils';
+import { Route, Stop, StopSchedule } from '@lib/types';
+import buildTimetable from '@lib/utils/timetable';
 import moment from 'moment';
 import React, { useMemo } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';

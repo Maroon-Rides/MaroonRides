@@ -1,10 +1,10 @@
-import { Direction, Route, Stop } from '@data/types';
+import { useStopAmenities, useStopEstimate } from '@lib/queries/app';
+import { Direction, Route, Stop } from '@lib/types';
 import moment from 'moment';
 import React, { memo } from 'react';
 import { ActivityIndicator, Platform, Text, View } from 'react-native';
 import { Callout } from 'react-native-maps';
 import { lightMode } from 'src/app/theme';
-import { useStopAmenities, useStopEstimate } from 'src/data/queries/app';
 import AmenityRow from '../../ui/AmenityRow';
 import BusIcon from '../../ui/BusIcon';
 import CalloutTimeBubble from '../../ui/CalloutTimeBubble';

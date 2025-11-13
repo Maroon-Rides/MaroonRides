@@ -1,9 +1,9 @@
-import useAppStore from '@data/state/app_state';
-import { useTheme } from '@data/state/utils';
-import { PlanItem, WalkingInstruction } from '@data/types';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import useAppStore from '@lib/state/app_state';
+import { useTheme } from '@lib/state/utils';
+import { PlanItem, WalkingInstruction } from '@lib/types';
 import React, { memo, useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import RenderHTML from 'react-native-render-html';

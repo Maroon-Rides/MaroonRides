@@ -1,6 +1,6 @@
-import { SegmentedControlEvent } from '@data/utils/utils';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { SegmentedControlEvent } from '@lib/utils/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import React, { memo, useEffect, useState } from 'react';
@@ -12,16 +12,16 @@ import {
   View,
 } from 'react-native';
 
-import { ASQueryKey } from '@data/queries/structure/aggie_spirit';
-import useAppStore from '@data/state/app_state';
-import { useTheme } from '@data/state/utils';
-import { useQueryClient } from '@tanstack/react-query';
-import getTheme from 'src/app/theme';
+import { ASQueryKey } from '@lib/queries/structure/aggie_spirit';
 import {
   defaultGroupMutation,
   StorageKey,
   useDefaultRouteGroup,
-} from 'src/data/queries/structure/storage';
+} from '@lib/queries/structure/storage';
+import useAppStore from '@lib/state/app_state';
+import { useTheme } from '@lib/state/utils';
+import { useQueryClient } from '@tanstack/react-query';
+import getTheme from 'src/app/theme';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import SheetHeader from '../ui/SheetHeader';
 import BaseSheet, { SheetProps } from './BaseSheet';

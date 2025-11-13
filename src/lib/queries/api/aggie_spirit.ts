@@ -1,26 +1,26 @@
 import '@bacons/text-decoder/install';
 import {
-  GetBaseDataResponseSchema,
-  GetNextDepartTimesResponseSchema,
-  GetPatternPathsResponseSchema,
-  GetStopEstimatesResponseSchema,
-  GetStopSchedulesResponseSchema,
-  GetVehiclesResponseSchema,
-  IGetBaseDataResponse,
-  IGetNextDepartTimesResponse,
-  IGetPatternPathsResponse,
-  IGetStopEstimatesResponse,
-  IGetVehiclesResponse,
-  IMapServiceInterruption,
-} from '@data/typecheck/aggie_spirit';
-import { appLogger } from '@data/utils/logger';
+    GetBaseDataResponseSchema,
+    GetNextDepartTimesResponseSchema,
+    GetPatternPathsResponseSchema,
+    GetStopEstimatesResponseSchema,
+    GetStopSchedulesResponseSchema,
+    GetVehiclesResponseSchema,
+    IGetBaseDataResponse,
+    IGetNextDepartTimesResponse,
+    IGetPatternPathsResponse,
+    IGetStopEstimatesResponse,
+    IGetVehiclesResponse,
+    IMapServiceInterruption,
+} from '@lib/typecheck/aggie_spirit';
+import { appLogger } from '@lib/utils/logger';
 import {
-  getBaseData,
-  getNextDepartureTimes,
-  getPatternPaths,
-  getStopEstimates,
-  getStopSchedules,
-  getVehicles,
+    getBaseData,
+    getNextDepartureTimes,
+    getPatternPaths,
+    getStopEstimates,
+    getStopSchedules,
+    getVehicles,
 } from 'aggie-spirit-api';
 import moment from 'moment';
 import { useDependencyQuery, useLoggingQuery } from '../utils';

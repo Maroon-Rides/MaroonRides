@@ -1,4 +1,4 @@
-import { useTheme } from '@data/state/utils';
+import { useTheme } from '@lib/state/utils';
 import React, { memo } from 'react';
 import { Text, View, ViewProps } from 'react-native';
 

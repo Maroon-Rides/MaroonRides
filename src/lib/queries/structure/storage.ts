@@ -1,4 +1,4 @@
-import { Route } from '@data/types';
+import { Route } from '@lib/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRoutes } from '../app';

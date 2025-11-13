@@ -1,13 +1,13 @@
-import {
-  DataSource,
-  MovementType,
-  MY_LOCATION_ID,
-  PlaceSuggestion,
-  PlanInstruction,
-  PlanItem,
-} from '@data/types';
-import { SearchSuggestion } from '@data/utils/route-planning';
 import { decode } from '@googlemaps/polyline-codec';
+import {
+    DataSource,
+    MovementType,
+    MY_LOCATION_ID,
+    PlaceSuggestion,
+    PlanInstruction,
+    PlanItem,
+} from '@lib/types';
+import { SearchSuggestion } from '@lib/utils/route-planning';
 import { useSearchSuggestionAPI, useTripPlanAPI } from '../api/route_planning';
 import { useDependencyQuery } from '../utils';
 

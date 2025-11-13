@@ -1,30 +1,30 @@
-import { SegmentedControlEvent } from '@data/utils/utils';
 import {
-  FontAwesome,
-  FontAwesome6,
-  MaterialCommunityIcons,
-  MaterialIcons,
+    FontAwesome,
+    FontAwesome6,
+    MaterialCommunityIcons,
+    MaterialIcons,
 } from '@expo/vector-icons';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
+import { SegmentedControlEvent } from '@lib/utils/utils';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import React, { memo, useEffect, useMemo } from 'react';
 import {
-  ActivityIndicator,
-  Platform,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Platform,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
-import useAppStore from '@data/state/app_state';
-import { useTheme } from '@data/state/utils';
-import { Route } from '@data/types';
-import { appLogger } from '@data/utils/logger';
-import { useRoutes } from 'src/data/queries/app';
+import { useRoutes } from '@lib/queries/app';
 import {
-  useDefaultRouteGroup,
-  useFavorites,
-} from 'src/data/queries/structure/storage';
+    useDefaultRouteGroup,
+    useFavorites,
+} from '@lib/queries/structure/storage';
+import useAppStore from '@lib/state/app_state';
+import { useTheme } from '@lib/state/utils';
+import { Route } from '@lib/types';
+import { appLogger } from '@lib/utils/logger';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import BusIcon from '../ui/BusIcon';
 import IconPill from '../ui/IconPill';

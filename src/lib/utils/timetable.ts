@@ -1,4 +1,4 @@
-import { StopSchedule, TimeEstimate } from '@data/types';
+import { StopSchedule, TimeEstimate } from '@lib/types';
 import moment from 'moment';
 import { Theme } from 'src/app/theme';
 

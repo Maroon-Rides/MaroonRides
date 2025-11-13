@@ -1,12 +1,12 @@
-import { useTheme } from '@data/state/utils';
 import { FontAwesome } from '@expo/vector-icons';
+import {
+    addFavoriteMutation,
+    removeFavoriteMutation,
+    useFavorite,
+} from '@lib/queries/structure/storage';
+import { useTheme } from '@lib/state/utils';
 import React, { memo } from 'react';
 import { TouchableOpacity } from 'react-native';
-import {
-  addFavoriteMutation,
-  removeFavoriteMutation,
-  useFavorite,
-} from 'src/data/queries/structure/storage';
 import IconPill from './IconPill';
 
 interface Props {

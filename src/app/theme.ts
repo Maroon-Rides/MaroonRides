@@ -1,4 +1,4 @@
-import { getColorScheme } from '@data/utils/utils';
+import { getColorScheme } from '@lib/utils/utils';
 
 export interface Theme {
   mode: 'light' | 'dark';

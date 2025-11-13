@@ -2,17 +2,17 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import moment from 'moment';
 import React, { useMemo } from 'react';
 import {
-  ActivityIndicator,
-  FlatList,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
-import useAppStore from '@data/state/app_state';
-import { useTheme } from '@data/state/utils';
-import { Direction, Route, Stop } from '@data/types';
-import { useStopAmenities, useStopEstimate } from 'src/data/queries/app';
+import { useStopAmenities, useStopEstimate } from '@lib/queries/app';
+import useAppStore from '@lib/state/app_state';
+import { useTheme } from '@lib/state/utils';
+import { Direction, Route, Stop } from '@lib/types';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import AmenityRow from './AmenityRow';
 import TimeBubble from './TimeBubble';

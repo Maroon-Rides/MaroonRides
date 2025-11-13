@@ -1,5 +1,5 @@
-import { useTheme } from '@data/state/utils';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@lib/state/utils';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 

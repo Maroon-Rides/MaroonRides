@@ -1,18 +1,18 @@
-import { SegmentedControlEvent } from '@data/utils/utils';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  BottomSheetFlatList,
-  BottomSheetFlatListMethods,
+    BottomSheetFlatList,
+    BottomSheetFlatListMethods,
 } from '@gorhom/bottom-sheet';
+import { SegmentedControlEvent } from '@lib/utils/utils';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 
-import { QueryKey } from '@data/queries/app';
-import useAppStore from '@data/state/app_state';
-import { useTheme } from '@data/state/utils';
-import { Stop } from '@data/types';
+import { QueryKey } from '@lib/queries/app';
+import useAppStore from '@lib/state/app_state';
+import { useTheme } from '@lib/state/utils';
+import { Stop } from '@lib/types';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 import AlertPill from '../ui/AlertPill';
 import BusIcon from '../ui/BusIcon';

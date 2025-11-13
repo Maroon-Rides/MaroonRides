@@ -6,20 +6,20 @@ import { useQueryClient } from '@tanstack/react-query';
 import * as Location from 'expo-location';
 import React, { memo, useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Button,
-  Keyboard,
-  Linking,
-  Platform,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Button,
+    Keyboard,
+    Linking,
+    Platform,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
-import { useTripPlan } from '@data/queries/route_planning';
-import useAppStore from '@data/state/app_state';
-import { useTheme } from '@data/state/utils';
-import { MyLocation, PlaceSuggestion, PlaceType } from '@data/types';
+import { useTripPlan } from '@lib/queries/route_planning';
+import useAppStore from '@lib/state/app_state';
+import { useTheme } from '@lib/state/utils';
+import { MyLocation, PlaceSuggestion, PlaceType } from '@lib/types';
 import SuggestionInput from 'src/app/components/ui/SuggestionInput';
 import TimeInput from 'src/app/components/ui/TimeInput';
 import TripPlanCell from 'src/app/components/ui/TripPlanCell';

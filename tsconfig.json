@@ -4,8 +4,8 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@data/*": [
-        "src/data/*"
+      "@lib/*": [
+        "src/lib/*"
       ]
     }
   },

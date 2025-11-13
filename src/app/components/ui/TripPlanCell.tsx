@@ -2,9 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Keyboard, Text, TouchableOpacity, View } from 'react-native';
 
-import useAppStore from '@data/state/app_state';
-import { useTheme } from '@data/state/utils';
-import { PlanItem } from '@data/types';
+import useAppStore from '@lib/state/app_state';
+import { useTheme } from '@lib/state/utils';
+import { PlanItem } from '@lib/types';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
 
 interface TripPlanCellProps {

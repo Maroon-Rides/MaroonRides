@@ -1,10 +1,10 @@
-import { getLighterColor } from '@data/utils/utils';
+import { getLighterColor } from '@lib/utils/utils';
 import React, { memo, useEffect } from 'react';
 import { View } from 'react-native';
 import { MapMarker, Marker } from 'react-native-maps';
 import StopCallout from '../callout/StopCallout';
 
-import { Direction, Route, Stop } from '@data/types';
+import { Direction, Route, Stop } from '@lib/types';
 
 interface Props {
   stop: Stop;
