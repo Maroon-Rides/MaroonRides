@@ -6,6 +6,7 @@ import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import React, { memo, useEffect, useState } from 'react';
 import {
   Appearance,
+  Button,
   Platform,
   Text,
   TouchableOpacity,
@@ -140,6 +141,14 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
                 ? theme.androidSegmentedBackground
                 : undefined
             }
+          />
+
+          <Button
+            title="Press me"
+            onPress={() => {
+              const data = { answer: 42 };
+              console.log(data.doesntexist.more);
+            }}
           />
         </View>
       </BottomSheetScrollView>
