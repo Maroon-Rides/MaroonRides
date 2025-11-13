@@ -67,6 +67,9 @@ jobs:
       - name: Upload sourcemaps
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_URL: https://bugsink.maroonrides.app/
+          SENTRY_ORG: 'maroon-rides'
+          SENTRY_PROJECT: 'maroon-rides-app'
         run: |
           pnpm expo export -s -p ios --output-dir dist-ios
           pnpm dlx sentry-expo-upload-sourcemaps dist-ios
@@ -155,6 +158,9 @@ jobs:
       - name: Upload sourcemaps
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_URL: https://bugsink.maroonrides.app/
+          SENTRY_ORG: 'maroon-rides'
+          SENTRY_PROJECT: 'maroon-rides-app'
         run: |
           pnpm expo export -s -p android --output-dir dist-android
           pnpm dlx sentry-expo-upload-sourcemaps dist-android
