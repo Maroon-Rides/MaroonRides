@@ -139,7 +139,7 @@ export const useASVehicles = (route: Route | null) => {
           let direction =
             route?.directions.find(
               (dir) => dir.id === vehicleDirection.directionKey,
-            ) ?? route?.directions[0];
+            ) ?? route?.directions[0]!;
 
           const directionBuses: Bus[] = vehicleDirection.vehicles.map(
             (vehicle) => {
