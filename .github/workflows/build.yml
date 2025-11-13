@@ -57,19 +57,13 @@ jobs:
       - name: Fastlane Build [iOS]
         run: fastlane ios build
         env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_KEY_BASE64: ${{ secrets.ASC_KEY_BASE64 }}
           GIT_AUTHORIZATION: ${{ secrets.GIT_AUTHORIZATION }}
           CHANGELOG: ${{ github.event.release.body }}
-
-      - name: Upload sourcemaps
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        run: |
-          pnpm expo export -s -p ios --output-dir dist-ios
-          pnpm dlx sentry-expo-upload-sourcemaps dist-ios
 
   build_android:
     runs-on: ubuntu-latest
@@ -148,13 +142,7 @@ jobs:
       - name: Upload to Play Store [Android]
         run: fastlane android upload
         env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           GOOGLE_PLAY_KEY: ${{ secrets.GOOGLE_PLAY_KEY }}
           RELEASE_NAME: ${{ github.event.release.tag_name || steps.git_sha.outputs.sha_short }}
           PACKAGE_NAME: 'com.maroonrides.maroonrides'
-
-      - name: Upload sourcemaps
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        run: |
-          pnpm expo export -s -p android --output-dir dist-android
-          pnpm dlx sentry-expo-upload-sourcemaps dist-android
