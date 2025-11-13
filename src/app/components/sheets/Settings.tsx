@@ -21,6 +21,7 @@ import {
 } from '@lib/queries/structure/storage';
 import useAppStore from '@lib/state/app_state';
 import { useTheme } from '@lib/state/utils';
+import { appLogger } from '@lib/utils/logger';
 import { useQueryClient } from '@tanstack/react-query';
 import getTheme from 'src/app/theme';
 import { Sheets, useSheetController } from '../providers/sheet-controller';
@@ -144,10 +145,12 @@ const Settings: React.FC<SheetProps> = ({ sheetRef }) => {
           />
 
           <Button
-            title="Press me"
+            title="Trigger error"
             onPress={() => {
               const data = { answer: 42 };
-              console.log(data.doesntexist.more);
+              // @ts-expect-error
+              const extracted = data.doesntexist.more;
+              appLogger.d(`The answer is ${extracted}`);
             }}
           />
         </View>
