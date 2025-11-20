@@ -108,13 +108,18 @@ const RouteMap: React.FC = () => {
         return;
       }
 
-      // Get current location
-      location = (
-        await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-          timeInterval: 2,
-        })
-      ).coords;
+      try {
+        // Get current location
+        location = (
+          await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+            timeInterval: 2,
+          })
+        ).coords;
+      } catch (error) {
+        appLogger.e('Error getting current location: ' + error);
+        return;
+      }
     }
 
     // Animate map to the current location

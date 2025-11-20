@@ -92,10 +92,16 @@ const InputRoute: React.FC<SheetProps> = ({ sheetRef }) => {
         }
 
         // Get current location
-        const locationCoords = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-          timeInterval: 2,
-        });
+        let locationCoords: Location.LocationObject;
+        try {
+          locationCoords = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+            timeInterval: 2,
+          });
+        } catch {
+          setRouteInfoError('Unable to fetch current location.');
+          return;
+        }
 
         // Set the location coordinates
         let location = MyLocation;
