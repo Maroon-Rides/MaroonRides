@@ -2,9 +2,6 @@
   "packages": {
     ".": {
       "release-type": "simple",
-      "include-component-in-tag": false,
-      "tag-separator": "",
-      "include-v-in-tag": false,
       "skip-changelog": true,
       "extra-files": [
         {
