@@ -22,6 +22,7 @@
     center?: [number, number];
     zoom?: number;
     options?: Omit<MapLibreGL.MapOptions, 'container' | 'style'>;
+    onload?: (map: MapLibreGL.Map) => void;
   }
 
   const defaultStyles = {
@@ -29,7 +30,14 @@
     light: '/map/light.json',
   };
 
-  let { children, styles, theme: _theme = 'light', projection, options = {} }: Props = $props();
+  let {
+    children,
+    styles,
+    theme: _theme = 'light',
+    projection,
+    options = {},
+    onload,
+  }: Props = $props();
 
   let mapContainer: HTMLDivElement;
   let map: MapLibreGL.Map | null = $state(null);
@@ -132,6 +140,9 @@
 
     const loadHandler = () => {
       isLoaded = true;
+      if (map) {
+        onload?.(map);
+      }
     };
 
     mapInstance.on('load', loadHandler);

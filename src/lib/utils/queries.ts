@@ -71,7 +71,8 @@ export function createDependencyQuery<T>(params: () => DependencyQueryParams<T>)
       return query.isFetching;
     },
     get isLoading() {
-      return query.isLoading;
+      const p = params();
+      return query.isLoading || p.dependents.some((q) => q.isLoading);
     },
     get status() {
       return query.status;

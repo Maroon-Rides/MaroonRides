@@ -36,7 +36,7 @@
     onmouseenter,
     onmouseleave,
     interactive = true,
-    id = crypto.randomUUID(),
+    id,
   }: Props = $props();
 
   const mapCtx = getContext<MapContext>('map');

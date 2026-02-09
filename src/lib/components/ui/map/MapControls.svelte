@@ -24,8 +24,8 @@
   const loaded = $derived(mapCtx.isLoaded());
 
   const positionClasses = {
-    'top-left': 'top-2 left-2',
-    'top-right': 'top-12 right-2',
+    'top-left': 'top-16 left-2',
+    'top-right': 'top-16 right-2',
     'bottom-left': 'bottom-2 left-2',
     'bottom-right': 'bottom-10 right-2',
   };
@@ -80,9 +80,9 @@
   <div class={cn('absolute z-10 flex flex-col gap-1.5', positionClasses[position], className)}>
     <Button variant="outline" size="icon-xl" onclick={handleLocate} aria-label="Locate">
       {#if isCentered}
-        <LocateFixed class="size-6" />
+        <LocateFixed class="size-6 stroke-muted-foreground" />
       {:else}
-        <Locate class="size-6" />
+        <Locate class="size-6 stroke-muted-foreground" />
       {/if}
     </Button>
   </div>

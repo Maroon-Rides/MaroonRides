@@ -54,8 +54,8 @@
 
   // Controls visibility for exit animation
   let visible = $state(true);
-  const OPEN_DURATION = 500; // ms for open animation
-  const CLOSE_DURATION = 500; // ms for close animation
+  const OPEN_DURATION = 350; // ms for open animation
+  const CLOSE_DURATION = 350; // ms for close animation
 
   // ---- Gesture state (non-reactive) ----
   type GestureMode = 'none' | 'sheet-drag' | 'content-scroll';

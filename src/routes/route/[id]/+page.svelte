@@ -4,7 +4,9 @@
   import * as BottomSheet from '$lib/components/ui/bottom-sheet';
   import Button from '$lib/components/ui/button/button.svelte';
   import * as Tabs from '$lib/components/ui/tabs';
+  import Toggle from '$lib/components/ui/toggle/toggle.svelte';
   import { useRoutes } from '$lib/data/app';
+  import { mapManager } from '$lib/managers/map.manager.svelte';
   import { fit, parent_style } from '@leveluptuts/svelte-fit';
   import { Bell, Star } from 'lucide-svelte';
   import type { PageData } from './$types';
@@ -14,8 +16,14 @@
   const routes = useRoutes();
   const route = $derived(routes.data?.find((r) => r.id === data.routeId));
 
+  $effect(() => {
+    console.log('Updating drawn routes for route:', route);
+    mapManager.drawnRoutes = routes.data ?? [];
+  });
+
   let selectedDirection = $derived(route?.directions[0]?.id ?? '');
 
+  $inspect(routes.isLoading, routes.isEnabled);
   $inspect('route', route);
 </script>
 
@@ -43,10 +51,14 @@
         {/snippet}
 
         <div class="my-1 flex flex-row gap-1">
-          <Button variant="outline" size="md" class="rounded-full" onclick={() => goto('/')}>
+          <Toggle
+            variant="outline"
+            size="md"
+            class="rounded-full data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-yellow-500 data-[state=on]:*:[svg]:stroke-yellow-500"
+          >
             <Star class="size-4" />
             Favorite
-          </Button>
+          </Toggle>
           <Button variant="outline" size="md" class="rounded-full" onclick={() => goto('/')}>
             <Bell class="size-4" />
             Alerts

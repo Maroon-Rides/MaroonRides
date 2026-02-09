@@ -10,7 +10,6 @@
   import { Cog, Route } from 'lucide-svelte';
 
   let routes = useRoutes();
-
   let selectedTab = $state('all');
 </script>
 
@@ -42,7 +41,7 @@
     {#if selectedTab === 'all'}
       <Card.Content class="flex flex-col gap-3 px-4 pt-4 pb-10">
         {#if routes.isLoading}
-          <Spinner />
+          <Spinner class="size-6 self-center" />
         {:else if routes.isError}
           <p>Error loading routes: {routes.error.message}</p>
         {/if}
