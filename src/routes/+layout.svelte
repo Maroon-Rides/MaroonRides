@@ -23,10 +23,11 @@
       }}
     >
       <MapControls showCompass={true} />
-    </Map>
-  </div>
 
-  <div class="pointer-events-none fixed inset-0 flex items-end select-none md:p-4">
-    {@render children()}
+      <!-- Make sure elements are in here so they can access the map context -->
+      <div class="pointer-events-none fixed inset-0 z-10 flex items-end select-none md:p-4">
+        {@render children()}
+      </div>
+    </Map>
   </div>
 </QueryClientProvider>
