@@ -1,5 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import type { Direction } from '$lib/data/types';
+  import { fit, parent_style } from '@leveluptuts/svelte-fit';
   import { MoveHorizontal } from 'lucide-svelte';
 
   interface Props {
@@ -7,7 +9,7 @@
     busNumber: string;
     routeColor: string;
     title: string;
-    endpoints: string[];
+    endpoints: Direction[];
   }
 
   let { id, busNumber, routeColor, title, endpoints }: Props = $props();
@@ -19,10 +21,13 @@
 
 <button class="flex flex-row items-center gap-3 hover:cursor-pointer" {onclick}>
   <div
-    class="flex h-10 w-12 flex-col items-center justify-center rounded-md text-sm font-medium"
+    id="bus-number"
+    class="flex h-10 w-12 items-center justify-center rounded-md p-1"
     style="background-color: {routeColor};"
   >
-    <p class="text-lg font-semibold text-white">{busNumber}</p>
+    <div style="{parent_style} display: flex; align-items: center; justify-content: center;">
+      <p class="text-sm font-bold text-white" use:fit={{ max_size: 22 }}>{busNumber}</p>
+    </div>
   </div>
 
   <div>
@@ -33,7 +38,7 @@
       {/if}
       <div class="flex flex-row items-center gap-1">
         {#each endpoints as endpoint, index}
-          <p class="text-sm">{endpoint}</p>
+          <p class="text-sm">{endpoint.name}</p>
           {#if index < endpoints.length - 1}
             <MoveHorizontal size={12} />
           {/if}

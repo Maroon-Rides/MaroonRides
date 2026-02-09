@@ -14,6 +14,7 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.0.2",
     "@internationalized/date": "^3.11.0",
     "@lucide/svelte": "^0.561.0",
     "@sveltejs/adapter-static": "^3.0.10",
@@ -35,7 +36,11 @@
     "vite": "^7.3.1"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.2",
+    "@capacitor/core": "^8.0.2",
+    "@capacitor/ios": "^8.0.2",
     "@googlemaps/polyline-codec": "^1.0.28",
+    "@leveluptuts/svelte-fit": "^1.0.3",
     "@tanstack/svelte-query": "^6.0.18",
     "aggie-spirit-api": "^1.3.4",
     "lucide-svelte": "^0.563.0",

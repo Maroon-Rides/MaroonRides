@@ -14,6 +14,7 @@ import {
 } from '$lib/data/typecheck/aggie_spirit';
 import { appLogger } from '$lib/utils/logger';
 // import '@bacons/text-decoder/install';
+import { createDependencyQuery, createLoggingQuery } from '$lib/utils/queries';
 import {
   getBaseData,
   getNextDepartureTimes,
@@ -23,7 +24,6 @@ import {
   getVehicles,
 } from 'aggie-spirit-api';
 import moment from 'moment';
-import { useDependencyQuery, useLoggingQuery } from '../utils';
 
 export type Headers = { [key: string]: string };
 
@@ -42,7 +42,7 @@ enum ASAPIQueryKey {
 }
 
 export const useAuthCodeAPI = () => {
-  const query = useLoggingQuery<string>({
+  const query = createLoggingQuery<string>(() => ({
     label: ASAPIQueryKey.AUTH_CODE,
     queryKey: [ASAPIQueryKey.AUTH_CODE],
     queryFn: async () => {
@@ -50,7 +50,7 @@ export const useAuthCodeAPI = () => {
       return atob(authCodeB64);
     },
     staleTime: Infinity,
-  });
+  }));
 
   return query;
 };
@@ -58,24 +58,21 @@ export const useAuthCodeAPI = () => {
 export const useAuthTokenAPI = () => {
   const authCodeQuery = useAuthCodeAPI();
 
-  const query = useDependencyQuery<Headers>({
+  const query = createDependencyQuery<Headers>(() => ({
     queryKey: [ASAPIQueryKey.AUTH_TOKEN],
     queryFn: async () => {
-      let data = authCodeQuery.data!;
-      data += '\ngetAuthentication()';
-      console.log('Evaluating auth token code');
-
       var res = await fetch('https://aggiespirit.ts.tamu.edu/', { credentials: 'omit' });
-      console.log(res.headers);
 
-      const headers = await eval(data);
-      console.log('Received auth token headers');
-      return headers;
+      var verificationToken = extractRequestVerificationToken(await res.text());
+      return {
+        Requestverificationtoken: verificationToken,
+        'X-Requested-With': 'XMLHttpRequest',
+      };
     },
     staleTime: moment.duration(15, 'minutes'),
     refetchInterval: moment.duration(15, 'minutes'),
     dependents: [authCodeQuery],
-  });
+  }));
 
   return query;
 };
@@ -83,20 +80,25 @@ export const useAuthTokenAPI = () => {
 export const useRoutePlanAuthTokenAPI = (queryString: string) => {
   const authCodeQuery = useAuthCodeAPI();
 
-  const query = useDependencyQuery<Headers>({
+  const query = createDependencyQuery<Headers>(() => ({
     queryKey: [ASAPIQueryKey.ROUTE_PLAN_AUTH_TOKEN],
     queryFn: async () => {
-      let qsAdded = authCodeQuery.data!.replace('ROUTE_PLAN_QUERY_STRING', queryString);
-      qsAdded += '\ngetRoutePlanAuthentication()';
+      var res = await fetch('https://aggiespirit.ts.tamu.edu/TripPlanner/ROUTE_PLAN_QUERY_STRING', {
+        credentials: 'omit',
+      });
 
-      const headers = await eval(qsAdded);
-      return headers;
+      var verificationToken = extractRequestVerificationToken(await res.text());
+
+      return {
+        Requestverificationtoken: verificationToken,
+        'X-Requested-With': 'XMLHttpRequest',
+      };
     },
     staleTime: moment.duration(15, 'minutes'),
     refetchInterval: moment.duration(15, 'minutes'),
     enabled: queryString !== '',
     dependents: [authCodeQuery],
-  });
+  }));
 
   return query;
 };
@@ -104,7 +106,7 @@ export const useRoutePlanAuthTokenAPI = (queryString: string) => {
 export const useBaseDataAPI = () => {
   const authTokenQuery = useAuthTokenAPI();
 
-  const query = useDependencyQuery<IGetBaseDataResponse>({
+  const query = createDependencyQuery<IGetBaseDataResponse>(() => ({
     queryKey: [ASAPIQueryKey.BASE_DATA],
     queryFn: async () => {
       const baseData = await getBaseData(authTokenQuery.data!);
@@ -114,7 +116,7 @@ export const useBaseDataAPI = () => {
     },
     staleTime: Infinity,
     dependents: [authTokenQuery],
-  });
+  }));
 
   return query;
 };
@@ -123,7 +125,7 @@ export const usePatternPathsAPI = () => {
   const authTokenQuery = useAuthTokenAPI();
   const baseDataQuery = useBaseDataAPI();
 
-  const query = useDependencyQuery<IGetPatternPathsResponse>({
+  const query = createDependencyQuery<IGetPatternPathsResponse>(() => ({
     queryKey: [ASAPIQueryKey.PATTERN_PATHS],
     queryFn: async () => {
       const baseData = baseDataQuery.data as IGetBaseDataResponse;
@@ -139,7 +141,7 @@ export const usePatternPathsAPI = () => {
     dependents: [authTokenQuery, baseDataQuery],
     staleTime: moment.duration(30, 'minutes'),
     refetchInterval: moment.duration(30, 'minutes'),
-  });
+  }));
 
   return query;
 };
@@ -147,7 +149,7 @@ export const usePatternPathsAPI = () => {
 export const useServiceInterruptionsAPI = () => {
   const baseDataQuery = useBaseDataAPI();
 
-  return useDependencyQuery<IMapServiceInterruption[]>({
+  return createDependencyQuery<IMapServiceInterruption[]>(() => ({
     queryKey: [ASAPIQueryKey.SERVICE_INTERRUPTIONS],
     queryFn: async () => {
       const baseData = baseDataQuery.data as IGetBaseDataResponse;
@@ -157,13 +159,13 @@ export const useServiceInterruptionsAPI = () => {
     staleTime: moment.duration(30, 'minutes'),
     refetchInterval: moment.duration(30, 'minutes'),
     dependents: [baseDataQuery],
-  });
+  }));
 };
 
 export const useStopEstimateAPI = (routeKey: string, directionKey: string, stopCode: string) => {
   const authTokenQuery = useAuthTokenAPI();
 
-  return useDependencyQuery<IGetNextDepartTimesResponse>({
+  return createDependencyQuery<IGetNextDepartTimesResponse>(() => ({
     queryKey: [ASAPIQueryKey.STOP_ESTIMATE, routeKey, directionKey, stopCode],
     queryFn: async () => {
       const response = await getNextDepartureTimes(
@@ -180,13 +182,13 @@ export const useStopEstimateAPI = (routeKey: string, directionKey: string, stopC
     dependents: [authTokenQuery],
     staleTime: moment.duration(30, 'seconds'),
     refetchInterval: moment.duration(30, 'seconds'),
-  });
+  }));
 };
 
 export const useTimetableEstimateAPI = (stopCode: string, date: Date) => {
   const authTokenQuery = useAuthTokenAPI();
 
-  return useDependencyQuery<IGetStopEstimatesResponse>({
+  return createDependencyQuery<IGetStopEstimatesResponse>(() => ({
     queryKey: [ASAPIQueryKey.TIMETABLE_ESTIMATE, stopCode, moment(date).format('YYYY-MM-DD')],
     queryFn: async () => {
       const response = await getStopEstimates(stopCode, date, authTokenQuery.data!);
@@ -198,13 +200,13 @@ export const useTimetableEstimateAPI = (stopCode: string, date: Date) => {
     staleTime: 30000,
     refetchInterval: 30000,
     dependents: [authTokenQuery],
-  });
+  }));
 };
 
 export const useStopScheduleAPI = (stopCode: string, date: Date) => {
   const authTokenQuery = useAuthTokenAPI();
 
-  return useDependencyQuery<IGetStopEstimatesResponse>({
+  return createDependencyQuery<IGetStopEstimatesResponse>(() => ({
     queryKey: [ASAPIQueryKey.STOP_SCHEDULE, stopCode, moment(date).format('YYYY-MM-DD')],
     queryFn: async () => {
       const response = await getStopSchedules(stopCode, date, authTokenQuery.data!);
@@ -216,13 +218,13 @@ export const useStopScheduleAPI = (stopCode: string, date: Date) => {
     dependents: [authTokenQuery],
     staleTime: moment.duration(30, 'seconds'),
     refetchInterval: moment.duration(30, 'seconds'),
-  });
+  }));
 };
 
 export const useVehiclesAPI = (routeKey: string) => {
   const authTokenQuery = useAuthTokenAPI();
 
-  return useDependencyQuery<IGetVehiclesResponse[0]>({
+  return createDependencyQuery<IGetVehiclesResponse[0]>(() => ({
     queryKey: [ASAPIQueryKey.VEHICLES, routeKey],
     queryFn: async () => {
       let busesResponse = (await getVehicles(
@@ -243,5 +245,24 @@ export const useVehiclesAPI = (routeKey: string) => {
     dependents: [authTokenQuery],
     staleTime: moment.duration(10, 'seconds'),
     refetchInterval: moment.duration(10, 'seconds'),
-  });
+  }));
 };
+
+function extractRequestVerificationToken(html: string): string {
+  //
+  // grab the encoded request verification token
+  //
+  const regex = new RegExp('"[a-zA-Z0-9]{288}MQ=="', 'g');
+
+  // check for a string
+  const matches = html.match(regex);
+  if (matches === null) {
+    throw new Error('Could not find verification token');
+  }
+
+  // get a nice string
+  const encoded_token = matches[0].slice(1, -1);
+
+  // b64 decode
+  return atob(encoded_token);
+}

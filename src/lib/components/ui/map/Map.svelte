@@ -144,7 +144,6 @@
 
     untrack(() => {
       isStyleLoaded = false;
-      console.log('Applying style:', style);
       map!.setStyle(style, { diff: true });
     });
   });

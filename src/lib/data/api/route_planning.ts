@@ -5,8 +5,8 @@ import {
 } from '$lib/data/typecheck/aggie_spirit';
 import { type SearchSuggestion } from '$lib/utils/route-planning';
 import { findBusStops, getTripPlan } from 'aggie-spirit-api';
+import { createLoggingQuery } from '../../utils/queries';
 import { useASRoutes } from '../structure/aggie_spirit';
-import { useLoggingQuery } from '../utils';
 import { useAuthCodeAPI, useAuthTokenAPI } from './aggie_spirit';
 
 export enum ASRoutePlanQueryKey {
@@ -18,7 +18,7 @@ export enum ASRoutePlanQueryKey {
 export const useRoutePlanAuthTokenAPI = (queryString: string) => {
   const authCodeQuery = useAuthCodeAPI();
 
-  const query = useLoggingQuery<{ [key: string]: string }>({
+  const query = createLoggingQuery<{ [key: string]: string }>(() => ({
     queryKey: [ASRoutePlanQueryKey.AUTH_TOKEN],
     queryFn: async () => {
       let qsAdded = authCodeQuery.data!.replace('ROUTE_PLAN_QUERY_STRING', queryString);
@@ -29,7 +29,7 @@ export const useRoutePlanAuthTokenAPI = (queryString: string) => {
     },
     refetchInterval: 2 * 3600 * 1000,
     enabled: authCodeQuery.isSuccess && queryString !== '',
-  });
+  }));
 
   return query;
 };
@@ -38,7 +38,7 @@ export const useSearchSuggestionAPI = (query: string) => {
   const authTokenQuery = useAuthTokenAPI();
   const routesQuery = useASRoutes();
 
-  return useLoggingQuery<SearchSuggestion[]>({
+  return createLoggingQuery<SearchSuggestion[]>(() => ({
     queryKey: [ASRoutePlanQueryKey.SEARCH_SUGGESTION, query],
     queryFn: async () => {
       // we need data from pattern paths to get the stop GPS locations
@@ -76,7 +76,7 @@ export const useSearchSuggestionAPI = (query: string) => {
     },
     enabled: authTokenQuery.isSuccess && query !== '',
     staleTime: Infinity,
-  });
+  }));
 };
 
 export const useTripPlanAPI = (
@@ -100,7 +100,7 @@ export const useTripPlanAPI = (
 
   const routePlanAuthToken = useRoutePlanAuthTokenAPI(queryString);
 
-  return useLoggingQuery<ITripPlanResponse>({
+  return createLoggingQuery<ITripPlanResponse>(() => ({
     queryKey: [ASRoutePlanQueryKey.TRIP_PLAN, origin, destination, date, deadline],
     queryFn: async () => {
       let response = await getTripPlan(
@@ -124,7 +124,7 @@ export const useTripPlanAPI = (
       date !== null &&
       deadline !== null,
     staleTime: 60000, // 2 minutes
-  });
+  }));
 };
 
 export default useRoutePlanAuthTokenAPI;

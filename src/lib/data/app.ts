@@ -11,6 +11,7 @@ import {
 } from '$lib/data/types';
 import { queryLogger } from '$lib/utils/logger';
 import moment from 'moment';
+import { createDependencyQuery, createSelectableQuery } from '../utils/queries';
 import {
   useASAlerts,
   useASRoutes,
@@ -20,7 +21,6 @@ import {
   useASTimetableEstimate,
   useASVehicles,
 } from './structure/aggie_spirit';
-import { useDependencyQuery, useSelectableQuery } from './utils';
 
 export enum QueryKey {
   ROUTE_LIST = 'MRRouteList',
@@ -36,14 +36,14 @@ export enum QueryKey {
 export const useRoutes = () => {
   const asRouteList = useASRoutes();
 
-  const query = useDependencyQuery<Route[]>({
+  const query = createDependencyQuery<Route[]>(() => ({
     queryKey: [QueryKey.ROUTE_LIST],
     queryFn: async () => {
       queryLogger.i(`Loaded ${asRouteList.data?.length} routes from Aggie Spirit`);
       return asRouteList.data!;
     },
     dependents: [asRouteList],
-  });
+  }));
 
   return query;
 };
@@ -51,7 +51,7 @@ export const useRoutes = () => {
 export const useVehicles = (route: Route | null) => {
   const asVehiclesQuery = useASVehicles(route);
 
-  const query = useSelectableQuery<Bus[], DataSource>({
+  const query = createSelectableQuery<Bus[], DataSource>(() => ({
     queryKey: [QueryKey.VEHICLES, route?.id],
     selector: route?.dataSource,
     queries: {
@@ -59,7 +59,7 @@ export const useVehicles = (route: Route | null) => {
     },
     unsupportedValue: [],
     enabled: route !== null,
-  });
+  }));
 
   return query;
 };
@@ -67,7 +67,7 @@ export const useVehicles = (route: Route | null) => {
 export const useStopEstimate = (route: Route, direction: Direction, stop: Stop) => {
   const asEstimateQuery = useASStopEstimate(route, direction, stop);
 
-  const query = useSelectableQuery<TimeEstimate[], DataSource>({
+  const query = createSelectableQuery<TimeEstimate[], DataSource>(() => ({
     queryKey: [QueryKey.STOP_ESTIMATE, route.id, direction.id, stop.id],
     selector: route?.dataSource,
     queries: {
@@ -75,7 +75,7 @@ export const useStopEstimate = (route: Route, direction: Direction, stop: Stop) 
     },
     unsupportedValue: [],
     enabled: route !== null,
-  });
+  }));
 
   return query;
 };
@@ -83,7 +83,7 @@ export const useStopEstimate = (route: Route, direction: Direction, stop: Stop) 
 export const useTimetableEstimate = (stop: Stop | null, date: moment.Moment) => {
   const asTimetableEstimateQuery = useASTimetableEstimate(stop, date);
 
-  const query = useSelectableQuery<StopSchedule[], DataSource>({
+  const query = createSelectableQuery<StopSchedule[], DataSource>(() => ({
     queryKey: [QueryKey.TIMETABLE_ESTIMATE, stop?.id, date.format('YYYY-MM-DD')],
     selector: stop?.dataSource,
     queries: {
@@ -91,7 +91,7 @@ export const useTimetableEstimate = (stop: Stop | null, date: moment.Moment) => 
     },
     unsupportedValue: [],
     enabled: stop !== null,
-  });
+  }));
 
   return query;
 };
@@ -99,7 +99,7 @@ export const useTimetableEstimate = (stop: Stop | null, date: moment.Moment) => 
 export const useStopAmenities = (route: Route, direction: Direction, stop: Stop) => {
   const asStopAmenities = useASStopAmenities(route, direction, stop);
 
-  const query = useSelectableQuery<Amenity[], DataSource>({
+  const query = createSelectableQuery<Amenity[], DataSource>(() => ({
     queryKey: [QueryKey.STOP_AMENITIES, route.id, direction.id, stop.id],
     selector: stop?.dataSource,
     queries: {
@@ -107,7 +107,7 @@ export const useStopAmenities = (route: Route, direction: Direction, stop: Stop)
     },
     unsupportedValue: [],
     enabled: stop !== null,
-  });
+  }));
 
   return query;
 };
@@ -115,7 +115,7 @@ export const useStopAmenities = (route: Route, direction: Direction, stop: Stop)
 export const useStopSchedule = (stop: Stop | null, date: moment.Moment) => {
   const asStopScheduleQuery = useASStopSchedule(stop, date);
 
-  const query = useSelectableQuery<StopSchedule[], DataSource>({
+  const query = createSelectableQuery<StopSchedule[], DataSource>(() => ({
     queryKey: [QueryKey.STOP_SCHEDULE, stop?.id, date.format('YYYY-MM-DD')],
     selector: stop?.dataSource,
     queries: {
@@ -123,7 +123,7 @@ export const useStopSchedule = (stop: Stop | null, date: moment.Moment) => {
     },
     unsupportedValue: [],
     enabled: stop !== null,
-  });
+  }));
 
   return query;
 };
@@ -131,7 +131,7 @@ export const useStopSchedule = (stop: Stop | null, date: moment.Moment) => {
 export const useAlerts = (route: Route | null) => {
   const asAlertQuery = useASAlerts(route);
 
-  const query = useSelectableQuery<Alert[], DataSource>({
+  const query = createSelectableQuery<Alert[], DataSource>(() => ({
     queryKey: [QueryKey.ALERTS, route?.id],
     selector: route?.dataSource,
     queries: {
@@ -139,7 +139,7 @@ export const useAlerts = (route: Route | null) => {
     },
     unsupportedValue: [],
     enabled: route !== null,
-  });
+  }));
 
   return query;
 };

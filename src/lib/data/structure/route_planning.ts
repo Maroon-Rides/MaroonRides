@@ -8,8 +8,8 @@ import {
 } from '$lib/data/types';
 import { type SearchSuggestion } from '$lib/utils/route-planning';
 import { decode } from '@googlemaps/polyline-codec';
+import { createDependencyQuery } from '../../utils/queries';
 import { useSearchSuggestionAPI, useTripPlanAPI } from '../api/route_planning';
-import { useDependencyQuery } from '../utils';
 
 export enum ASQueryKeyRoutePlanning {
   SEARCH_SUGGESTIONS = 'ASSearchSuggestions',
@@ -19,7 +19,7 @@ export enum ASQueryKeyRoutePlanning {
 export const useASSearchSuggestions = (query: string) => {
   const apiSearchSuggestionsQuery = useSearchSuggestionAPI(query);
 
-  const suggestionQuery = useDependencyQuery<PlaceSuggestion[]>({
+  const suggestionQuery = createDependencyQuery<PlaceSuggestion[]>({
     queryKey: [ASQueryKeyRoutePlanning.SEARCH_SUGGESTIONS, query],
     queryFn: async () => {
       if (!apiSearchSuggestionsQuery.data) {
@@ -76,7 +76,7 @@ export const useASTripPlan = (
 
   const apiTripPlanQuery = useTripPlanAPI(orginSuggestion, destinationSuggestion, date, deadline);
 
-  const tripPlanQuery = useDependencyQuery<PlanItem[]>({
+  const tripPlanQuery = createDependencyQuery<PlanItem[]>({
     queryKey: [
       ASQueryKeyRoutePlanning.TRIP_PLAN,
       origin?.id,

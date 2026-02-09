@@ -40,11 +40,11 @@
 
         {#each routes.data ?? [] as route}
           <BusRow
-            id="01"
-            busNumber="01"
-            routeColor="#FF0000"
-            title="Route 1"
-            endpoints={['Start', 'End']}
+            id={route.id}
+            busNumber={route.routeCode}
+            routeColor={route.tintColor}
+            title={route.name}
+            endpoints={route.directions}
           />
         {/each}
       </Tabs.Content>
