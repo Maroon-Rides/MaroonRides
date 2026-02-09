@@ -47,5 +47,14 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Used for route planning and showing location on map</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Used for route planning and showing location on map</string>
 </dict>
 </plist>

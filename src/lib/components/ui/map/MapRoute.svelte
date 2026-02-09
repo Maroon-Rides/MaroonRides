@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
   import MapLibreGL from 'maplibre-gl';
+  import { getContext } from 'svelte';
+  import type { MapContext } from './Map.svelte';
 
   interface Props {
     /** Optional unique identifier for the route layer */
@@ -38,10 +39,7 @@
     id = crypto.randomUUID(),
   }: Props = $props();
 
-  const mapCtx = getContext<{
-    getMap: () => MapLibreGL.Map | null;
-    isLoaded: () => boolean;
-  }>('map');
+  const mapCtx = getContext<MapContext>('map');
 
   const sourceId = $derived(`route-source-${id}`);
   const layerId = $derived(`route-layer-${id}`);

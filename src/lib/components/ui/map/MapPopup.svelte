@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
-  import MapLibreGL, { type PopupOptions } from 'maplibre-gl';
   import { cn } from '$lib/utils.js';
   import X from '@lucide/svelte/icons/x';
+  import MapLibreGL, { type PopupOptions } from 'maplibre-gl';
+  import { getContext } from 'svelte';
+  import type { MapContext } from './Map.svelte';
+  import type { MarkerContext } from './MapMarker.svelte';
 
   interface Props {
     longitude: number;
@@ -34,15 +36,8 @@
     maxWidth,
   }: Props = $props();
 
-  const mapCtx = getContext<{
-    getMap: () => MapLibreGL.Map | null;
-    isLoaded: () => boolean;
-  }>('map');
-
-  const markerCtx =
-    getContext<{
-      isDraggable?: () => boolean;
-    }>('marker') || {};
+  const mapCtx = getContext<MapContext>('map');
+  const markerCtx = getContext<MarkerContext>('marker') || {};
 
   let popup: MapLibreGL.Popup | null = null;
   let wrapperElement: HTMLDivElement | null = $state(null);

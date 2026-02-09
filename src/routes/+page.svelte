@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { page } from '$app/state';
   import BusRow from '$lib/components/BusRow.svelte';
+  import * as BottomSheet from '$lib/components/ui/bottom-sheet';
   import Button from '$lib/components/ui/button/button.svelte';
   import * as Card from '$lib/components/ui/card';
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
@@ -8,30 +10,37 @@
   import { Cog, Route } from 'lucide-svelte';
 
   let routes = useRoutes();
+
+  let selectedTab = $state('all');
 </script>
 
-<Card.Root class="pointer-events-auto w-full gap-2 px-6 md:w-sm">
-  <Card.Header>
-    <Card.Title class="text-3xl">Routes</Card.Title>
-    <Card.Action>
-      <Button variant="outline" class="rounded-full" aria-label="Plan Route" size="sm">
-        <Route />
-        Plan Route
-      </Button>
-      <Button variant="outline" class="rounded-full" aria-label="Settings" size="icon">
-        <Cog />
-      </Button>
-    </Card.Action>
-    <!-- divider -->
-  </Card.Header>
-  <Card.Content>
-    <Tabs.Root value="all" class="w-full">
-      <Tabs.List>
-        <Tabs.Trigger value="all">All Routes</Tabs.Trigger>
-        <Tabs.Trigger value="favorites">Favorites</Tabs.Trigger>
-      </Tabs.List>
-      <div class="h-px w-full bg-border"></div>
-      <Tabs.Content value="all" class="flex flex-col gap-3 pt-2">
+{#key page.url.pathname}
+  <BottomSheet.Root initialSnapIndex={1}>
+    {#snippet header()}
+      <BottomSheet.Header title="Routes">
+        {#snippet actions()}
+          <div class="flex items-center gap-2">
+            <Button variant="outline" class="rounded-full" aria-label="Plan Route" size="md">
+              <Route />
+              Plan Route
+            </Button>
+            <Button variant="outline" class="rounded-full" aria-label="Settings" size="icon-md">
+              <Cog />
+            </Button>
+          </div>
+        {/snippet}
+
+        <Tabs.Root bind:value={selectedTab} class="mt-2">
+          <Tabs.List>
+            <Tabs.Trigger value="all">All Routes</Tabs.Trigger>
+            <Tabs.Trigger value="favorites">Favorites</Tabs.Trigger>
+          </Tabs.List>
+        </Tabs.Root>
+      </BottomSheet.Header>
+    {/snippet}
+
+    {#if selectedTab === 'all'}
+      <Card.Content class="flex flex-col gap-3 px-4 pt-4 pb-10">
         {#if routes.isLoading}
           <Spinner />
         {:else if routes.isError}
@@ -47,8 +56,11 @@
             endpoints={route.directions}
           />
         {/each}
-      </Tabs.Content>
-      <Tabs.Content value="favorites">Change your password here.</Tabs.Content>
-    </Tabs.Root>
-  </Card.Content>
-</Card.Root>
+      </Card.Content>
+    {:else if selectedTab === 'favorites'}
+      <Card.Content class="flex flex-col gap-3 pt-4 pb-10">
+        <p>Favorites coming soon!</p>
+      </Card.Content>
+    {/if}
+  </BottomSheet.Root>
+{/key}

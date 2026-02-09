@@ -1,0 +1,68 @@
+<script lang="ts">
+  import { goto } from '$app/navigation';
+  import { page } from '$app/state';
+  import * as BottomSheet from '$lib/components/ui/bottom-sheet';
+  import Button from '$lib/components/ui/button/button.svelte';
+  import * as Tabs from '$lib/components/ui/tabs';
+  import { useRoutes } from '$lib/data/app';
+  import { fit, parent_style } from '@leveluptuts/svelte-fit';
+  import { Bell, Star } from 'lucide-svelte';
+  import type { PageData } from './$types';
+
+  let { data }: { data: PageData } = $props();
+
+  const routes = useRoutes();
+  const route = $derived(routes.data?.find((r) => r.id === data.routeId));
+
+  let selectedDirection = $derived(route?.directions[0]?.id ?? '');
+
+  $inspect('route', route);
+</script>
+
+{#key page.url.pathname}
+  <BottomSheet.Root initialSnapIndex={1}>
+    {#snippet header()}
+      <BottomSheet.Header title={route?.name ?? 'Route'}>
+        {#snippet leading()}
+          <div
+            class="mr-1 flex h-10 w-12 items-center justify-center rounded-md p-1"
+            style="background-color: {route?.tintColor};"
+          >
+            <div
+              style="{parent_style} display: flex; align-items: center; justify-content: center;"
+            >
+              <p class="text-sm font-bold text-white" use:fit={{ max_size: 22 }}>
+                {route?.routeCode}
+              </p>
+            </div>
+          </div>
+        {/snippet}
+
+        {#snippet actions()}
+          <BottomSheet.CloseButton onclick={() => goto('/')} />
+        {/snippet}
+
+        <div class="my-1 flex flex-row gap-1">
+          <Button variant="outline" size="md" class="rounded-full" onclick={() => goto('/')}>
+            <Star class="size-4" />
+            Favorite
+          </Button>
+          <Button variant="outline" size="md" class="rounded-full" onclick={() => goto('/')}>
+            <Bell class="size-4" />
+            Alerts
+          </Button>
+        </div>
+
+        {#if (route?.directions.length ?? 1) > 1}
+          <Tabs.Root bind:value={selectedDirection}>
+            <Tabs.List>
+              {#each route?.directions as direction}
+                <Tabs.Trigger value={direction.id}>{direction.name}</Tabs.Trigger>
+              {/each}
+            </Tabs.List>
+          </Tabs.Root>
+        {/if}
+      </BottomSheet.Header>
+    {/snippet}
+  </BottomSheet.Root>
+{/key}

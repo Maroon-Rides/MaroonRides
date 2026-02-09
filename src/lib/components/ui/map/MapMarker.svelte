@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { getContext, setContext } from 'svelte';
   import MapLibreGL, { type MarkerOptions } from 'maplibre-gl';
+  import { getContext, setContext } from 'svelte';
+  import type { MapContext } from './Map.svelte';
 
   type Anchor =
     | 'center'
@@ -49,10 +50,7 @@
     rotationAlignment,
   }: Props = $props();
 
-  const mapCtx = getContext<{
-    getMap: () => MapLibreGL.Map | null;
-    isLoaded: () => boolean;
-  }>('map');
+  const mapCtx = getContext<MapContext>('map');
 
   let marker: MapLibreGL.Marker | null = $state(null);
   let markerElement: HTMLDivElement | null = $state(null);
@@ -60,7 +58,16 @@
   let isDragging = $state(false);
 
   // Provide marker context for child components
-  setContext('marker', {
+  export type MarkerContext = {
+    getMarker: () => MapLibreGL.Marker | null;
+    getElement: () => HTMLDivElement | null;
+    getMap: () => MapLibreGL.Map | null;
+    isReady: () => boolean;
+    isDraggable: () => boolean;
+    isDragging: () => boolean;
+  };
+
+  setContext<MarkerContext>('marker', {
     getMarker: () => marker,
     getElement: () => markerElement,
     getMap: () => mapCtx.getMap(),

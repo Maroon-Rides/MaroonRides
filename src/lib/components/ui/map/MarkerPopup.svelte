@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
-  import MapLibreGL, { type PopupOptions } from 'maplibre-gl';
   import { cn } from '$lib/utils.js';
   import X from '@lucide/svelte/icons/x';
+  import MapLibreGL, { type PopupOptions } from 'maplibre-gl';
+  import { getContext } from 'svelte';
+  import type { MarkerContext } from './MapMarker.svelte';
 
   interface Props {
     children?: import('svelte').Snippet;
@@ -28,14 +29,7 @@
     maxWidth,
   }: Props = $props();
 
-  const markerCtx = getContext<{
-    getMarker: () => MapLibreGL.Marker | null;
-    getElement: () => HTMLDivElement | null;
-    getMap: () => MapLibreGL.Map | null;
-    isReady: () => boolean;
-    isDraggable?: () => boolean;
-    isDragging?: () => boolean;
-  }>('marker');
+  const markerCtx = getContext<MarkerContext>('marker');
 
   let popup: MapLibreGL.Popup | null = null;
   let wrapperElement: HTMLDivElement | null = $state(null);

@@ -48,7 +48,12 @@
 
   const isReady = $derived(isMounted && isLoaded && isStyleLoaded);
 
-  setContext('map', {
+  export type MapContext = {
+    getMap: () => MapLibreGL.Map | null;
+    isLoaded: () => boolean;
+  };
+
+  setContext<MapContext>('map', {
     getMap: () => map,
     isLoaded: () => isReady,
   });

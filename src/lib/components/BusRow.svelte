@@ -21,7 +21,6 @@
 
 <button class="flex flex-row items-center gap-3 hover:cursor-pointer" {onclick}>
   <div
-    id="bus-number"
     class="flex h-10 w-12 items-center justify-center rounded-md p-1"
     style="background-color: {routeColor};"
   >

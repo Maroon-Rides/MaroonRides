@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Maroon Rides',
   webDir: 'build',
   server: {
-    url: 'http://localhost:5173',
+    url: 'http://100.89.139.58:5173',
     cleartext: true,
   },
 };

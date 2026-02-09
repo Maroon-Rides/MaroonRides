@@ -1,6 +1,7 @@
 <script lang="ts" generics="P extends GeoJSON.GeoJsonProperties">
-  import { getContext } from 'svelte';
   import MapLibreGL from 'maplibre-gl';
+  import { getContext } from 'svelte';
+  import type { MapContext } from './Map.svelte';
 
   interface Props {
     /** GeoJSON FeatureCollection data or URL to fetch GeoJSON from */
@@ -35,10 +36,7 @@
     onclusterclick,
   }: Props = $props();
 
-  const mapCtx = getContext<{
-    getMap: () => MapLibreGL.Map | null;
-    isLoaded: () => boolean;
-  }>('map');
+  const mapCtx = getContext<MapContext>('map');
 
   const id = crypto.randomUUID();
   const sourceId = $derived(`cluster-source-${id}`);
