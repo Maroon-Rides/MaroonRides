@@ -38,16 +38,12 @@ export const useASRoutes = () => {
   const apiBaseDataQuery = useBaseDataAPI();
   const apiPatternPathsQuery = usePatternPathsAPI();
 
-  // const theme = useTheme();
-
   const query = createDependencyQuery<Route[]>(() => ({
     // TODO: add back theme.mode to query key when theme support is added back
     queryKey: [ASQueryKey.ROUTE_LIST],
     queryFn: async () => {
       let apiBaseData = apiBaseDataQuery.data!;
       let apiPatternPathData = apiPatternPathsQuery.data!;
-
-      // const theme = await getTheme();
 
       return apiBaseData.routes.map((baseRoute): Route => {
         // Find matching pattern paths for this route
@@ -94,8 +90,6 @@ export const useASRoutes = () => {
           };
         });
 
-        // const tintColor =
-        //   theme.busTints[baseRoute.shortName] ?? baseRoute.directionList[0].lineColor;
         const tintColor = baseRoute.directionList[0].lineColor;
 
         const directionBounds: Location[] = directions.flatMap((direction) =>

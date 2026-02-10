@@ -1,12 +1,10 @@
 <script lang="ts">
-  import { browser } from '$app/environment';
+  import { themeManager } from '$lib/managers/theme.manager.svelte';
   import MapLibreGL from 'maplibre-gl';
   import 'maplibre-gl/dist/maplibre-gl.css';
   import { PMTiles, Protocol } from 'pmtiles';
   import { onDestroy, onMount, setContext, untrack } from 'svelte';
   import Spinner from '../spinner/spinner.svelte';
-
-  let tailwindTheme: 'light' | 'dark' = $state('light');
 
   type MapStyleOption = string | MapLibreGL.StyleSpecification;
 
@@ -52,7 +50,7 @@
     light: styles?.light ?? defaultStyles.light,
   });
 
-  const currentStyle = $derived(tailwindTheme === 'light' ? mapStyles.light : mapStyles.dark);
+  const currentStyle = $derived(themeManager.theme === 'light' ? mapStyles.light : mapStyles.dark);
 
   const isReady = $derived(isMounted && isLoaded && isStyleLoaded);
 
@@ -76,28 +74,10 @@
   onMount(async () => {
     isMounted = true;
 
-    if (browser) {
-      const root = document.documentElement;
-
-      const updateTheme = () => {
-        tailwindTheme = root.classList.contains('dark') ? 'dark' : 'light';
-      };
-
-      updateTheme();
-
-      const observer = new MutationObserver(updateTheme);
-      observer.observe(root, {
-        attributes: true,
-        attributeFilter: ['class'],
-      });
-
-      onDestroy(() => observer.disconnect());
-    }
-
     const protocol = new Protocol();
     MapLibreGL.addProtocol('pmtiles', protocol.tile);
 
-    const PMTILE_URL = '/map/cstat_16.pmtiles';
+    const PMTILE_URL = '/map/cstat.pmtiles';
 
     const p = new PMTiles(PMTILE_URL);
 

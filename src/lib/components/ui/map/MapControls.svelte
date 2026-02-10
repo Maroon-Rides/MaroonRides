@@ -78,7 +78,13 @@
 
 {#if loaded}
   <div class={cn('absolute z-10 flex flex-col gap-1.5', positionClasses[position], className)}>
-    <Button variant="outline" size="icon-xl" onclick={handleLocate} aria-label="Locate">
+    <Button
+      variant="outline"
+      size="icon-xl"
+      onclick={handleLocate}
+      aria-label="Locate"
+      class="dark:bg-card"
+    >
       {#if isCentered}
         <LocateFixed class="size-6 stroke-muted-foreground" />
       {:else}

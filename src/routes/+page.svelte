@@ -1,16 +1,22 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import BusRow from '$lib/components/BusRow.svelte';
+  import RouteRow from '$lib/components/RouteRow.svelte';
   import * as BottomSheet from '$lib/components/ui/bottom-sheet';
   import Button from '$lib/components/ui/button/button.svelte';
   import * as Card from '$lib/components/ui/card';
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
   import * as Tabs from '$lib/components/ui/tabs';
   import { useRoutes } from '$lib/data/app';
+  import { mapManager } from '$lib/managers/map.manager.svelte';
   import { Cog, Route } from 'lucide-svelte';
+  import { toggleMode } from 'mode-watcher';
 
   let routes = useRoutes();
   let selectedTab = $state('all');
+
+  $effect(() => {
+    mapManager.setDrawnRoutes(routes.data ?? []);
+  });
 </script>
 
 {#key page.url.pathname}
@@ -18,12 +24,27 @@
     {#snippet header()}
       <BottomSheet.Header title="Routes">
         {#snippet actions()}
-          <div class="flex items-center gap-2">
-            <Button variant="outline" class="rounded-full" aria-label="Plan Route" size="md">
+          <div class="pointer-events-auto flex items-center gap-2">
+            <Button
+              variant="outline"
+              class="rounded-full"
+              aria-label="Plan Route"
+              size="md"
+              onclick={() => console.log('Plan route')}
+            >
               <Route />
               Plan Route
             </Button>
-            <Button variant="outline" class="rounded-full" aria-label="Settings" size="icon-md">
+            <Button
+              variant="outline"
+              class="rounded-full"
+              aria-label="Settings"
+              size="icon-md"
+              onclick={() => {
+                console.log('Toggled mode');
+                toggleMode();
+              }}
+            >
               <Cog />
             </Button>
           </div>
@@ -47,13 +68,7 @@
         {/if}
 
         {#each routes.data ?? [] as route}
-          <BusRow
-            id={route.id}
-            busNumber={route.routeCode}
-            routeColor={route.tintColor}
-            title={route.name}
-            endpoints={route.directions}
-          />
+          <RouteRow {route} />
         {/each}
       </Card.Content>
     {:else if selectedTab === 'favorites'}

@@ -42,7 +42,7 @@
   {...restProps}
 >
   <div
-    class="absolute top-0.75 left-0 h-[calc(100%-6px)] rounded-full border border-transparent bg-background shadow-sm dark:border-input dark:bg-input/30"
+    class="absolute top-0.75 left-0 h-[calc(100%-6px)] rounded-full border border-transparent bg-background shadow-sm dark:border-input dark:bg-input"
     style={indicatorStyle}
   ></div>
   {@render restProps.children?.()}

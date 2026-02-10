@@ -68,16 +68,12 @@
       },
     });
 
-    // Build paint options with transition definitions
-    // Use default values here - they'll be updated by the paint property effect
+    // Build paint options
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const paint: any = {
-      'line-color': '#94a3b8', // Start with gray (unselected color)
-      'line-width': 5, // Start with unselected width
-      'line-opacity': 0.6, // Start with unselected opacity
-      'line-color-transition': { duration: 300, delay: 0 },
-      'line-width-transition': { duration: 300, delay: 0 },
-      'line-opacity-transition': { duration: 300, delay: 0 },
+      'line-color': color,
+      'line-width': width,
+      'line-opacity': opacity,
     };
 
     if (dashArray) {

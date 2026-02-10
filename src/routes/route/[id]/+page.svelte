@@ -1,30 +1,31 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
+  import RouteBubble from '$lib/components/RouteBubble.svelte';
   import * as BottomSheet from '$lib/components/ui/bottom-sheet';
   import Button from '$lib/components/ui/button/button.svelte';
   import * as Tabs from '$lib/components/ui/tabs';
   import Toggle from '$lib/components/ui/toggle/toggle.svelte';
   import { useRoutes } from '$lib/data/app';
   import { mapManager } from '$lib/managers/map.manager.svelte';
-  import { fit, parent_style } from '@leveluptuts/svelte-fit';
   import { Bell, Star } from 'lucide-svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
 
   const routes = useRoutes();
-  const route = $derived(routes.data?.find((r) => r.id === data.routeId));
-
-  $effect(() => {
-    console.log('Updating drawn routes for route:', route);
-    mapManager.drawnRoutes = routes.data ?? [];
-  });
+  const route = $derived(routes.data?.find((r) => r.id === data.routeId) ?? null);
 
   let selectedDirection = $derived(route?.directions[0]?.id ?? '');
 
-  $inspect(routes.isLoading, routes.isEnabled);
-  $inspect('route', route);
+  $effect(() => {
+    mapManager.setSelectedRoute(route);
+  });
+
+  function onClose() {
+    goto('/');
+    mapManager.setSelectedRoute(null);
+  }
 </script>
 
 {#key page.url.pathname}
@@ -32,29 +33,20 @@
     {#snippet header()}
       <BottomSheet.Header title={route?.name ?? 'Route'}>
         {#snippet leading()}
-          <div
-            class="mr-1 flex h-10 w-12 items-center justify-center rounded-md p-1"
-            style="background-color: {route?.tintColor};"
-          >
-            <div
-              style="{parent_style} display: flex; align-items: center; justify-content: center;"
-            >
-              <p class="text-sm font-bold text-white" use:fit={{ max_size: 22 }}>
-                {route?.routeCode}
-              </p>
-            </div>
-          </div>
+          {#if route}
+            <RouteBubble {route} />
+          {/if}
         {/snippet}
 
         {#snippet actions()}
-          <BottomSheet.CloseButton onclick={() => goto('/')} />
+          <BottomSheet.CloseButton onclick={onClose} />
         {/snippet}
 
         <div class="my-1 flex flex-row gap-1">
           <Toggle
             variant="outline"
             size="md"
-            class="rounded-full data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-yellow-500 data-[state=on]:*:[svg]:stroke-yellow-500"
+            class="rounded-full  bg-muted data-[state=on]:*:[svg]:fill-yellow-500 data-[state=on]:*:[svg]:stroke-yellow-500"
           >
             <Star class="size-4" />
             Favorite
