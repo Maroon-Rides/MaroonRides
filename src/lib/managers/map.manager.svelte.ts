@@ -4,6 +4,8 @@ import MapLibreGL from 'maplibre-gl';
 class MapManager {
   map: MapLibreGL.Map | null = $state(null);
 
+  isCentered: boolean = $state(false);
+
   drawnRoutes: Route[] = $state([]);
   selectedRoute: Route | null = $state(null);
 
@@ -12,9 +14,18 @@ class MapManager {
 
   registerMap(map: MapLibreGL.Map) {
     this.map = map;
+
+    this.map.on('rotate', () => (this.isCentered = false));
+    this.map.on('pitch', () => (this.isCentered = false));
+    this.map.on('dragstart', () => (this.isCentered = false));
+
+    return () => {};
   }
 
   unregisterMap() {
+    this.map?.off('rotate', () => (this.isCentered = false));
+    this.map?.off('pitch', () => (this.isCentered = false));
+    this.map?.off('dragstart', () => (this.isCentered = false));
     this.map = null;
   }
 
@@ -47,6 +58,8 @@ class MapManager {
   }
 
   zoomToFitPoints(points: Location[]) {
+    this.isCentered = false;
+
     let minLat = Math.min(...points.map((p) => p.latitude));
     let maxLat = Math.max(...points.map((p) => p.latitude));
     let minLng = Math.min(...points.map((p) => p.longitude));

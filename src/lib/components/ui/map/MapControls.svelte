@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { mapManager } from '$lib/managers/map.manager.svelte';
   import { cn } from '$lib/utils.js';
   import { Geolocation } from '@capacitor/geolocation';
   import { Locate, LocateFixed } from 'lucide-svelte';
@@ -20,7 +21,6 @@
   const mapCtx = getContext<MapContext>('map');
 
   let waitingForLocation = $state(false);
-  let isCentered = $state(false);
   const loaded = $derived(mapCtx.isLoaded());
 
   const positionClasses = {
@@ -29,22 +29,6 @@
     'bottom-left': 'bottom-2 left-2',
     'bottom-right': 'bottom-10 right-2',
   };
-
-  $effect(() => {
-    const map = mapCtx.getMap();
-
-    if (!loaded || !map) return;
-
-    map.on('rotate', () => (isCentered = false));
-    map.on('pitch', () => (isCentered = false));
-    map.on('dragstart', () => (isCentered = false));
-
-    return () => {
-      map.off('rotate', () => (isCentered = false));
-      map.off('pitch', () => (isCentered = false));
-      map.off('dragstart', () => (isCentered = false));
-    };
-  });
 
   async function handleLocate() {
     const map = mapCtx.getMap();
@@ -64,7 +48,7 @@
         duration: 750,
         bearing: 0,
       });
-      isCentered = true;
+      mapManager.isCentered = true;
 
       onlocate?.(coords);
     } catch (error) {
@@ -85,7 +69,7 @@
       aria-label="Locate"
       class="dark:bg-card"
     >
-      {#if isCentered}
+      {#if mapManager.isCentered}
         <LocateFixed class="size-6 stroke-muted-foreground" />
       {:else}
         <Locate class="size-6 stroke-muted-foreground" />
