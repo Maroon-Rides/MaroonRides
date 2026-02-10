@@ -46,7 +46,7 @@
           <Toggle
             variant="outline"
             size="md"
-            class="rounded-full  bg-muted data-[state=on]:*:[svg]:fill-yellow-500 data-[state=on]:*:[svg]:stroke-yellow-500"
+            class="rounded-full data-[state=on]:bg-transparent dark:bg-muted data-[state=on]:*:[svg]:fill-yellow-500 data-[state=on]:*:[svg]:stroke-yellow-500"
           >
             <Star class="size-4" />
             Favorite

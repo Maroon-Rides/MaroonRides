@@ -6,7 +6,7 @@
     variants: {
       variant: {
         default: 'bg-muted',
-        outline: 'border-input hover:bg-accent hover:text-accent-foreground border  shadow-xs',
+        outline: 'border-input hover:bg-accent hover:text-accent-foreground border shadow-xs',
       },
       size: {
         default: 'h-9 min-w-9 px-2',
