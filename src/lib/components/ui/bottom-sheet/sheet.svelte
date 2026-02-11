@@ -46,16 +46,27 @@
   let isDragging = $state(false);
   let currentSnapIndex = $state(0);
   let currentHeight = $state(0);
-  let viewportHeight = $state(0);
+  let viewportHeight = $state(typeof window !== 'undefined' ? window.innerHeight : 0);
   let safeAreaBottom = $state(0);
+
+  // Track initial layout to prevent transition on first render
+  let initialLayoutSet = $state(false);
 
   // Custom scroll offset (pixels scrolled into content, 0 = top)
   let scrollOffset = $state(0);
+
+  // Cache for layout measurements to avoid thrashing
+  let cachedMaxScroll = 0;
+  let cachedContentHeight = 0;
+  let cachedContainerHeight = 0;
 
   // Controls visibility for exit animation
   let visible = $state(true);
   const OPEN_DURATION = 350; // ms for open animation
   const CLOSE_DURATION = 350; // ms for close animation
+
+  // Track when actively snapping to prevent layout updates during transition
+  let isSnapping = $state(false);
 
   // ---- Gesture state (non-reactive) ----
   type GestureMode = 'none' | 'sheet-drag' | 'content-scroll';
@@ -90,9 +101,21 @@
 
   /** Max scrollable distance (0 if content doesn't overflow) */
   const maxScrollOffset = () => {
-    if (!contentRef || !contentInnerRef) return 0;
+    if (!contentRef || !contentInnerRef) return cachedMaxScroll;
+    // During dragging, use cached values to avoid layout thrashing
+    if (isDragging || gestureMode !== 'none') {
+      return cachedMaxScroll;
+    }
     const overflow = contentInnerRef.scrollHeight - contentRef.clientHeight;
     return Math.max(0, overflow);
+  };
+
+  /** Update cached layout measurements (call during non-critical times) */
+  const updateLayoutCache = () => {
+    if (!contentRef || !contentInnerRef) return;
+    cachedContentHeight = contentInnerRef.scrollHeight;
+    cachedContainerHeight = contentRef.clientHeight;
+    cachedMaxScroll = Math.max(0, cachedContentHeight - cachedContainerHeight);
   };
 
   const hasScrollableContent = () => maxScrollOffset() > 0;
@@ -146,15 +169,24 @@
   const snapTo = async (index: number) => {
     if (index < 0 || index >= snapPoints.length) return;
     const prev = currentSnapIndex;
+    isSnapping = true;
     currentSnapIndex = index;
     currentHeight = getSnapHeightPx(index);
     if (index !== snapPoints.length - 1) {
       scrollOffset = 0;
     }
-    await tick();
+
     if (prev !== index && onSnapChange) {
       onSnapChange(index, snapPoints[index]);
     }
+
+    await tick();
+
+    // Defer layout cache update to after transition
+    setTimeout(() => {
+      isSnapping = false;
+      updateLayoutCache();
+    }, 320);
   };
 
   // ---- Stop any running animation ----
@@ -252,6 +284,8 @@
 
   const onTouchStart = (e: TouchEvent, isHandle: boolean) => {
     stopAnimation();
+    // Cache layout measurements at start of gesture
+    updateLayoutCache();
 
     const y = e.touches[0].clientY;
     touchStartY = y;
@@ -403,6 +437,8 @@
   const onHandleMouseDown = (e: MouseEvent) => {
     e.preventDefault();
     stopAnimation();
+    // Cache layout measurements at start of gesture
+    updateLayoutCache();
     touchStartY = e.clientY;
     touchCurrentY = e.clientY;
     touchStartHeight = currentHeight;
@@ -527,6 +563,25 @@
     updateViewportHeight();
     currentSnapIndex = initialSnapIndex;
     currentHeight = getSnapHeightPx(currentSnapIndex);
+    // Initialize layout cache
+    requestAnimationFrame(() => {
+      updateLayoutCache();
+      requestAnimationFrame(() => {
+        initialLayoutSet = true;
+      });
+    });
+
+    // Set up ResizeObserver to update cache when content size changes
+    let resizeObserver: ResizeObserver | null = null;
+    if (contentInnerRef) {
+      resizeObserver = new ResizeObserver(() => {
+        // Only update when not actively interacting
+        if (!isDragging && !isSnapping && gestureMode === 'none') {
+          updateLayoutCache();
+        }
+      });
+      resizeObserver.observe(contentInnerRef);
+    }
 
     window.addEventListener('mousemove', onGlobalMouseMove);
     window.addEventListener('mouseup', onGlobalMouseUp);
@@ -534,6 +589,9 @@
 
     return () => {
       stopAnimation();
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
       window.removeEventListener('mousemove', onGlobalMouseMove);
       window.removeEventListener('mouseup', onGlobalMouseUp);
       window.removeEventListener('resize', updateViewportHeight);
@@ -547,9 +605,11 @@
 
 {#snippet sheetContent()}
   <div
-    class="flex w-full flex-col transition-all duration-300 ease-out"
-    style="height: {currentHeight + safeAreaBottom}px;"
-    style:transition-property={isDragging ? 'none' : 'height'}
+    class="flex w-full flex-col"
+    style="height: {maxSnapHeight() +
+      safeAreaBottom}px; transform: translate3d(0, {maxSnapHeight() -
+      currentHeight}px, 0); contain: layout style; will-change: transform;"
+    style:transition={isDragging ? 'none' : 'transform 300ms cubic-bezier(0.2, 0, 0, 1)'}
   >
     <Card.Root
       bind:ref
@@ -575,6 +635,7 @@
       <div
         bind:this={contentRef}
         class="relative flex-1 touch-none overflow-hidden"
+        style="contain: layout;"
         role="region"
         tabindex="-1"
         aria-label="Sheet content"
@@ -582,8 +643,7 @@
       >
         <div
           bind:this={contentInnerRef}
-          class="will-change-transform"
-          style="transform: translateY({-scrollOffset}px)"
+          style="transform: translate3d(0, {-scrollOffset}px, 0); backface-visibility: hidden; will-change: transform;"
         >
           {@render children?.()}
         </div>
