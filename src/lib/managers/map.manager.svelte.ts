@@ -26,6 +26,7 @@ class MapManager {
     this.map?.off('rotate', () => (this.isCentered = false));
     this.map?.off('pitch', () => (this.isCentered = false));
     this.map?.off('dragstart', () => (this.isCentered = false));
+
     this.map = null;
   }
 

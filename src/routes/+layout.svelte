@@ -14,12 +14,16 @@
   import { getRouteTint } from '$lib/utils/tints';
   import { getLighterColor } from '$lib/utils/utils';
   import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+  import { onDestroy } from 'svelte';
   import './layout.css';
 
   let { children } = $props();
 
   const queryClient = new QueryClient();
-  const routes = $derived(mapManager.drawnRoutes);
+
+  onDestroy(() => {
+    mapManager.unregisterMap();
+  });
 
   window.fetch = customFetch(window.fetch);
 </script>
