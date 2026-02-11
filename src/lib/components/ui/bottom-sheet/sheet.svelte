@@ -33,7 +33,7 @@
     ],
     initialSnapIndex = 0,
     dragThreshold = 20,
-    animationDuration = 300,
+    animationDuration = 500,
     enableTransitions = true,
     onSnapChange,
     ...restProps
@@ -62,8 +62,6 @@
 
   // Controls visibility for exit animation
   let visible = $state(true);
-  const OPEN_DURATION = 350; // ms for open animation
-  const CLOSE_DURATION = 350; // ms for close animation
 
   // Track when actively snapping to prevent layout updates during transition
   let isSnapping = $state(false);
@@ -554,7 +552,7 @@
         visible = false;
         setTimeout(() => {
           goto(targetUrl);
-        }, CLOSE_DURATION * 0.25);
+        }, animationDuration * 0.25);
       }
     }
   });
@@ -609,7 +607,9 @@
     style="height: {maxSnapHeight() +
       safeAreaBottom}px; transform: translate3d(0, {maxSnapHeight() -
       currentHeight}px, 0); contain: layout style; will-change: transform;"
-    style:transition={isDragging ? 'none' : 'transform 300ms cubic-bezier(0.2, 0, 0, 1)'}
+    style:transition={isDragging
+      ? 'none'
+      : `transform ${animationDuration}ms cubic-bezier(0.2, 0, 0, 1)`}
   >
     <Card.Root
       bind:ref
@@ -656,8 +656,8 @@
   <div
     bind:this={containerRef}
     class={cn('pointer-events-none fixed inset-x-0 bottom-0 z-50 flex flex-col', className)}
-    in:fly={{ y: 200, duration: enableTransitions ? OPEN_DURATION : 0, opacity: 1 }}
-    out:fly|global={{ y: currentHeight + safeAreaBottom, duration: CLOSE_DURATION, opacity: 1 }}
+    in:fly={{ y: 200, duration: enableTransitions ? animationDuration : 0, opacity: 1 }}
+    out:fly|global={{ y: currentHeight + safeAreaBottom, duration: animationDuration, opacity: 1 }}
     {...restProps}
   >
     {@render sheetContent()}

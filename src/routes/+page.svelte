@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import RouteRow from '$lib/components/RouteRow.svelte';
   import * as BottomSheet from '$lib/components/ui/bottom-sheet';
@@ -9,7 +10,6 @@
   import { useRoutes } from '$lib/data/app';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { Cog, Route } from 'lucide-svelte';
-  import { toggleMode } from 'mode-watcher';
 
   let routes = useRoutes();
   let selectedTab = $state('all');
@@ -40,10 +40,7 @@
               class="rounded-full"
               aria-label="Settings"
               size="icon-md"
-              onclick={() => {
-                console.log('Toggled mode');
-                toggleMode();
-              }}
+              onclick={() => goto('/settings')}
             >
               <Cog />
             </Button>

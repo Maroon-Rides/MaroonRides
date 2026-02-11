@@ -30,10 +30,10 @@
     {@render actions?.()}
   </div>
   {#if subtitle}
-    <p class="text-sm text-muted-foreground">{subtitle}</p>
+    <p class="text-md -mt-2 mb-1 text-muted-foreground">{subtitle}</p>
   {/if}
 
   {@render children?.()}
 </div>
 
-<div class="mt-2 mb-0 h-px w-full bg-border"></div>
+<hr class="mt-2 mb-0" />

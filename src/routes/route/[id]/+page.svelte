@@ -15,6 +15,9 @@
 
   const routes = useRoutes();
   const route = $derived(routes.data?.find((r) => r.id === data.routeId) ?? null);
+  const selectedDirection = $derived(
+    route?.directions.find((d) => d.id === mapManager.selectedDirectionId) ?? null,
+  );
 
   $effect(() => {
     mapManager.setSelectedRoute(route);
@@ -51,7 +54,12 @@
             <Star class="size-4" />
             Favorite
           </Toggle>
-          <Button variant="outline" size="md" class="rounded-full" onclick={() => goto('/')}>
+          <Button
+            variant="outline"
+            size="md"
+            class="rounded-full"
+            onclick={() => goto(`/route/${route?.id}/alerts`)}
+          >
             <Bell class="size-4" />
             Alerts
           </Button>
@@ -68,5 +76,26 @@
         {/if}
       </BottomSheet.Header>
     {/snippet}
+    <div class="pb-4">
+      {#each selectedDirection?.stops ?? [] as stop, i (`${stop.id}-${selectedDirection?.id}-${i}`)}
+        <div class="h-24 p-4">
+          <p class="text-lg font-bold">{stop.name}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            class="mt-2 rounded-full"
+            onclick={() => {
+              console.log(`/route/${route?.id}/timetable/${stop.id}/${selectedDirection?.id}`);
+              goto(`/route/${route?.id}/timetable/${stop.id}/${selectedDirection?.id}`);
+            }}
+          >
+            View Schedule
+          </Button>
+        </div>
+        {#if i < (selectedDirection?.stops.length ?? 0) - 1}
+          <hr class="ml-4" />
+        {/if}
+      {/each}
+    </div>
   </BottomSheet.Root>
 {/key}
