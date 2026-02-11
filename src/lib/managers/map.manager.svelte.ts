@@ -8,6 +8,7 @@ class MapManager {
 
   drawnRoutes: Route[] = $state([]);
   selectedRoute: Route | null = $state(null);
+  selectedDirectionId: string = $state('');
 
   mapWidth: number = $state(0);
   mapHeight: number = $state(0);

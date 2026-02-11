@@ -16,15 +16,15 @@
   const routes = useRoutes();
   const route = $derived(routes.data?.find((r) => r.id === data.routeId) ?? null);
 
-  let selectedDirection = $derived(route?.directions[0]?.id ?? '');
-
   $effect(() => {
     mapManager.setSelectedRoute(route);
+    mapManager.selectedDirectionId = route?.directions[0].id ?? '';
   });
 
   function onClose() {
     goto('/');
     mapManager.setSelectedRoute(null);
+    mapManager.selectedDirectionId = '';
   }
 </script>
 
@@ -58,7 +58,7 @@
         </div>
 
         {#if (route?.directions.length ?? 1) > 1}
-          <Tabs.Root bind:value={selectedDirection}>
+          <Tabs.Root bind:value={mapManager.selectedDirectionId} class="w-full">
             <Tabs.List>
               {#each route?.directions as direction}
                 <Tabs.Trigger value={direction.id}>{direction.name}</Tabs.Trigger>

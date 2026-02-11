@@ -1,6 +1,6 @@
 <script lang="ts">
-  import MapLibreGL from 'maplibre-gl';
-  import { getContext } from 'svelte';
+  import MapLibreGL, { type LayerSpecification } from 'maplibre-gl';
+  import { getContext, untrack } from 'svelte';
   import type { MapContext } from './Map.svelte';
 
   interface Props {
@@ -43,8 +43,9 @@
 
   const sourceId = $derived(`route-source-${id}`);
   const layerId = $derived(`route-layer-${id}`);
+  const hitLayerId = $derived(`route-hit-${id}`);
 
-  // Add route when map is ready
+  // Add route when map is ready (only recreate when map/id changes, not paint properties)
   $effect(() => {
     const map = mapCtx.getMap();
     const loaded = mapCtx.isLoaded();
@@ -53,6 +54,7 @@
 
     // Remove existing layer and source if they exist
     if (map.getLayer(layerId)) map.removeLayer(layerId);
+    if (map.getLayer(hitLayerId)) map.removeLayer(hitLayerId);
     if (map.getSource(sourceId)) map.removeSource(sourceId);
 
     // Add source
@@ -68,19 +70,16 @@
       },
     });
 
-    // Build paint options
+    // Build paint options using untrack to avoid tracking paint prop changes
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const paint: any = {
+    const paint: LayerSpecification['paint'] = untrack(() => ({
       'line-color': color,
       'line-width': width,
       'line-opacity': opacity,
-    };
+      ...(dashArray ? { 'line-dasharray': dashArray } : {}),
+    }));
 
-    if (dashArray) {
-      paint['line-dasharray'] = dashArray;
-    }
-
-    // Add layer
+    // Add layer with initial paint properties
     map.addLayer({
       id: layerId,
       type: 'line',
@@ -92,9 +91,21 @@
       paint,
     });
 
+    map.addLayer({
+      id: hitLayerId,
+      type: 'line',
+      source: sourceId,
+      paint: {
+        'line-color': '#00ff00',
+        'line-width': 20,
+        'line-opacity': 0,
+      },
+    });
+
     return () => {
       try {
         if (map.getLayer(layerId)) map.removeLayer(layerId);
+        if (map.getLayer(hitLayerId)) map.removeLayer(hitLayerId);
         if (map.getSource(sourceId)) map.removeSource(sourceId);
       } catch {
         // Ignore errors during cleanup
@@ -167,11 +178,13 @@
     };
 
     map.on('click', layerId, handleClick);
+    map.on('click', hitLayerId, handleClick);
     map.on('mouseenter', layerId, handleMouseEnter);
     map.on('mouseleave', layerId, handleMouseLeave);
 
     return () => {
       map.off('click', layerId, handleClick);
+      map.off('click', hitLayerId, handleClick);
       map.off('mouseenter', layerId, handleMouseEnter);
       map.off('mouseleave', layerId, handleMouseLeave);
     };
