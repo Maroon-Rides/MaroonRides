@@ -50,7 +50,7 @@
           </div>
         {/snippet}
 
-        <Tabs.Root bind:value={selectedTab} class="mt-2">
+        <Tabs.Root bind:value={selectedTab} class="mt-1">
           <Tabs.List>
             <Tabs.Trigger value="all">All Routes</Tabs.Trigger>
             <Tabs.Trigger value="favorites">Favorites</Tabs.Trigger>
@@ -60,7 +60,7 @@
     {/snippet}
 
     {#if selectedTab === 'all'}
-      <Card.Content class="flex flex-col gap-3 px-4 pt-4 pb-10">
+      <Card.Content class="flex flex-col gap-4 px-4 pt-4 pb-10">
         {#if routes.isLoading}
           <Spinner class="size-6 self-center" />
         {:else if routes.isError}

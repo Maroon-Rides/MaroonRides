@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { useRoutes } from '$lib/data/app';
   import type { Direction, Route, Stop } from '$lib/data/types';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
@@ -8,17 +9,23 @@
   import MapRoute from './ui/map/MapRoute.svelte';
   import MarkerContent from './ui/map/MarkerContent.svelte';
   import MarkerPopup from './ui/map/MarkerPopup.svelte';
+
+  const routes = useRoutes();
+  const drawnRouteIds = $derived(mapManager.drawnRoutes.map((route) => route.id));
 </script>
 
 {#snippet routeLine(route: Route)}
   {#each route.directions as direction (direction.id)}
     {@const isSelected =
       direction.id === mapManager.selectedDirectionId || mapManager.selectedDirectionId == ''}
+    {@const isShown = drawnRouteIds.includes(route.id)}
+    {@const opacity = isShown ? (isSelected ? 1 : 0.5) : 0}
+
     <MapRoute
       coordinates={direction.pathPoints.map((point) => [point.longitude, point.latitude])}
       color={getRouteTint(route, themeManager.theme)}
       id={`${direction.id}`}
-      opacity={isSelected ? 1 : 0.5}
+      {opacity}
       width={5}
       onclick={() => (mapManager.selectedDirectionId = direction.id)}
     />
@@ -58,7 +65,7 @@
 <!-- {@render bus(busData)} -->
 <!-- {/each} -->
 
-{#each mapManager.drawnRoutes as route (route.id)}
+{#each routes?.data as route (route.id)}
   {@render routeLine(route)}
 {/each}
 
