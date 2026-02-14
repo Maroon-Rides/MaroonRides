@@ -19,8 +19,6 @@
   const drawnRouteIds = $derived(mapManager.drawnRoutes.map((route) => route.id));
 
   const busLocations = $derived(useVehicles(() => ({ route: mapManager.selectedRoute })));
-
-  $inspect(busLocations);
 </script>
 
 {#snippet routeLine(route: Route)}

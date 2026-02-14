@@ -10,9 +10,8 @@
   import Toggle from '$lib/components/ui/toggle/toggle.svelte';
   import { useRoutes } from '$lib/data/app';
   import { mapManager } from '$lib/managers/map.manager.svelte';
-  import { themeManager } from '$lib/managers/theme.manager.svelte';
-  import { getRouteTint } from '$lib/utils/tints';
   import { Bell, CalendarIcon, Star } from 'lucide-svelte';
+  import { untrack } from 'svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -22,11 +21,12 @@
   const selectedDirection = $derived(
     route?.directions.find((d) => d.id === mapManager.selectedDirectionId) ?? null,
   );
-  const tint = $derived(route ? getRouteTint(route, themeManager.theme) : 'transparent');
 
   $effect(() => {
     mapManager.setSelectedRoute(route);
-    mapManager.selectedDirectionId = route?.directions[0].id ?? '';
+    untrack(() => {
+      mapManager.selectedDirectionId = route?.directions[0].id ?? '';
+    });
   });
 
   function onClose() {
@@ -95,7 +95,6 @@
               size="sm"
               class="mt-2 rounded-full"
               onclick={() => {
-                console.log(`/route/${route?.id}/timetable/${stop.id}/${selectedDirection?.id}`);
                 goto(`/route/${route?.id}/timetable/${stop.id}/${selectedDirection?.id}`);
               }}
             >
