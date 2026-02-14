@@ -1,6 +1,5 @@
-import { StopSchedule, TimeEstimate } from '@lib/types';
+import type { StopSchedule, TimeEstimate } from '$lib/data/types';
 import moment from 'moment';
-import { Theme } from 'src/app/theme';
 
 interface TableItem {
   time: string;
@@ -18,7 +17,6 @@ export interface TableItemRow {
 export default function buildTimetable(
   fullSchedule: StopSchedule,
   estimates: StopSchedule[] | undefined,
-  theme: Theme,
 ) {
   // Helper function to find the estimate for the current route and direction
   const findRouteEstimate = (estimates?: StopSchedule[]) => {
@@ -30,26 +28,18 @@ export default function buildTimetable(
   };
 
   // Helper function to get time estimate for a specific trip point
-  const getTimeEstimate = (
-    routeEstimate: StopSchedule | undefined,
-    tripPointId: string,
-  ) => {
+  const getTimeEstimate = (routeEstimate: StopSchedule | undefined, tripPointId: string) => {
     if (!routeEstimate) return null;
 
     const timeEstimateIndex = routeEstimate.timetable.findIndex(
       (stopTime) => stopTime.tripPointId === tripPointId,
     );
 
-    return timeEstimateIndex >= 0
-      ? routeEstimate.timetable[timeEstimateIndex]
-      : null;
+    return timeEstimateIndex >= 0 ? routeEstimate.timetable[timeEstimateIndex] : null;
   };
 
   // Helper function to determine departure time (estimated or scheduled)
-  const getDepartureTime = (
-    timeEstimate: TimeEstimate | null,
-    scheduledTime: moment.Moment,
-  ) => {
+  const getDepartureTime = (timeEstimate: TimeEstimate | null, scheduledTime: moment.Moment) => {
     const estimatedTime =
       timeEstimate && moment(timeEstimate.estimatedTime).isValid()
         ? moment(timeEstimate.estimatedTime)
@@ -64,25 +54,19 @@ export default function buildTimetable(
     timeEstimate: TimeEstimate | null,
     now: moment.Moment,
   ) => {
-    const isFutureOrSameDay =
-      departTime.isSame(now, 'day') && departTime.diff(now, 'minutes') >= 0;
-    const isRealTimeAndNotCancelled =
-      timeEstimate?.isRealTime && !timeEstimate?.isCancelled;
+    const isFutureOrSameDay = departTime.isSame(now, 'day') && departTime.diff(now, 'minutes') >= 0;
+    const isRealTimeAndNotCancelled = timeEstimate?.isRealTime && !timeEstimate?.isCancelled;
 
     return isFutureOrSameDay || isRealTimeAndNotCancelled || false;
   };
 
   // Helper function to process individual timetable items
-  const processTimeTableItem = (
-    time: any,
-    routeEstimate: any,
-    now: moment.Moment,
-  ) => {
+  const processTimeTableItem = (time: any, routeEstimate: any, now: moment.Moment) => {
     const timeEstimate = getTimeEstimate(routeEstimate, time.tripPointId);
     const departTime = getDepartureTime(timeEstimate, time.scheduledTime);
 
     const shouldHighlight = shouldHighlightTime(departTime, timeEstimate, now);
-    let color = shouldHighlight ? theme.text : theme.subtitle;
+    let color = shouldHighlight ? '#f00' : '#0f0';
 
     // Highlight the next stop with tint color
     if (shouldHighlight && !foundNextStop) {

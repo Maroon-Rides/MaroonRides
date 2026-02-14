@@ -1,18 +1,14 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
   import type { Route } from '$lib/data/types';
   import { MoveHorizontal } from 'lucide-svelte';
   import RouteBubble from './RouteBubble.svelte';
 
   interface Props {
     route: Route;
+    onclick?: () => void;
   }
 
-  let { route }: Props = $props();
-
-  function onclick() {
-    goto(`/route/${route.id}`);
-  }
+  let { route, onclick }: Props = $props();
 </script>
 
 <button class="flex flex-row items-center gap-3 hover:cursor-pointer" {onclick}>

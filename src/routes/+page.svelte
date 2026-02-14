@@ -65,7 +65,7 @@
         {/if}
 
         {#each routes.data ?? [] as route}
-          <RouteRow {route} />
+          <RouteRow {route} onclick={() => goto(`/route/${route.id}`)} />
         {/each}
       </Card.Content>
     {:else if selectedTab === 'favorites'}
