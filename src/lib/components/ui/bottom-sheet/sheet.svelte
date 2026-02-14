@@ -604,9 +604,10 @@
 {#snippet sheetContent()}
   <div
     class="flex w-full flex-col"
-    style="height: {maxSnapHeight() +
-      safeAreaBottom}px; transform: translate3d(0, {maxSnapHeight() -
-      currentHeight}px, 0); contain: layout style; will-change: transform;"
+    style="height: {maxSnapHeight() + safeAreaBottom}px; transform: translate3d(0, {Math.max(
+      0,
+      maxSnapHeight() - currentHeight,
+    )}px, 0); contain: layout style; will-change: transform;"
     style:transition={isDragging
       ? 'none'
       : `transform ${animationDuration}ms cubic-bezier(0.2, 0, 0, 1)`}
@@ -643,7 +644,7 @@
       >
         <div
           bind:this={contentInnerRef}
-          style="transform: translate3d(0, {-scrollOffset}px, 0); backface-visibility: hidden; will-change: transform;"
+          style="transform: translate3d(0, {-scrollOffset}px, 0); backface-visibility: hidden; will-change: transform; min-height: 100%;"
         >
           {@render children?.()}
         </div>
