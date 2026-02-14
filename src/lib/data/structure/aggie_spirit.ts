@@ -148,6 +148,7 @@ export const useASVehicles = (params: () => { route: Route | null }) => {
             id: vehicle.key,
             direction: direction,
             name: vehicle.name,
+            route: currentRoute,
           };
         });
 

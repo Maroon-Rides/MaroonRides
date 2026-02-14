@@ -1,4 +1,5 @@
 import { type IAmenity } from '$lib/data/typecheck/aggie_spirit';
+import { AccessibilityIcon, AirVentIcon, BikeIcon, HouseIcon } from 'lucide-svelte';
 import moment from 'moment';
 
 export enum Amenity {
@@ -16,6 +17,21 @@ export namespace Amenity {
         return Object.values(Amenity).find((amenity) => amenity === item.name);
       })
       .filter((amenity): amenity is Amenity => amenity !== undefined);
+  }
+
+  export function getIcon(amenity: Amenity) {
+    switch (amenity) {
+      case Amenity.AIR_CONDITIONING:
+        return AirVentIcon;
+      case Amenity.WHEELCHAIR_ACCESSIBLE:
+        return AccessibilityIcon;
+      case Amenity.WHEELCHAIR_LIFT:
+        return AccessibilityIcon;
+      case Amenity.BICYCLE_RACK:
+        return BikeIcon;
+      case Amenity.SHELTER:
+        return HouseIcon;
+    }
   }
 }
 
@@ -70,6 +86,7 @@ export interface Bus extends FromDataSource {
   id: string;
   direction: Direction;
   name: string;
+  route: Route;
 }
 
 export interface TimeEstimate extends FromDataSource {

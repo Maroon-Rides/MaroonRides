@@ -12,11 +12,11 @@
 <div class="flex items-center gap-2">
   <Button
     variant="outline"
-    class="rounded-full border-0 bg-neutral-400 shadow-none"
+    class="rounded-full border-0 bg-neutral-400 shadow-none dark:bg-neutral-600"
     aria-label="Close"
     size="icon-xs"
     {onclick}
   >
-    <X color="white" />
+    <X class="text-white dark:text-background" />
   </Button>
 </div>

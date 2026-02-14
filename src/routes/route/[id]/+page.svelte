@@ -1,4 +1,6 @@
 <script lang="ts">
+  import EstimateRow from './EstimateRow.svelte';
+
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import RouteBubble from '$lib/components/RouteBubble.svelte';
@@ -8,7 +10,9 @@
   import Toggle from '$lib/components/ui/toggle/toggle.svelte';
   import { useRoutes } from '$lib/data/app';
   import { mapManager } from '$lib/managers/map.manager.svelte';
-  import { Bell, Star } from 'lucide-svelte';
+  import { themeManager } from '$lib/managers/theme.manager.svelte';
+  import { getRouteTint } from '$lib/utils/tints';
+  import { Bell, CalendarIcon, Star } from 'lucide-svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -18,6 +22,7 @@
   const selectedDirection = $derived(
     route?.directions.find((d) => d.id === mapManager.selectedDirectionId) ?? null,
   );
+  const tint = $derived(route ? getRouteTint(route, themeManager.theme) : 'transparent');
 
   $effect(() => {
     mapManager.setSelectedRoute(route);
@@ -78,19 +83,25 @@
     {/snippet}
     <div class="pb-4">
       {#each selectedDirection?.stops ?? [] as stop, i (`${stop.id}-${selectedDirection?.id}-${i}`)}
-        <div class="h-24 p-4">
+        <div class="px-4 py-2">
           <p class="text-lg font-bold">{stop.name}</p>
-          <Button
-            variant="outline"
-            size="sm"
-            class="mt-2 rounded-full"
-            onclick={() => {
-              console.log(`/route/${route?.id}/timetable/${stop.id}/${selectedDirection?.id}`);
-              goto(`/route/${route?.id}/timetable/${stop.id}/${selectedDirection?.id}`);
-            }}
-          >
-            View Schedule
-          </Button>
+          <p class="text-sm text-muted-foreground">TODO minutes delayed</p>
+          <div class="flex items-center justify-between">
+            {#if route && selectedDirection}
+              <EstimateRow {route} direction={selectedDirection} {stop} />
+            {/if}
+            <Button
+              variant="outline"
+              size="sm"
+              class="mt-2 rounded-full"
+              onclick={() => {
+                console.log(`/route/${route?.id}/timetable/${stop.id}/${selectedDirection?.id}`);
+                goto(`/route/${route?.id}/timetable/${stop.id}/${selectedDirection?.id}`);
+              }}
+            >
+              <CalendarIcon class="size-4" />
+            </Button>
+          </div>
         </div>
         {#if i < (selectedDirection?.stops.length ?? 0) - 1}
           <hr class="ml-4" />

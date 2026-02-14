@@ -45,7 +45,7 @@
       </BottomSheet.Header>
     {/snippet}
 
-    <div class="flex flex-col gap-4 px-4 py-2">
+    <div class="flex flex-col gap-4 px-4 py-2 pb-6">
       <DateStepper bind:selectedDate={date} minDate={moment()} class="self-center" />
 
       {#if timetable.isLoading}
@@ -63,9 +63,7 @@
           <div class="mb-2 flex flex-col gap-3">
             <RouteRow route={table.route} onclick={() => goto(`/route/${table.route.id}`)} />
             {#if table.timetable.length === 0}
-              <p class="text-center text-sm text-muted-foreground">
-                No scheduled stops for selected day
-              </p>
+              <p class="text-center text-sm text-muted-foreground">No timetable for selected day</p>
             {:else}
               <Timetable schedule={table} {date} />
             {/if}
