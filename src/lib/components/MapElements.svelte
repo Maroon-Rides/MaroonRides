@@ -15,7 +15,7 @@
 </script>
 
 {#snippet routeLine(route: Route)}
-  {#each route.directions as direction (direction.id)}
+  {#each route.directions as direction (`${route.id}-${direction.id}`)}
     {@const isSelected =
       direction.id === mapManager.selectedDirectionId || mapManager.selectedDirectionId == ''}
     {@const isShown = drawnRouteIds.includes(route.id)}
@@ -24,10 +24,9 @@
     <MapRoute
       coordinates={direction.pathPoints.map((point) => [point.longitude, point.latitude])}
       color={getRouteTint(route, themeManager.theme)}
-      id={`${direction.id}`}
+      id={`${route.id}-${direction.id}`}
       {opacity}
       width={5}
-      onclick={() => (mapManager.selectedDirectionId = direction.id)}
     />
   {/each}
 {/snippet}
@@ -40,6 +39,7 @@
   {@const isSelected =
     direction.id === mapManager.selectedDirectionId || mapManager.selectedDirectionId == ''}
   {@const opacity = isSelected ? 1 : 0.5}
+
   <MapMarker longitude={stop.location.longitude} latitude={stop.location.latitude}>
     <MarkerContent>
       <!-- padding to increase touch target size -->
