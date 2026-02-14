@@ -48,97 +48,101 @@ export const useRoutes = () => {
   return query;
 };
 
-export const useVehicles = (route: Route | null) => {
-  const asVehiclesQuery = useASVehicles(route);
+export const useVehicles = (params: () => { route: Route | null }) => {
+  const asVehiclesQuery = useASVehicles(params);
 
   const query = createSelectableQuery<Bus[], DataSource>(() => ({
-    queryKey: [QueryKey.VEHICLES, route?.id],
-    selector: route?.dataSource,
+    queryKey: [QueryKey.VEHICLES, params().route?.id],
+    selector: params().route?.dataSource,
     queries: {
       [DataSource.AGGIE_SPIRIT]: asVehiclesQuery,
     },
     unsupportedValue: [],
-    enabled: route !== null,
+    enabled: params().route !== null,
   }));
 
   return query;
 };
 
-export const useStopEstimate = (route: Route, direction: Direction, stop: Stop) => {
-  const asEstimateQuery = useASStopEstimate(route, direction, stop);
+export const useStopEstimate = (
+  params: () => { route: Route; direction: Direction; stop: Stop },
+) => {
+  const asEstimateQuery = useASStopEstimate(params);
 
   const query = createSelectableQuery<TimeEstimate[], DataSource>(() => ({
-    queryKey: [QueryKey.STOP_ESTIMATE, route.id, direction.id, stop.id],
-    selector: route?.dataSource,
+    queryKey: [QueryKey.STOP_ESTIMATE, params().route.id, params().direction.id, params().stop.id],
+    selector: params().route?.dataSource,
     queries: {
       [DataSource.AGGIE_SPIRIT]: asEstimateQuery,
     },
     unsupportedValue: [],
-    enabled: route !== null,
+    enabled: params().route !== null,
   }));
 
   return query;
 };
 
-export const useTimetableEstimate = (stop: Stop | null, date: moment.Moment) => {
-  const asTimetableEstimateQuery = useASTimetableEstimate(stop, date);
+export const useTimetableEstimate = (params: () => { stop: Stop | null; date: moment.Moment }) => {
+  const asTimetableEstimateQuery = useASTimetableEstimate(params);
 
   const query = createSelectableQuery<StopSchedule[], DataSource>(() => ({
-    queryKey: [QueryKey.TIMETABLE_ESTIMATE, stop?.id, date.format('YYYY-MM-DD')],
-    selector: stop?.dataSource,
+    queryKey: [QueryKey.TIMETABLE_ESTIMATE, params().stop?.id, params().date.format('YYYY-MM-DD')],
+    selector: params().stop?.dataSource,
     queries: {
       [DataSource.AGGIE_SPIRIT]: asTimetableEstimateQuery,
     },
     unsupportedValue: [],
-    enabled: stop !== null,
+    enabled: params().stop !== null,
   }));
 
   return query;
 };
 
-export const useStopAmenities = (route: Route, direction: Direction, stop: Stop) => {
-  const asStopAmenities = useASStopAmenities(route, direction, stop);
+export const useStopAmenities = (
+  params: () => { route: Route; direction: Direction; stop: Stop },
+) => {
+  const asStopAmenities = useASStopAmenities(params);
 
   const query = createSelectableQuery<Amenity[], DataSource>(() => ({
-    queryKey: [QueryKey.STOP_AMENITIES, route.id, direction.id, stop.id],
-    selector: stop?.dataSource,
+    queryKey: [QueryKey.STOP_AMENITIES, params().route.id, params().direction.id, params().stop.id],
+    selector: params().stop?.dataSource,
     queries: {
       [DataSource.AGGIE_SPIRIT]: asStopAmenities,
     },
     unsupportedValue: [],
-    enabled: stop !== null,
+    enabled: params().stop !== null,
   }));
 
   return query;
 };
 
-export const useStopSchedule = (stop: Stop | null, date: moment.Moment) => {
-  const asStopScheduleQuery = useASStopSchedule(stop, date);
+export const useStopSchedule = (params: () => { stop: Stop | null; date: moment.Moment }) => {
+  const asStopScheduleQuery = useASStopSchedule(params);
 
   const query = createSelectableQuery<StopSchedule[], DataSource>(() => ({
-    queryKey: [QueryKey.STOP_SCHEDULE, stop?.id, date.format('YYYY-MM-DD')],
-    selector: stop?.dataSource,
+    queryKey: [QueryKey.STOP_SCHEDULE, params().stop?.id, params().date.format('YYYY-MM-DD')],
+    selector: params().stop?.dataSource,
     queries: {
       [DataSource.AGGIE_SPIRIT]: asStopScheduleQuery,
     },
     unsupportedValue: [],
-    enabled: stop !== null,
+    enabled: params().stop !== null,
   }));
 
   return query;
 };
 
-export const useAlerts = (route: Route | null) => {
-  const asAlertQuery = useASAlerts(route);
+export const useAlerts = (params: () => { route: Route | null }) => {
+  const asAlertQuery = useASAlerts(params);
 
   const query = createSelectableQuery<Alert[], DataSource>(() => ({
-    queryKey: [QueryKey.ALERTS, route?.id],
-    selector: route?.dataSource,
+    queryKey: [QueryKey.ALERTS, params().route?.id],
+    selector: params().route?.dataSource,
     queries: {
       [DataSource.AGGIE_SPIRIT]: asAlertQuery,
     },
     unsupportedValue: [],
-    enabled: route !== null,
+    enabled: params().route !== null,
   }));
 
   return query;

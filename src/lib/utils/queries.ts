@@ -158,12 +158,51 @@ export function createSelectableQuery<T, S extends Enum>(
     };
   });
 
-  const p = params();
-  const selectedQuery: CreateQueryResult<T> | undefined = p.queries[p.selector];
-
+  // Return a getter that accesses params() reactively
   return {
-    ...query,
-    isError: query.isError || (selectedQuery?.isError ?? false),
-    error: (query.error || (selectedQuery?.error as Error | null))!,
-  } as unknown as CreateQueryResult<T, Error>;
+    get data() {
+      return query.data;
+    },
+    get error() {
+      const p = params();
+      const selectedQuery: CreateQueryResult<T> | undefined = p.queries[p.selector];
+      return (query.error || (selectedQuery?.error as Error | null))!;
+    },
+    get isError() {
+      const p = params();
+      const selectedQuery: CreateQueryResult<T> | undefined = p.queries[p.selector];
+      return query.isError || (selectedQuery?.isError ?? false);
+    },
+    get isSuccess() {
+      const p = params();
+      const selectedQuery: CreateQueryResult<T> | undefined = p.queries[p.selector];
+      return query.isSuccess && (selectedQuery?.isSuccess ?? false);
+    },
+    get isPending() {
+      const p = params();
+      const selectedQuery: CreateQueryResult<T> | undefined = p.queries[p.selector];
+      return query.isPending || (selectedQuery?.isPending ?? false);
+    },
+    get isFetching() {
+      const p = params();
+      const selectedQuery: CreateQueryResult<T> | undefined = p.queries[p.selector];
+      return query.isFetching || (selectedQuery?.isFetching ?? false);
+    },
+    get isLoading() {
+      const p = params();
+      const selectedQuery: CreateQueryResult<T> | undefined = p.queries[p.selector];
+      return query.isLoading || (selectedQuery?.isLoading ?? false);
+    },
+    get status() {
+      const p = params();
+      const selectedQuery: CreateQueryResult<T> | undefined = p.queries[p.selector];
+      return selectedQuery?.isError ? 'error' : selectedQuery?.isPending ? 'pending' : query.status;
+    },
+    get fetchStatus() {
+      const p = params();
+      const selectedQuery: CreateQueryResult<T> | undefined = p.queries[p.selector];
+      return selectedQuery?.isFetching ? 'fetching' : query.fetchStatus;
+    },
+    refetch: query.refetch,
+  } as CreateQueryResult<T, Error>;
 }

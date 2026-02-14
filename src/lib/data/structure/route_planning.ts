@@ -16,11 +16,11 @@ export enum ASQueryKeyRoutePlanning {
   TRIP_PLAN = 'ASTripPlan',
 }
 
-export const useASSearchSuggestions = (query: string) => {
-  const apiSearchSuggestionsQuery = useSearchSuggestionAPI(query);
+export const useASSearchSuggestions = (params: () => { query: string }) => {
+  const apiSearchSuggestionsQuery = useSearchSuggestionAPI(params);
 
-  const suggestionQuery = createDependencyQuery<PlaceSuggestion[]>({
-    queryKey: [ASQueryKeyRoutePlanning.SEARCH_SUGGESTIONS, query],
+  const suggestionQuery = createDependencyQuery<PlaceSuggestion[]>(() => ({
+    queryKey: [ASQueryKeyRoutePlanning.SEARCH_SUGGESTIONS, params().query],
     queryFn: async () => {
       if (!apiSearchSuggestionsQuery.data) {
         return [];
@@ -42,47 +42,59 @@ export const useASSearchSuggestions = (query: string) => {
       })) as PlaceSuggestion[];
     },
     dependents: [apiSearchSuggestionsQuery],
-  });
+  }));
   return suggestionQuery;
 };
 
 export const useASTripPlan = (
-  origin: PlaceSuggestion | null,
-  destination: PlaceSuggestion | null,
-  date: Date,
-  deadline: 'leave' | 'arrive',
+  params: () => {
+    origin: PlaceSuggestion | null;
+    destination: PlaceSuggestion | null;
+    date: Date;
+    deadline: 'leave' | 'arrive';
+  },
 ) => {
-  // Convert to old data types for api
-  const orginSuggestion: SearchSuggestion | null = origin
-    ? {
-        title: origin.name,
-        subtitle: origin.description,
-        stopCode: origin.id !== MY_LOCATION_ID ? origin.id : undefined,
-        lat: origin.location?.latitude,
-        long: origin.location?.longitude,
-        type: origin.type as 'stop' | 'my-location' | 'map',
-      }
-    : null;
-  const destinationSuggestion: SearchSuggestion | null = destination
-    ? {
-        title: destination.name,
-        subtitle: destination.description,
-        stopCode: destination.id !== MY_LOCATION_ID ? destination.id : undefined,
-        lat: destination.location?.latitude,
-        long: destination.location?.longitude,
-        type: destination.type as 'stop' | 'my-location' | 'map',
-      }
-    : null;
+  // Convert PlaceSuggestion to SearchSuggestion in a thunk
+  const apiTripPlanQuery = useTripPlanAPI(() => {
+    const { origin, destination, date, deadline } = params();
 
-  const apiTripPlanQuery = useTripPlanAPI(orginSuggestion, destinationSuggestion, date, deadline);
+    const originSuggestion: SearchSuggestion | null = origin
+      ? {
+          title: origin.name,
+          subtitle: origin.description,
+          stopCode: origin.id !== MY_LOCATION_ID ? origin.id : undefined,
+          lat: origin.location?.latitude,
+          long: origin.location?.longitude,
+          type: origin.type as 'stop' | 'my-location' | 'map',
+        }
+      : null;
 
-  const tripPlanQuery = createDependencyQuery<PlanItem[]>({
+    const destinationSuggestion: SearchSuggestion | null = destination
+      ? {
+          title: destination.name,
+          subtitle: destination.description,
+          stopCode: destination.id !== MY_LOCATION_ID ? destination.id : undefined,
+          lat: destination.location?.latitude,
+          long: destination.location?.longitude,
+          type: destination.type as 'stop' | 'my-location' | 'map',
+        }
+      : null;
+
+    return {
+      origin: originSuggestion,
+      destination: destinationSuggestion,
+      date,
+      deadline,
+    };
+  });
+
+  const tripPlanQuery = createDependencyQuery<PlanItem[]>(() => ({
     queryKey: [
       ASQueryKeyRoutePlanning.TRIP_PLAN,
-      origin?.id,
-      destination?.id,
-      date.toISOString(),
-      deadline,
+      params().origin?.id,
+      params().destination?.id,
+      params().date.toISOString(),
+      params().deadline,
     ],
     queryFn: async () => {
       const apiTripPlan = apiTripPlanQuery.data!;
@@ -115,6 +127,6 @@ export const useASTripPlan = (
       );
     },
     dependents: [apiTripPlanQuery],
-  });
+  }));
   return tripPlanQuery;
 };

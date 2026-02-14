@@ -114,21 +114,25 @@ export const useASRoutes = () => {
   return query;
 };
 
-export const useASVehicles = (route: Route | null) => {
-  const apiBusesQuery = useVehiclesAPI(route?.id ?? '');
+export const useASVehicles = (params: () => { route: Route | null }) => {
+  const apiBusesQuery = useVehiclesAPI(() => {
+    const { route } = params();
+    return { routeKey: route?.id ?? '' };
+  });
 
   const query = createDependencyQuery<Bus[]>(() => ({
-    queryKey: [ASQueryKey.VEHICLES],
+    queryKey: [ASQueryKey.VEHICLES, params().route?.id ?? ''],
     queryFn: async () => {
       let apiBuses = apiBusesQuery.data!;
 
       if (!apiBuses.vehiclesByDirections) return [];
-      if (!route || route.directions.length === 0) return [];
+      const { route: currentRoute } = params();
+      if (!currentRoute || currentRoute.directions.length === 0) return [];
 
       return apiBuses.vehiclesByDirections.flatMap((vehicleDirection): Bus[] => {
         let direction =
-          route.directions.find((dir) => dir.id === vehicleDirection.directionKey) ??
-          route.directions[0];
+          currentRoute.directions.find((dir) => dir.id === vehicleDirection.directionKey) ??
+          currentRoute.directions[0];
 
         const directionBuses: Bus[] = vehicleDirection.vehicles.map((vehicle) => {
           return {
@@ -156,11 +160,21 @@ export const useASVehicles = (route: Route | null) => {
   return query;
 };
 
-export const useASStopEstimate = (route: Route, direction: Direction, stop: Stop) => {
-  const apiStopEstimateQuery = useStopEstimateAPI(route.id, direction.id, stop.id);
+export const useASStopEstimate = (
+  params: () => { route: Route; direction: Direction; stop: Stop },
+) => {
+  const apiStopEstimateQuery = useStopEstimateAPI(() => {
+    const { route, direction, stop } = params();
+    return { routeKey: route.id, directionKey: direction.id, stopCode: stop.id };
+  });
 
   const query = createDependencyQuery<TimeEstimate[]>(() => ({
-    queryKey: [ASQueryKey.STOP_ESTIMATE],
+    queryKey: [
+      ASQueryKey.STOP_ESTIMATE,
+      params().route.id,
+      params().direction.id,
+      params().stop.id,
+    ],
     queryFn: async () => {
       const stopEstimates = apiStopEstimateQuery.data!;
 
@@ -181,15 +195,21 @@ export const useASStopEstimate = (route: Route, direction: Direction, stop: Stop
   return query;
 };
 
-export const useASTimetableEstimate = (stop: Stop | null, date: moment.Moment) => {
-  const apiTimetableEstimateQuery = useTimetableEstimateAPI(stop?.id ?? '', date.toDate());
+export const useASTimetableEstimate = (
+  params: () => { stop: Stop | null; date: moment.Moment },
+) => {
+  const apiTimetableEstimateQuery = useTimetableEstimateAPI(() => {
+    const { stop, date } = params();
+    return { stopCode: stop?.id ?? '', date: date.toDate() };
+  });
 
   const apiRoutes = useASRoutes();
 
   const query = createDependencyQuery<StopSchedule[]>(() => ({
-    queryKey: [ASQueryKey.TIMETABLE_ESTIMATE],
+    queryKey: [ASQueryKey.TIMETABLE_ESTIMATE, params().stop?.id ?? '', params().date.toISOString()],
     queryFn: async () => {
       const timetableEstimateData = apiTimetableEstimateQuery.data!;
+      const { stop: currentStop } = params();
 
       return timetableEstimateData.routeStopSchedules.map((routeStop) => {
         const timeEstimates = routeStop.stopTimes.map(
@@ -219,7 +239,7 @@ export const useASTimetableEstimate = (stop: Stop | null, date: moment.Moment) =
           dataSource: DataSource.AGGIE_SPIRIT,
           route: route,
           direction: direction,
-          stop: stop!,
+          stop: currentStop!,
           timetable: timeEstimates,
         } as StopSchedule;
       });
@@ -230,11 +250,21 @@ export const useASTimetableEstimate = (stop: Stop | null, date: moment.Moment) =
   return query;
 };
 
-export const useASStopAmenities = (route: Route, direction: Direction, stop: Stop) => {
-  const apiStopEstimateQuery = useStopEstimateAPI(route.id, direction.id, stop.id);
+export const useASStopAmenities = (
+  params: () => { route: Route; direction: Direction; stop: Stop },
+) => {
+  const apiStopEstimateQuery = useStopEstimateAPI(() => {
+    const { route, direction, stop } = params();
+    return { routeKey: route.id, directionKey: direction.id, stopCode: stop.id };
+  });
 
   const query = createDependencyQuery<Amenity[]>(() => ({
-    queryKey: [ASQueryKey.STOP_AMENITIES],
+    queryKey: [
+      ASQueryKey.STOP_AMENITIES,
+      params().route.id,
+      params().direction.id,
+      params().stop.id,
+    ],
     queryFn: async () => {
       const stopEstimates = apiStopEstimateQuery.data!;
       return Amenity.fromAPI(stopEstimates.amenities);
@@ -245,15 +275,19 @@ export const useASStopAmenities = (route: Route, direction: Direction, stop: Sto
   return query;
 };
 
-export const useASStopSchedule = (stop: Stop | null, date: moment.Moment) => {
-  const apiStopScheduleQuery = useStopScheduleAPI(stop?.id ?? '', date.toDate());
+export const useASStopSchedule = (params: () => { stop: Stop | null; date: moment.Moment }) => {
+  const apiStopScheduleQuery = useStopScheduleAPI(() => {
+    const { stop, date } = params();
+    return { stopCode: stop?.id ?? '', date: date.toDate() };
+  });
 
   const apiRoutes = useASRoutes();
 
   const query = createDependencyQuery<StopSchedule[]>(() => ({
-    queryKey: [ASQueryKey.STOP_SCHEDULE],
+    queryKey: [ASQueryKey.STOP_SCHEDULE, params().stop?.id ?? '', params().date.toISOString()],
     queryFn: async () => {
       const stopScheduleData = apiStopScheduleQuery.data!;
+      const { stop: currentStop } = params();
 
       return stopScheduleData.routeStopSchedules.map((routeStop) => {
         const timeEstimates = routeStop.stopTimes.map(
@@ -283,34 +317,36 @@ export const useASStopSchedule = (stop: Stop | null, date: moment.Moment) => {
           dataSource: DataSource.AGGIE_SPIRIT,
           route: route,
           direction: direction,
-          stop: stop!,
+          stop: currentStop!,
           timetable: timeEstimates,
           isEndOfRoute: routeStop.isEndOfRoute,
         } as StopSchedule;
       });
     },
     dependents: [apiStopScheduleQuery, apiRoutes],
+    enabled: params().stop !== null,
   }));
 
   return query;
 };
 
-export const useASAlerts = (route: Route | null) => {
+export const useASAlerts = (params: () => { route: Route | null }) => {
   const apiServiceInterruptionsQuery = useServiceInterruptionsAPI();
   const apiBaseDataQuery = useBaseDataAPI();
   const routesQuery = useASRoutes();
 
   // Aggie Spirit does not have alerts
   const query = createDependencyQuery<Alert[]>(() => ({
-    queryKey: [ASQueryKey.ALERTS, route?.id],
+    queryKey: [ASQueryKey.ALERTS, params().route?.id],
     queryFn: async () => {
-      if (!route) return [];
+      const { route: currentRoute } = params();
+      if (!currentRoute) return [];
 
       const alerts = apiServiceInterruptionsQuery.data!;
       const baseData = apiBaseDataQuery.data!;
       const routes = routesQuery.data!;
 
-      const selectedAPIRoute = baseData.routes.find((r) => r.key === route.id);
+      const selectedAPIRoute = baseData.routes.find((r) => r.key === currentRoute.id);
       if (!selectedAPIRoute) return [];
 
       // Find any service interruptions that apply to this route
@@ -338,11 +374,11 @@ export const useASAlerts = (route: Route | null) => {
           title: alert.name,
           description: alert.description ?? '',
           affectedRoutes: affectedAPIRoutes,
-          originalRoute: route,
+          originalRoute: currentRoute,
         };
       });
     },
-    enabled: route !== null,
+    enabled: params().route !== null,
     dependents: [apiServiceInterruptionsQuery, apiBaseDataQuery, routesQuery],
   }));
 
