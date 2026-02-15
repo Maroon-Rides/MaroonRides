@@ -1,6 +1,6 @@
 <script lang="ts">
   import favicon from '$lib/assets/favicon.svg';
-  import MapElements from '$lib/components/MapElements.svelte';
+  import MapElements from '$lib/components/map/MapElements.svelte';
   import ThemeWatcher from '$lib/components/ThemeWatcher.svelte';
   import Map from '$lib/components/ui/map/Map.svelte';
   import MapControls from '$lib/components/ui/map/MapControls.svelte';
