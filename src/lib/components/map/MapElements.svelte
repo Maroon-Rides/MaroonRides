@@ -61,7 +61,6 @@
 {/snippet}
 
 {#snippet stopMarker(route: Route, direction: Direction, stop: Stop)}
-  {@const tint = getRouteTint(route, themeManager.theme)}
   {@const isSelected =
     direction.id === mapManager.selectedDirectionId || mapManager.selectedDirectionId == ''}
 
