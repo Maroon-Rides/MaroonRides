@@ -8,9 +8,10 @@
 
   type Props = {
     bus: Bus;
+    isSelected: boolean;
   };
 
-  let { bus }: Props = $props();
+  let { bus, isSelected }: Props = $props();
 
   const tint = $derived(getRouteTint(bus.route, themeManager.theme));
   const borderTint = $derived(getLighterColor(tint));
@@ -19,7 +20,10 @@
 <MarkerContent>
   <div
     class="z-10 flex size-8 items-center justify-center rounded-l-full rounded-tr-full border-2 shadow-lg"
-    style="border-color: {borderTint}; background-color: {tint}; rotate: {bus.heading - 135}deg"
+    style="border-color: {isSelected
+      ? borderTint
+      : 'transparent'}; background-color: {tint}; rotate: {bus.heading -
+      135}deg; opacity: {isSelected ? 1 : 0.7}"
   >
     <BusFrontIcon class="size-5 stroke-2 text-white" style="rotate: {-bus.heading - 225}deg" />
   </div>

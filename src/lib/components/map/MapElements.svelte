@@ -54,9 +54,11 @@
 {/snippet}
 
 {#snippet busMarker(bus: Bus)}
+  {@const isSelected =
+    bus.direction.id === mapManager.selectedDirectionId || mapManager.selectedDirectionId == ''}
   <MapMarker longitude={bus.location.longitude} latitude={bus.location.latitude}>
     <BusPopup {bus} />
-    <BusMarker {bus} />
+    <BusMarker {bus} {isSelected} />
   </MapMarker>
 {/snippet}
 
