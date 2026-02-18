@@ -90,23 +90,24 @@
       container: mapContainer,
       style: currentStyle,
       renderWorldCopies: false,
-      attributionControl: {
-        compact: true,
-      },
+      // TODO move attribution elsewhere
+      attributionControl: false,
       maxBounds: [
         [h.minLon, h.minLat],
         [h.maxLon, h.maxLat],
       ],
       center: [h.centerLon, h.centerLat],
       zoom: h.maxZoom - 2,
+      maxZoom: h.maxZoom + 2,
+      minZoom: h.minZoom,
+      // Cap pixel ratio at 2x for performance
+      pixelRatio: Math.min(window.devicePixelRatio, 2),
       ...options,
     });
 
     const styleDataHandler = () => {
       clearStyleTimeout();
-      // Delay to ensure style is fully processed before allowing layer operations
-      // This is a workaround to avoid race conditions with the style loading
-      // else we have to force update every layer on setStyle change
+      // Reduced timeout for faster responsiveness
       styleTimeoutId = setTimeout(() => {
         isStyleLoaded = true;
         if (!initialStyleApplied) {
@@ -115,7 +116,7 @@
         if (projection) {
           mapInstance.setProjection(projection);
         }
-      }, 100);
+      }, 50); // Reduced from 100ms to 50ms
     };
 
     const loadHandler = () => {
@@ -140,7 +141,8 @@
 
     untrack(() => {
       isStyleLoaded = false;
-      map!.setStyle(style, { diff: true });
+      // Diff mode helps reuse existing layers for better performance
+      map!.setStyle(style, { diff: false }); // Changed to false - full style reload is more reliable for theme changes
     });
   });
 
