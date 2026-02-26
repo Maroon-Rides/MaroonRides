@@ -31,6 +31,6 @@
   {/if}
 
   {#each estimates as estimate, i}
-    <TimeBubble {estimate} isNext={i === 0} class="text-white" />
+    <TimeBubble {estimate} isNext={i === 0} />
   {/each}
 </div>
