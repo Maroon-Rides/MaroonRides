@@ -47,7 +47,7 @@
     {/if}
 
     {#each estimates as estimate, i}
-      <TimeBubble {estimate} isNext={i === 0} />
+      <TimeBubble {estimate} isNext={i === 0} type={'callout'} />
     {/each}
   </div>
 </MarkerPopup>
