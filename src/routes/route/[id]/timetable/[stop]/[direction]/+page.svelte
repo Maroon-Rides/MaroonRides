@@ -4,7 +4,6 @@
   import RouteRow from '$lib/components/RouteRow.svelte';
   import Timetable from '$lib/components/Timetable.svelte';
   import * as BottomSheet from '$lib/components/ui/bottom-sheet';
-  import Button from '$lib/components/ui/button/button.svelte';
   import DateStepper from '$lib/components/ui/date-stepper/date-stepper.svelte';
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
   import { useRoutes, useStopSchedule } from '$lib/data/app';
@@ -19,15 +18,13 @@
   ];
 
   let date = $state(moment());
-  let showOtherRoutes = $state(false);
 
   const routes = useRoutes();
+
   const route = $derived(routes.data?.find((r) => r.id === data.routeId) ?? null);
-  const stop = $derived(
-    route?.directions
-      .flatMap((d) => d.stops.map((s) => ({ ...s, directionId: d.id })))
-      .find((s) => s.id === data.stopId && s.directionId === data.directionId) ?? null,
-  );
+  const direction = $derived(route?.directions.find((d) => d.id === data.directionId) ?? null);
+  const stop = $derived(direction?.stops.find((s) => s.id === data.stopId) ?? null);
+
   const timetable = useStopSchedule(() => ({ stop, date }));
 
   function onClose() {
@@ -59,9 +56,13 @@
       {/if}
 
       {#each timetable.data as table}
-        {#if showOtherRoutes || table.route.id == route?.id}
+        {#if table.route.id == route?.id && table.direction.id == direction?.id}
           <div class="mb-2 flex flex-col gap-3">
-            <RouteRow route={table.route} onclick={() => goto(`/route/${table.route.id}`)} />
+            <RouteRow
+              route={table.route}
+              subtitle={direction.name.trim()}
+              onclick={() => goto(`/route/${table.route.id}`)}
+            />
             {#if table.timetable.length === 0}
               <p class="text-center text-sm text-muted-foreground">No timetable for selected day</p>
             {:else}
@@ -70,22 +71,6 @@
           </div>
         {/if}
       {/each}
-      <Button
-        variant="outline"
-        size="sm"
-        class="self-center"
-        onclick={() => (showOtherRoutes = !showOtherRoutes)}
-      >
-        {showOtherRoutes ? 'Hide Other Routes' : 'Show Other Routes'}
-      </Button>
     </div>
-
-    <!-- {#each timetable.data ?? [] as schedule (`${schedule.route.id}-${schedule.direction.id}-${schedule.stop.id}`)}
-      <p>
-        {schedule.route.name} - {schedule.direction.name} - {schedule.stop.name}: {moment(
-          schedule.timetable[0].scheduledTime,
-        ).format('hh:mm A')}
-      </p>
-    {/each} -->
   </BottomSheet.Root>
 {/key}

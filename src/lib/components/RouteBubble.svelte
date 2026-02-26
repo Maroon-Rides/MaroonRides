@@ -22,7 +22,7 @@
     variants: {
       type: {
         rowIcon: 'h-10 w-12 p-1.25',
-        calloutIcon: 'h-7 w-12 p-1',
+        calloutIcon: 'h-6 min-w-8 p-1 px-2',
       },
     },
   });

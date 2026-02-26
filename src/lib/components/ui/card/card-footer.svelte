@@ -12,8 +12,8 @@
 
 <div
   bind:this={ref}
-  data-slot="card"
-  class={cn('flex flex-col rounded-xl border bg-card text-card-foreground shadow-sm', className)}
+  data-slot="card-footer"
+  class={cn('flex items-center px-6 [.border-t]:pt-6', className)}
   {...restProps}
 >
   {@render children?.()}

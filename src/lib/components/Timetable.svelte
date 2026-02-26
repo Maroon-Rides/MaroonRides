@@ -16,7 +16,6 @@
 
   const timeEstimates = useTimetableEstimate(() => ({ stop: schedule.stop, date }));
   const timetable = $derived(buildTimetable(schedule, timeEstimates.data ?? []));
-  const tintColor = $derived(getRouteTint(schedule.route, themeManager.theme));
 
   const rowStyle = tv({
     base: 'flex items-center rounded-lg',
@@ -47,7 +46,7 @@
   });
 </script>
 
-<div class="flex flex-col" style="--tint: {tintColor}">
+<div class="flex flex-col" style="--tint: {getRouteTint(schedule.route, themeManager.theme)}">
   {#each timetable as row, i}
     <div
       class={rowStyle({

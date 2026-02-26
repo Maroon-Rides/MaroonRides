@@ -8,9 +8,9 @@
   import Button from '$lib/components/ui/button/button.svelte';
   import * as Tabs from '$lib/components/ui/tabs';
   import Toggle from '$lib/components/ui/toggle/toggle.svelte';
-  import { useRoutes } from '$lib/data/app';
+  import { useAlerts, useRoutes } from '$lib/data/app';
   import { mapManager } from '$lib/managers/map.manager.svelte';
-  import { Bell, CalendarIcon, Star } from 'lucide-svelte';
+  import { Bell, BellRing, CalendarIcon, Star } from 'lucide-svelte';
   import { untrack } from 'svelte';
   import type { PageData } from './$types';
 
@@ -18,6 +18,7 @@
 
   const routes = useRoutes();
   const route = $derived(routes.data?.find((r) => r.id === data.routeId) ?? null);
+  const alerts = useAlerts(() => ({ route }));
   const selectedDirection = $derived(
     route?.directions.find((d) => d.id === mapManager.selectedDirectionId) ?? null,
   );
@@ -65,7 +66,11 @@
             class="rounded-full"
             onclick={() => goto(`/route/${route?.id}/alerts`)}
           >
-            <Bell class="size-4" />
+            {#if alerts.data?.length ?? 0 > 0}
+              <BellRing class="size-4" />
+            {:else}
+              <Bell class="size-4" />
+            {/if}
             Alerts
           </Button>
         </div>

@@ -28,13 +28,13 @@
   <div class="flex items-center justify-between gap-2">
     <div class="flex items-center gap-2 rounded-md pe-2">
       <RouteBubble type={'calloutIcon'} {route} />
-      <span class="wrap line-clamp-2 max-w-24 text-sm font-bold">{stop.name}</span>
+      <span class="wrap line-clamp-2 max-w-24 text-sm leading-4 font-bold">{stop.name}</span>
     </div>
 
     <div class="flex items-center gap-2">
       {#each amenities as amenity}
         {@const AmenityIcon = Amenity.getIcon(amenity)}
-        <AmenityIcon class="size-6" />
+        <AmenityIcon class="size-5" />
       {/each}
     </div>
   </div>
@@ -43,7 +43,7 @@
     {#if isLoading}
       <Spinner class="size-4 self-center" />
     {:else if estimates?.length === 0}
-      <p class="text-center text-sm text-muted-foreground">No upcoming departures</p>
+      <p class="text-center text-xs text-muted-foreground">No upcoming departures</p>
     {/if}
 
     {#each estimates as estimate, i}

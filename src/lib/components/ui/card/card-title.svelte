@@ -12,8 +12,8 @@
 
 <div
   bind:this={ref}
-  data-slot="card"
-  class={cn('flex flex-col rounded-xl border bg-card text-card-foreground shadow-sm', className)}
+  data-slot="card-title"
+  class={cn('leading-none font-semibold', className)}
   {...restProps}
 >
   {@render children?.()}
