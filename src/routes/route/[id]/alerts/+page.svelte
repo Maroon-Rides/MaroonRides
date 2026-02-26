@@ -4,6 +4,7 @@
   import * as BottomSheet from '$lib/components/ui/bottom-sheet';
   import * as Card from '$lib/components/ui/card';
   import Separator from '$lib/components/ui/separator/separator.svelte';
+  import Spinner from '$lib/components/ui/spinner/spinner.svelte';
   import { useAlerts, useRoutes } from '$lib/data/app';
   import { TriangleAlert } from 'lucide-svelte';
   import type { PageData } from './$types';
@@ -34,9 +35,11 @@
 
     <div class="flex flex-col gap-4 px-4 pt-4 pb-8">
       {#if alerts.isLoading}
-        <p class="text-center text-sm text-muted-foreground">Loading alerts...</p>
+        <Spinner class="size-6 self-center" />
       {:else if alerts.data?.length === 0}
-        <p class="text-center text-sm text-muted-foreground">No active alerts for this route.</p>
+        <p class="text-center text-sm text-muted-foreground">
+          There are no active alerts for this route.
+        </p>
       {/if}
 
       {#each alerts.data as alert}
