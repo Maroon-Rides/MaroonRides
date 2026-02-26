@@ -21,7 +21,7 @@
   <!-- padding to increase touch target size -->
   <div class="p-3">
     <div
-      class="z-5 size-4 rounded-full border-2 shadow-lg"
+      class="z-18 size-4 rounded-full border-2 shadow-lg"
       style="border-color: {borderTint}; background-color: {tint}; opacity: {isSelected ? 1 : 0.5}"
     ></div>
   </div>

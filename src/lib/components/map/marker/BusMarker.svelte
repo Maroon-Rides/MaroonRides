@@ -19,7 +19,7 @@
 
 <MarkerContent>
   <div
-    class="z-10 flex size-8 items-center justify-center rounded-l-full rounded-tr-full border-2 shadow-lg"
+    class="z-20 flex size-8 items-center justify-center rounded-l-full rounded-tr-full border-2 shadow-lg"
     style="border-color: {isSelected
       ? borderTint
       : 'transparent'}; background-color: {tint}; rotate: {bus.heading -

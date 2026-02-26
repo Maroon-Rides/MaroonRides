@@ -121,7 +121,7 @@
 <div bind:this={wrapperElement} style="display: contents;">
   <div
     class={cn(
-      'relative animate-in rounded-md border bg-popover p-3 text-popover-foreground shadow-md fade-in-0 zoom-in-95',
+      'relative animate-in rounded-md border bg-popover p-3 text-popover-foreground shadow-sm fade-in-0 zoom-in-95',
       className,
     )}
   >
