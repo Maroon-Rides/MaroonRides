@@ -101,7 +101,7 @@
       maxZoom: h.maxZoom + 2,
       minZoom: h.minZoom,
       // Cap pixel ratio at 2x for performance
-      pixelRatio: Math.min(window.devicePixelRatio, 2),
+      pixelRatio: Math.min(window.devicePixelRatio, 1.5),
       ...options,
     });
 
