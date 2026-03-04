@@ -1,4 +1,4 @@
-import { Capacitor, CapacitorHttp } from '@capacitor/core';
+import { CapacitorHttp } from '@capacitor/core';
 
 class CustomHeaders extends Headers {
   private _allHeaders: Map<string, string>;
@@ -44,22 +44,19 @@ class CustomResponse extends Response {
   }
 }
 
-export function customFetch(originalFetch: typeof fetch) {
-  return async (input: URL | RequestInfo, init?: RequestInit) => {
-    if (typeof input !== 'string' || !input.startsWith('http') || !Capacitor.isNativePlatform()) {
-      return originalFetch(input, init);
-    }
+export async function handleNativeRequest(
+  input: URL | RequestInfo,
+  init?: RequestInit,
+): Promise<Response> {
+  const response = await CapacitorHttp.request({
+    url: input as string,
+    method: init?.method || 'GET',
+    headers: init?.headers as Record<string, string>,
+    data: init?.body,
+  });
 
-    const response = await CapacitorHttp.request({
-      url: input as string,
-      method: init?.method || 'GET',
-      headers: init?.headers as Record<string, string>,
-      data: init?.body,
-    });
-
-    return new CustomResponse(response.data, {
-      status: response.status,
-      headers: response.headers,
-    });
-  };
+  return new CustomResponse(response.data, {
+    status: response.status,
+    headers: response.headers,
+  });
 }

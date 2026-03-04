@@ -2,3 +2,4 @@
 node = "24"
 pnpm = "latest"
 "github:protomaps/go-pmtiles" = "1.30.0"
+java = "21"

@@ -5,7 +5,7 @@
   import Map from '$lib/components/ui/map/Map.svelte';
   import MapControls from '$lib/components/ui/map/MapControls.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
-  import { customFetch } from '$lib/utils/fetch';
+  import { installInterceptor } from '$lib/utils/interceptor';
   import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
   import { onDestroy } from 'svelte';
   import './layout.css';
@@ -18,7 +18,7 @@
     mapManager.unregisterMap();
   });
 
-  window.fetch = customFetch(window.fetch);
+  installInterceptor();
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>

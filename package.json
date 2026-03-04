@@ -37,8 +37,8 @@
     "vite": "^7.3.1"
   },
   "dependencies": {
-    "@capacitor/android": "^8.0.2",
-    "@capacitor/core": "^8.0.2",
+    "@capacitor/android": "8.1.0",
+    "@capacitor/core": "^8.1.0",
     "@capacitor/geolocation": "^8.0.0",
     "@capacitor/ios": "^8.0.2",
     "@googlemaps/polyline-codec": "^1.0.28",
