@@ -52,7 +52,7 @@
 
       onlocate?.(coords);
     } catch (error) {
-      console.error('Error getting location:', error);
+      console.error('Error requesting location permissions:', error);
       return;
     } finally {
       waitingForLocation = false;

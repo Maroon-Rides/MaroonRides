@@ -21,13 +21,19 @@
   let userLocation: Location | null = $state(null);
 
   onMount(() => {
-    const location = Geolocation.getCurrentPosition().then(
-      (location) => (userLocation = location.coords),
-    );
+    Geolocation.getCurrentPosition({ enableHighAccuracy: true })
+      .then((location) => (userLocation = location.coords))
+      .catch((error) => {
+        console.error('Error requesting location permissions:', error);
+      });
 
     const userLocationInteval = setInterval(async () => {
-      const location = await Geolocation.getCurrentPosition();
-      userLocation = location.coords;
+      try {
+        const location = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+        userLocation = location.coords;
+      } catch (error) {
+        console.error('Error requesting location permissions:', error);
+      }
     }, 5000);
 
     return () => {
