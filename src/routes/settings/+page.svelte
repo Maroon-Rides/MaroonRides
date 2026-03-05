@@ -3,10 +3,24 @@
   import { page } from '$app/state';
   import * as BottomSheet from '$lib/components/ui/bottom-sheet';
   import * as Tabs from '$lib/components/ui/tabs';
+  import { Preferences } from '@capacitor/preferences';
   import { setMode, userPrefersMode } from 'mode-watcher';
+  import { onMount } from 'svelte';
 
   let theme = $state(userPrefersMode.current);
   let defaultRouteGroup = $state('all');
+
+  $effect(() => {
+    Preferences.set({ key: 'defaultGroup', value: defaultRouteGroup == 'all' ? '0' : '1' });
+  });
+
+  onMount(async () => {
+    const defaultGroup = await Preferences.get({ key: 'defaultGroup' }).then((res) => res.value);
+    console.log('Loaded default group:', defaultGroup);
+    if (defaultGroup === '1') {
+      defaultRouteGroup = 'favorites';
+    }
+  });
 
   function onClose() {
     goto(`/`);
@@ -40,9 +54,9 @@
         <p class="text-sm text-muted-foreground">Select your preferred theme for the app.</p>
         <Tabs.Root bind:value={theme} class="mt-1">
           <Tabs.List>
+            <Tabs.Trigger value="system" onclick={() => setMode('system')}>System</Tabs.Trigger>
             <Tabs.Trigger value="light" onclick={() => setMode('light')}>Light</Tabs.Trigger>
             <Tabs.Trigger value="dark" onclick={() => setMode('dark')}>Dark</Tabs.Trigger>
-            <Tabs.Trigger value="system" onclick={() => setMode('system')}>System</Tabs.Trigger>
           </Tabs.List>
         </Tabs.Root>
       </div>

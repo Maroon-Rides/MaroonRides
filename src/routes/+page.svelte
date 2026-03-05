@@ -9,13 +9,25 @@
   import * as Tabs from '$lib/components/ui/tabs';
   import { useRoutes } from '$lib/data/app';
   import { mapManager } from '$lib/managers/map.manager.svelte';
+  import { Preferences } from '@capacitor/preferences';
   import { Cog, Route } from 'lucide-svelte';
+  import { onMount } from 'svelte';
 
   let routes = useRoutes();
   let selectedTab = $state('all');
+  let favorites: string[] = $state([]);
 
   $effect(() => {
     mapManager.setDrawnRoutes(routes.data ?? []);
+  });
+
+  onMount(async () => {
+    const initialTab = (await Preferences.get({ key: 'defaultGroup' })).value;
+    if (initialTab === '1') {
+      selectedTab = 'favorites';
+    }
+
+    favorites = JSON.parse((await Preferences.get({ key: 'favorites' })).value as string);
   });
 </script>
 
@@ -69,8 +81,22 @@
         {/each}
       </Card.Content>
     {:else if selectedTab === 'favorites'}
-      <Card.Content class="flex flex-col gap-3 pt-4 pb-10">
-        <p>Favorites coming soon!</p>
+      <Card.Content class="flex flex-col gap-4 px-4 pt-4 pb-10">
+        {@const favRoutes =
+          routes.data?.filter((route) => favorites.includes(route.routeCode)) ?? []}
+        {#if favRoutes.length === 0 && !routes.isLoading}
+          <p class="text-center text-muted-foreground">
+            No favorite routes yet. Mark routes as favorites to see them here!
+          </p>
+        {/if}
+
+        {#if routes.isLoading}
+          <Spinner class="size-6 self-center" />
+        {/if}
+
+        {#each favRoutes as route}
+          <RouteRow {route} onclick={() => goto(`/route/${route.id}`)} />
+        {/each}
       </Card.Content>
     {/if}
   </BottomSheet.Root>

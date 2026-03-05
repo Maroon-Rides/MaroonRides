@@ -6,8 +6,9 @@
   import MapControls from '$lib/components/ui/map/MapControls.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { installInterceptor } from '$lib/utils/interceptor';
+  import { migratePrefs } from '$lib/utils/prefs';
   import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
-  import { onDestroy } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import './layout.css';
 
   let { children } = $props();
@@ -16,6 +17,10 @@
 
   onDestroy(() => {
     mapManager.unregisterMap();
+  });
+
+  onMount(async () => {
+    migratePrefs();
   });
 
   installInterceptor();

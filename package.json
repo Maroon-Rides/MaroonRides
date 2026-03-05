@@ -39,8 +39,10 @@
   "dependencies": {
     "@capacitor/android": "8.1.0",
     "@capacitor/core": "^8.1.0",
+    "@capacitor/filesystem": "^8.1.2",
     "@capacitor/geolocation": "^8.0.0",
     "@capacitor/ios": "^8.0.2",
+    "@capacitor/preferences": "^8.0.1",
     "@googlemaps/polyline-codec": "^1.0.28",
     "@leveluptuts/svelte-fit": "^1.0.3",
     "@tanstack/svelte-query": "^6.0.18",
