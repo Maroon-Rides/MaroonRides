@@ -1,5 +1,5 @@
 import type { Location, Route } from '$lib/data/types';
-import MapLibreGL from 'maplibre-gl';
+import MapLibreGL, { type VectorSourceSpecification } from 'maplibre-gl';
 
 class MapManager {
   map: MapLibreGL.Map | null = $state(null);
@@ -9,6 +9,10 @@ class MapManager {
   drawnRoutes: Route[] = $state([]);
   selectedRoute: Route | null = $state(null);
   selectedDirectionId: string = $state('');
+
+  attribution: string = $derived(
+    (this.map?.getStyle().sources.protomaps as VectorSourceSpecification).attribution ?? '',
+  );
 
   mapWidth: number = $state(0);
   mapHeight: number = $state(0);

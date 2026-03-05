@@ -2,7 +2,9 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import * as BottomSheet from '$lib/components/ui/bottom-sheet';
+  import Separator from '$lib/components/ui/separator/separator.svelte';
   import * as Tabs from '$lib/components/ui/tabs';
+  import { mapManager } from '$lib/managers/map.manager.svelte';
   import { Preferences } from '@capacitor/preferences';
   import { setMode, userPrefersMode } from 'mode-watcher';
   import { onMount } from 'svelte';
@@ -28,7 +30,13 @@
 </script>
 
 {#key page.url.pathname}
-  <BottomSheet.Root initialSnapIndex={1}>
+  <BottomSheet.Root
+    initialSnapIndex={0}
+    snapPoints={[
+      { height: 45, id: 'm' },
+      { height: 80, id: 'l' },
+    ]}
+  >
     {#snippet header()}
       <BottomSheet.Header title="Settings">
         {#snippet actions()}
@@ -60,6 +68,12 @@
           </Tabs.List>
         </Tabs.Root>
       </div>
+      <Separator class="mt-4" />
+      <p class="text-xs text-muted-foreground">
+        Made with ❤️ by fellow Aggies. Gig 'em!
+        <br />
+        Map data provided by: {@html mapManager.attribution}
+      </p>
     </div>
   </BottomSheet.Root>
 {/key}
