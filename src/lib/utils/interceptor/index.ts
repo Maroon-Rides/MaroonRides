@@ -25,7 +25,7 @@ export async function interceptFetch(
   const url = new URL(request.url);
 
   const rangeHeader = request.headers.get('Range');
-  if (Capacitor.getPlatform() !== 'ios' && rangeHeader && url.pathname.endsWith('.pmtiles')) {
+  if (Capacitor.getPlatform() === 'android' && rangeHeader && url.pathname.endsWith('.pmtiles')) {
     return handleRangeRequest(request, rangeHeader);
   }
 
