@@ -29,7 +29,7 @@ export async function interceptFetch(
     return handleRangeRequest(request, rangeHeader);
   }
 
-  if (url.host == 'aggiespirit.ts.tamu.edu') {
+  if (Capacitor.getPlatform() !== 'web' && url.host == 'aggiespirit.ts.tamu.edu') {
     return handleNativeRequest(input, init);
   }
 
