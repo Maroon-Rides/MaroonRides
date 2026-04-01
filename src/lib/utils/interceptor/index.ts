@@ -1,6 +1,5 @@
 import { Capacitor } from '@capacitor/core';
 import { handleNativeRequest } from './handlers/native-proxy';
-import { handleRangeRequest } from './handlers/range-cache';
 
 // original fetch reference for restoring later
 let originalFetch: typeof fetch;
@@ -23,11 +22,6 @@ export async function interceptFetch(
 ): Promise<Response> {
   const request = new Request(input, init);
   const url = new URL(request.url);
-
-  const rangeHeader = request.headers.get('Range');
-  if (Capacitor.getPlatform() === 'android' && rangeHeader && url.pathname.endsWith('.pmtiles')) {
-    return handleRangeRequest(request, rangeHeader);
-  }
 
   if (Capacitor.getPlatform() !== 'web' && url.host == 'aggiespirit.ts.tamu.edu') {
     return handleNativeRequest(input, init);
