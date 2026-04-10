@@ -81,9 +81,7 @@
         {@const favRoutes =
           routes.data?.filter((route) => favorites.includes(route.routeCode)) ?? []}
         {#if favRoutes.length === 0 && !routes.isLoading}
-          <p class="text-center text-muted-foreground">
-            No favorite routes yet. Mark routes as favorites to see them here!
-          </p>
+          <p class="text-center text-sm text-muted-foreground">There are no favorited routes.</p>
         {/if}
 
         {#if routes.isLoading}
