@@ -344,7 +344,7 @@
       ],
       "source": "protomaps",
       "source-layer": "water",
-      "paint": {"fill-color": "#31353f"}
+      "paint": {"fill-color": "#29416d"}
     },
     {
       "id": "water_stream",
@@ -358,7 +358,7 @@
         "stream"
       ],
       "paint": {
-        "line-color": "#31353f",
+        "line-color": "#29416d",
         "line-width": 0.5
       }
     },
@@ -370,7 +370,7 @@
       "minzoom": 9,
       "filter": ["in", "kind", "river"],
       "paint": {
-        "line-color": "#31353f",
+        "line-color": "#29416d",
         "line-width": [
           "interpolate",
           ["exponential", 1.6],
@@ -2165,7 +2165,7 @@
       },
       "paint": {
         "text-color": "#717784",
-        "text-halo-color": "#31353f",
+        "text-halo-color": "#29416d",
         "text-halo-width": 1
       }
     },
@@ -3448,7 +3448,7 @@
       "paint": {
         "text-color": "#717784",
         "text-halo-width": 1,
-        "text-halo-color": "#31353f"
+        "text-halo-color": "#29416d"
       }
     },
     {
@@ -4088,7 +4088,7 @@
       },
       "paint": {
         "text-color": "#717784",
-        "text-halo-color": "#31353f",
+        "text-halo-color": "#29416d",
         "text-halo-width": 1
       }
     },
