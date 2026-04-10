@@ -20,7 +20,7 @@
     <div class="flex items-center gap-2">
       {#each bus.amenities as amenity}
         {@const AmenityIcon = Amenity.getIcon(amenity)}
-        <AmenityIcon class="size-6" />
+        <AmenityIcon class="size-6 text-muted-foreground" />
       {/each}
     </div>
   </div>

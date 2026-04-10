@@ -26,8 +26,6 @@
 <div class="flex items-center gap-1" style="--tint: {getRouteTint(route, themeManager.theme)}">
   {#if isLoading}
     <Spinner class="size-4 self-center" />
-  {:else if estimates?.length === 0}
-    <p class="text-center text-sm text-muted-foreground">No upcoming departures</p>
   {/if}
 
   {#each estimates as estimate, i}

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EstimateRow from './EstimateRow.svelte';
+  import StopRow from './StopRow.svelte';
 
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
@@ -10,7 +10,7 @@
   import Toggle from '$lib/components/ui/toggle/toggle.svelte';
   import { useAlerts, useRoutes } from '$lib/data/app';
   import { mapManager } from '$lib/managers/map.manager.svelte';
-  import { Bell, BellRing, CalendarIcon, Star } from 'lucide-svelte';
+  import { Bell, BellRing, Star } from 'lucide-svelte';
   import { untrack } from 'svelte';
   import type { PageData } from './$types';
 
@@ -86,31 +86,15 @@
         {/if}
       </BottomSheet.Header>
     {/snippet}
-    <div class="pb-4">
-      {#each selectedDirection?.stops ?? [] as stop, i (`${stop.id}-${selectedDirection?.id}-${i}`)}
-        <div class="px-4 py-2">
-          <p class="text-lg font-bold">{stop.name}</p>
-          <p class="text-sm text-muted-foreground">TODO minutes delayed</p>
-          <div class="flex items-center justify-between">
-            {#if route && selectedDirection}
-              <EstimateRow {route} direction={selectedDirection} {stop} />
-            {/if}
-            <Button
-              variant="outline"
-              size="sm"
-              class="mt-2 rounded-full"
-              onclick={() => {
-                goto(`/route/${route?.id}/timetable/${stop.id}/${selectedDirection?.id}`);
-              }}
-            >
-              <CalendarIcon class="size-4" />
-            </Button>
-          </div>
-        </div>
-        {#if i < (selectedDirection?.stops.length ?? 0) - 1}
-          <hr class="ml-4" />
-        {/if}
-      {/each}
-    </div>
+    {#if selectedDirection && route}
+      <div class="pb-4">
+        {#each selectedDirection?.stops ?? [] as stop, i (`${stop.id}-${selectedDirection?.id}-${i}`)}
+          <StopRow {stop} direction={selectedDirection} {route} />
+          {#if i < (selectedDirection?.stops.length ?? 0) - 1}
+            <hr class="ml-4" />
+          {/if}
+        {/each}
+      </div>
+    {/if}
   </BottomSheet.Root>
 {/key}
