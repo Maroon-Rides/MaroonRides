@@ -102,7 +102,19 @@
     {#if selectedDirection && route}
       <div class="pb-4">
         {#each selectedDirection?.stops ?? [] as stop, i (`${stop.id}-${selectedDirection?.id}-${i}`)}
-          <StopRow {stop} direction={selectedDirection} {route} />
+          {@const isLast = i === (selectedDirection?.stops.length ?? 0) - 1}
+          {@const altDirection = isLast
+            ? route.directions.length > 1
+              ? (route.directions.find((d) => d.id !== selectedDirection.id) ?? selectedDirection)
+              : selectedDirection
+            : selectedDirection}
+          <StopRow
+            {stop}
+            direction={selectedDirection}
+            {route}
+            estimateDirection={isLast ? altDirection : undefined}
+            estimateStop={isLast ? altDirection?.stops[0] : undefined}
+          />
           {#if i < (selectedDirection?.stops.length ?? 0) - 1}
             <hr class="ml-4" />
           {/if}

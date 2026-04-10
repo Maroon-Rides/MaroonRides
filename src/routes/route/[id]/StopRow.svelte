@@ -11,15 +11,20 @@
     stop: Stop;
     route: Route;
     direction: Direction;
+    estimateDirection?: Direction;
+    estimateStop?: Stop;
   };
 
-  let { stop, route, direction }: Props = $props();
+  let { stop, route, direction, estimateDirection, estimateStop }: Props = $props();
+
+  const effectiveDirection = $derived(estimateDirection ?? direction);
+  const effectiveStop = $derived(estimateStop ?? stop);
 
   const { data: estimates, isLoading } = $derived(
     useStopEstimate(() => ({
       route: route,
-      direction: direction,
-      stop,
+      direction: effectiveDirection,
+      stop: effectiveStop,
     })),
   );
 
@@ -65,7 +70,7 @@
   </div>
   <div class="mt-2 flex items-center justify-between">
     {#if route && direction}
-      <EstimateRow {route} {direction} {stop} />
+      <EstimateRow {route} direction={effectiveDirection} stop={effectiveStop} />
     {/if}
     <Button
       variant="outline"
