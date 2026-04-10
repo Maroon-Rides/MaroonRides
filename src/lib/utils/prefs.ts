@@ -44,4 +44,17 @@ export async function migratePrefs() {
     console.log('Preferences migrated to version 1');
     await Preferences.set({ key: 'version', value: '1' });
   }
+
+  if (currentVersion < 2) {
+    // Migrate default group to string enums
+    const defaultGroup = await Preferences.get({ key: 'defaultGroup' }).then((res) => res.value);
+
+    await Preferences.set({
+      key: 'defaultGroup',
+      value: defaultGroup === '1' ? 'favorites' : 'all',
+    });
+
+    console.log('Preferences migrated to version 2');
+    await Preferences.set({ key: 'version', value: '2' });
+  }
 }

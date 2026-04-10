@@ -12,16 +12,13 @@
   let theme = $state(userPrefersMode.current);
   let defaultRouteGroup = $state('all');
 
-  $effect(() => {
-    Preferences.set({ key: 'defaultGroup', value: defaultRouteGroup == 'all' ? '0' : '1' });
-  });
+  async function updateDefaultGroup(group: string) {
+    defaultRouteGroup = group;
+    await Preferences.set({ key: 'defaultGroup', value: group });
+  }
 
   onMount(async () => {
-    const defaultGroup = await Preferences.get({ key: 'defaultGroup' }).then((res) => res.value);
-    console.log('Loaded default group:', defaultGroup);
-    if (defaultGroup === '1') {
-      defaultRouteGroup = 'favorites';
-    }
+    defaultRouteGroup = (await Preferences.get({ key: 'defaultGroup' })).value ?? 'all';
   });
 
   function onClose() {
@@ -50,7 +47,7 @@
         <p class="text-sm text-muted-foreground">
           Choose the default route group to display when the app opens
         </p>
-        <Tabs.Root bind:value={defaultRouteGroup} class="mt-1">
+        <Tabs.Root bind:value={defaultRouteGroup} onValueChange={updateDefaultGroup} class="mt-1">
           <Tabs.List>
             <Tabs.Trigger value="all">All</Tabs.Trigger>
             <Tabs.Trigger value="favorites">Favorites</Tabs.Trigger>

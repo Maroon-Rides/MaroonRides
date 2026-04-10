@@ -22,12 +22,8 @@
   });
 
   onMount(async () => {
-    const initialTab = (await Preferences.get({ key: 'defaultGroup' })).value;
-    if (initialTab === '1') {
-      selectedTab = 'favorites';
-    }
-
-    favorites = JSON.parse((await Preferences.get({ key: 'favorites' })).value as string);
+    selectedTab = (await Preferences.get({ key: 'defaultGroup' })).value ?? 'all';
+    favorites = JSON.parse((await Preferences.get({ key: 'favorites' })).value ?? '[]');
   });
 </script>
 
