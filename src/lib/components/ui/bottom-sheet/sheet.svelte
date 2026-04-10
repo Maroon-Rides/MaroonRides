@@ -644,7 +644,7 @@
       >
         <div
           bind:this={contentInnerRef}
-          style="transform: translate3d(0, {-scrollOffset}px, 0); backface-visibility: hidden; will-change: transform; min-height: 100%;"
+          style="transform: translate3d(0, {-scrollOffset}px, 0); backface-visibility: hidden; will-change: transform; min-height: 100%; padding-bottom: {safeAreaBottom}px;"
         >
           {@render children?.()}
         </div>
