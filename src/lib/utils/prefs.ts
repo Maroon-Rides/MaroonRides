@@ -58,3 +58,12 @@ export async function migratePrefs() {
     await Preferences.set({ key: 'version', value: '2' });
   }
 }
+
+export async function toggleFavorite(routeCode: string) {
+  const favorites = JSON.parse((await Preferences.get({ key: 'favorites' })).value ?? '[]');
+  const newFavorites = favorites.includes(routeCode)
+    ? favorites.filter((code: string) => code !== routeCode)
+    : [...favorites, routeCode];
+
+  await Preferences.set({ key: 'favorites', value: JSON.stringify(newFavorites) });
+}

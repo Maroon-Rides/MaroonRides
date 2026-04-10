@@ -10,8 +10,10 @@
   import Toggle from '$lib/components/ui/toggle/toggle.svelte';
   import { useAlerts, useRoutes } from '$lib/data/app';
   import { mapManager } from '$lib/managers/map.manager.svelte';
+  import { toggleFavorite } from '$lib/utils/prefs';
+  import { Preferences } from '@capacitor/preferences';
   import { Bell, BellRing, Star } from 'lucide-svelte';
-  import { untrack } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -19,9 +21,18 @@
   const routes = useRoutes();
   const route = $derived(routes.data?.find((r) => r.id === data.routeId) ?? null);
   const alerts = useAlerts(() => ({ route }));
+  let isFavorite = $state(false);
   const selectedDirection = $derived(
     route?.directions.find((d) => d.id === mapManager.selectedDirectionId) ?? null,
   );
+
+  onMount(async () => {
+    const favoritedRoutes = JSON.parse(
+      (await Preferences.get({ key: 'favorites' })).value ?? '[]',
+    ) as string[];
+
+    isFavorite = favoritedRoutes.includes(route?.routeCode ?? '');
+  });
 
   $effect(() => {
     mapManager.setSelectedRoute(route);
@@ -56,6 +67,8 @@
             variant="outline"
             size="md"
             class="rounded-full data-[state=on]:bg-transparent dark:bg-muted data-[state=on]:*:[svg]:fill-yellow-500 data-[state=on]:*:[svg]:stroke-yellow-500"
+            onclick={() => toggleFavorite(route?.routeCode ?? '')}
+            bind:pressed={isFavorite}
           >
             <Star class="size-4" />
             Favorite
