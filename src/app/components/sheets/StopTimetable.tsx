@@ -35,15 +35,11 @@ const StopTimetable: React.FC<SheetProps> = ({ sheetRef }) => {
   } = useStopSchedule(selectedStop!, selectedTimetableDate);
 
   const dayDecrement = () => {
-    // Decrease the date by one day
-    const prevDate = selectedTimetableDate.subtract(1, 'days');
-    setSelectedTimetableDate(prevDate);
+    setSelectedTimetableDate(selectedTimetableDate.clone().subtract(1, 'days'));
   };
 
   const dayIncrement = () => {
-    // Increase the date by one day
-    const nextDate = selectedTimetableDate.add(1, 'days');
-    setSelectedTimetableDate(nextDate);
+    setSelectedTimetableDate(selectedTimetableDate.clone().add(1, 'days'));
   };
 
   const routeSchedules = useMemo(() => {
