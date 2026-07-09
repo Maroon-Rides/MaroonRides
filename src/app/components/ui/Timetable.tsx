@@ -131,7 +131,7 @@ const Timetable: React.FC<Props> = ({
             </View>
           );
         })}
-        {fullSchedule.timetable.length === 0 && !fullSchedule.stop && (
+        {fullSchedule.timetable.length === 0 && (
           <Text style={{ color: 'grey', textAlign: 'center' }}>
             No Timetable for Today
           </Text>
