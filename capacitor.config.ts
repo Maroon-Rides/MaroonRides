@@ -1,13 +1,11 @@
 import type { CapacitorConfig } from '@capacitor/cli';
+import { devConfig } from './dev.config';
 
 const config: CapacitorConfig = {
   appId: 'com.bwees.reveillerides',
   appName: 'Maroon Rides',
   webDir: 'build',
-  // server: {
-  //   url: 'http://100.89.139.58:5173',
-  //   cleartext: true,
-  // },
+  ...devConfig,
 };
 
 export default config;
