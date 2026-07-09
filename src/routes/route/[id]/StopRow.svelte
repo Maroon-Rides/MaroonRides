@@ -3,6 +3,7 @@
 
   import { goto } from '$app/navigation';
   import Button from '$lib/components/ui/button/button.svelte';
+  import { mapManager } from '$lib/managers/map.manager.svelte';
   import { useStopAmenities, useStopEstimate } from '$lib/data/app';
   import { Amenity, type Direction, type Route, type Stop } from '$lib/data/types';
   import { CalendarIcon } from '@lucide/svelte';
@@ -57,7 +58,13 @@
 <div class="px-4 py-2">
   <div class="flex items-start justify-between">
     <div class="flex flex-col gap-1">
-      <p class="text-2xl font-bold">{stop.name}</p>
+      <button
+        type="button"
+        class="text-left text-2xl font-bold"
+        onclick={() => mapManager.zoomToStop(stop)}
+      >
+        {stop.name}
+      </button>
       <p class="text-sm text-muted-foreground">{subtitle}</p>
     </div>
 

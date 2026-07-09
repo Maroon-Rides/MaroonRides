@@ -1,4 +1,4 @@
-import type { Location, Route } from '$lib/data/types';
+import type { Location, Route, Stop } from '$lib/data/types';
 import MapLibreGL, { type VectorSourceSpecification } from 'maplibre-gl';
 
 class MapManager {
@@ -61,6 +61,19 @@ class MapManager {
     if (route) {
       this.setDrawnRoutes([route]);
     }
+  }
+
+  zoomToStop(stop: Stop) {
+    if (!this.map) return;
+
+    this.isCentered = false;
+
+    this.map.flyTo({
+      center: [stop.location.longitude, stop.location.latitude],
+      zoom: 17,
+      duration: 750,
+      padding: { top: 0, bottom: this.mapHeight * 0.45, left: 0, right: 0 },
+    });
   }
 
   zoomToFitPoints(points: Location[]) {
