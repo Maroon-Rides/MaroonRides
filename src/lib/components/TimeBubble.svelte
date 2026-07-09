@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { TimeEstimate } from '$lib/data/types';
   import { cn } from '$lib/utils';
-  import { Rss } from 'lucide-svelte';
+  import { Rss } from '@lucide/svelte';
   import moment from 'moment';
   import { tv } from 'tailwind-variants';
 

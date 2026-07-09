@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Route } from '$lib/data/types';
-  import { MoveHorizontal } from 'lucide-svelte';
+  import { MoveHorizontal } from '@lucide/svelte';
   import RouteBubble from './RouteBubble.svelte';
 
   interface Props {

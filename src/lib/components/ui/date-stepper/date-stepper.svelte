@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as ButtonGroup from '$lib/components/ui/button-group/index.js';
-  import { ArrowLeft, ArrowRight } from 'lucide-svelte';
+  import { ArrowLeft, ArrowRight } from '@lucide/svelte';
   import moment from 'moment';
   import Button from '../button/button.svelte';
 

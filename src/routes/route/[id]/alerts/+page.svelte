@@ -6,7 +6,7 @@
   import Separator from '$lib/components/ui/separator/separator.svelte';
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
   import { useAlerts, useRoutes } from '$lib/data/app';
-  import { TriangleAlert } from 'lucide-svelte';
+  import { TriangleAlert } from '@lucide/svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();

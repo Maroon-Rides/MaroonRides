@@ -10,7 +10,7 @@
   import { useRoutes } from '$lib/data/app';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { Preferences } from '@capacitor/preferences';
-  import { Cog, Route } from 'lucide-svelte';
+  import { Cog, Route } from '@lucide/svelte';
   import { onMount } from 'svelte';
 
   let routes = useRoutes();

@@ -4,7 +4,7 @@
   import { themeManager } from '$lib/managers/theme.manager.svelte';
   import buildTimetable from '$lib/utils/timetable';
   import { getRouteTint } from '$lib/utils/tints';
-  import { Rss } from 'lucide-svelte';
+  import { Rss } from '@lucide/svelte';
   import { tv } from 'tailwind-variants';
 
   type Props = {

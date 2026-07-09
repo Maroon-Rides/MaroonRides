@@ -12,7 +12,7 @@
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { toggleFavorite } from '$lib/utils/prefs';
   import { Preferences } from '@capacitor/preferences';
-  import { Bell, BellRing, Star } from 'lucide-svelte';
+  import { Bell, BellRing, Star } from '@lucide/svelte';
   import { onMount, untrack } from 'svelte';
   import type { PageData } from './$types';
 

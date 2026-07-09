@@ -1,5 +1,5 @@
 import { type IAmenity } from '$lib/data/typecheck/aggie_spirit';
-import { AccessibilityIcon, AirVentIcon, BikeIcon, HouseIcon } from 'lucide-svelte';
+import { AccessibilityIcon, AirVentIcon, BikeIcon, HouseIcon } from '@lucide/svelte';
 import moment from 'moment';
 
 export enum Amenity {

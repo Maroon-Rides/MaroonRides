@@ -5,7 +5,7 @@
   import Button from '$lib/components/ui/button/button.svelte';
   import { useStopAmenities, useStopEstimate } from '$lib/data/app';
   import { Amenity, type Direction, type Route, type Stop } from '$lib/data/types';
-  import { CalendarIcon } from 'lucide-svelte';
+  import { CalendarIcon } from '@lucide/svelte';
 
   type Props = {
     stop: Stop;

@@ -47,7 +47,6 @@
     "@leveluptuts/svelte-fit": "^1.0.3",
     "@tanstack/svelte-query": "^6.0.18",
     "aggie-spirit-api": "^1.3.4",
-    "lucide-svelte": "^0.563.0",
     "luxon": "^3.7.2",
     "maplibre-gl": "^5.17.0",
     "mode-watcher": "^1.1.0",

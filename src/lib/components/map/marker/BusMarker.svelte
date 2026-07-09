@@ -4,7 +4,7 @@
   import { themeManager } from '$lib/managers/theme.manager.svelte';
   import { getRouteTint } from '$lib/utils/tints';
   import { getLighterColor } from '$lib/utils/utils';
-  import { BusFrontIcon } from 'lucide-svelte';
+  import { BusFrontIcon } from '@lucide/svelte';
 
   type Props = {
     bus: Bus;

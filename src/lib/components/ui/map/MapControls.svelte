@@ -2,7 +2,7 @@
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { cn } from '$lib/utils.js';
   import { Geolocation } from '@capacitor/geolocation';
-  import { Locate, LocateFixed } from 'lucide-svelte';
+  import { Locate, LocateFixed } from '@lucide/svelte';
   import { getContext } from 'svelte';
   import Button from '../button/button.svelte';
   import type { MapContext } from './Map.svelte';
