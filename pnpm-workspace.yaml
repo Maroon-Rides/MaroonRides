@@ -7,7 +7,6 @@ publicHoistPattern:
   - '*babel-preset-expo'
 
 allowBuilds:
-  '@sentry/cli': true
   unrs-resolver: true
 
 onlyBuiltDependencies:

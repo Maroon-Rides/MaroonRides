@@ -24,8 +24,6 @@ jobs:
 
     # build for ios if platform is ios or all, or if triggered by a release
     if: github.event_name == 'release' || inputs.buildPlatform == 'all' || inputs.buildPlatform == 'ios'
-    env:
-      SENTRY_DISABLE_AUTO_UPLOAD: true
 
     steps:
       - name: List Xcode Installs
@@ -66,24 +64,11 @@ jobs:
           GIT_AUTHORIZATION: ${{ secrets.GIT_AUTHORIZATION }}
           CHANGELOG: ${{ github.event.release.body }}
 
-      - name: Upload sourcemaps
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_URL: https://bugsink.maroonrides.app/
-          SENTRY_ORG: 'maroon-rides'
-          SENTRY_PROJECT: 'maroon-rides-app'
-        run: |
-          pnpm expo export -s -p ios --output-dir dist-ios
-          pnpm dlx sentry-expo-upload-sourcemaps dist-ios
-
   build_android:
     runs-on: ubuntu-latest
 
     # build for android if platform is android or all, or if triggered by a release
     if: github.event_name == 'release' || inputs.buildPlatform == 'all' || inputs.buildPlatform == 'android'
-
-    env:
-      SENTRY_DISABLE_AUTO_UPLOAD: true
 
     steps:
       - name: Checkout Repository
@@ -159,13 +144,3 @@ jobs:
           GOOGLE_PLAY_KEY: ${{ secrets.GOOGLE_PLAY_KEY }}
           RELEASE_NAME: ${{ github.event.release.tag_name || steps.git_sha.outputs.sha_short }}
           PACKAGE_NAME: 'com.maroonrides.maroonrides'
-
-      - name: Upload sourcemaps
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_URL: https://bugsink.maroonrides.app/
-          SENTRY_ORG: 'maroon-rides'
-          SENTRY_PROJECT: 'maroon-rides-app'
-        run: |
-          pnpm expo export -s -p android --output-dir dist-android
-          pnpm dlx sentry-expo-upload-sourcemaps dist-android
