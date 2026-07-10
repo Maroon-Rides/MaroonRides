@@ -1,6 +1,11 @@
 packages:
   - '*'
 
+publicHoistPattern:
+  - '*expo-modules-autolinking'
+  - '*expo-modules-core'
+  - '*babel-preset-expo'
+
 allowBuilds:
   '@sentry/cli': true
   unrs-resolver: true
