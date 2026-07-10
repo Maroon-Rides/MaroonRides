@@ -111,7 +111,8 @@
         }
       ],
       "expo-font",
-      "expo-router"
+      "expo-router",
+      "./plugins/withInsecureHost"
     ]
   }
 }
