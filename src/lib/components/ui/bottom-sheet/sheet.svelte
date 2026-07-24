@@ -93,9 +93,11 @@
 
   const getHeightPx = (pct: number) => (viewportHeight * pct) / 100;
   const getSnapHeightPx = (i: number) => getHeightPx(snapPoints[i].height);
-  const maxSnapHeight = () => getSnapHeightPx(snapPoints.length - 1);
-  const minSnapHeight = () => getSnapHeightPx(0);
-  const isAtMaxSnap = () => Math.abs(currentHeight - maxSnapHeight()) < 1;
+  const maxSnapHeightPx = $derived(getSnapHeightPx(snapPoints.length - 1));
+  const minSnapHeightPx = $derived(getSnapHeightPx(0));
+  const sheetHeightPx = $derived(maxSnapHeightPx + safeAreaBottom);
+  const sheetTranslateY = $derived(Math.max(0, maxSnapHeightPx - currentHeight));
+  const isAtMaxSnap = () => Math.abs(currentHeight - maxSnapHeightPx) < 1;
 
   /** Max scrollable distance (0 if content doesn't overflow) */
   const maxScrollOffset = () => {
@@ -133,7 +135,9 @@
     const now = performance.now();
     velocitySamples.push({ y, t: now });
     const cutoff = now - VELOCITY_WINDOW;
-    velocitySamples = velocitySamples.filter((s) => s.t >= cutoff);
+    while (velocitySamples.length > 0 && velocitySamples[0].t < cutoff) {
+      velocitySamples.shift();
+    }
   };
 
   /** Returns velocity in px/ms. Positive = finger moving up (scroll down / expand). */
@@ -336,7 +340,7 @@
         gestureMode = 'sheet-drag';
         isDragging = true;
         touchStartY = y;
-        touchStartHeight = maxSnapHeight();
+        touchStartHeight = maxSnapHeightPx;
         scrollOffset = 0;
         return;
       }
@@ -350,8 +354,8 @@
       const dragDelta = touchStartY - y;
       let newHeight = touchStartHeight + dragDelta;
 
-      const maxH = maxSnapHeight();
-      const minH = minSnapHeight();
+      const maxH = maxSnapHeightPx;
+      const minH = minSnapHeightPx;
 
       // If dragging up past max and content is scrollable, transition to content-scroll
       if (newHeight >= maxH && hasScrollableContent() && dragDelta > 0 && !fromHandle) {
@@ -453,8 +457,8 @@
     recordVelocity(y);
     let newHeight = touchStartHeight + (touchStartY - y);
 
-    const maxH = maxSnapHeight();
-    const minH = minSnapHeight();
+    const maxH = maxSnapHeightPx;
+    const minH = minSnapHeightPx;
 
     if (newHeight < minH) {
       newHeight = minH - (minH - newHeight) * 0.3;
@@ -604,10 +608,10 @@
 {#snippet sheetContent()}
   <div
     class="flex w-full flex-col"
-    style="height: {maxSnapHeight() + safeAreaBottom}px; transform: translate3d(0, {Math.max(
-      0,
-      maxSnapHeight() - currentHeight,
-    )}px, 0); contain: layout style; will-change: transform;"
+    style:height="{sheetHeightPx}px"
+    style:transform="translate3d(0, {sheetTranslateY}px, 0)"
+    style:contain="layout style"
+    style:will-change="transform"
     style:transition={isDragging
       ? 'none'
       : `transform ${animationDuration}ms cubic-bezier(0.2, 0, 0, 1)`}
@@ -644,7 +648,11 @@
       >
         <div
           bind:this={contentInnerRef}
-          style="transform: translate3d(0, {-scrollOffset}px, 0); backface-visibility: hidden; will-change: transform; min-height: 100%; padding-bottom: {safeAreaBottom}px;"
+          style:transform="translate3d(0, {-scrollOffset}px, 0)"
+          style:backface-visibility="hidden"
+          style:will-change="transform"
+          style:min-height="100%"
+          style:padding-bottom="{safeAreaBottom}px"
         >
           {@render children?.()}
         </div>
