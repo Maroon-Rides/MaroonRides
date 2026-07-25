@@ -4,5 +4,7 @@
 <dict>
 	<key>CFBundleDisplayName</key>
 	<string>Maroon Rides</string>
+	<key>WKCompanionAppBundleIdentifier</key>
+	<string>com.bwees.reveille-rides</string>
 </dict>
 </plist>
