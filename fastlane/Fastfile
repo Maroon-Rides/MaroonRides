@@ -6,9 +6,8 @@ XCODE_PROJECT = 'ios/App/App.xcodeproj'
 
 CHANGELOG = ENV['CHANGELOG'] || "Howdy! This update includes some bug fixes and performance improvements. Please let us know if you have any feedback or questions through TestFlight! Thanks and Gig 'Em!"
 
-def app_version
-  JSON.parse(File.read('package.json'))['version']
-end
+PACKAGE_JSON = File.expand_path('../package.json', FastlaneCore::FastlaneFolder.path)
+APP_VERSION = JSON.parse(File.read(PACKAGE_JSON))['version']
 
 platform :ios do
   desc 'Push a new build to TestFlight'
@@ -30,12 +29,12 @@ platform :ios do
     )
 
     build_number = app_store_build_number(live: false) + 1
-    UI.message("Building #{app_version} (#{build_number})")
+    UI.message("Building #{APP_VERSION} (#{build_number})")
 
     build_app(
       project: XCODE_PROJECT,
       scheme: 'App',
-      xcargs: "MARKETING_VERSION=#{app_version} CURRENT_PROJECT_VERSION=#{build_number}",
+      xcargs: "MARKETING_VERSION=#{APP_VERSION} CURRENT_PROJECT_VERSION=#{build_number}",
       export_options: {
         signing_style: 'manual',
         provisioningProfiles: {
@@ -63,7 +62,7 @@ platform :android do
     ).max || 1
 
     version_code = latest_version_code + 1
-    UI.message("Building #{app_version} (#{version_code})")
+    UI.message("Building #{APP_VERSION} (#{version_code})")
 
     gradle(
       task: 'bundle',
