@@ -225,6 +225,9 @@
 				LastSwiftUpdateCheck = 0920;
 				LastUpgradeCheck = 0920;
 				TargetAttributes = {
+					11D73CC61BC9D65A0D131130 = {
+						ProvisioningStyle = Automatic;
+					};
 					504EC3031FED79650016851F = {
 						CreatedOnToolsVersion = 9.2;
 						LastSwiftMigration = 1100;
@@ -343,6 +346,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 65AMD2STXG;
 				GENERATE_INFOPLIST_FILE = YES;
