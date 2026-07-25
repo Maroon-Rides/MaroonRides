@@ -14,14 +14,6 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
-### ios prebuild
-
-```sh
-[bundle exec] fastlane ios prebuild
-```
-
-Setup generated Xcode project for build
-
 ### ios build
 
 ```sh
@@ -40,7 +32,7 @@ Push a new build to TestFlight
 [bundle exec] fastlane android build
 ```
 
-Build APK with Gradle
+Build a release App Bundle
 
 ### android upload
 
@@ -48,7 +40,7 @@ Build APK with Gradle
 [bundle exec] fastlane android upload
 ```
 
-Push a new build to Google Play Store
+Push a new build to the Google Play Store
 
 ---
 

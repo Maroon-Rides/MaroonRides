@@ -7,3 +7,27 @@ bun.lockb
 
 # Miscellaneous
 /static/
+
+# Build output
+/build/
+/.svelte-kit/
+
+# Native build output
+/android/build/
+/android/app/build/
+/android/capacitor-cordova-android-plugins/
+/ios/App/build/
+/ios/DerivedData/
+
+# Copied web assets and generated Capacitor config
+/android/app/src/main/assets/public/
+/android/app/src/main/assets/capacitor.config.json
+/android/app/src/main/assets/capacitor.plugins.json
+/ios/App/App/public/
+/ios/App/App/capacitor.config.json
+
+# Managed by Xcode
+**/Assets.xcassets/
+
+# Managed by release-please
+/.release-please-manifest.json

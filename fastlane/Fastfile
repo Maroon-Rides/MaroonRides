@@ -1,179 +1,94 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
-
 default_platform(:ios)
 
-# use changelog env var if set, otherwise use default
+IOS_APP_IDENTIFIER = 'com.bwees.reveille-rides'
+WATCH_APP_IDENTIFIER = 'com.bwees.reveille-rides.watch'
+XCODE_PROJECT = 'ios/App/App.xcodeproj'
+
 CHANGELOG = ENV['CHANGELOG'] || "Howdy! This update includes some bug fixes and performance improvements. Please let us know if you have any feedback or questions through TestFlight! Thanks and Gig 'Em!"
 
+def app_version
+  JSON.parse(File.read('package.json'))['version']
+end
+
 platform :ios do
-  desc "Setup generated Xcode project for build"
-  lane :prebuild do
+  desc 'Push a new build to TestFlight'
+  lane :build do
     setup_ci if ENV['CI']
 
-    ASC_KEY_ID = ENV['ASC_KEY_ID']
-    ASC_ISSUER_ID = ENV['ASC_ISSUER_ID']
-    ASC_KEY_BASE64 = ENV['ASC_KEY_BASE64']
-    TEAM_ID = ENV['TEAM_ID']
-
-    # setup app store connect api key on local machine 
     app_store_connect_api_key(
-      key_id: ASC_KEY_ID,
-      issuer_id: ASC_ISSUER_ID,
-      key_content: ASC_KEY_BASE64,
-      is_key_content_base64: true
-    )
-
-    match(
-      type: 'development',
-      app_identifier: ['com.bwees.reveille-rides', 'com.bwees.reveille-rides.watch'],
-      readonly: true,
-      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
+      key_id: ENV['ASC_KEY_ID'],
+      issuer_id: ENV['ASC_ISSUER_ID'],
+      key_content: ENV['ASC_KEY_BASE64'],
+      is_key_content_base64: true,
     )
 
     match(
       type: 'appstore',
-      app_identifier: ['com.bwees.reveille-rides', 'com.bwees.reveille-rides.watch'],
+      app_identifier: [IOS_APP_IDENTIFIER, WATCH_APP_IDENTIFIER],
       readonly: true,
-      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"])
-    )
-    
-    update_project_team(
-      path: "ios/MaroonRides.xcodeproj",
-      teamid: TEAM_ID
+      git_basic_authorization: Base64.strict_encode64(ENV['GIT_AUTHORIZATION']),
     )
 
-    # iOS App
-    update_project_provisioning(
-      xcodeproj: "ios/MaroonRides.xcodeproj",
-      profile: ENV["sigh_com.bwees.reveille-rides_appstore_profile-path"],
-      build_configuration: "Release",
-      target_filter: "MaroonRides",
-    )
+    build_number = app_store_build_number(live: false) + 1
+    UI.message("Building #{app_version} (#{build_number})")
 
-    # Watch App
-    update_project_provisioning(
-      xcodeproj: "ios/MaroonRides.xcodeproj",
-      profile: ENV["sigh_com.bwees.reveille-rides.watch_appstore_profile-path"],
-      build_configuration: "Release",
-      target_filter: "Maroon Rides Watch App",
-    )
-
-    # Watch App
-    update_code_signing_settings(
-      use_automatic_signing: false,
-      path: "ios/MaroonRides.xcodeproj",
-      team_id: TEAM_ID,
-      profile_name: "match AppStore com.bwees.reveille-rides",
-      targets: "MaroonRides"
-    )
-
-    # Watch App
-    update_code_signing_settings(
-      use_automatic_signing: false,
-      path: "ios/MaroonRides.xcodeproj",
-      team_id: TEAM_ID,
-      profile_name: "match AppStore com.bwees.reveille-rides.watch",
-      targets: "Maroon Rides Watch App"
-    )
-
-
-    # set ITSAppUsesNonExemptEncryption to false, prevents Missing Compliance error in TF
-    set_info_plist_value(
-      path: "ios/MaroonRides/Info.plist",
-      key: "ITSAppUsesNonExemptEncryption",
-      value: false
-    )
-  end
-  
-  desc "Push a new build to TestFlight"
-  lane :build do
-    prebuild
-    
-    increment_build_number(xcodeproj: "ios/MaroonRides.xcodeproj", build_number: app_store_build_number(live: false) + 1)
-    
     build_app(
-      workspace: "ios/MaroonRides.xcworkspace", 
-      scheme: "MaroonRides",
-      codesigning_identity: "iPhone Distribution",
+      project: XCODE_PROJECT,
+      scheme: 'App',
+      xcargs: "MARKETING_VERSION=#{app_version} CURRENT_PROJECT_VERSION=#{build_number}",
       export_options: {
-        signing_style: "manual",
+        signing_style: 'manual',
         provisioningProfiles: {
-          "com.bwees.reveille-rides" => "match AppStore com.bwees.reveille-rides",
-          "com.bwees.reveille-rides.watch" => "match AppStore com.bwees.reveille-rides.watch"
-        }
-      }
+          IOS_APP_IDENTIFIER => "match AppStore #{IOS_APP_IDENTIFIER}",
+          WATCH_APP_IDENTIFIER => "match AppStore #{WATCH_APP_IDENTIFIER}",
+        },
+      },
     )
-    
+
     upload_to_testflight(
       notify_external_testers: true,
       changelog: CHANGELOG,
-      groups: [
-        "Beta Tester"
-      ]
+      groups: ['Beta Tester'],
     )
   end
 end
 
-# fastlane/Fastfile
-default_platform(:android)
-
 platform :android do
-  desc "Build APK with Gradle"
+  desc 'Build a release App Bundle'
   lane :build do
-
-    # Fetch the latest version code from the Google Play Store for the 'internal' track
     latest_version_code = google_play_track_version_codes(
-        track: 'internal',
-        json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY']),
-        package_name: ENV['PACKAGE_NAME']
-      ).max || 1
+      track: 'internal',
+      json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY']),
+      package_name: ENV['PACKAGE_NAME'],
+    ).max || 1
 
-    # Increment the version code
-    new_version_code = latest_version_code + 1
-    UI.message("New Version Code: #{new_version_code}")
-
-    # Update the versionCode in the build.gradle file
-    new_gradle_content = File.read(ENV['APP_GRADLE_FILE']).gsub(/versionCode \d+/, "versionCode #{new_version_code}")
-    File.write(ENV['APP_GRADLE_FILE'], new_gradle_content)
+    version_code = latest_version_code + 1
+    UI.message("Building #{app_version} (#{version_code})")
 
     gradle(
-      task: "bundle",
-      build_type: "Release",
-      project_dir: "android/",
-      flags: "--no-daemon",
+      task: 'bundle',
+      build_type: 'Release',
+      project_dir: 'android/',
+      flags: '--no-daemon',
       properties: {
-        "android.injected.signing.store.file" => ENV['KEY_PATH'],
-        "android.injected.signing.store.password" => ENV['STORE_PASSWORD'],
-        "android.injected.signing.key.alias" => ENV['KEY_ALIAS'],
-        "android.injected.signing.key.password" => ENV['KEY_PASSWORD'],
-      }
+        'versionCode' => version_code,
+        'android.injected.signing.store.file' => ENV['KEY_PATH'],
+        'android.injected.signing.store.password' => ENV['STORE_PASSWORD'],
+        'android.injected.signing.key.alias' => ENV['KEY_ALIAS'],
+        'android.injected.signing.key.password' => ENV['KEY_PASSWORD'],
+      },
     )
   end
 
-  desc "Push a new build to Google Play Store"
+  desc 'Push a new build to the Google Play Store'
   lane :upload do
     upload_to_play_store(
-      track: 'internal', 
+      track: 'internal',
       version_name: ENV['RELEASE_NAME'],
       aab: './android/app/build/outputs/bundle/release/app-release.aab',
       json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY']),
       package_name: ENV['PACKAGE_NAME'],
-      release_status: "draft" # can remove after we start releasing
+      release_status: 'draft',
     )
   end
-
-
 end

@@ -1,4 +1,4 @@
-name: TypeScript Linting
+name: Lint
 
 on:
   push:
@@ -23,8 +23,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Lint with expo
-        run: pnpm expo lint --max-warnings 0
+      - name: Check formatting
+        run: pnpm lint
 
-      - name: Run TypeScript checks
-        run: pnpm tsc
+      - name: Run Svelte and TypeScript checks
+        run: pnpm check

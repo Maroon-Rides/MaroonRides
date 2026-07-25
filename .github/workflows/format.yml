@@ -23,8 +23,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Lint with expo
-        run: pnpm expo lint --fix
+      - name: Format with prettier
+        run: pnpm format
 
       - name: Commit and push
         uses: EndBug/add-and-commit@v9
