@@ -66,9 +66,7 @@ export const MapServiceInterruptionSchema = z.object({
   dailyStartTime: z.string(),
   dailyEndTime: z.string(),
 });
-export type IMapServiceInterruption = z.infer<
-  typeof MapServiceInterruptionSchema
->;
+export type IMapServiceInterruption = z.infer<typeof MapServiceInterruptionSchema>;
 
 export const DepartTimeSchema = z.object({
   estimatedDepartTimeUtc: z.string().nullable(),
@@ -127,9 +125,7 @@ export const TimetableServiceInterruptionSchema = z.object({
   serviceInterruptionTimeRange: z.string(),
   isStopClosed: z.boolean(),
 });
-export type ITimetableServiceInterruption = z.infer<
-  typeof TimetableServiceInterruptionSchema
->;
+export type ITimetableServiceInterruption = z.infer<typeof TimetableServiceInterruptionSchema>;
 
 export const NextStopTimeSchema = z.object({
   scheduledDepartTimeUtc: z.string().nullable(),
@@ -204,9 +200,7 @@ export const GetPatternPathsResponseSchema = z.array(
     vehiclesByDirections: z.array(VehicleByDirection).nullable(),
   }),
 );
-export type IGetPatternPathsResponse = z.infer<
-  typeof GetPatternPathsResponseSchema
->;
+export type IGetPatternPathsResponse = z.infer<typeof GetPatternPathsResponseSchema>;
 
 // /RouteMap/GetNextDepartTimes
 export const GetNextDepartTimesResponseSchema = z.object({
@@ -214,9 +208,7 @@ export const GetNextDepartTimesResponseSchema = z.object({
   routeDirectionTimes: z.array(RouteDirectionTimeSchema),
   amenities: z.array(AmenitySchema),
 });
-export type IGetNextDepartTimesResponse = z.infer<
-  typeof GetNextDepartTimesResponseSchema
->;
+export type IGetNextDepartTimesResponse = z.infer<typeof GetNextDepartTimesResponseSchema>;
 
 // /RouteMap/GetVehicles
 export const GetVehiclesResponseSchema = z.array(
@@ -231,9 +223,7 @@ export type IGetVehiclesResponse = z.infer<typeof GetVehiclesResponseSchema>;
 
 // /Home/GetActiveRoutes
 export const GetActiveRoutesResponseSchema = z.array(z.string());
-export type IGetActiveRoutesResponse = z.infer<
-  typeof GetActiveRoutesResponseSchema
->;
+export type IGetActiveRoutesResponse = z.infer<typeof GetActiveRoutesResponseSchema>;
 
 // /Home/GetNearbyRoutes
 export const GetNearbyRoutesResponseSchema = z.object({
@@ -246,15 +236,11 @@ export const GetNearbyRoutesResponseSchema = z.object({
   nextMaxRadius: z.number(),
   canLoadMore: z.boolean(),
 });
-export type IGetNearbyRoutesResponse = z.infer<
-  typeof GetNearbyRoutesResponseSchema
->;
+export type IGetNearbyRoutesResponse = z.infer<typeof GetNearbyRoutesResponseSchema>;
 
 // /Home/GetNextStopTimes
 export const GetNextStopTimesResponseSchema = z.array(TimetableRouteSchema);
-export type IGetNextStopTimesResponse = z.infer<
-  typeof GetNextStopTimesResponseSchema
->;
+export type IGetNextStopTimesResponse = z.infer<typeof GetNextStopTimesResponseSchema>;
 
 // /Schedule/GetStopSchedules
 export const GetStopSchedulesResponseSchema = z.object({
@@ -262,18 +248,14 @@ export const GetStopSchedulesResponseSchema = z.object({
   date: z.string(),
   amenities: z.array(AmenitySchema),
 });
-export type IGetStopSchedulesResponse = z.infer<
-  typeof GetStopSchedulesResponseSchema
->;
+export type IGetStopSchedulesResponse = z.infer<typeof GetStopSchedulesResponseSchema>;
 
 export const GetStopEstimatesResponseSchema = z.object({
   routeStopSchedules: z.array(RouteStopScheduleSchema),
   date: z.string(),
   amenities: z.array(AmenitySchema),
 });
-export type IGetStopEstimatesResponse = z.infer<
-  typeof GetStopEstimatesResponseSchema
->;
+export type IGetStopEstimatesResponse = z.infer<typeof GetStopEstimatesResponseSchema>;
 
 export interface ICachedStopEstimate {
   stopCode: string;
@@ -415,9 +397,7 @@ export const FindBusStopsResponseSchema = z.array(FoundStopSchema);
 export type IFindBusStopsResponse = z.infer<typeof FindBusStopsResponseSchema>;
 
 export const FindLocationsResponseSchema = z.array(FoundLocationSchema);
-export type IFindLocationsResponse = z.infer<
-  typeof FindLocationsResponseSchema
->;
+export type IFindLocationsResponse = z.infer<typeof FindLocationsResponseSchema>;
 
 export const GetTripPlanResponseSchema = z.object({
   chartLinePositions: z.array(ChartLinePositionSchema).nullable(),

@@ -1,7 +1,7 @@
-import { mode } from "mode-watcher";
+import { mode } from 'mode-watcher';
 
 class ThemeManager {
-  theme: 'light' | 'dark' = $derived(mode.current ?? "light");
+  theme: 'light' | 'dark' = $derived(mode.current ?? 'light');
 }
 
 // Persist themeManager across Svelte HMRs
