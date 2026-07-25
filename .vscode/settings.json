@@ -1,20 +1,7 @@
 {
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "always"
+  "files.associations": {
+    "*.css": "tailwindcss"
   },
-  "eslint.rules.customizations": [
-    {
-      "rule": "prettier/prettier",
-      "severity": "off"
-    }
-  ],
   "editor.tabSize": 2,
-  "editor.formatOnSave": true
+  "tailwindCSS.classFunctions": ["tv"]
 }

@@ -1,5 +1,4 @@
-import { Region } from 'react-native-maps';
-import { Location } from '../types';
+import { type Location } from '../data/types';
 
 export function findBoundingBox(coords: Location[]): Location[] {
   if (!coords || coords.length === 0) return [];
@@ -17,10 +16,3 @@ export function findBoundingBox(coords: Location[]): Location[] {
     { latitude: maxLat, longitude: maxLng },
   ];
 }
-
-export const defaultMapRegion: Region = {
-  latitude: 30.606,
-  longitude: -96.3462,
-  latitudeDelta: 0.1,
-  longitudeDelta: 0.01,
-};

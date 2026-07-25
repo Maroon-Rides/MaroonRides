@@ -1,0 +1,84 @@
+diff --git a/capacitor/src/main/java/com/getcapacitor/WebViewLocalServer.java b/capacitor/src/main/java/com/getcapacitor/WebViewLocalServer.java
+index a39483de91b4c4dbd67081ae78754084d09bc4ba..bc10b9e363b232f4e358625df4f88b1f09f7b5a3 100755
+--- a/capacitor/src/main/java/com/getcapacitor/WebViewLocalServer.java
++++ b/capacitor/src/main/java/com/getcapacitor/WebViewLocalServer.java
+@@ -348,16 +348,24 @@ public class WebViewLocalServer {
+             Map<String, String> tempResponseHeaders = handler.buildDefaultResponseHeaders();
+             int statusCode = 206;
+             try {
+-                int totalRange = responseStream.available();
++                int totalSize = responseStream.available();
+                 String[] parts = rangeString.split("=");
+                 String[] streamParts = parts[1].split("-");
+-                String fromRange = streamParts[0];
+-                int range = totalRange - 1;
+-                if (streamParts.length > 1) {
+-                    range = Integer.parseInt(streamParts[1]);
++                int fromRange = Integer.parseInt(streamParts[0].trim());
++                int endRange = totalSize - 1;
++                if (streamParts.length > 1 && !streamParts[1].trim().isEmpty()) {
++                    endRange = Integer.parseInt(streamParts[1].trim());
+                 }
++
++                // Truncate the stream at the end of the requested range.
++                // The WebView seeks the stream to fromRange internally,
++                // so the limit must include those bytes.
++                int contentLength = endRange - fromRange + 1;
++                responseStream = new BoundedInputStream(responseStream, endRange + 1);
++
+                 tempResponseHeaders.put("Accept-Ranges", "bytes");
+-                tempResponseHeaders.put("Content-Range", "bytes " + fromRange + "-" + range + "/" + totalRange);
++                tempResponseHeaders.put("Content-Range", "bytes " + fromRange + "-" + endRange + "/" + totalSize);
++                tempResponseHeaders.put("Content-Length", String.valueOf(contentLength));
+             } catch (IOException e) {
+                 statusCode = 404;
+             }
+@@ -750,6 +758,48 @@ public class WebViewLocalServer {
+         }
+     }
+ 
++    /**
++     * An InputStream wrapper that limits the number of bytes that can be read.
++     */
++    private static class BoundedInputStream extends InputStream {
++
++        private final InputStream in;
++        private long remaining;
++
++        public BoundedInputStream(InputStream in, long limit) {
++            this.in = in;
++            this.remaining = limit;
++        }
++
++        @Override
++        public int available() throws IOException {
++            int available = in.available();
++            return (int) Math.min(available, remaining);
++        }
++
++        @Override
++        public int read() throws IOException {
++            if (remaining <= 0) return -1;
++            int result = in.read();
++            if (result != -1) remaining--;
++            return result;
++        }
++
++        @Override
++        public int read(byte[] b, int off, int len) throws IOException {
++            if (remaining <= 0) return -1;
++            int toRead = (int) Math.min(len, remaining);
++            int result = in.read(b, off, toRead);
++            if (result > 0) remaining -= result;
++            return result;
++        }
++
++        @Override
++        public void close() throws IOException {
++            in.close();
++        }
++    }
++
+     // For L and above.
+     private static class LollipopLazyInputStream extends LazyInputStream {
+ 

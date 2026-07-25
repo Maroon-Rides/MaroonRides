@@ -1,7 +1,42 @@
-# Maroon Rides
+# sv
 
-[![API Canary](https://github.com/Maroon-Rides/canary/actions/workflows/canary.yml/badge.svg)](https://github.com/Maroon-Rides/canary/actions/workflows/canary.yml)
+Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-We are building the best native mobile app for the Texas A&M University bus system.
+## Creating a project
 
-![maroonrides_header](https://github.com/user-attachments/assets/f85ba3ce-9ad9-49cc-aebc-f26d1cee1105)
+If you're seeing this, you've probably already done this step. Congrats!
+
+```sh
+# create a new project
+npx sv create my-app
+```
+
+To recreate this project with the same configuration:
+
+```sh
+# recreate this project
+pnpm dlx sv create --template minimal --types ts --add prettier tailwindcss="plugins:none" sveltekit-adapter="adapter:static" --install pnpm MaroonRides
+```
+
+## Developing
+
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+
+```sh
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
+
+## Building
+
+To create a production version of your app:
+
+```sh
+npm run build
+```
+
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.

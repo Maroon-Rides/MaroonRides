@@ -1,6 +1,6 @@
 // // // Generate the path points for the selected route plan
 
-import { PlanItem, RoutePlanMarkedPoint, RoutePlanPoint } from '@lib/types';
+import type { PlanItem, RoutePlanMarkedPoint, RoutePlanPoint } from '$lib/data/types';
 
 export interface SearchSuggestion {
   title: string;
@@ -71,19 +71,13 @@ export function processRoutePlanMapComponents(
       markers:
         pathPoints.length === 0
           ? []
-          : createMarkers(
-              pathPoints[0]!,
-              pathPoints[pathPoints.length - 1]!,
-              true,
-            ),
+          : createMarkers(pathPoints[0]!, pathPoints[pathPoints.length - 1]!, true),
     };
   }
 
   // handle selecting a specific part of the route plan
 
-  const highlighted = pathPoints.filter(
-    (point) => point.stepIndex === selectedPart,
-  );
+  const highlighted = pathPoints.filter((point) => point.stepIndex === selectedPart);
 
   // break the path into two parts, before and after the selected part
   let faded: RoutePlanPoint[][] = [[], []];
@@ -135,10 +129,6 @@ export function processRoutePlanMapComponents(
   return {
     highlighted: highlighted,
     faded: faded,
-    markers: createMarkers(
-      highlighted[0]!,
-      highlighted[highlighted.length - 1]!,
-      true,
-    ),
+    markers: createMarkers(highlighted[0]!, highlighted[highlighted.length - 1]!, true),
   };
 }

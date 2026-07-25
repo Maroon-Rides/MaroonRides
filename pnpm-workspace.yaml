@@ -1,13 +1,6 @@
-packages:
-  - '*'
-
-publicHoistPattern:
-  - '*expo-modules-autolinking'
-  - '*expo-modules-core'
-  - '*babel-preset-expo'
-
 allowBuilds:
-  unrs-resolver: true
-
+  esbuild: true
 onlyBuiltDependencies:
-  - unrs-resolver
+  - esbuild
+patchedDependencies:
+  '@capacitor/android': patches/@capacitor__android.patch

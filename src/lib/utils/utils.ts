@@ -1,10 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NativeSegmentedControlIOSChangeEvent } from '@react-native-segmented-control/segmented-control';
-import { NativeSyntheticEvent } from 'react-native';
-
-export type SegmentedControlEvent =
-  NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>;
-
 // given a hex code without the #, return a lighter version of it
 export function getLighterColor(color: string): string {
   color = color;
@@ -29,18 +22,4 @@ export function getLighterColor(color: string): string {
     lightenedB.toString(16).padStart(2, '0');
 
   return '#' + lightenedColor;
-}
-
-export async function getColorScheme(): Promise<string> {
-  const themeIndex = await AsyncStorage.getItem('app-theme');
-  const systemTheme = (await AsyncStorage.getItem('system-theme')) ?? 'light';
-
-  switch (themeIndex) {
-    case '1':
-      return 'light';
-    case '2':
-      return 'dark';
-    default:
-      return systemTheme;
-  }
 }
