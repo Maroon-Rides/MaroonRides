@@ -7,7 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0359061FB3FF222BB781DE87 /* RouteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A4D9457FEDE47C0A8AA30BC /* RouteCell.swift */; };
+		11401878F7799C025A5245F9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22E37FC5A7A2CA1E8847E52D /* Assets.xcassets */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
+		378ECFFE78458E87C4E66655 /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF50F93E9E25FD90B95C84E /* APIManager.swift */; };
+		497348863FD462C054BEF88C /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B817984E7401E87A248D4FC /* ErrorView.swift */; };
 		4D22ABE92AF431CB00220026 /* CapApp-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4D22ABE82AF431CB00220026 /* CapApp-SPM */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
@@ -15,10 +19,50 @@
 		504EC30F1FED79650016851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30E1FED79650016851F /* Assets.xcassets */; };
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
+		559A30BA1E8D261070642A71 /* RouteList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 384260F505EC8DA6BEB38FAA /* RouteList.swift */; };
+		6E2B53FA80CDEE1974B8D2C4 /* APITypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BEE7B5A9696C61048F5F34D /* APITypes.swift */; };
+		7110240F37A529829BF33BE1 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A7CE577C3F01F62D04AAF0 /* Utils.swift */; };
+		7E6B1CC7824D2CB917D59816 /* StopCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B795A6F30EC3AB5A01509B /* StopCell.swift */; };
+		7FB7AA3CF040E8320320C5A1 /* TimeBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D6556DA1947E4142D5F6E6 /* TimeBubble.swift */; };
+		821E29AF9ED39EA5444DE831 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FC92B224665152E31AD51A /* ContentView.swift */; };
+		93A34FC1454D7C48F1854E05 /* Marquee_Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CB264EAFB098743706E4122 /* Marquee_Main.swift */; };
+		A81D8F59776ABDD742995230 /* ReveilleRides_Watch.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1CEB0A81EA1055A1D651F4B /* ReveilleRides_Watch.swift */; };
+		D0F3244CEBC64596C56CBFCC /* MaroonRidesWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = B0F836A14DBDBDF07E28F5E5 /* MaroonRidesWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E05D0EB8738D5AE0ECA46BD3 /* RouteDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 797B40A4EB3068F93F529367 /* RouteDetail.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		67BC70151A7C71C4D8E1936F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 11D73CC61BC9D65A0D131130;
+			remoteInfo = MaroonRidesWatch;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2B625630DDC60C9420A890F1 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				D0F3244CEBC64596C56CBFCC /* MaroonRidesWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		01FC92B224665152E31AD51A /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		22E37FC5A7A2CA1E8847E52D /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
+		384260F505EC8DA6BEB38FAA /* RouteList.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RouteList.swift; sourceTree = "<group>"; };
+		3BEE7B5A9696C61048F5F34D /* APITypes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = APITypes.swift; sourceTree = "<group>"; };
+		4B817984E7401E87A248D4FC /* ErrorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
+		4C1534B5C563AC657DBB4D29 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		504EC3071FED79650016851F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -27,7 +71,16 @@
 		504EC3111FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
+		5CB264EAFB098743706E4122 /* Marquee_Main.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Marquee_Main.swift; sourceTree = "<group>"; };
+		64D6556DA1947E4142D5F6E6 /* TimeBubble.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TimeBubble.swift; sourceTree = "<group>"; };
+		6A4D9457FEDE47C0A8AA30BC /* RouteCell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RouteCell.swift; sourceTree = "<group>"; };
+		797B40A4EB3068F93F529367 /* RouteDetail.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RouteDetail.swift; sourceTree = "<group>"; };
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
+		99B795A6F30EC3AB5A01509B /* StopCell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StopCell.swift; sourceTree = "<group>"; };
+		B0F836A14DBDBDF07E28F5E5 /* MaroonRidesWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MaroonRidesWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0A7CE577C3F01F62D04AAF0 /* Utils.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		D1CEB0A81EA1055A1D651F4B /* ReveilleRides_Watch.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReveilleRides_Watch.swift; sourceTree = "<group>"; };
+		DEF50F93E9E25FD90B95C84E /* APIManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = APIManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,15 +92,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D8FA1389D6196752FEBA19FA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		037F664A507848DEFFDD8A58 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C37474FB6428696A3DB6C9B1 /* watchOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		504EC2FB1FED79650016851F = {
 			isa = PBXGroup;
 			children = (
 				958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
 				504EC3061FED79650016851F /* App */,
 				504EC3051FED79650016851F /* Products */,
+				037F664A507848DEFFDD8A58 /* Frameworks */,
+				B41B4BDAF866401C56F95E08 /* MaroonRidesWatch */,
 			);
 			sourceTree = "<group>";
 		};
@@ -55,6 +125,7 @@
 			isa = PBXGroup;
 			children = (
 				504EC3041FED79650016851F /* App.app */,
+				B0F836A14DBDBDF07E28F5E5 /* MaroonRidesWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -74,9 +145,55 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		B41B4BDAF866401C56F95E08 /* MaroonRidesWatch */ = {
+			isa = PBXGroup;
+			children = (
+				DEF50F93E9E25FD90B95C84E /* APIManager.swift */,
+				3BEE7B5A9696C61048F5F34D /* APITypes.swift */,
+				01FC92B224665152E31AD51A /* ContentView.swift */,
+				4B817984E7401E87A248D4FC /* ErrorView.swift */,
+				5CB264EAFB098743706E4122 /* Marquee_Main.swift */,
+				D1CEB0A81EA1055A1D651F4B /* ReveilleRides_Watch.swift */,
+				6A4D9457FEDE47C0A8AA30BC /* RouteCell.swift */,
+				797B40A4EB3068F93F529367 /* RouteDetail.swift */,
+				384260F505EC8DA6BEB38FAA /* RouteList.swift */,
+				99B795A6F30EC3AB5A01509B /* StopCell.swift */,
+				64D6556DA1947E4142D5F6E6 /* TimeBubble.swift */,
+				D0A7CE577C3F01F62D04AAF0 /* Utils.swift */,
+				22E37FC5A7A2CA1E8847E52D /* Assets.xcassets */,
+				4C1534B5C563AC657DBB4D29 /* Info.plist */,
+			);
+			name = MaroonRidesWatch;
+			path = MaroonRidesWatch;
+			sourceTree = "<group>";
+		};
+		C37474FB6428696A3DB6C9B1 /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = watchOS;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		11D73CC61BC9D65A0D131130 /* MaroonRidesWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6353B804FB08EB25988B193F /* Build configuration list for PBXNativeTarget "MaroonRidesWatch" */;
+			buildPhases = (
+				DA58CFDC6F2771B6A4E8B333 /* Sources */,
+				D8FA1389D6196752FEBA19FA /* Frameworks */,
+				A5BBFABCD0F5A12469BEF277 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MaroonRidesWatch;
+			productName = MaroonRidesWatch;
+			productReference = B0F836A14DBDBDF07E28F5E5 /* MaroonRidesWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 		504EC3031FED79650016851F /* App */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "App" */;
@@ -84,10 +201,12 @@
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
+				2B625630DDC60C9420A890F1 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				E1755603D7548BE1005A02E4 /* PBXTargetDependency */,
 			);
 			name = App;
 			packageProductDependencies = (
@@ -130,6 +249,7 @@
 			projectRoot = "";
 			targets = (
 				504EC3031FED79650016851F /* App */,
+				11D73CC61BC9D65A0D131130 /* MaroonRidesWatch */,
 			);
 		};
 /* End PBXProject section */
@@ -148,6 +268,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A5BBFABCD0F5A12469BEF277 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				11401878F7799C025A5245F9 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -159,7 +287,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DA58CFDC6F2771B6A4E8B333 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				378ECFFE78458E87C4E66655 /* APIManager.swift in Sources */,
+				6E2B53FA80CDEE1974B8D2C4 /* APITypes.swift in Sources */,
+				821E29AF9ED39EA5444DE831 /* ContentView.swift in Sources */,
+				497348863FD462C054BEF88C /* ErrorView.swift in Sources */,
+				93A34FC1454D7C48F1854E05 /* Marquee_Main.swift in Sources */,
+				A81D8F59776ABDD742995230 /* ReveilleRides_Watch.swift in Sources */,
+				0359061FB3FF222BB781DE87 /* RouteCell.swift in Sources */,
+				E05D0EB8738D5AE0ECA46BD3 /* RouteDetail.swift in Sources */,
+				559A30BA1E8D261070642A71 /* RouteList.swift in Sources */,
+				7E6B1CC7824D2CB917D59816 /* StopCell.swift in Sources */,
+				7FB7AA3CF040E8320320C5A1 /* TimeBubble.swift in Sources */,
+				7110240F37A529829BF33BE1 /* Utils.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E1755603D7548BE1005A02E4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MaroonRidesWatch;
+			target = 11D73CC61BC9D65A0D131130 /* MaroonRidesWatch */;
+			targetProxy = 67BC70151A7C71C4D8E1936F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		504EC30B1FED79650016851F /* Main.storyboard */ = {
@@ -181,6 +337,56 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		2E33C3EA2882FB19A69DCA7A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 65AMD2STXG;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MaroonRidesWatch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Maroon Rides";
+				INFOPLIST_KEY_WKApplication = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.bwees.reveille-rides.watch";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Debug;
+		};
+		3DE6492152357B84850A5A14 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 65AMD2STXG;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MaroonRidesWatch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Maroon Rides";
+				INFOPLIST_KEY_WKApplication = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.bwees.reveille-rides.watch";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.bwees.reveille-rides.watch";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Release;
+		};
 		504EC3141FED79650016851F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
@@ -318,7 +524,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 65AMD2STXG;
 				INFOPLIST_FILE = App/Info.plist;
@@ -330,6 +537,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.bwees.reveille-rides";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.bwees.reveille-rides";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -353,6 +561,15 @@
 			buildConfigurations = (
 				504EC3171FED79650016851F /* Debug */,
 				504EC3181FED79650016851F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6353B804FB08EB25988B193F /* Build configuration list for PBXNativeTarget "MaroonRidesWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3DE6492152357B84850A5A14 /* Release */,
+				2E33C3EA2882FB19A69DCA7A /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
