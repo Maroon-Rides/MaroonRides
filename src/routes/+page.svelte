@@ -38,7 +38,7 @@
               class="rounded-full"
               aria-label="Plan Route"
               size="md"
-              onclick={() => console.log('Plan route')}
+              onclick={() => goto("/plan")}
             >
               <Route />
               Plan Route

@@ -1,6 +1,7 @@
 import { type IAmenity } from '$lib/data/typecheck/aggie_spirit';
-import { AccessibilityIcon, AirVentIcon, BikeIcon, HouseIcon } from '@lucide/svelte';
+import { AccessibilityIcon, AirVentIcon, BikeIcon, Bus as BusIcon, Clock, Footprints, HouseIcon, LocateFixed, MapPin } from '@lucide/svelte';
 import moment from 'moment';
+
 
 export enum Amenity {
   AIR_CONDITIONING = 'Air Conditioning',
@@ -125,6 +126,41 @@ export enum Deadline {
 
 export const MY_LOCATION_ID = 'my-location';
 
+export enum PlanOption {
+    BUS = 'bus',
+    WALKING = 'walking',
+    END = 'end',
+    WAITING = 'waiting',
+    MY_LOCATION = MY_LOCATION_ID
+}
+export namespace PlanOption {
+  export function fromMovementType(mType: MovementType): PlanOption {
+    switch (mType) {
+      case MovementType.BUS:
+        return PlanOption.BUS
+      case MovementType.WALKING:
+        return PlanOption.WALKING
+      case MovementType.END:
+        return PlanOption.END
+      case MovementType.WAITING:
+        return PlanOption.WAITING 
+    }
+  }
+  export function getIcon(planOption: PlanOption) {
+    switch (planOption) {
+      case PlanOption.BUS:
+        return BusIcon
+      case PlanOption.WALKING:
+        return Footprints
+      case PlanOption.END:
+        return MapPin
+      case PlanOption.WAITING:
+        return Clock
+      case PlanOption.MY_LOCATION:
+        return LocateFixed
+    }
+  }
+}
 export interface PlaceSuggestion extends FromDataSource {
   id: string;
   name: string;

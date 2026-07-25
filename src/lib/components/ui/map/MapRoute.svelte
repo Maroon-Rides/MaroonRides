@@ -44,13 +44,16 @@
   const sourceId = $derived(`route-source-${id}`);
   const layerId = $derived(`route-layer-${id}`);
   const hitLayerId = $derived(`route-hit-${id}`);
+  const hasLine = $derived(coordinates.length >= 2);
 
-  // Add route when map is ready (only recreate when map/id changes, not paint properties)
+  // Add route when map is ready (only recreate when map/id changes, not paint properties or coordinates)
   $effect(() => {
     const map = mapCtx.getMap();
     const loaded = mapCtx.isLoaded();
 
-    if (!loaded || !map || coordinates.length < 2) return;
+    if (!loaded || !map || !hasLine) return;
+
+    const initialCoordinates = untrack(() => coordinates);
 
     // Remove existing layer and source if they exist
     if (map.getLayer(layerId)) map.removeLayer(layerId);
@@ -65,7 +68,7 @@
         properties: {},
         geometry: {
           type: 'LineString',
-          coordinates,
+          coordinates: initialCoordinates,
         },
       },
     });

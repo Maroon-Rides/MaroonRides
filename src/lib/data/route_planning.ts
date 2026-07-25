@@ -7,33 +7,41 @@ export enum QueryKey {
   TRIP_PLAN = 'MRTripPlan',
 }
 
-export const useSearchSuggestions = (query: string) => {
-  const asSearchSuggestions = useASSearchSuggestions(query);
+export const useSearchSuggestions = (params: () => { query: string }) => {
+  const asSearchSuggestions = useASSearchSuggestions(params);
   return createSelectableQuery<PlaceSuggestion[], DataSource>(() => ({
-    queryKey: [QueryKey.SEARCH_SUGGESTIONS, query],
+    queryKey: [QueryKey.SEARCH_SUGGESTIONS, params().query],
     selector: DataSource.AGGIE_SPIRIT,
     queries: {
       [DataSource.AGGIE_SPIRIT]: asSearchSuggestions,
     },
     unsupportedValue: [],
-    enabled: query.length > 0,
+    enabled: params().query.length > 0,
   }));
 };
 
 export const useTripPlan = (
-  origin: PlaceSuggestion | null,
-  destination: PlaceSuggestion | null,
-  date: Date,
-  deadline: 'leave' | 'arrive',
+  params: () => {
+    origin: PlaceSuggestion | null;
+    destination: PlaceSuggestion | null;
+    date: Date;
+    deadline: 'leave' | 'arrive';
+  },
 ) => {
-  const asTripPlan = useASTripPlan(origin, destination, date, deadline);
+  const asTripPlan = useASTripPlan(params);
   return createSelectableQuery<PlanItem[], DataSource>(() => ({
-    queryKey: [QueryKey.TRIP_PLAN, origin?.id, destination?.id, date.toISOString(), deadline],
+    queryKey: [
+      QueryKey.TRIP_PLAN,
+      params().origin?.id,
+      params().destination?.id,
+      params().date.toISOString(),
+      params().deadline,
+    ],
     selector: DataSource.AGGIE_SPIRIT,
     queries: {
       [DataSource.AGGIE_SPIRIT]: asTripPlan,
     },
     unsupportedValue: [],
-    enabled: !!origin && !!destination,
+    enabled: !!params().origin && !!params().destination,
   }));
 };

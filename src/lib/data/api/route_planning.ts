@@ -7,35 +7,14 @@ import { type SearchSuggestion } from '$lib/utils/route-planning';
 import { findBusStops, getTripPlan } from 'aggie-spirit-api';
 import { createLoggingQuery } from '../../utils/queries';
 import { useASRoutes } from '../structure/aggie_spirit';
-import { useAuthCodeAPI, useAuthTokenAPI } from './aggie_spirit';
+import { useAuthTokenAPI, useRoutePlanAuthTokenAPI } from './aggie_spirit';
 
 export enum ASRoutePlanQueryKey {
-  AUTH_TOKEN = 'ASAPIRoutePlanAuthToken',
   SEARCH_SUGGESTION = 'ASAPISearchSuggestion',
   TRIP_PLAN = 'ASAPITripPlan',
 }
 
-export const useRoutePlanAuthTokenAPI = (params: () => { queryString: string }) => {
-  const authCodeQuery = useAuthCodeAPI();
-
-  const query = createLoggingQuery<{ [key: string]: string }>(() => {
-    const { queryString } = params();
-    return {
-      queryKey: [ASRoutePlanQueryKey.AUTH_TOKEN],
-      queryFn: async () => {
-        let qsAdded = authCodeQuery.data!.replace('ROUTE_PLAN_QUERY_STRING', queryString);
-        qsAdded += '\ngetRoutePlanAuthentication()';
-
-        const headers = await eval(qsAdded);
-        return headers;
-      },
-      refetchInterval: 2 * 3600 * 1000,
-      enabled: authCodeQuery.isSuccess && queryString !== '',
-    };
-  });
-
-  return query;
-};
+export { useRoutePlanAuthTokenAPI };
 
 export const useSearchSuggestionAPI = (params: () => { query: string }) => {
   const authTokenQuery = useAuthTokenAPI();
@@ -79,7 +58,7 @@ export const useSearchSuggestionAPI = (params: () => { query: string }) => {
 
         return busStops;
       },
-      enabled: authTokenQuery.isSuccess && query !== '',
+      enabled: authTokenQuery.isSuccess && routesQuery.isSuccess && query !== '',
       staleTime: Infinity,
     };
   });
@@ -139,5 +118,3 @@ export const useTripPlanAPI = (
     };
   });
 };
-
-export default useRoutePlanAuthTokenAPI;

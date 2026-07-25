@@ -86,7 +86,7 @@ export const useRoutePlanAuthTokenAPI = (params: () => { queryString: string }) 
       queryKey: [ASAPIQueryKey.ROUTE_PLAN_AUTH_TOKEN],
       queryFn: async () => {
         var res = await fetch(
-          'https://aggiespirit.ts.tamu.edu/TripPlanner/ROUTE_PLAN_QUERY_STRING',
+          `https://aggiespirit.ts.tamu.edu/TripPlanner/${queryString}`,
           {
             credentials: 'omit',
           },
