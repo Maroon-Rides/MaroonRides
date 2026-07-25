@@ -9,7 +9,7 @@ try {
 }
 
 const config: CapacitorConfig = {
-  appId: 'com.bwees.reveillerides',
+  appId: 'com.maroonrides.maroonrides',
   appName: 'Maroon Rides',
   webDir: 'build',
   ...devConfig,

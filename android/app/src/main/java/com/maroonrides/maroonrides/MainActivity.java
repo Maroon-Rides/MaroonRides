@@ -1,4 +1,4 @@
-package com.bwees.reveillerides;
+package com.maroonrides.maroonrides;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
