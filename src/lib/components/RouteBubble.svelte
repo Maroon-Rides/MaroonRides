@@ -15,7 +15,7 @@
   let tintColor = $derived(getRouteTint(route, themeManager.theme));
 
   const style = tv({
-    base: 'flex items-center justify-center rounded-md',
+    base: 'flex shrink-0 items-center justify-center rounded-md',
     defaultVariants: {
       type: 'rowIcon',
     },
@@ -30,7 +30,10 @@
 
 <div class={style({ type })} style="background-color: {tintColor};">
   <div style="{parent_style} display: flex; align-items: center; justify-content: center;">
-    <p class="text-sm font-bold text-white" use:fit={{ max_size: 22, min_size: 1 }}>
+    <p
+      class="text-sm font-bold whitespace-nowrap text-white"
+      use:fit={{ max_size: 22, min_size: 1 }}
+    >
       {route.routeCode}
     </p>
   </div>
