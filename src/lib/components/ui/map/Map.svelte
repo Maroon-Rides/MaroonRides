@@ -39,6 +39,7 @@
 
   let mapContainer: HTMLDivElement;
   let map: MapLibreGL.Map | null = $state(null);
+  let bounds: MapLibreGL.LngLatBounds | null = $state(null);
   let isMounted = $state(false);
   let isLoaded = $state(false);
   let isStyleLoaded = $state(false);
@@ -56,11 +57,13 @@
 
   export type MapContext = {
     getMap: () => MapLibreGL.Map | null;
+    getBounds: () => MapLibreGL.LngLatBounds | null;
     isLoaded: () => boolean;
   };
 
   setContext<MapContext>('map', {
     getMap: () => map,
+    getBounds: () => bounds,
     isLoaded: () => isReady,
   });
 
@@ -86,16 +89,15 @@
 
     const h = await p.getHeader();
 
+    bounds = new MapLibreGL.LngLatBounds([h.minLon, h.minLat], [h.maxLon, h.maxLat]);
+
     const mapInstance = new MapLibreGL.Map({
       container: mapContainer,
       style: currentStyle,
       renderWorldCopies: false,
       // TODO move attribution elsewhere
       attributionControl: false,
-      maxBounds: [
-        [h.minLon, h.minLat],
-        [h.maxLon, h.maxLat],
-      ],
+      maxBounds: bounds,
       center: [h.centerLon, h.centerLat],
       zoom: h.maxZoom - 2,
       maxZoom: h.maxZoom + 2,
@@ -149,6 +151,7 @@
   onDestroy(() => {
     map?.remove();
     map = null;
+    bounds = null;
     isLoaded = false;
     isStyleLoaded = false;
   });

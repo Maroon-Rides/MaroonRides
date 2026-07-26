@@ -5,6 +5,7 @@
   import { Locate, LocateFixed } from '@lucide/svelte';
   import { getContext } from 'svelte';
   import Button from '../button/button.svelte';
+  import Spinner from '../spinner/spinner.svelte';
   import type { MapContext } from './Map.svelte';
   interface Props {
     position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -42,6 +43,14 @@
         longitude: location.coords.longitude,
         latitude: location.coords.latitude,
       };
+
+      const bounds = mapCtx.getBounds();
+      if (bounds && !bounds.contains([coords.longitude, coords.latitude])) {
+        mapManager.isCentered = false;
+        alert('Your location is outside of College Station and cannot be shown on the map.');
+        return;
+      }
+
       map.flyTo({
         center: [coords.longitude, coords.latitude - 0.003], // offset to account for UI
         zoom: 15,
@@ -69,7 +78,9 @@
       aria-label="Locate"
       class="dark:bg-card"
     >
-      {#if mapManager.isCentered}
+      {#if waitingForLocation}
+        <Spinner class="size-6" />
+      {:else if mapManager.isCentered}
         <LocateFixed class="size-6 stroke-muted-foreground" />
       {:else}
         <Locate class="size-6 stroke-muted-foreground" />
