@@ -62,7 +62,7 @@
           <BottomSheet.CloseButton onclick={onClose} />
         {/snippet}
 
-        <div class="my-1 flex flex-row gap-1">
+        <div class="mb-1 flex flex-row gap-1">
           <Toggle
             variant="outline"
             size="md"

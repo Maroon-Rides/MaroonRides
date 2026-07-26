@@ -55,7 +55,7 @@
           </div>
         {/snippet}
 
-        <Tabs.Root bind:value={selectedTab} class="mt-1">
+        <Tabs.Root bind:value={selectedTab}>
           <Tabs.List>
             <Tabs.Trigger value="all">All Routes</Tabs.Trigger>
             <Tabs.Trigger value="favorites">Favorites</Tabs.Trigger>
