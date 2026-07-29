@@ -78,7 +78,7 @@
             />
           </div>
           <!-- swapper -->
-          <Button variant="ghost" class="self-center" onclick={onSwap}>
+          <Button variant="ghost" size="icon" class="ml-1.5 -mr-1.5 self-center" onclick={onSwap}>
             <ArrowUpDown class="size-5 text-muted-foreground" />
           </Button>
         </div>
