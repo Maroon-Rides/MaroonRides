@@ -8,23 +8,22 @@
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
   import * as Tabs from '$lib/components/ui/tabs';
   import { useRoutes } from '$lib/data/app';
+  import { frontPageManager } from '$lib/managers/frontpage.manager.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { Preferences } from '@capacitor/preferences';
   import { Cog, Route } from '@lucide/svelte';
   import { onMount } from 'svelte';
 
   let routes = useRoutes();
-  let selectedTab = $state('all');
-  let favorites: string[] = $state([]);
+  const favRoutes = $derived(routes.data?.filter(
+    (route) => frontPageManager.favorites.includes(route.routeCode)
+  ) ?? [])
 
   $effect(() => {
-    mapManager.setDrawnRoutes(routes.data ?? []);
+    mapManager.setDrawnRoutes(frontPageManager.selectedTab == 'all' ? routes.data ?? [] : favRoutes);
   });
 
-  onMount(async () => {
-    selectedTab = (await Preferences.get({ key: 'defaultGroup' })).value ?? 'all';
-    favorites = JSON.parse((await Preferences.get({ key: 'favorites' })).value ?? '[]');
-  });
+  onMount(async () => frontPageManager.loadFavorites());
 </script>
 
 {#key page.url.pathname}
@@ -55,7 +54,7 @@
           </div>
         {/snippet}
 
-        <Tabs.Root bind:value={selectedTab}>
+        <Tabs.Root bind:value={frontPageManager.selectedTab}>
           <Tabs.List>
             <Tabs.Trigger value="all">All Routes</Tabs.Trigger>
             <Tabs.Trigger value="favorites">Favorites</Tabs.Trigger>
@@ -64,7 +63,7 @@
       </BottomSheet.Header>
     {/snippet}
 
-    {#if selectedTab === 'all'}
+    {#if frontPageManager.selectedTab === 'all'}
       <Card.Content class="flex flex-col gap-4 px-4 pt-4 pb-10">
         {#if routes.isLoading}
           <Spinner class="size-6 self-center" />
@@ -76,10 +75,8 @@
           <RouteRow {route} onclick={() => goto(`/route/${route.id}`)} />
         {/each}
       </Card.Content>
-    {:else if selectedTab === 'favorites'}
+    {:else if frontPageManager.selectedTab === 'favorites'}
       <Card.Content class="flex flex-col gap-4 px-4 pt-4 pb-10">
-        {@const favRoutes =
-          routes.data?.filter((route) => favorites.includes(route.routeCode)) ?? []}
         {#if favRoutes.length === 0 && !routes.isLoading}
           <p class="text-center text-sm text-muted-foreground">There are no favorited routes.</p>
         {/if}
