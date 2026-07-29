@@ -150,15 +150,6 @@
     if (dashArray) {
       map.setPaintProperty(layerId, 'line-dasharray', dashArray);
     }
-
-    // Move selected routes to top (when opacity is 1, it's selected)
-    if (opacity === 1) {
-      try {
-        map.moveLayer(layerId);
-      } catch {
-        // Layer might not exist yet
-      }
-    }
   });
 
   // Handle click and hover events

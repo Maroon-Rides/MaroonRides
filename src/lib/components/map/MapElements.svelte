@@ -13,6 +13,7 @@
   import StopMarker from './marker/StopMarker.svelte';
   import BusPopup from './popup/BusPopup.svelte';
   import StopPopup from './popup/StopPopup.svelte';
+  import { goto } from '$app/navigation';
 
   const routes = useRoutes();
   const drawnRouteIds = $derived(mapManager.drawnRoutes.map((route) => route.id));
@@ -40,9 +41,28 @@
       clearInterval(userLocationInteval);
     };
   });
+
+  // originally stopped calls from stacked routes, but using this system
+  // now to respect visual order when tapping a route
+  let requestedRoutes: Array<{ route: Route; index: number }> = [];
+  let flushScheduled = false;
+
+  function requestRoute(route: Route, index: number) {
+    requestedRoutes.push({ route, index });
+    if (flushScheduled) return;
+    flushScheduled = true;
+    //fires after the onclick()s dispatch
+    queueMicrotask(finalizeRoute);
+  }
+  function finalizeRoute() {
+    flushScheduled = false;
+    const topmost = requestedRoutes.reduce((a, b) => (b.index > a.index ? b : a)).route;
+    requestedRoutes.length = 0; //cursed
+    goto(`/route/${topmost.id}`);
+  }
 </script>
 
-{#snippet routeLine(route: Route)}
+{#snippet routeLine(route: Route, index: number)}
   {#each route.directions as direction (`${route.id}-${direction.id}`)}
     {@const isSelected =
       direction.id === mapManager.selectedDirectionId || mapManager.selectedDirectionId == ''}
@@ -53,6 +73,11 @@
       coordinates={direction.pathPoints.map((point) => [point.longitude, point.latitude])}
       color={getRouteTint(route, themeManager.theme)}
       id={`${route.id}-${direction.id}`}
+      onclick={() => {
+        if (!isSelected) return; //opacity check instead of isShown for ghost directional routes
+        requestRoute(route, index);
+      }}
+      interactive={isShown}
       {opacity}
       width={5}
     />
@@ -78,8 +103,8 @@
   </MapMarker>
 {/snippet}
 
-{#each routes?.data as route (route.id)}
-  {@render routeLine(route)}
+{#each routes?.data as route, i (route.id)}
+  {@render routeLine(route, i)}
 {/each}
 
 {#each mapManager.selectedRoute?.directions as direction (direction.id)}
