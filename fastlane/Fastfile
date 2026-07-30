@@ -47,7 +47,7 @@ platform :ios do
     upload_to_testflight(
       notify_external_testers: true,
       changelog: CHANGELOG,
-      groups: ['Beta Tester'],
+      groups: ['Project Staff'],
     )
   end
 end
