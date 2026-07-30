@@ -15,12 +15,14 @@
   import { onMount } from 'svelte';
 
   let routes = useRoutes();
-  const favRoutes = $derived(routes.data?.filter(
-    (route) => frontPageManager.favorites.includes(route.routeCode)
-  ) ?? [])
+  const favRoutes = $derived(
+    routes.data?.filter((route) => frontPageManager.favorites.includes(route.routeCode)) ?? [],
+  );
 
   $effect(() => {
-    mapManager.setDrawnRoutes(frontPageManager.selectedTab == 'all' ? routes.data ?? [] : favRoutes);
+    mapManager.setDrawnRoutes(
+      frontPageManager.selectedTab == 'all' ? (routes.data ?? []) : favRoutes,
+    );
   });
 
   onMount(async () => frontPageManager.loadFavorites());

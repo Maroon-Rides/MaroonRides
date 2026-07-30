@@ -2,8 +2,8 @@ import { Preferences } from '@capacitor/preferences';
 
 class FrontPageManager {
   favorites = $state<string[]>([]);
-  selectedTab = $state("all");
-  
+  selectedTab = $state('all');
+
   constructor() {
     this.loadDefaultGroup(); //only set once here since it only applies on-open
     this.loadFavorites();
