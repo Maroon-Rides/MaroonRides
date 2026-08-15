@@ -43,7 +43,8 @@
   let isMounted = $state(false);
   let isLoaded = $state(false);
   let isStyleLoaded = $state(false);
-  let initialStyleApplied = false;
+  let initialStyleApplied = $state(false);
+  let appliedStyle: MapStyleOption | null = null;
   let styleTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   const mapStyles = $derived({
@@ -91,9 +92,11 @@
 
     bounds = new MapLibreGL.LngLatBounds([h.minLon, h.minLat], [h.maxLon, h.maxLat]);
 
+    appliedStyle = currentStyle;
+
     const mapInstance = new MapLibreGL.Map({
       container: mapContainer,
-      style: currentStyle,
+      style: appliedStyle,
       renderWorldCopies: false,
       // TODO move attribution elsewhere
       attributionControl: false,
@@ -137,12 +140,15 @@
   $effect(() => {
     const style = currentStyle;
 
-    if (!map || !initialStyleApplied) {
+    // making this a state \/ bc prefs loaded like half a sec later
+    // where first load on update desyncs color from prefs
+    if (!map || !initialStyleApplied || style === appliedStyle) {
       return;
     }
 
     untrack(() => {
       isStyleLoaded = false;
+      appliedStyle = style;
       // Diff mode helps reuse existing layers for better performance
       map!.setStyle(style, { diff: false }); // Changed to false - full style reload is more reliable for theme changes
     });
