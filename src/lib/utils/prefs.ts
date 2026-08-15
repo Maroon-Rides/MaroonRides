@@ -1,5 +1,41 @@
 import { Preferences } from '@capacitor/preferences';
-import { PREFS_VERSION, readLegacyPrefs, importLegacyPrefs } from './legacy-migration';
+import { readLegacyPrefs } from './legacy-migration';
+import { modeStorageKey, setMode } from 'mode-watcher';
+
+export const PREFS_VERSION = 2;
+export async function importLegacyPrefs(
+  legacy: Record<string, string | null>,
+  { fillOnly = false }: { fillOnly?: boolean } = {},
+) {
+  const favorites = legacy['favorites'];
+  if (favorites) {
+    const current = (await Preferences.get({ key: 'favorites' })).value;
+    const currentIsEmpty = !current || current === '[]';
+
+    if (!fillOnly || currentIsEmpty) {
+      await Preferences.set({ key: 'favorites', value: favorites });
+    }
+  }
+
+  // rn stored the default group as an index
+  const defaultGroup = legacy['default-group'] === '1' ? 'favorites' : 'all';
+  const currentGroup = (await Preferences.get({ key: 'defaultGroup' })).value;
+
+  if (!fillOnly || !currentGroup || currentGroup === 'all') {
+    await Preferences.set({ key: 'defaultGroup', value: defaultGroup });
+  }
+
+  const userPickedMode = localStorage.getItem(modeStorageKey.current) !== null;
+  if (!fillOnly || !userPickedMode) {
+    let mode = 'system';
+    if (legacy['app-theme'] === '1') {
+      mode = 'light';
+    } else if (legacy['app-theme'] === '2') {
+      mode = 'dark';
+    }
+    setMode(mode as 'system' | 'light' | 'dark');
+  }
+}
 
 export async function migratePrefs() {
   const currentVersion = Number((await Preferences.get({ key: 'version' })).value ?? 0);
