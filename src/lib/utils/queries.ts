@@ -8,6 +8,7 @@ interface Params<T> {
   staleTime?: moment.Duration | number;
   refetchInterval?: moment.Duration | number;
   enabled?: boolean;
+  meta?: Record<string, unknown>;
 }
 
 interface DependencyQueryParams<T> extends Params<T> {
@@ -27,9 +28,9 @@ export function createDependencyQuery<T>(params: () => DependencyQueryParams<T>)
     const p = params();
     const label = p.queryKey.join('/');
     const enabled = p.dependents.every((q) => q.isSuccess);
-
     return {
       queryKey: [...p.queryKey, ...p.dependents.map((q) => q.data)],
+      meta: p.meta,
       queryFn: async () => {
         try {
           const start = moment.now();
@@ -95,6 +96,7 @@ export function createLoggingQuery<T>(params: () => LoggingQueryParams) {
 
     return {
       queryKey: p.queryKey,
+      meta: p.meta,
       queryFn: async () => {
         try {
           const start = moment.now();
