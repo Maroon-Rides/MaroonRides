@@ -41,6 +41,7 @@ export const useRoutes = () => {
   const query = createDependencyQuery<Route[]>(() => ({
     queryKey: [QueryKey.ROUTE_LIST],
     meta: { isRoutes: true },
+    placeholderData: connectivityManager.cachedRoutes,
     queryFn: async () => {
       queryLogger.i(`Loaded ${asRouteList.data?.length} routes from Aggie Spirit`);
       return asRouteList.data!;
@@ -48,13 +49,7 @@ export const useRoutes = () => {
     dependents: [asRouteList],
   }));
 
-  // mask data to allow cached routes when present
-  return new Proxy(query, {
-    get: (target, prop, receiver) => {
-      const value = Reflect.get(target, prop, receiver);
-      return prop === 'data' ? (value ?? connectivityManager.cachedRoutes) : value;
-    },
-  }) as CreateQueryResult<Route[], Error>;
+  return query;
 };
 
 export const useVehicles = (params: () => { route: Route | null }) => {

@@ -6,6 +6,7 @@ interface Params<T> {
   queryFn: () => Promise<T>;
   queryKey: any[];
   staleTime?: moment.Duration | number;
+  placeholderData?: any;
   refetchInterval?: moment.Duration | number;
   enabled?: boolean;
   meta?: Record<string, unknown>;
@@ -31,6 +32,7 @@ export function createDependencyQuery<T>(params: () => DependencyQueryParams<T>)
     return {
       queryKey: [...p.queryKey, ...p.dependents.map((q) => q.data)],
       meta: p.meta,
+      placeholderData: p.placeholderData,
       queryFn: async () => {
         try {
           const start = moment.now();
