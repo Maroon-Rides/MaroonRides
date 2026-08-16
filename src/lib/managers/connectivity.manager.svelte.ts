@@ -1,20 +1,25 @@
+import type { Query } from '@tanstack/svelte-query';
+
+type UnknownQuery = Query<unknown, unknown, unknown, readonly unknown[]>;
 // failing a request n times
 const ERR_THRESHOLD = 1;
 class ConnectivityManager {
   apiError = $state<undefined | boolean>(undefined);
   authError = $state<undefined | boolean>(undefined);
 
-  reportError(error: Error) {
-    this.apiError = true;
+  reportError(error: Error, query: UnknownQuery) {
+    const tags = query.meta;
+    if (!(tags && tags.network)) return; //filter tagged reqs
+    //
+    if (tags.auth) this.authError = true;
+    else this.apiError = true;
   }
-  reportSuccess(data: unknown) {
-    this.apiError = false;
-  }
-  reportAuthError(error: Error) {
-    this.authError = true;
-  }
-  reportAuthSuccess(data: unknown) {
-    this.authError = false;
+  reportSuccess(data: unknown, query: UnknownQuery) {
+    const tags = query.meta;
+    if (!(tags && tags.network)) return; //filter tagged reqs
+    //
+    if (tags.auth) this.authError = false;
+    else this.apiError = false;
   }
 }
 

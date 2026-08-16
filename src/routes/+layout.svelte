@@ -12,23 +12,18 @@
   import { onDestroy, onMount } from 'svelte';
   import './layout.css';
   import { connectivityManager } from '$lib/managers/connectivity.manager.svelte';
-  import { Cloud, CloudOff } from '@lucide/svelte';
+  import { CloudOff } from '@lucide/svelte';
   import * as Card from '$lib/components/ui/card';
   import { fly } from 'svelte/transition';
+  import * as Empty from '$lib/components/ui/empty';
 
   let { children } = $props();
 
   const queryClient = new QueryClient({
     defaultOptions: { queries: { networkMode: 'offlineFirst' } },
     queryCache: new QueryCache({
-      onError: (error, query) => {
-        if (query.meta?.network) connectivityManager.reportError(error);
-        if (query.meta?.auth) connectivityManager.reportAuthError(error);
-      },
-      onSuccess: (data, query) => {
-        if (query.meta?.network) connectivityManager.reportSuccess(data);
-        if (query.meta?.auth) connectivityManager.reportAuthSuccess(data);
-      },
+      onError: (error, query) => connectivityManager.reportError(error, query),
+      onSuccess: (data, query) => connectivityManager.reportSuccess(data, query),
     }),
   });
   $effect(() => {
@@ -60,14 +55,12 @@
         opacity: 1,
       }}
     >
-      <Card.Root class="gap-1 rounded-t-none py-0.5 pb-2">
-        <div class="flex flex-1 items-center justify-center gap-2">
-          <CloudOff class="size-4" />
-          <p>Offline</p>
-        </div>
-        <!-- fake grab bar -->
-        <div class="flex w-full items-center justify-center">
-          <div class="h-1 w-[8%] rounded-full bg-muted-foreground/20"></div>
+      <Card.Root class="gap-1 rounded-t-none">
+        <div class="mt-2 flex flex-1 items-center justify-center gap-2">
+          <Empty.Media variant="icon">
+            <CloudOff class="size-4" />
+          </Empty.Media>
+          <Empty.Title class="-mt-1.5 text-lg font-bold tracking-wide">Offline</Empty.Title>
         </div>
       </Card.Root>
     </div>
