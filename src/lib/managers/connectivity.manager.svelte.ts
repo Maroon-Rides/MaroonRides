@@ -1,11 +1,20 @@
+import type { Route } from '$lib/data/types';
+import { Directory, Encoding, Filesystem, type WriteFileResult } from '@capacitor/filesystem';
 import type { Query } from '@tanstack/svelte-query';
+import type { any, unknown } from 'zod';
 
 type UnknownQuery = Query<unknown, unknown, unknown, readonly unknown[]>;
-// failing a request n times
-const ERR_THRESHOLD = 1;
+
+const ROUTES_FILE = 'cache/routes.json';
+
 class ConnectivityManager {
-  apiError = $state<undefined | boolean>(undefined);
-  authError = $state<undefined | boolean>(undefined);
+  cachedRoutes = $state<Route[] | undefined>(undefined);
+  apiError = $state<boolean | undefined>(undefined);
+  authError = $state<boolean | undefined>(undefined);
+
+  constructor() {
+    this.tryUncache();
+  }
 
   reportError(error: Error, query: UnknownQuery) {
     const tags = query.meta;
@@ -16,10 +25,37 @@ class ConnectivityManager {
   }
   reportSuccess(data: unknown, query: UnknownQuery) {
     const tags = query.meta;
-    if (!(tags && tags.network)) return; //filter tagged reqs
+    if (!tags) return;
+    if (tags.isRoutes) this.tryCache(data as Route[]);
+    if (!tags.network) return; //filter tagged reqs
     //
     if (tags.auth) this.authError = false;
     else this.apiError = false;
+  }
+
+  private tryCache(data: Route[]): Promise<WriteFileResult> | null {
+    if (this.cachedRoutes === data) return null;
+    this.cachedRoutes = data;
+    return Filesystem.writeFile({
+      directory: Directory.Data,
+      path: ROUTES_FILE,
+      data: JSON.stringify(data),
+      encoding: Encoding.UTF8,
+      recursive: true, // make parents
+    });
+  }
+  private async tryUncache() {
+    try {
+      const { data: raw } = await Filesystem.readFile({
+        directory: Directory.Data,
+        path: ROUTES_FILE,
+        encoding: Encoding.UTF8,
+      });
+      // no validation bc the cache will just overwrite
+      // 5 seconds after the app starts if the user messes
+      // w their own data
+      this.cachedRoutes = JSON.parse(raw as string) as Route[];
+    } catch {}
   }
 }
 

@@ -26,9 +26,7 @@
       onSuccess: (data, query) => connectivityManager.reportSuccess(data, query),
     }),
   });
-  $effect(() => {
-    console.log(connectivityManager.apiError, connectivityManager.authError);
-  });
+
   onDestroy(() => {
     mapManager.unregisterMap();
   });

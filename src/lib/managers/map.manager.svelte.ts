@@ -37,7 +37,6 @@ class MapManager {
 
   setDrawnRoutes(routes: Route[], animateTo: boolean = true) {
     this.drawnRoutes = routes;
-
     if (animateTo) {
       const allPoints = routes.flatMap((route) =>
         route.directions.flatMap((direction) =>

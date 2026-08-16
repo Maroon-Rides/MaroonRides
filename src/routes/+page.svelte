@@ -8,21 +8,22 @@
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
   import * as Tabs from '$lib/components/ui/tabs';
   import { useRoutes } from '$lib/data/app';
+  import { connectivityManager } from '$lib/managers/connectivity.manager.svelte';
   import { frontPageManager } from '$lib/managers/frontpage.manager.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { Preferences } from '@capacitor/preferences';
   import { Cog, Route } from '@lucide/svelte';
   import { onMount } from 'svelte';
 
-  let routes = useRoutes();
+  const routes = useRoutes();
+  const routesData = $derived(routes.data ?? connectivityManager.cachedRoutes ?? []);
+
   const favRoutes = $derived(
-    routes.data?.filter((route) => frontPageManager.favorites.includes(route.routeCode)) ?? [],
+    routesData.filter((route) => frontPageManager.favorites.includes(route.routeCode)),
   );
 
   $effect(() => {
-    mapManager.setDrawnRoutes(
-      frontPageManager.selectedTab == 'all' ? (routes.data ?? []) : favRoutes,
-    );
+    mapManager.setDrawnRoutes(frontPageManager.selectedTab == 'all' ? routesData : favRoutes);
   });
 
   onMount(async () => frontPageManager.loadFavorites());
@@ -67,13 +68,13 @@
 
     {#if frontPageManager.selectedTab === 'all'}
       <Card.Content class="flex flex-col gap-4 px-4 pt-4 pb-10">
-        {#if routes.isLoading}
+        {#if routes.isLoading && !routesData.length}
           <Spinner class="size-6 self-center" />
         {:else if routes.isError}
           <p>Error loading routes: {routes.error.message}</p>
         {/if}
 
-        {#each routes.data ?? [] as route}
+        {#each routesData as route}
           <RouteRow {route} onclick={() => goto(`/route/${route.id}`)} />
         {/each}
       </Card.Content>
