@@ -69,8 +69,8 @@
       <Card.Content class="flex flex-col gap-4 px-4 pt-4 pb-10">
         {#if routes.isLoading && !routesData.length}
           <Spinner class="size-6 self-center" />
-        {:else if routes.isError}
-          <p>Error loading routes: {routes.error.message}</p>
+          <!-- {:else if routes.isError} <- still logs to console, user has offline notifier now
+          <p>Error loading routes: {routes.error.message}</p> -->
         {/if}
 
         {#each routesData as route}

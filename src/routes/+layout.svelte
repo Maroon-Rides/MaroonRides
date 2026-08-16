@@ -12,10 +12,7 @@
   import { onDestroy, onMount } from 'svelte';
   import './layout.css';
   import { connectivityManager } from '$lib/managers/connectivity.manager.svelte';
-  import { CloudOff } from '@lucide/svelte';
-  import * as Card from '$lib/components/ui/card';
-  import { fly } from 'svelte/transition';
-  import * as Empty from '$lib/components/ui/empty';
+  import ConnectionPill from '$lib/components/ConnectionPill.svelte';
 
   let { children } = $props();
 
@@ -32,6 +29,7 @@
   });
 
   onMount(async () => {
+    connectivityManager.shareClient(queryClient);
     migratePrefs();
   });
 
@@ -44,25 +42,7 @@
 <ThemeWatcher />
 
 <QueryClientProvider client={queryClient}>
-  {#if connectivityManager.apiError || connectivityManager.authError}
-    <div
-      in:fly={{ y: -100, duration: 500, opacity: 1 }}
-      out:fly={{
-        y: -100,
-        duration: 500,
-        opacity: 1,
-      }}
-    >
-      <Card.Root class="gap-1 rounded-t-none">
-        <div class="mt-2 flex flex-1 items-center justify-center gap-2">
-          <Empty.Media variant="icon">
-            <CloudOff class="size-4" />
-          </Empty.Media>
-          <Empty.Title class="-mt-1.5 text-lg font-bold tracking-wide">Offline</Empty.Title>
-        </div>
-      </Card.Root>
-    </div>
-  {/if}
+  <ConnectionPill initialHideTime={1500} />
   <div class="fixed inset-0 -z-10 h-screen w-screen">
     <Map
       options={{
