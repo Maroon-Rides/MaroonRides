@@ -9,7 +9,9 @@ import {
   type StopSchedule,
   type TimeEstimate,
 } from '$lib/data/types';
+import { connectivityManager } from '$lib/managers/connectivity.manager.svelte';
 import { queryLogger } from '$lib/utils/logger';
+import type { CreateQueryResult } from '@tanstack/svelte-query';
 import moment from 'moment';
 import { createDependencyQuery, createSelectableQuery } from '../utils/queries';
 import {
@@ -46,7 +48,13 @@ export const useRoutes = () => {
     dependents: [asRouteList],
   }));
 
-  return query;
+  // mask data to allow cached routes when present
+  return new Proxy(query, {
+    get: (target, prop, receiver) => {
+      const value = Reflect.get(target, prop, receiver);
+      return prop === 'data' ? (value ?? connectivityManager.cachedRoutes) : value;
+    },
+  }) as CreateQueryResult<Route[], Error>;
 };
 
 export const useVehicles = (params: () => { route: Route | null }) => {

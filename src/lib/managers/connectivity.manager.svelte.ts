@@ -5,10 +5,11 @@ import type { any, unknown } from 'zod';
 
 type UnknownQuery = Query<unknown, unknown, unknown, readonly unknown[]>;
 
+// TODO inline if this doesnt expand to anything else
 const ROUTES_FILE = 'cache/routes.json';
 
 class ConnectivityManager {
-  cachedRoutes = $state<Route[] | undefined>(undefined);
+  cachedRoutes = $state<Route[]>([]);
   apiError = $state<boolean | undefined>(undefined);
   authError = $state<boolean | undefined>(undefined);
 

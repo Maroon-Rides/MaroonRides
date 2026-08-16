@@ -8,7 +8,6 @@
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
   import * as Tabs from '$lib/components/ui/tabs';
   import { useRoutes } from '$lib/data/app';
-  import { connectivityManager } from '$lib/managers/connectivity.manager.svelte';
   import { frontPageManager } from '$lib/managers/frontpage.manager.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { Preferences } from '@capacitor/preferences';
@@ -16,7 +15,7 @@
   import { onMount } from 'svelte';
 
   const routes = useRoutes();
-  const routesData = $derived(routes.data ?? connectivityManager.cachedRoutes ?? []);
+  const routesData = $derived(routes.data ?? []);
 
   const favRoutes = $derived(
     routesData.filter((route) => frontPageManager.favorites.includes(route.routeCode)),
