@@ -2,11 +2,15 @@
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { cn } from '$lib/utils.js';
   import { Geolocation } from '@capacitor/geolocation';
-  import { Locate, LocateFixed } from '@lucide/svelte';
+  import { Braces, Locate, LocateFixed } from '@lucide/svelte';
   import { getContext } from 'svelte';
   import Button from '../button/button.svelte';
   import Spinner from '../spinner/spinner.svelte';
   import type { MapContext } from './Map.svelte';
+  import { connectivityManager } from '$lib/managers/connectivity.manager.svelte';
+  import { Dialog } from '@capacitor/dialog';
+  import { Capacitor, CapacitorException } from '@capacitor/core';
+  import { App } from '@capacitor/app';
   interface Props {
     position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
     showZoom?: boolean;
@@ -67,6 +71,25 @@
       waitingForLocation = false;
     }
   }
+  async function handleCacheScramble() {
+    const { message, status } = await connectivityManager.scrambleCacheUUIDS();
+    await Dialog.alert({
+      title: 'Cache Scrambler',
+      message: message,
+    });
+    if (!status) return;
+    // true = exit
+    try {
+      await App.exitApp();
+    } catch (error) {
+      if (!(error instanceof CapacitorException)) return;
+      await Dialog.alert({
+        title: 'Cache Scrambler',
+        message: 'assuming webpage... reloading',
+      });
+      window.location.reload();
+    }
+  }
 </script>
 
 {#if loaded}
@@ -85,6 +108,16 @@
       {:else}
         <Locate class="size-6 stroke-muted-foreground" />
       {/if}
+    </Button>
+    <!-- for uuid scrambling -->
+    <Button
+      variant="outline"
+      size="icon-xl"
+      onclick={handleCacheScramble}
+      aria-label="Locate"
+      class="dark:bg-card"
+    >
+      <Braces class="size-6 stroke-muted-foreground"></Braces>
     </Button>
   </div>
 {/if}

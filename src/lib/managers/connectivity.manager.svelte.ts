@@ -2,6 +2,7 @@ import type { Route } from '$lib/data/types';
 import { Directory, Encoding, Filesystem, type WriteFileResult } from '@capacitor/filesystem';
 import type { Query, QueryClient } from '@tanstack/svelte-query';
 import type { Connect } from 'vite';
+import { uuid } from 'zod';
 
 type UnknownQuery = Query<unknown, unknown, unknown, readonly unknown[]>;
 
@@ -53,6 +54,23 @@ class ConnectivityManager {
     this.tryUncache();
   }
 
+  // for testing dont expose to user durrr
+  async scrambleCacheUUIDS(): Promise<{ status: boolean; message: string }> {
+    const numRoutes = this.cachedRoutes.length;
+    if (!numRoutes) return { message: 'There is no cached copy to modify yet.', status: false };
+    const mod = this.cachedRoutes.map((r) => {
+      return {
+        ...r,
+        id: crypto.randomUUID(),
+      };
+    });
+    const result = await this.tryCache(mod);
+    if (!result) return { message: 'Failed Route[] comparison', status: false };
+    return {
+      message: `Regenerated ${numRoutes} cached UUIDS. The app will now exit.`,
+      status: true,
+    };
+  }
   shareClient(q: QueryClient) {
     this.client = q;
   }
