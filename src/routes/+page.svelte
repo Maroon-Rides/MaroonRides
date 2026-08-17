@@ -74,7 +74,7 @@
         {/if}
 
         {#each routesData as route}
-          <RouteRow {route} onclick={() => goto(`/route/${route.id}`)} />
+          <RouteRow {route} onclick={() => goto(`/route/${route.routeCode}`)} />
         {/each}
       </Card.Content>
     {:else if frontPageManager.selectedTab === 'favorites'}
@@ -88,7 +88,7 @@
         {/if}
 
         {#each favRoutes as route}
-          <RouteRow {route} onclick={() => goto(`/route/${route.id}`)} />
+          <RouteRow {route} onclick={() => goto(`/route/${route.routeCode}`)} />
         {/each}
       </Card.Content>
     {/if}

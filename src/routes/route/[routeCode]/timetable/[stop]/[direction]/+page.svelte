@@ -21,14 +21,14 @@
 
   const routes = useRoutes();
 
-  const route = $derived(routes.data?.find((r) => r.id === data.routeId) ?? null);
+  const route = $derived(routes.data?.find((r) => r.routeCode === data.routeCode) ?? null);
   const direction = $derived(route?.directions.find((d) => d.id === data.directionId) ?? null);
   const stop = $derived(direction?.stops.find((s) => s.id === data.stopId) ?? null);
 
   const timetable = useStopSchedule(() => ({ stop, date }));
 
   function onClose() {
-    goto(`/route/${route?.id}`);
+    goto(`/route/${route?.routeCode}`);
   }
 </script>
 
@@ -56,12 +56,12 @@
       {/if}
 
       {#each timetable.data as table}
-        {#if table.route.id == route?.id && table.direction.id == direction?.id}
+        {#if table.route.routeCode == route?.routeCode && table.direction.id == direction?.id}
           <div class="mb-2 flex flex-col gap-3">
             <RouteRow
               route={table.route}
               subtitle={direction.name.trim()}
-              onclick={() => goto(`/route/${table.route.id}`)}
+              onclick={() => goto(`/route/${table.route.routeCode}`)}
             />
             {#if table.timetable.length === 0}
               <p class="text-center text-sm text-muted-foreground">No timetable for selected day</p>

@@ -46,7 +46,7 @@ class ConnectivityManager {
 
   cachedRoutes = $state<Route[]>([]);
   cacheWasStale = $state<boolean | undefined>(undefined); //flicks true when ids change, requires connection obviously
-  cacheIsSynced = $state<boolean | undefined>(false);
+  cacheIsSynced = $state<boolean>(false);
 
   apiError = $state<boolean | undefined>(undefined); // tamu error
   authError = $state<boolean | undefined>(undefined); // auth.maroonrides.app
@@ -146,6 +146,10 @@ class ConnectivityManager {
     if (this.apiError === true) return ConnectionStatus.OFFLINE;
     return ConnectionStatus.ONLINE;
   };
+  // only true when cache is synced and route id exists
+  validate(route: Route): boolean {
+    return this.cacheIsSynced && this.cachedRoutes.some((r) => r.id === route.id);
+  }
   private checkForUUIDDesync(cache: Route[], cmp: Route[]): boolean {
     if (cache.length !== cmp.length) return true;
 

@@ -7,6 +7,8 @@
   import { useStopAmenities, useStopEstimate } from '$lib/data/app';
   import { Amenity, type Direction, type Route, type Stop } from '$lib/data/types';
   import { CalendarIcon } from '@lucide/svelte';
+  import { ConnectionStatus, connectivityManager } from '$lib/managers/connectivity.manager.svelte';
+  import { Spinner } from '$lib/components/ui/spinner';
 
   type Props = {
     stop: Stop;
@@ -15,9 +17,14 @@
     estimateDirection?: Direction;
     estimateStop?: Stop;
   };
+  const conStatus = $derived.by(connectivityManager.getConnectionStatus);
+  const isLoading = $derived(
+    conStatus === ConnectionStatus.CONNECTING || conStatus === ConnectionStatus.RECONNECTING,
+  );
+  const isOffline = $derived(conStatus === ConnectionStatus.OFFLINE);
 
   let { stop, route, direction, estimateDirection, estimateStop }: Props = $props();
-  let subtitle = 'Depatures unavailable offline';
+  let subtitle = $derived(isOffline ? 'Depatures unavailable offline' : 'No upcoming departures');
 </script>
 
 <div class="px-4 py-2">
@@ -30,12 +37,15 @@
       >
         {stop.name}
       </button>
+      <!-- undef = initial query hasn't been made -> still loading -->
       <p class="text-sm text-muted-foreground">{subtitle}</p>
     </div>
   </div>
   <div class="mt-2 flex items-center justify-between">
     <!-- fake button to keep heights consistent -->
-    <div class="flex flex-1"></div>
+    <div class="flex flex-1">
+      {#if isLoading}<Spinner class="size-4 self-center" />{/if}
+    </div>
     <Button variant="outline" size="sm" class="rounded-full" disabled={true}>
       <CalendarIcon class="size-4" />
     </Button>

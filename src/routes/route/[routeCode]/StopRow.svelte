@@ -84,7 +84,7 @@
       size="sm"
       class="rounded-full"
       onclick={() => {
-        goto(`/route/${route?.id}/timetable/${stop.id}/${direction?.id}`);
+        goto(`/route/${route?.routeCode}/timetable/${stop.id}/${direction?.id}`);
       }}
     >
       <CalendarIcon class="size-4" />

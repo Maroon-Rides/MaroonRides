@@ -12,11 +12,11 @@
   let { data }: { data: PageData } = $props();
 
   const routes = useRoutes();
-  const route = $derived(routes.data?.find((r) => r.id === data.routeId) ?? null);
+  const route = $derived(routes.data?.find((r) => r.routeCode === data.routeCode) ?? null);
   const alerts = useAlerts(() => ({ route }));
 
   function onClose() {
-    goto(`/route/${route?.id}`);
+    goto(`/route/${route?.routeCode}`);
   }
 
   const descriptionClasses =

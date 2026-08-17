@@ -21,7 +21,7 @@
   let { data }: { data: PageData } = $props();
 
   const routes = useRoutes();
-  const route = $derived(routes.data?.find((r) => r.id === data.routeId) ?? null);
+  const route = $derived(routes.data?.find((r) => r.routeCode === data.routeCode) ?? null);
 
   const alerts = useAlerts(() => ({ route }));
   let isFavorite = $state(false);
@@ -29,18 +29,6 @@
     route?.directions.find((d) => d.id === mapManager.selectedDirectionId) ?? null,
   );
 
-  let routeCode: string;
-  $effect(() => {
-    if (route !== null) routeCode = route.routeCode;
-    if (connectivityManager.cacheIsSynced && route === null) {
-      const movedRoute = routes.data?.find((r) => r.routeCode === routeCode) ?? null;
-      if (!movedRoute) goto('/');
-      else
-        goto(`/route/${movedRoute.id}`, {
-          replaceState: true,
-        });
-    }
-  });
   onMount(async () => {
     const favoritedRoutes = JSON.parse(
       (await Preferences.get({ key: 'favorites' })).value ?? '[]',
@@ -92,7 +80,7 @@
             variant="outline"
             size="md"
             class="rounded-full"
-            onclick={() => goto(`/route/${route?.id}/alerts`)}
+            onclick={() => goto(`/route/${route?.routeCode}/alerts`)}
           >
             {#if alerts.data?.length ?? 0 > 0}
               <BellRing class="size-4" />
@@ -117,7 +105,7 @@
     {#if selectedDirection && route}
       <div class="pb-4">
         {#each selectedDirection?.stops ?? [] as stop, i (`${stop.id}-${selectedDirection?.id}-${i}`)}
-          {@const Row = connectivityManager.cacheIsSynced ? StopRow : OfflineStopRow}
+          {@const Row = connectivityManager.validate(route) ? StopRow : OfflineStopRow}
           {@const isLast = i === (selectedDirection?.stops.length ?? 0) - 1}
           {@const altDirection = isLast
             ? route.directions.length > 1
