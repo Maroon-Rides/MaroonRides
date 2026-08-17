@@ -30,6 +30,8 @@
 
   onMount(async () => {
     connectivityManager.shareClient(queryClient);
+    connectivityManager.isDevMode = true; //enables scrambling button
+
     migratePrefs();
   });
 

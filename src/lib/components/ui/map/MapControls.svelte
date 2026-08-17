@@ -110,14 +110,16 @@
       {/if}
     </Button>
     <!-- for uuid scrambling -->
-    <Button
-      variant="outline"
-      size="icon-xl"
-      onclick={handleCacheScramble}
-      aria-label="Locate"
-      class="dark:bg-card"
-    >
-      <Braces class="size-6 stroke-muted-foreground"></Braces>
-    </Button>
+    {#if connectivityManager.isDevMode}
+      <Button
+        variant="outline"
+        size="icon-xl"
+        onclick={handleCacheScramble}
+        aria-label="Locate"
+        class="dark:bg-card"
+      >
+        <Braces class="size-6 stroke-muted-foreground"></Braces>
+      </Button>
+    {/if}
   </div>
 {/if}

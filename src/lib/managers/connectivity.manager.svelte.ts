@@ -35,6 +35,9 @@ export namespace ConnectionStatus {
 }
 
 class ConnectivityManager {
+  // for debug
+  isDevMode = $state(false);
+
   private client = $state<QueryClient | undefined>(undefined);
 
   private retryAfter = RETRY_MIN;
@@ -56,6 +59,7 @@ class ConnectivityManager {
 
   // for testing dont expose to user durrr
   async scrambleCacheUUIDS(): Promise<{ status: boolean; message: string }> {
+    if (!this.isDevMode) return { message: 'Dev mode is not enabled.', status: false };
     const numRoutes = this.cachedRoutes.length;
     if (!numRoutes) return { message: 'There is no cached copy to modify yet.', status: false };
     const mod = this.cachedRoutes.map((r) => {
