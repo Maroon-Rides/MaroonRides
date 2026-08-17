@@ -5,7 +5,9 @@ import type { Query, QueryClient } from '@tanstack/svelte-query';
 type UnknownQuery = Query<unknown, unknown, unknown, readonly unknown[]>;
 
 // TODO inline if this doesnt expand to anything else
-const ROUTES_FILE = 'cache/routes.json';
+const CACHE_ROUTES = 'cache/routes.json';
+const CACHE_EXPIRY = 7 * (24 * 60 * 60) * 1e3;
+
 const RETRY_MIN = 5e3;
 const RETRY_MAX = 300e3;
 
@@ -32,6 +34,10 @@ export namespace ConnectionStatus {
   }
 }
 
+type CacheContent = {
+  expiresAtUTC: number;
+  content: any;
+};
 class ConnectivityManager {
   // for debug
   isDevMode = $state(false);
@@ -150,11 +156,23 @@ class ConnectivityManager {
   validate(route: Route): boolean {
     return this.cacheIsSynced && this.cachedRoutes.some((r) => r.id === route.id);
   }
+
   private checkForUUIDDesync(cache: Route[], cmp: Route[]): boolean {
     if (cache.length !== cmp.length) return true;
 
     const ids = new Map(cache.map((r) => [r.routeCode, r.id]));
     return cmp.some((r) => ids.has(r.routeCode) && ids.get(r.routeCode) !== r.id);
+  }
+
+  private newCacheExpiry(data: any): CacheContent {
+    return { expiresAtUTC: Date.now() + CACHE_EXPIRY, content: data };
+  }
+
+  private checkCacheExpiry(data: any): data is CacheContent {
+    try {
+      return Date.now() < data.expiresAtUTC;
+    } catch {}
+    return false;
   }
   private tryCache(
     data: Route[],
@@ -169,8 +187,8 @@ class ConnectivityManager {
     }
     return Filesystem.writeFile({
       directory: Directory.Data,
-      path: ROUTES_FILE,
-      data: JSON.stringify(data),
+      path: CACHE_ROUTES,
+      data: JSON.stringify(this.newCacheExpiry(data)),
       encoding: Encoding.UTF8,
       recursive: true, // make parents
     });
@@ -179,13 +197,16 @@ class ConnectivityManager {
     try {
       const { data: raw } = await Filesystem.readFile({
         directory: Directory.Data,
-        path: ROUTES_FILE,
+        path: CACHE_ROUTES,
         encoding: Encoding.UTF8,
       });
       // no validation bc the cache will just overwrite
       // 5 seconds after the app starts if the user messes
       // w their own data
-      this.cachedRoutes = JSON.parse(raw as string) as Route[];
+      const data = JSON.parse(raw as string);
+      if (!this.checkCacheExpiry(data)) return;
+
+      this.cachedRoutes = data.content as Route[];
     } catch {}
   }
 }
