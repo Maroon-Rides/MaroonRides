@@ -1,7 +1,7 @@
 <script lang="ts">
   import StopRow from './StopRow.svelte';
 
-  import { goto } from '$app/navigation';
+  import { goto, replaceState } from '$app/navigation';
   import { page } from '$app/state';
   import RouteBubble from '$lib/components/RouteBubble.svelte';
   import * as BottomSheet from '$lib/components/ui/bottom-sheet';
@@ -15,17 +15,32 @@
   import { Bell, BellRing, Star } from '@lucide/svelte';
   import { onMount, untrack } from 'svelte';
   import type { PageData } from './$types';
+  import { connectivityManager } from '$lib/managers/connectivity.manager.svelte';
+  import OfflineStopRow from './OfflineStopRow.svelte';
 
   let { data }: { data: PageData } = $props();
 
   const routes = useRoutes();
   const route = $derived(routes.data?.find((r) => r.id === data.routeId) ?? null);
+
   const alerts = useAlerts(() => ({ route }));
   let isFavorite = $state(false);
   const selectedDirection = $derived(
     route?.directions.find((d) => d.id === mapManager.selectedDirectionId) ?? null,
   );
 
+  let routeCode: string;
+  $effect(() => {
+    if (route !== null) routeCode = route.routeCode;
+    if (connectivityManager.cacheIsSynced && route === null) {
+      const movedRoute = routes.data?.find((r) => r.routeCode === routeCode) ?? null;
+      if (!movedRoute) goto('/');
+      else
+        goto(`/route/${movedRoute.id}`, {
+          replaceState: true,
+        });
+    }
+  });
   onMount(async () => {
     const favoritedRoutes = JSON.parse(
       (await Preferences.get({ key: 'favorites' })).value ?? '[]',
@@ -102,13 +117,14 @@
     {#if selectedDirection && route}
       <div class="pb-4">
         {#each selectedDirection?.stops ?? [] as stop, i (`${stop.id}-${selectedDirection?.id}-${i}`)}
+          {@const Row = connectivityManager.cacheIsSynced ? StopRow : OfflineStopRow}
           {@const isLast = i === (selectedDirection?.stops.length ?? 0) - 1}
           {@const altDirection = isLast
             ? route.directions.length > 1
               ? (route.directions.find((d) => d.id !== selectedDirection.id) ?? selectedDirection)
               : selectedDirection
             : selectedDirection}
-          <StopRow
+          <Row
             {stop}
             direction={selectedDirection}
             {route}

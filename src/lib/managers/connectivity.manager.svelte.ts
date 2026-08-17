@@ -159,10 +159,9 @@ class ConnectivityManager {
     if (this.cachedRoutes === data) return null;
     if (!noUpdateMemory) {
       const wasStale = this.checkForUUIDDesync(this.cachedRoutes, data);
-      console.log(wasStale);
       this.cachedRoutes = data;
       this.cacheWasStale = wasStale;
-      this.cacheIsSynced = !wasStale;
+      this.cacheIsSynced = true;
     }
     return Filesystem.writeFile({
       directory: Directory.Data,
