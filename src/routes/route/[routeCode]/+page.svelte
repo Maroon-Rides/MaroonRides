@@ -22,7 +22,7 @@
 
   const routes = useRoutes();
   const route = $derived(routes.data?.find((r) => r.routeCode === data.routeCode) ?? null);
-  const isValidated = $derived(route && connectivityManager.validate(route));
+  const isValidated = $derived(route && connectivityManager.validateRoute(route));
 
   const alerts = $derived(isValidated ? useAlerts(() => ({ route })) : null);
   let isFavorite = $state(false);

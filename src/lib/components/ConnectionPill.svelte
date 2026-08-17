@@ -3,9 +3,10 @@
   import * as Card from './ui/card';
   import { onMount } from 'svelte';
   import * as Empty from './ui/empty';
-  import { connectivityManager, ConnectionStatus } from '$lib/managers/connectivity.manager.svelte';
+  import { connectivityManager } from '$lib/managers/connectivity.manager.svelte';
   import { CloudOff } from '@lucide/svelte';
   import { Spinner } from './ui/spinner';
+  import { ConnectionStatus } from '$lib/data/types';
 
   type Props = {
     animateTime?: number;

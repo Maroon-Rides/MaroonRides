@@ -19,8 +19,8 @@
   const queryClient = new QueryClient({
     defaultOptions: { queries: { networkMode: 'offlineFirst' } },
     queryCache: new QueryCache({
-      onError: (error, query) => connectivityManager.reportError(error, query),
-      onSuccess: (data, query) => connectivityManager.reportSuccess(data, query),
+      onError: (error, query) => connectivityManager.reportQueryError(error, query),
+      onSuccess: (data, query) => connectivityManager.reportQuerySuccess(data, query),
     }),
   });
 
@@ -29,8 +29,7 @@
   });
 
   onMount(async () => {
-    connectivityManager.shareClient(queryClient);
-    connectivityManager.isDevMode = true; //enables scrambling button
+    connectivityManager.shareQueryClient(queryClient);
 
     migratePrefs();
   });

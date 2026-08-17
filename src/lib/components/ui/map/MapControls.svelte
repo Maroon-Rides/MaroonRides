@@ -110,7 +110,7 @@
       {/if}
     </Button>
     <!-- for uuid scrambling -->
-    {#if connectivityManager.isDevMode}
+    {#if connectivityManager.debugOptions}
       <Button
         variant="outline"
         size="icon-xl"

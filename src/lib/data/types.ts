@@ -222,3 +222,26 @@ export interface RoutePlanMarkedPoint extends Location {
   icon: 'point' | 'wait';
   isOrigin: boolean;
 }
+
+export enum ConnectionStatus {
+  OFFLINE,
+  CONNECTING,
+  RECONNECTING,
+  ONLINE,
+}
+export namespace ConnectionStatus {
+  export function asMessage(s: ConnectionStatus): string {
+    switch (s) {
+      case ConnectionStatus.OFFLINE:
+        return 'Offline';
+      case ConnectionStatus.CONNECTING:
+        return 'Connecting...';
+      case ConnectionStatus.RECONNECTING:
+        return 'Reconnecting...';
+      case ConnectionStatus.ONLINE:
+        return 'Online';
+      default:
+        return '';
+    }
+  }
+}
