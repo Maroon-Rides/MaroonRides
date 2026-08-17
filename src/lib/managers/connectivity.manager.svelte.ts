@@ -45,6 +45,9 @@ class ConnectivityManager {
   private isRetrying = $state<boolean>(false);
 
   cachedRoutes = $state<Route[]>([]);
+  cacheWasStale = $state<boolean | undefined>(undefined); //flicks true when ids change, requires connection obviously
+  cacheIsSynced = $state<boolean | undefined>(false);
+
   apiError = $state<boolean | undefined>(undefined); // tamu error
   authError = $state<boolean | undefined>(undefined); // auth.maroonrides.app
   isError = $derived(this.apiError || this.authError);
@@ -68,7 +71,7 @@ class ConnectivityManager {
         id: crypto.randomUUID(),
       };
     });
-    const result = await this.tryCache(mod);
+    const result = await this.tryCache(mod, true);
     if (!result) return { message: 'Failed Route[] comparison', status: false };
     return {
       message: `Regenerated ${numRoutes} cached UUIDS. The app will now exit.`,
@@ -143,10 +146,24 @@ class ConnectivityManager {
     if (this.apiError === true) return ConnectionStatus.OFFLINE;
     return ConnectionStatus.ONLINE;
   };
+  private checkForUUIDDesync(cache: Route[], cmp: Route[]): boolean {
+    if (cache.length !== cmp.length) return true;
 
-  private tryCache(data: Route[]): Promise<WriteFileResult> | null {
+    const ids = new Map(cache.map((r) => [r.routeCode, r.id]));
+    return cmp.some((r) => ids.has(r.routeCode) && ids.get(r.routeCode) !== r.id);
+  }
+  private tryCache(
+    data: Route[],
+    noUpdateMemory: boolean = false,
+  ): Promise<WriteFileResult> | null {
     if (this.cachedRoutes === data) return null;
-    this.cachedRoutes = data;
+    if (!noUpdateMemory) {
+      const wasStale = this.checkForUUIDDesync(this.cachedRoutes, data);
+      console.log(wasStale);
+      this.cachedRoutes = data;
+      this.cacheWasStale = wasStale;
+      this.cacheIsSynced = !wasStale;
+    }
     return Filesystem.writeFile({
       directory: Directory.Data,
       path: ROUTES_FILE,
