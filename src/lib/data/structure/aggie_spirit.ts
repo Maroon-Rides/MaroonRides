@@ -179,7 +179,7 @@ export const useASStopEstimate = (
     queryFn: async () => {
       const stopEstimates = apiStopEstimateQuery.data!;
 
-      return stopEstimates.routeDirectionTimes[0].nextDeparts.map((e) => {
+      return (stopEstimates.routeDirectionTimes[0]?.nextDeparts ?? []).map((e) => {
         return {
           dataSource: DataSource.AGGIE_SPIRIT,
           estimatedTime: e.estimatedDepartTimeUtc

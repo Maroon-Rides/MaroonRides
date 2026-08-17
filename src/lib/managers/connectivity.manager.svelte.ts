@@ -101,7 +101,9 @@ class ConnectivityManager {
       if (!this.client) return;
       this.isRetrying = true;
       try {
-        await this.client.refetchQueries({ predicate: (q) => q.state.status === 'error' });
+        await this.client.refetchQueries({
+          predicate: (q) => q.state.status === 'error' && !!q.meta?.network,
+        });
       } finally {
         this.isRetrying = false;
         if (this.isError) this.tryEnqueueReconnect(Date.now());

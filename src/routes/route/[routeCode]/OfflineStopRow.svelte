@@ -1,11 +1,7 @@
 <script lang="ts">
-  import EstimateRow from './EstimateRow.svelte';
-
-  import { goto } from '$app/navigation';
   import Button from '$lib/components/ui/button/button.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
-  import { useStopAmenities, useStopEstimate } from '$lib/data/app';
-  import { Amenity, type Direction, type Route, type Stop } from '$lib/data/types';
+  import { type Direction, type Route, type Stop } from '$lib/data/types';
   import { CalendarIcon } from '@lucide/svelte';
   import { ConnectionStatus, connectivityManager } from '$lib/managers/connectivity.manager.svelte';
   import { Spinner } from '$lib/components/ui/spinner';

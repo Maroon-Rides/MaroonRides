@@ -29,7 +29,7 @@
     })),
   );
 
-  const { data: stopAmenities } = useStopAmenities(() => ({ route, direction, stop }));
+  const { data: stopAmenities } = $derived(useStopAmenities(() => ({ route, direction, stop })));
 
   let subtitle = $derived.by(() => {
     if (!estimates || estimates.length === 0) {

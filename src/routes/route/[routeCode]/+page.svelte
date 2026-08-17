@@ -22,8 +22,9 @@
 
   const routes = useRoutes();
   const route = $derived(routes.data?.find((r) => r.routeCode === data.routeCode) ?? null);
+  const isValidated = $derived(route && connectivityManager.validate(route));
 
-  const alerts = useAlerts(() => ({ route }));
+  const alerts = $derived(isValidated ? useAlerts(() => ({ route })) : null);
   let isFavorite = $state(false);
   const selectedDirection = $derived(
     route?.directions.find((d) => d.id === mapManager.selectedDirectionId) ?? null,
@@ -43,7 +44,6 @@
       mapManager.selectedDirectionId = route?.directions[0].id ?? '';
     });
   });
-
   function onClose() {
     goto('/');
     mapManager.setSelectedRoute(null);
@@ -82,7 +82,7 @@
             class="rounded-full"
             onclick={() => goto(`/route/${route?.routeCode}/alerts`)}
           >
-            {#if alerts.data?.length ?? 0 > 0}
+            {#if alerts?.data?.length ?? 0 > 0}
               <BellRing class="size-4" />
             {:else}
               <Bell class="size-4" />
@@ -105,7 +105,7 @@
     {#if selectedDirection && route}
       <div class="pb-4">
         {#each selectedDirection?.stops ?? [] as stop, i (`${stop.id}-${selectedDirection?.id}-${i}`)}
-          {@const Row = connectivityManager.validate(route) ? StopRow : OfflineStopRow}
+          {@const Row = isValidated ? StopRow : OfflineStopRow}
           {@const isLast = i === (selectedDirection?.stops.length ?? 0) - 1}
           {@const altDirection = isLast
             ? route.directions.length > 1
