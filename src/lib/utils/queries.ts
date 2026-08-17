@@ -129,6 +129,7 @@ interface SelectableQueryParams<T, S extends Enum> {
   staleTime?: moment.Duration | number;
   refetchInterval?: moment.Duration | number;
   enabled?: boolean;
+  placeholderData?: any;
   queries: Partial<Record<S, CreateQueryResult<T>>>;
   unsupportedValue?: T;
   selector?: S;
@@ -156,6 +157,7 @@ export function createSelectableQuery<T, S extends Enum>(
           throw e;
         }
       },
+      placeholderData: p.placeholderData,
       enabled: (p.enabled ?? true) && (selectedQuery?.isSuccess ?? false),
       staleTime: parseTime(p.staleTime),
       refetchInterval: parseTime(p.refetchInterval),
