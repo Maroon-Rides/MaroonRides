@@ -1,8 +1,6 @@
 import type { Route } from '$lib/data/types';
 import { Directory, Encoding, Filesystem, type WriteFileResult } from '@capacitor/filesystem';
 import type { Query, QueryClient } from '@tanstack/svelte-query';
-import type { Connect } from 'vite';
-import { uuid } from 'zod';
 
 type UnknownQuery = Query<unknown, unknown, unknown, readonly unknown[]>;
 

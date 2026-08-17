@@ -15,7 +15,7 @@
 
   const { animateTime = 500, initialHideTime = 0, offset = '0.75rem' }: Props = $props();
 
-  let mayShow = $state(true);
+  let mayShow = $state(false);
   let contentWidth = $state(0);
 
   const status = $derived.by(connectivityManager.getConnectionStatus);
