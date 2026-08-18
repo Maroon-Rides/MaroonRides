@@ -83,7 +83,7 @@
           <p class="text-center text-sm text-muted-foreground">There are no favorited routes.</p>
         {/if}
 
-        {#if routes.isLoading}
+        {#if routes.isLoading && !routesData.length}
           <Spinner class="size-6 self-center" />
         {/if}
 

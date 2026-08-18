@@ -7,6 +7,9 @@ class MapManager {
   isCentered: boolean = $state(false);
 
   drawnRoutes: Route[] = $state([]);
+  // from drawnRoutes bc new logic caused read+write in same effect
+  private lastDrawn = new Map<string, string>(); // { code: uuid }
+
   selectedRoute: Route | null = $state(null);
   selectedDirectionId: string = $state('');
 
@@ -36,8 +39,22 @@ class MapManager {
   }
 
   setDrawnRoutes(routes: Route[], animateTo: boolean = true) {
+    const curRoutes = new Map<string, string>(routes.map((r) => [r.routeCode, r.id]));
+    let same = curRoutes.size === this.lastDrawn.size;
+    if (same) {
+      for (const [routeCode /*, id*/] of curRoutes) {
+        // enable second condition if somehow the entire route massively changes from its normal path
+        if (!this.lastDrawn.has(routeCode) /* || this.lastDrawn.get(routeCode) !== id*/) {
+          same = false;
+          break;
+        }
+      }
+    }
+
+    this.lastDrawn = curRoutes;
     this.drawnRoutes = routes;
-    if (animateTo) {
+
+    if (animateTo && !same) {
       const allPoints = routes.flatMap((route) =>
         route.directions.flatMap((direction) =>
           direction.pathPoints.map((point) => ({

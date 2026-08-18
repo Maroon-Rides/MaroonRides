@@ -157,6 +157,7 @@ class ConnectivityManager {
     if (replace !== undefined) {
       mod = replace;
     } else {
+      // normal scramble
       if (!this.cachedRoutes.length)
         return { message: 'There is no cached copy to modify yet.', status: false };
       mod = this.cachedRoutes.map((r) => {
@@ -166,7 +167,6 @@ class ConnectivityManager {
         };
       });
     }
-    // normal scramble
     const result = await this.tryCache(mod, true);
     if (result === null) return { message: 'Failed Route[] comparison', status: false };
     if (result.failedRewrappedData)
