@@ -149,16 +149,24 @@ class ConnectivityManager {
   }
 
   // for testing dont expose to user durrr
-  async scrambleCacheUUIDS(): Promise<{ status: boolean; message: string }> {
+  async scrambleCacheUUIDS(replace?: Route[]): Promise<{ status: boolean; message: string }> {
     if (!this.debugOptions) return { message: 'Dev mode is not enabled.', status: false };
-    const numRoutes = this.cachedRoutes.length;
-    if (!numRoutes) return { message: 'There is no cached copy to modify yet.', status: false };
-    const mod = this.cachedRoutes.map((r) => {
-      return {
-        ...r,
-        id: crypto.randomUUID(),
-      };
-    });
+
+    let mod: Route[];
+    //replace data
+    if (replace !== undefined) {
+      mod = replace;
+    } else {
+      if (!this.cachedRoutes.length)
+        return { message: 'There is no cached copy to modify yet.', status: false };
+      mod = this.cachedRoutes.map((r) => {
+        return {
+          ...r,
+          id: crypto.randomUUID(),
+        };
+      });
+    }
+    // normal scramble
     const result = await this.tryCache(mod, true);
     if (result === null) return { message: 'Failed Route[] comparison', status: false };
     if (result.failedRewrappedData)
@@ -168,8 +176,12 @@ class ConnectivityManager {
         message: `Failed write: ${result.writeError?.toString() ?? 'unknown reason'}`,
         status: false,
       };
+
     return {
-      message: `Regenerated ${numRoutes} cached UUIDS. The app will now exit.`,
+      message:
+        (replace === undefined
+          ? `Regenerated ${mod.length} cached UUIDS.`
+          : `Replaced the cache to ${mod.length} routes.`) + ' The app will now exit.',
       status: true,
     };
   }

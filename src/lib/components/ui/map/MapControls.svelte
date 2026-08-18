@@ -2,7 +2,7 @@
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { cn } from '$lib/utils.js';
   import { Geolocation } from '@capacitor/geolocation';
-  import { Braces, Locate, LocateFixed } from '@lucide/svelte';
+  import { Braces, Locate, LocateFixed, Trash2 } from '@lucide/svelte';
   import { getContext } from 'svelte';
   import Button from '../button/button.svelte';
   import Spinner from '../spinner/spinner.svelte';
@@ -11,6 +11,7 @@
   import { Dialog } from '@capacitor/dialog';
   import { Capacitor, CapacitorException } from '@capacitor/core';
   import { App } from '@capacitor/app';
+  import type { Route } from '$lib/data/types';
   interface Props {
     position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
     showZoom?: boolean;
@@ -71,10 +72,10 @@
       waitingForLocation = false;
     }
   }
-  async function handleCacheScramble() {
-    const { message, status } = await connectivityManager.scrambleCacheUUIDS();
+  async function handleCacheScramble(replace?: Route[]) {
+    const { message, status } = await connectivityManager.scrambleCacheUUIDS(replace);
     await Dialog.alert({
-      title: 'Cache Scrambler',
+      title: 'Cache',
       message: message,
     });
     if (!status) return;
@@ -84,7 +85,7 @@
     } catch (error) {
       if (!(error instanceof CapacitorException)) return;
       await Dialog.alert({
-        title: 'Cache Scrambler',
+        title: 'Cache',
         message: 'assuming webpage... reloading',
       });
       window.location.reload();
@@ -114,11 +115,20 @@
       <Button
         variant="outline"
         size="icon-xl"
-        onclick={handleCacheScramble}
-        aria-label="Locate"
+        onclick={() => handleCacheScramble()}
+        aria-label="Scramble"
         class="dark:bg-card"
       >
-        <Braces class="size-6 stroke-muted-foreground"></Braces>
+        <Braces class="size-6 stroke-muted-foreground" />
+      </Button>
+      <Button
+        variant="outline"
+        size="icon-xl"
+        onclick={() => handleCacheScramble([])}
+        aria-label="Clear"
+        class="dark:bg-card"
+      >
+        <Trash2 class="size-6 stroke-muted-foreground" />
       </Button>
     {/if}
   </div>
