@@ -16,7 +16,7 @@
   import { goto } from '$app/navigation';
 
   const routes = useRoutes();
-  const drawnRouteIds = $derived(mapManager.drawnRoutes.map((route) => route.id));
+  const drawnRouteIds = $derived(mapManager.drawnRoutes.map((route) => route.routeCode));
   const busLocations = $derived(useVehicles(() => ({ route: mapManager.selectedRoute })));
 
   let userLocation: Location | null = $state(null);
@@ -58,21 +58,21 @@
     flushScheduled = false;
     const topmost = requestedRoutes.reduce((a, b) => (b.index > a.index ? b : a)).route;
     requestedRoutes.length = 0; //cursed
-    goto(`/route/${topmost.id}`);
+    goto(`/route/${topmost.routeCode}`);
   }
 </script>
 
 {#snippet routeLine(route: Route, index: number)}
-  {#each route.directions as direction (`${route.id}-${direction.id}`)}
+  {#each route.directions as direction (`${route.routeCode}-${direction.id}`)}
     {@const isSelected =
       direction.id === mapManager.selectedDirectionId || mapManager.selectedDirectionId == ''}
-    {@const isShown = drawnRouteIds.includes(route.id)}
+    {@const isShown = drawnRouteIds.includes(route.routeCode)}
     {@const opacity = isShown ? (isSelected ? 1 : 0.5) : 0}
 
     <MapRoute
       coordinates={direction.pathPoints.map((point) => [point.longitude, point.latitude])}
       color={getRouteTint(route, themeManager.theme)}
-      id={`${route.id}-${direction.id}`}
+      id={`${route.routeCode}-${direction.id}`}
       onclick={() => {
         if (!isSelected) return; //opacity check instead of isShown for ghost directional routes
         requestRoute(route, index);
@@ -103,7 +103,7 @@
   </MapMarker>
 {/snippet}
 
-{#each routes?.data as route, i (route.id)}
+{#each routes?.data as route, i (route.routeCode)}
   {@render routeLine(route, i)}
 {/each}
 

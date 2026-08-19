@@ -45,6 +45,7 @@ export const useAuthCodeAPI = () => {
   const query = createLoggingQuery<string>(() => ({
     label: ASAPIQueryKey.AUTH_CODE,
     queryKey: [ASAPIQueryKey.AUTH_CODE],
+    meta: { network: true, auth: true },
     queryFn: async () => {
       const authCodeB64 = await (await fetch('https://auth.maroonrides.app')).text();
       return atob(authCodeB64);
@@ -60,6 +61,7 @@ export const useAuthTokenAPI = () => {
 
   const query = createDependencyQuery<Headers>(() => ({
     queryKey: [ASAPIQueryKey.AUTH_TOKEN],
+    meta: { network: true },
     queryFn: async () => {
       var res = await fetch('https://aggiespirit.ts.tamu.edu/', { credentials: 'omit' });
 
@@ -84,6 +86,7 @@ export const useRoutePlanAuthTokenAPI = (params: () => { queryString: string }) 
     const { queryString } = params();
     return {
       queryKey: [ASAPIQueryKey.ROUTE_PLAN_AUTH_TOKEN],
+      meta: { network: true },
       queryFn: async () => {
         var res = await fetch(`https://aggiespirit.ts.tamu.edu/TripPlanner/${queryString}`, {
           credentials: 'omit',
@@ -111,6 +114,7 @@ export const useBaseDataAPI = () => {
 
   const query = createDependencyQuery<IGetBaseDataResponse>(() => ({
     queryKey: [ASAPIQueryKey.BASE_DATA],
+    meta: { network: true },
     queryFn: async () => {
       const baseData = await getBaseData(authTokenQuery.data!);
       GetBaseDataResponseSchema.parse(baseData);
@@ -130,6 +134,7 @@ export const usePatternPathsAPI = () => {
 
   const query = createDependencyQuery<IGetPatternPathsResponse>(() => ({
     queryKey: [ASAPIQueryKey.PATTERN_PATHS],
+    meta: { network: true },
     queryFn: async () => {
       const baseData = baseDataQuery.data as IGetBaseDataResponse;
 
@@ -174,6 +179,7 @@ export const useStopEstimateAPI = (
     const { routeKey, directionKey, stopCode } = params();
     return {
       queryKey: [ASAPIQueryKey.STOP_ESTIMATE, routeKey, directionKey, stopCode],
+      meta: { network: true },
       queryFn: async () => {
         const response = await getNextDepartureTimes(
           routeKey,
@@ -200,6 +206,7 @@ export const useTimetableEstimateAPI = (params: () => { stopCode: string; date: 
     const { stopCode, date } = params();
     return {
       queryKey: [ASAPIQueryKey.TIMETABLE_ESTIMATE, stopCode, moment(date).format('YYYY-MM-DD')],
+      meta: { network: true },
       queryFn: async () => {
         const response = await getStopEstimates(stopCode, date, authTokenQuery.data!);
         GetStopEstimatesResponseSchema.parse(response);
@@ -221,6 +228,7 @@ export const useStopScheduleAPI = (params: () => { stopCode: string; date: Date 
     const { stopCode, date } = params();
     return {
       queryKey: [ASAPIQueryKey.STOP_SCHEDULE, stopCode, moment(date).format('YYYY-MM-DD')],
+      meta: { network: true },
       queryFn: async () => {
         const response = await getStopSchedules(stopCode, date, authTokenQuery.data!);
         GetStopSchedulesResponseSchema.parse(response);
@@ -242,6 +250,7 @@ export const useVehiclesAPI = (params: () => { routeKey: string }) => {
     const { routeKey } = params();
     return {
       queryKey: [ASAPIQueryKey.VEHICLES, routeKey],
+      meta: { network: true },
       queryFn: async () => {
         let busesResponse = (await getVehicles(
           [routeKey],

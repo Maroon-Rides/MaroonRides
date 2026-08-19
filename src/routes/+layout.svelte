@@ -8,19 +8,29 @@
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { installInterceptor } from '$lib/utils/interceptor';
   import { migratePrefs } from '$lib/utils/prefs';
-  import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+  import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
   import { onDestroy, onMount } from 'svelte';
   import './layout.css';
+  import { connectivityManager } from '$lib/managers/connectivity.manager.svelte';
+  import ConnectionPill from '$lib/components/ConnectionPill.svelte';
 
   let { children } = $props();
 
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { networkMode: 'offlineFirst' } },
+    queryCache: new QueryCache({
+      onError: (error, query) => connectivityManager.reportQueryError(error, query),
+      onSuccess: (data, query) => connectivityManager.reportQuerySuccess(data, query),
+    }),
+  });
 
   onDestroy(() => {
     mapManager.unregisterMap();
   });
 
   onMount(async () => {
+    connectivityManager.shareQueryClient(queryClient);
+
     migratePrefs();
   });
 
@@ -33,6 +43,7 @@
 <ThemeWatcher />
 
 <QueryClientProvider client={queryClient}>
+  <ConnectionPill initialHideTime={1500} />
   <div class="fixed inset-0 -z-10 h-screen w-screen">
     <Map
       options={{

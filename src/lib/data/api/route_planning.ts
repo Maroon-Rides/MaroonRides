@@ -24,6 +24,7 @@ export const useSearchSuggestionAPI = (params: () => { query: string }) => {
     const { query } = params();
     return {
       queryKey: [ASRoutePlanQueryKey.SEARCH_SUGGESTION, query],
+      meta: { network: true },
       queryFn: async () => {
         // we need data from pattern paths to get the stop GPS locations
         // This is limitation of the API where we can't get the GPS location of a stop directly
@@ -93,6 +94,7 @@ export const useTripPlanAPI = (
     const { origin, destination, date, deadline } = params();
     return {
       queryKey: [ASRoutePlanQueryKey.TRIP_PLAN, origin, destination, date, deadline],
+      meta: { network: true },
       queryFn: async () => {
         let response = await getTripPlan(
           routePlanAuthToken.data!,

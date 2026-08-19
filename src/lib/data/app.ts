@@ -9,7 +9,9 @@ import {
   type StopSchedule,
   type TimeEstimate,
 } from '$lib/data/types';
+import { connectivityManager } from '$lib/managers/connectivity.manager.svelte';
 import { queryLogger } from '$lib/utils/logger';
+import type { CreateQueryResult } from '@tanstack/svelte-query';
 import moment from 'moment';
 import { createDependencyQuery, createSelectableQuery } from '../utils/queries';
 import {
@@ -38,6 +40,8 @@ export const useRoutes = () => {
 
   const query = createDependencyQuery<Route[]>(() => ({
     queryKey: [QueryKey.ROUTE_LIST],
+    meta: { isRoutes: true },
+    placeholderData: connectivityManager.cachedRoutes,
     queryFn: async () => {
       queryLogger.i(`Loaded ${asRouteList.data?.length} routes from Aggie Spirit`);
       return asRouteList.data!;

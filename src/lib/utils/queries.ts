@@ -6,8 +6,10 @@ interface Params<T> {
   queryFn: () => Promise<T>;
   queryKey: any[];
   staleTime?: moment.Duration | number;
+  placeholderData?: any;
   refetchInterval?: moment.Duration | number;
   enabled?: boolean;
+  meta?: Record<string, unknown>;
 }
 
 interface DependencyQueryParams<T> extends Params<T> {
@@ -27,9 +29,10 @@ export function createDependencyQuery<T>(params: () => DependencyQueryParams<T>)
     const p = params();
     const label = p.queryKey.join('/');
     const enabled = p.dependents.every((q) => q.isSuccess);
-
     return {
       queryKey: [...p.queryKey, ...p.dependents.map((q) => q.data)],
+      meta: p.meta,
+      placeholderData: p.placeholderData,
       queryFn: async () => {
         try {
           const start = moment.now();
@@ -95,6 +98,7 @@ export function createLoggingQuery<T>(params: () => LoggingQueryParams) {
 
     return {
       queryKey: p.queryKey,
+      meta: p.meta,
       queryFn: async () => {
         try {
           const start = moment.now();
@@ -125,6 +129,7 @@ interface SelectableQueryParams<T, S extends Enum> {
   staleTime?: moment.Duration | number;
   refetchInterval?: moment.Duration | number;
   enabled?: boolean;
+  placeholderData?: any;
   queries: Partial<Record<S, CreateQueryResult<T>>>;
   unsupportedValue?: T;
   selector?: S;
@@ -152,6 +157,7 @@ export function createSelectableQuery<T, S extends Enum>(
           throw e;
         }
       },
+      placeholderData: p.placeholderData,
       enabled: (p.enabled ?? true) && (selectedQuery?.isSuccess ?? false),
       staleTime: parseTime(p.staleTime),
       refetchInterval: parseTime(p.refetchInterval),

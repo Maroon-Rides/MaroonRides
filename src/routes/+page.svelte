@@ -14,15 +14,15 @@
   import { Cog, Route } from '@lucide/svelte';
   import { onMount } from 'svelte';
 
-  let routes = useRoutes();
+  const routes = useRoutes();
+  const routesData = $derived(routes.data ?? []);
+
   const favRoutes = $derived(
-    routes.data?.filter((route) => frontPageManager.favorites.includes(route.routeCode)) ?? [],
+    routesData.filter((route) => frontPageManager.favorites.includes(route.routeCode)),
   );
 
   $effect(() => {
-    mapManager.setDrawnRoutes(
-      frontPageManager.selectedTab == 'all' ? (routes.data ?? []) : favRoutes,
-    );
+    mapManager.setDrawnRoutes(frontPageManager.selectedTab == 'all' ? routesData : favRoutes);
   });
 
   onMount(async () => frontPageManager.loadFavorites());
@@ -67,14 +67,14 @@
 
     {#if frontPageManager.selectedTab === 'all'}
       <Card.Content class="flex flex-col gap-4 px-4 pt-4 pb-10">
-        {#if routes.isLoading}
+        {#if routes.isLoading && !routesData.length}
           <Spinner class="size-6 self-center" />
-        {:else if routes.isError}
-          <p>Error loading routes: {routes.error.message}</p>
+          <!-- {:else if routes.isError} <- still logs to console, user has offline notifier now
+          <p>Error loading routes: {routes.error.message}</p> -->
         {/if}
 
-        {#each routes.data ?? [] as route}
-          <RouteRow {route} onclick={() => goto(`/route/${route.id}`)} />
+        {#each routesData as route}
+          <RouteRow {route} onclick={() => goto(`/route/${route.routeCode}`)} />
         {/each}
       </Card.Content>
     {:else if frontPageManager.selectedTab === 'favorites'}
@@ -83,12 +83,12 @@
           <p class="text-center text-sm text-muted-foreground">There are no favorited routes.</p>
         {/if}
 
-        {#if routes.isLoading}
+        {#if routes.isLoading && !routesData.length}
           <Spinner class="size-6 self-center" />
         {/if}
 
         {#each favRoutes as route}
-          <RouteRow {route} onclick={() => goto(`/route/${route.id}`)} />
+          <RouteRow {route} onclick={() => goto(`/route/${route.routeCode}`)} />
         {/each}
       </Card.Content>
     {/if}
