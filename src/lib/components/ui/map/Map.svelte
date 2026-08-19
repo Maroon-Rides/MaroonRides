@@ -43,7 +43,6 @@
   let isMounted = $state(false);
   let isLoaded = $state(false);
   let isStyleLoaded = $state(false);
-  let initialStyleApplied = $state(false);
   let appliedStyle: MapStyleOption | null = null;
   let styleTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
@@ -115,9 +114,6 @@
       // Reduced timeout for faster responsiveness
       styleTimeoutId = setTimeout(() => {
         isStyleLoaded = true;
-        if (!initialStyleApplied) {
-          initialStyleApplied = true;
-        }
         if (projection) {
           mapInstance.setProjection(projection);
         }
@@ -140,9 +136,7 @@
   $effect(() => {
     const style = currentStyle;
 
-    // making this a state \/ bc prefs loaded like half a sec later
-    // where first load on update desyncs color from prefs
-    if (!map || !initialStyleApplied || style === appliedStyle) {
+    if (!map || !isLoaded || style === appliedStyle) {
       return;
     }
 
