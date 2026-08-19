@@ -24,17 +24,11 @@
   const domParser = new DOMParser();
   const format = (s: string) =>
     (
-      domParser.parseFromString(
-        // trim stop code (ID: \d), bold stop, add break (in case multiple steps)
-        s
-          .replaceAll(/([a-zA-Z\- ]+)<span class='stop-code'>\(ID: \d+\)<\/span>/g, '!b!$1!/b!!br!')
-          .replaceAll(/(My Location)/g, '!b!$1!/b!!br!'),
-        'text/html',
-      ).body.textContent ?? ''
+      domParser.parseFromString(s.replaceAll(/\(ID: \d+\)/g, '!br!'), 'text/html').body
+        .textContent ?? ''
     )
-      .replaceAll(/!(\/?)b!/g, '<$1b>') // re add bold and break
       .replaceAll(/!br!/g, '<br>')
-      .trimEnd();
+      .replaceAll(/(My Location)/g, '$1<br>');
 
   const plan = $derived(planManager.selectedPlan);
   const instructions = $derived(plan?.instructions ?? []);
