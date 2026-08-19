@@ -26,7 +26,9 @@
     (
       domParser.parseFromString(
         // trim stop code (ID: \d), bold stop, add break (in case multiple steps)
-        s.replaceAll(/([a-zA-Z\- ]+)<span class='stop-code'>\(ID: \d+\)<\/span>/g, '!b!$1!/b!!br!'),
+        s
+          .replaceAll(/([a-zA-Z\- ]+)<span class='stop-code'>\(ID: \d+\)<\/span>/g, '!b!$1!/b!!br!')
+          .replaceAll(/(My Location)/g, '!b!$1!/b!!br!'),
         'text/html',
       ).body.textContent ?? ''
     )
