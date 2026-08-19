@@ -9,6 +9,7 @@ class MapManager {
   drawnRoutes: Route[] = $state([]);
   // from drawnRoutes bc new logic caused read+write in same effect
   private lastDrawn = new Map<string, string>(); // { code: uuid }
+  private mayRezoom = false;
 
   selectedRoute: Route | null = $state(null);
   selectedDirectionId: string = $state('');
@@ -54,7 +55,7 @@ class MapManager {
     this.lastDrawn = curRoutes;
     this.drawnRoutes = routes;
 
-    if (animateTo && !same) {
+    if (animateTo || (!same && this.mayRezoom)) {
       const allPoints = routes.flatMap((route) =>
         route.directions.flatMap((direction) =>
           direction.pathPoints.map((point) => ({
@@ -68,6 +69,9 @@ class MapManager {
         this.zoomToFitPoints(allPoints);
       }
     }
+
+    // app wouldn't zoom on-launch if/when cache loads before this.map from /+page.svelte's effect
+    this.mayRezoom = this.map === null;
   }
 
   setSelectedRoute(route: Route | null) {
