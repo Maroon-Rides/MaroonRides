@@ -21,5 +21,5 @@
   value={value.toFormat('HH:mm')}
   oninput={handleInput}
   onmousedown={(e) => e.stopPropagation()}
-  class="w-auto appearance-none tabular-nums [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+  class="w-auto appearance-none text-center tabular-nums [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none [&::-webkit-date-and-time-value]:m-0"
 />
