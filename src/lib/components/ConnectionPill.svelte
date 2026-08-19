@@ -11,10 +11,9 @@
   type Props = {
     animateTime?: number;
     initialHideTime?: number; // prevent popup from showing on mount (ex, at homepage startup)
-    offset?: string; // gap between the safe area (notch/camera cutout) and the pill
   };
 
-  const { animateTime = 500, initialHideTime = 0, offset = '0.75rem' }: Props = $props();
+  const { animateTime = 500, initialHideTime = 0 }: Props = $props();
 
   let mayShow = $state(false);
   let contentWidth = $state(0);
@@ -32,10 +31,10 @@
 
 {#if mayShow && isBadStatus}
   {@const Icon = status === ConnectionStatus.OFFLINE ? CloudOff : Spinner}
+  <!-- top-16/h-12 mirror MapControls' offset and icon-xl button size, so the pill lines up with its first icon -->
   <div
-    class="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center"
+    class="pointer-events-none fixed inset-x-0 top-16 z-50 flex h-12 items-center justify-center"
     style="
-      padding-top: calc(env(safe-area-inset-top, 0px) + {offset});
       padding-left: calc(env(safe-area-inset-left, 0px) + 0.75rem);
       padding-right: calc(env(safe-area-inset-right, 0px) + 0.75rem);
     "
