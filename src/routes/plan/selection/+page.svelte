@@ -23,9 +23,13 @@
   // strips the inline html the API returns, so the markup below is the only thing @html renders
   const domParser = new DOMParser();
   const format = (s: string) =>
-    (domParser.parseFromString(s, 'text/html').body.textContent ?? '')
-      .replaceAll(/(\d\))([a-zA-Z])/g, '$1<br>$2') //insert line break (not always present)
-      .replaceAll(/((?:[A-Z][\w.'-]*)(?: [A-Z][\w.'-]*)*)\s*\(ID:\s*\d+\)/g, '<b>$1</b>'); //bold the stop name, drop its id
+    (
+      domParser.parseFromString(s.replaceAll(/\(ID: \d+\)/g, '!br!'), 'text/html').body
+        .textContent ?? ''
+    )
+      .replaceAll(/!br!/g, '<br>')
+      .replaceAll(/(My Location)/g, '$1<br>')
+      .replace(/(<br>)*$/, '');
 
   const plan = $derived(planManager.selectedPlan);
   const instructions = $derived(plan?.instructions ?? []);
