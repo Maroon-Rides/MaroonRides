@@ -43,7 +43,7 @@
   let isMounted = $state(false);
   let isLoaded = $state(false);
   let isStyleLoaded = $state(false);
-  let initialStyleApplied = false;
+  let appliedStyle: MapStyleOption | null = null;
   let styleTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   const mapStyles = $derived({
@@ -91,9 +91,11 @@
 
     bounds = new MapLibreGL.LngLatBounds([h.minLon, h.minLat], [h.maxLon, h.maxLat]);
 
+    appliedStyle = currentStyle;
+
     const mapInstance = new MapLibreGL.Map({
       container: mapContainer,
-      style: currentStyle,
+      style: appliedStyle,
       renderWorldCopies: false,
       // TODO move attribution elsewhere
       attributionControl: false,
@@ -112,9 +114,6 @@
       // Reduced timeout for faster responsiveness
       styleTimeoutId = setTimeout(() => {
         isStyleLoaded = true;
-        if (!initialStyleApplied) {
-          initialStyleApplied = true;
-        }
         if (projection) {
           mapInstance.setProjection(projection);
         }
@@ -137,12 +136,13 @@
   $effect(() => {
     const style = currentStyle;
 
-    if (!map || !initialStyleApplied) {
+    if (!map || !isLoaded || style === appliedStyle) {
       return;
     }
 
     untrack(() => {
       isStyleLoaded = false;
+      appliedStyle = style;
       // Diff mode helps reuse existing layers for better performance
       map!.setStyle(style, { diff: false }); // Changed to false - full style reload is more reliable for theme changes
     });

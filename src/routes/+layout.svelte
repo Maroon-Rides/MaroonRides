@@ -5,6 +5,7 @@
   import ThemeWatcher from '$lib/components/ThemeWatcher.svelte';
   import Map from '$lib/components/ui/map/Map.svelte';
   import MapControls from '$lib/components/ui/map/MapControls.svelte';
+  import { frontPageManager } from '$lib/managers/frontpage.manager.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { installInterceptor } from '$lib/utils/interceptor';
   import { migratePrefs } from '$lib/utils/prefs';
@@ -21,7 +22,8 @@
   });
 
   onMount(async () => {
-    migratePrefs();
+    await migratePrefs(); //sync to reduce some ui flickering when states change
+    await frontPageManager.load();
   });
 
   installInterceptor();

@@ -5,8 +5,12 @@ class FrontPageManager {
   selectedTab = $state('all');
 
   constructor() {
-    this.loadDefaultGroup(); //only set once here since it only applies on-open
-    this.loadFavorites();
+    this.load();
+  }
+
+  async load() {
+    await this.loadDefaultGroup(); //only set once here since it only applies on-open
+    await this.loadFavorites();
   }
 
   async loadDefaultGroup() {
