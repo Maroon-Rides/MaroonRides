@@ -28,7 +28,8 @@
         .textContent ?? ''
     )
       .replaceAll(/!br!/g, '<br>')
-      .replaceAll(/(My Location)/g, '$1<br>');
+      .replaceAll(/(My Location)/g, '$1<br>')
+      .replace(/(<br>)*$/, '');
 
   const plan = $derived(planManager.selectedPlan);
   const instructions = $derived(plan?.instructions ?? []);
