@@ -88,7 +88,7 @@
 {#snippet busMarker(bus: Bus)}
   {@const isSelected =
     bus.direction.id === mapManager.selectedDirectionId || mapManager.selectedDirectionId == ''}
-  <MapMarker longitude={bus.location.longitude} latitude={bus.location.latitude}>
+  <MapMarker longitude={bus.location.longitude} latitude={bus.location.latitude} zIndex={20}>
     <BusPopup {bus} />
     <BusMarker {bus} {isSelected} />
   </MapMarker>
@@ -98,7 +98,7 @@
   {@const isSelected =
     direction.id === mapManager.selectedDirectionId || mapManager.selectedDirectionId == ''}
 
-  <MapMarker longitude={stop.location.longitude} latitude={stop.location.latitude}>
+  <MapMarker longitude={stop.location.longitude} latitude={stop.location.latitude} zIndex={10}>
     <StopMarker {stop} {route} {isSelected} />
     <StopPopup
       {stop}
@@ -124,7 +124,7 @@
 {/each}
 
 {#if userLocation}
-  <MapMarker longitude={userLocation.longitude} latitude={userLocation.latitude}>
+  <MapMarker longitude={userLocation.longitude} latitude={userLocation.latitude} zIndex={30}>
     <MarkerContent>
       <div
         class="relative flex size-5 items-center justify-center rounded-full border-4 bg-white shadow-lg"

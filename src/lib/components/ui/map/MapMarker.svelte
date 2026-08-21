@@ -30,6 +30,7 @@
     rotation?: number;
     pitchAlignment?: MarkerOptions['pitchAlignment'];
     rotationAlignment?: MarkerOptions['rotationAlignment'];
+    zIndex?: number;
   }
 
   let {
@@ -48,6 +49,7 @@
     rotation,
     pitchAlignment,
     rotationAlignment,
+    zIndex,
   }: Props = $props();
 
   const mapCtx = getContext<MapContext>('map');
@@ -180,6 +182,10 @@
     ) {
       marker.setLngLat([longitude, latitude]);
     }
+  });
+
+  $effect(() => {
+    if (markerElement) markerElement.style.zIndex = zIndex === undefined ? '' : String(zIndex);
   });
 
   // Update draggable when prop changes
