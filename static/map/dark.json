@@ -6939,8 +6939,7 @@
           "center"
         ],
         "text-radial-offset": 0.4,
-        "visibility": "visible",
-        "symbol-placement": "line-center"
+        "visibility": "none"
       },
       "paint": {
         "text-color": "#7a7a7a",

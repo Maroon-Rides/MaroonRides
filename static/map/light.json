@@ -6930,7 +6930,8 @@
           8,
           "center"
         ],
-        "text-radial-offset": 0.4
+        "text-radial-offset": 0.4,
+        "visibility": "none"
       },
       "paint": {
         "text-color": "#5c5c5c",
