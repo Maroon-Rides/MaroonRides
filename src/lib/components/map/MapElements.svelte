@@ -5,6 +5,7 @@
   import { themeManager } from '$lib/managers/theme.manager.svelte';
   import { getRouteTint } from '$lib/utils/tints';
   import { Geolocation } from '@capacitor/geolocation';
+  import { uniqBy } from 'lodash-es';
   import { onMount } from 'svelte';
   import MapMarker from '../ui/map/MapMarker.svelte';
   import MapRoute from '../ui/map/MapRoute.svelte';
@@ -99,7 +100,12 @@
 
   <MapMarker longitude={stop.location.longitude} latitude={stop.location.latitude}>
     <StopMarker {stop} {route} {isSelected} />
-    <StopPopup {stop} {route} {direction} />
+    <StopPopup
+      {stop}
+      {route}
+      {direction}
+      open={isSelected && mapManager.selectedStopId === stop.id}
+    />
   </MapMarker>
 {/snippet}
 
@@ -108,7 +114,7 @@
 {/each}
 
 {#each mapManager.selectedRoute?.directions as direction (direction.id)}
-  {#each direction.stops as stopData, i (stopData.id + '-' + direction.id + '-' + i)}
+  {#each uniqBy(direction.stops, 'id') as stopData (stopData.id + '-' + direction.id)}
     {@render stopMarker(mapManager.selectedRoute!, direction, stopData)}
   {/each}
 {/each}

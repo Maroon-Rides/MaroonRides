@@ -12,9 +12,10 @@
     route: Route;
     stop: Stop;
     direction: Direction;
+    open?: boolean;
   };
 
-  let { stop, route, direction }: Props = $props();
+  let { stop, route, direction, open = false }: Props = $props();
 
   const tint = $derived(getRouteTint(route, themeManager.theme));
 
@@ -24,7 +25,7 @@
   );
 </script>
 
-<MarkerPopup class="flex flex-col gap-2 rounded-xl p-3">
+<MarkerPopup class="flex flex-col gap-2 rounded-xl p-3" {open}>
   <div class="flex items-center justify-between gap-2">
     <div class="flex items-center gap-2 rounded-md pe-2">
       <RouteBubble type={'calloutIcon'} {route} />

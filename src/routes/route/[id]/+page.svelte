@@ -39,12 +39,12 @@
     untrack(() => {
       mapManager.selectedDirectionId = route?.directions[0].id ?? '';
     });
+
+    return () => mapManager.setSelectedRoute(null);
   });
 
   function onClose() {
     goto('/');
-    mapManager.setSelectedRoute(null);
-    mapManager.selectedDirectionId = '';
   }
 </script>
 

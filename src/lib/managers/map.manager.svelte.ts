@@ -9,6 +9,7 @@ class MapManager {
   drawnRoutes: Route[] = $state([]);
   selectedRoute: Route | null = $state(null);
   selectedDirectionId: string = $state('');
+  selectedStopId: string | null = $state(null);
 
   attribution: string = $derived(
     (this.map?.getStyle().sources.protomaps as VectorSourceSpecification).attribution ?? '',
@@ -58,6 +59,8 @@ class MapManager {
     if (!this.map) return;
 
     this.selectedRoute = route;
+    this.selectedStopId = null;
+    this.selectedDirectionId = '';
     if (route) {
       this.setDrawnRoutes([route]);
     }
@@ -67,12 +70,15 @@ class MapManager {
     if (!this.map) return;
 
     this.isCentered = false;
+    this.selectedStopId = null;
+
+    this.map.once('moveend', () => (this.selectedStopId = stop.id));
 
     this.map.flyTo({
       center: [stop.location.longitude, stop.location.latitude],
       zoom: 17,
       duration: 750,
-      padding: { top: 0, bottom: this.mapHeight * 0.45, left: 0, right: 0 },
+      offset: [0, -this.mapHeight * 0.225],
     });
   }
 

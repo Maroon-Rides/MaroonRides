@@ -8,6 +8,7 @@
   interface Props {
     children?: import('svelte').Snippet;
     class?: string;
+    open?: boolean;
     closeButton?: boolean;
     offset?: PopupOptions['offset'];
     anchor?: PopupOptions['anchor'];
@@ -20,6 +21,7 @@
   let {
     children,
     class: className,
+    open = false,
     closeButton = false,
     offset = 16,
     anchor,
@@ -31,7 +33,7 @@
 
   const markerCtx = getContext<MarkerContext>('marker');
 
-  let popup: MapLibreGL.Popup | null = null;
+  let popup: MapLibreGL.Popup | null = $state(null);
   let wrapperElement: HTMLDivElement | null = $state(null);
   let shouldStayOpen = $state(false);
 
@@ -111,6 +113,13 @@
       popupInstance.remove();
       popup = null;
     };
+  });
+
+  $effect(() => {
+    const marker = markerCtx.getMarker();
+    if (!popup || !marker) return;
+
+    if (open !== popup.isOpen()) marker.togglePopup();
   });
 
   function handleClose() {
