@@ -23,23 +23,16 @@
   let userLocation: Location | null = $state(null);
 
   onMount(() => {
-    Geolocation.getCurrentPosition({ enableHighAccuracy: true })
-      .then((location) => (userLocation = location.coords))
-      .catch((error) => {
-        console.error('Error requesting location permissions:', error);
-      });
+    let watchId: string | null = null;
 
-    const userLocationInteval = setInterval(async () => {
-      try {
-        const location = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
-        userLocation = location.coords;
-      } catch (error) {
-        console.error('Error requesting location permissions:', error);
-      }
-    }, 5000);
+    Geolocation.watchPosition({ enableHighAccuracy: true }, (location) => {
+      if (location) userLocation = location.coords;
+    })
+      .then((id) => (watchId = id))
+      .catch((error) => console.error('Error requesting location permissions:', error));
 
     return () => {
-      clearInterval(userLocationInteval);
+      if (watchId) Geolocation.clearWatch({ id: watchId });
     };
   });
 
