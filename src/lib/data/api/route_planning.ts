@@ -5,6 +5,7 @@ import {
 } from '$lib/data/typecheck/aggie_spirit';
 import { type SearchSuggestion } from '$lib/utils/route-planning';
 import { findBusStops, getTripPlan } from 'aggie-spirit-api';
+import { keyBy } from 'lodash-es';
 import { createLoggingQuery } from '../../utils/queries';
 import { useASRoutes } from '../structure/aggie_spirit';
 import { useAuthTokenAPI, useRoutePlanAuthTokenAPI } from './aggie_spirit';
@@ -37,14 +38,17 @@ export const useSearchSuggestionAPI = (params: () => { query: string }) => {
 
         const stops = await findBusStops(query, queryData);
 
+        const stopsById = keyBy(
+          routesQuery.data?.flatMap((route) => route.directions).flatMap((path) => path.stops) ??
+            [],
+          'id',
+        );
+
         // handle bus stops
         let busStops: SearchSuggestion[] = [];
 
         busStops = stops.map((stop: IFoundStop) => {
-          const foundLocation = routesQuery.data
-            ?.flatMap((route) => route.directions)
-            .flatMap((path) => path.stops)
-            .find((point) => point.id === stop.stopCode);
+          const foundLocation = stopsById[stop.stopCode];
 
           return {
             type: 'stop',

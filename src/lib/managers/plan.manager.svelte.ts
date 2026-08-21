@@ -8,9 +8,12 @@ import {
 } from '$lib/data/types';
 import { Geolocation } from '@capacitor/geolocation';
 import type { CreateQueryResult } from '@tanstack/svelte-query';
+import { debounce, sortBy } from 'lodash-es';
 import { DateTime } from 'luxon';
 
 type EndpointKey = 'start' | 'end';
+
+const SEARCH_DEBOUNCE_MS = 250;
 
 class PlanEndpoint {
   location = $state<PlaceSuggestion | null>(null);
@@ -44,6 +47,9 @@ class PlanManager {
   suggestionsQuery = $state<CreateQueryResult<PlaceSuggestion[], Error> | null>(null);
   tripPlanQuery = $state<CreateQueryResult<PlanItem[], Error> | null>(null);
 
+  searchQuery = $state('');
+  updateSearchQuery = debounce((term: string) => (this.searchQuery = term), SEARCH_DEBOUNCE_MS);
+
   #locationSeq = 0;
 
   activeEndpoint = $derived(this.activeInput ? this[this.activeInput] : null);
@@ -54,14 +60,17 @@ class PlanManager {
     (this.start.isMyLocation || this.end.isMyLocation) && this.locationDenied,
   );
 
+  searchPending = $derived(this.searchQuery !== this.activeSearchTerm);
+
   suggestions = $derived(this.activeSearchTerm.trim() ? (this.suggestionsQuery?.data ?? []) : []);
-  plans = $derived([...(this.tripPlanQuery?.data ?? [])].sort((a, b) => a.endTime - b.endTime));
+  plans = $derived(sortBy(this.tripPlanQuery?.data ?? [], 'endTime'));
 
   error = $derived.by(() => {
     if (this.activeInput) {
       if (this.showMyLocation) return null;
       if (this.suggestionsQuery?.isError) return 'Failed to load locations';
-      if (this.suggestionsQuery?.isLoading || this.suggestions.length) return null;
+      if (this.searchPending || this.suggestionsQuery?.isLoading || this.suggestions.length)
+        return null;
       return 'No locations found';
     }
 
@@ -74,7 +83,8 @@ class PlanManager {
     return 'No routes found';
   });
   loading = $derived(
-    !this.error && !!(this.tripPlanQuery?.isLoading || this.suggestionsQuery?.isLoading),
+    !this.error &&
+      !!(this.tripPlanQuery?.isLoading || this.suggestionsQuery?.isLoading || this.searchPending),
   );
 
   constructor() {
@@ -118,6 +128,8 @@ class PlanManager {
   }
 
   reset() {
+    this.updateSearchQuery.cancel();
+    this.searchQuery = '';
     this.start.select({ ...MyLocation });
     this.end.select(null);
     this.activeInput = null;
@@ -133,7 +145,7 @@ class PlanManager {
 
 export function usePlanState() {
   planManager.suggestionsQuery = useSearchSuggestions(() => ({
-    query: planManager.activeSearchTerm,
+    query: planManager.searchQuery,
   }));
   planManager.tripPlanQuery = useTripPlan(() => ({
     origin: planManager.start.location,
@@ -141,6 +153,10 @@ export function usePlanState() {
     date: planManager.planTime.toJSDate(),
     deadline: planManager.deadline,
   }));
+
+  $effect(() => {
+    planManager.updateSearchQuery(planManager.activeSearchTerm);
+  });
 
   $effect(() => {
     if (planManager.needsMyLocation) planManager.resolveMyLocation();

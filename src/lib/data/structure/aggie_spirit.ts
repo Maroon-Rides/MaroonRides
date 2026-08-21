@@ -12,6 +12,7 @@ import {
   type TimeEstimate,
 } from '$lib/data/types';
 import { findBoundingBox } from '$lib/utils/geo';
+import { compact, keyBy } from 'lodash-es';
 import moment from 'moment';
 import { createDependencyQuery } from '../../utils/queries';
 import {
@@ -356,18 +357,20 @@ export const useASAlerts = (params: () => { route: Route | null }) => {
         .map((s) => s.toString());
 
       const routeAlerts = alerts.filter((si) => routeAlertKeys.includes(si.key));
+      const routesById = keyBy(routes, 'id');
 
       return routeAlerts.map((alert): Alert => {
         // Find all routes affected by this alert
         // used for showing all routes affected on map when tapped
-        const affectedAPIRoutes = baseData.routes
-          .filter((r) =>
-            r.directionList.some((d) =>
-              d.serviceInterruptionKeys.map((s) => s.toString()).includes(alert.key),
-            ),
-          )
-          .map((r) => routes.find((route) => route.id === r.key))
-          .filter((r): r is Route => r !== undefined);
+        const affectedAPIRoutes = compact(
+          baseData.routes
+            .filter((r) =>
+              r.directionList.some((d) =>
+                d.serviceInterruptionKeys.some((s) => s.toString() === alert.key),
+              ),
+            )
+            .map((r) => routesById[r.key]),
+        );
 
         return {
           dataSource: DataSource.AGGIE_SPIRIT,

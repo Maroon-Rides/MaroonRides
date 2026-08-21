@@ -1,4 +1,5 @@
 import type { Location, Route, Stop } from '$lib/data/types';
+import { findBoundingBox } from '$lib/utils/geo';
 import MapLibreGL, { type VectorSourceSpecification } from 'maplibre-gl';
 
 class MapManager {
@@ -83,17 +84,15 @@ class MapManager {
   }
 
   zoomToFitPoints(points: Location[]) {
-    this.isCentered = false;
+    const [min, max] = findBoundingBox(points);
+    if (!min || !max) return;
 
-    let minLat = Math.min(...points.map((p) => p.latitude));
-    let maxLat = Math.max(...points.map((p) => p.latitude));
-    let minLng = Math.min(...points.map((p) => p.longitude));
-    let maxLng = Math.max(...points.map((p) => p.longitude));
+    this.isCentered = false;
 
     this.map?.fitBounds(
       [
-        [minLng, minLat],
-        [maxLng, maxLat],
+        [min.longitude, min.latitude],
+        [max.longitude, max.latitude],
       ],
       {
         padding: {

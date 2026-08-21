@@ -1,6 +1,7 @@
 <script lang="ts">
   import { cn } from '$lib/utils.js';
   import { Tabs as TabsPrimitive } from 'bits-ui';
+  import { throttle } from 'lodash-es';
   import { onMount, tick } from 'svelte';
 
   let { ref = $bindable(null), class: className, ...restProps }: TabsPrimitive.ListProps = $props();
@@ -17,7 +18,8 @@
   }
 
   onMount(() => {
-    window.addEventListener('resize', () => updateIndicator(false));
+    const onResize = throttle(() => updateIndicator(false), 100);
+    window.addEventListener('resize', onResize);
 
     tick().then(() => updateIndicator());
     const observer = new MutationObserver(() => updateIndicator());
@@ -28,7 +30,11 @@
         attributeFilter: ['data-state'],
       });
     }
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', onResize);
+      onResize.cancel();
+    };
   });
 </script>
 

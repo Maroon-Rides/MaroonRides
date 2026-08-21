@@ -1,4 +1,5 @@
 import type { StopSchedule } from '$lib/data/types';
+import { chunk } from 'lodash-es';
 import moment from 'moment';
 
 interface TableItem {
@@ -68,16 +69,10 @@ export default function buildTimetable(
   });
 
   // Step 3: Chunk into rows and highlight the row containing the next time
-  const rows: TableItemRow[] = [];
-  for (let i = 0; i < processedTimes.length; i += ITEMS_PER_ROW) {
-    const rowItems = processedTimes.slice(i, i + ITEMS_PER_ROW);
-    const hasNextTime = rowItems.some((item) => item.highlighted);
-
-    rows.push({
-      items: rowItems.map(({ departureTime, ...item }) => item), // Remove departureTime (only needed for processing)
-      highlighted: hasNextTime,
-    });
-  }
+  const rows: TableItemRow[] = chunk(processedTimes, ITEMS_PER_ROW).map((rowItems) => ({
+    items: rowItems.map(({ departureTime, ...item }) => item), // Remove departureTime (only needed for processing)
+    highlighted: rowItems.some((item) => item.highlighted),
+  }));
 
   return rows;
 }

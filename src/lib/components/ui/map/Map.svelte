@@ -1,5 +1,6 @@
 <script lang="ts">
   import { themeManager } from '$lib/managers/theme.manager.svelte';
+  import { debounce } from 'lodash-es';
   import MapLibreGL from 'maplibre-gl';
   import 'maplibre-gl/dist/maplibre-gl.css';
   import { PMTiles, Protocol } from 'pmtiles';
@@ -44,7 +45,9 @@
   let isLoaded = $state(false);
   let isStyleLoaded = $state(false);
   let appliedStyle: MapStyleOption | null = null;
-  let styleTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  let cancelStyleLoad: (() => void) | null = null;
+
+  const STYLE_LOAD_DEBOUNCE_MS = 50;
 
   const mapStyles = $derived({
     dark: styles?.dark ?? defaultStyles.dark,
@@ -66,13 +69,6 @@
     getBounds: () => bounds,
     isLoaded: () => isReady,
   });
-
-  function clearStyleTimeout() {
-    if (styleTimeoutId) {
-      clearTimeout(styleTimeoutId);
-      styleTimeoutId = null;
-    }
-  }
 
   onMount(async () => {
     isMounted = true;
@@ -109,16 +105,14 @@
       ...options,
     });
 
-    const styleDataHandler = () => {
-      clearStyleTimeout();
-      // Reduced timeout for faster responsiveness
-      styleTimeoutId = setTimeout(() => {
-        isStyleLoaded = true;
-        if (projection) {
-          mapInstance.setProjection(projection);
-        }
-      }, 50); // Reduced from 100ms to 50ms
-    };
+    const styleDataHandler = debounce(() => {
+      isStyleLoaded = true;
+      if (projection) {
+        mapInstance.setProjection(projection);
+      }
+    }, STYLE_LOAD_DEBOUNCE_MS);
+
+    cancelStyleLoad = styleDataHandler.cancel;
 
     const loadHandler = () => {
       isLoaded = true;
@@ -149,6 +143,8 @@
   });
 
   onDestroy(() => {
+    cancelStyleLoad?.();
+    cancelStyleLoad = null;
     map?.remove();
     map = null;
     bounds = null;

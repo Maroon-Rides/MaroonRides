@@ -2,6 +2,7 @@
   import { beforeNavigate, goto } from '$app/navigation';
   import * as Card from '$lib/components/ui/card';
   import { cn, type WithElementRef } from '$lib/utils.js';
+  import { clamp, last, minBy, range, throttle } from 'lodash-es';
   import { onMount, setContext, tick } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { fly } from 'svelte/transition';
@@ -144,10 +145,10 @@
   const computeVelocity = (): number => {
     if (velocitySamples.length < 2) return 0;
     const first = velocitySamples[0];
-    const last = velocitySamples[velocitySamples.length - 1];
-    const dt = last.t - first.t;
+    const latest = last(velocitySamples)!;
+    const dt = latest.t - first.t;
     if (dt < 1) return 0;
-    return (first.y - last.y) / dt; // positive = up
+    return (first.y - latest.y) / dt; // positive = up
   };
 
   const findNearestSnap = (height: number, velocity: number): number => {
@@ -156,16 +157,7 @@
       const target = currentSnapIndex + dir;
       if (target >= 0 && target < snapPoints.length) return target;
     }
-    let best = 0;
-    let bestDiff = Infinity;
-    for (let i = 0; i < snapPoints.length; i++) {
-      const diff = Math.abs(height - getSnapHeightPx(i));
-      if (diff < bestDiff) {
-        bestDiff = diff;
-        best = i;
-      }
-    }
-    return best;
+    return minBy(range(snapPoints.length), (i) => Math.abs(height - getSnapHeightPx(i)))!;
   };
 
   const snapTo = async (index: number) => {
@@ -248,7 +240,7 @@
 
       if (Math.abs(v) < MIN_VELOCITY && scrollOffset >= 0 && scrollOffset <= maxScroll) {
         // Clamp and stop
-        scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
+        scrollOffset = clamp(scrollOffset, 0, maxScroll);
         animationFrameId = null;
         return;
       }
@@ -427,7 +419,7 @@
 
     if (isAtMaxSnap() && hasScrollableContent()) {
       // Scroll content
-      scrollOffset = Math.max(0, Math.min(scrollOffset + e.deltaY, maxScrollOffset()));
+      scrollOffset = clamp(scrollOffset + e.deltaY, 0, maxScrollOffset());
       // If at top and scrolling up, collapse
       if (scrollOffset <= 0 && e.deltaY < 0) {
         snapTo(currentSnapIndex - 1);
@@ -435,11 +427,13 @@
       return;
     }
 
+    const lastSnapIndex = snapPoints.length - 1;
+
     if (e.deltaY > 0) {
-      const nextIndex = Math.min(currentSnapIndex + 1, snapPoints.length - 1);
+      const nextIndex = clamp(currentSnapIndex + 1, 0, lastSnapIndex);
       if (nextIndex !== currentSnapIndex) snapTo(nextIndex);
     } else if (e.deltaY < 0) {
-      const prevIndex = Math.max(currentSnapIndex - 1, 0);
+      const prevIndex = clamp(currentSnapIndex - 1, 0, lastSnapIndex);
       if (prevIndex !== currentSnapIndex) snapTo(prevIndex);
     }
   };
@@ -595,9 +589,11 @@
       resizeObserver.observe(contentInnerRef);
     }
 
+    const onResize = throttle(updateViewportHeight, 100);
+
     window.addEventListener('mousemove', onGlobalMouseMove);
     window.addEventListener('mouseup', onGlobalMouseUp);
-    window.addEventListener('resize', updateViewportHeight);
+    window.addEventListener('resize', onResize);
 
     return () => {
       stopAnimation();
@@ -606,7 +602,8 @@
       }
       window.removeEventListener('mousemove', onGlobalMouseMove);
       window.removeEventListener('mouseup', onGlobalMouseUp);
-      window.removeEventListener('resize', updateViewportHeight);
+      window.removeEventListener('resize', onResize);
+      onResize.cancel();
       bindHandleListeners(null);
       bindContentListeners(null);
     };

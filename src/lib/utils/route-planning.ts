@@ -1,6 +1,7 @@
 // // // Generate the path points for the selected route plan
 
 import type { PlanItem, RoutePlanMarkedPoint, RoutePlanPoint } from '$lib/data/types';
+import { findLast, last } from 'lodash-es';
 
 export interface SearchSuggestion {
   title: string;
@@ -69,9 +70,7 @@ export function processRoutePlanMapComponents(
       highlighted: pathPoints,
       faded: [],
       markers:
-        pathPoints.length === 0
-          ? []
-          : createMarkers(pathPoints[0]!, pathPoints[pathPoints.length - 1]!, true),
+        pathPoints.length === 0 ? [] : createMarkers(pathPoints[0]!, last(pathPoints)!, true),
     };
   }
 
@@ -91,9 +90,7 @@ export function processRoutePlanMapComponents(
 
   // handle single point steps
   if (highlighted.length === 0) {
-    const lastPoint = [...pathPoints]
-      .reverse()
-      .find((point) => point.stepIndex === selectedPart - 1);
+    const lastPoint = findLast(pathPoints, (point) => point.stepIndex === selectedPart - 1);
 
     if (lastPoint) {
       if (lastPoint.pathIndex === pathPoints.length - 1) {
@@ -129,6 +126,6 @@ export function processRoutePlanMapComponents(
   return {
     highlighted: highlighted,
     faded: faded,
-    markers: createMarkers(highlighted[0]!, highlighted[highlighted.length - 1]!, true),
+    markers: createMarkers(highlighted[0]!, last(highlighted)!, true),
   };
 }
