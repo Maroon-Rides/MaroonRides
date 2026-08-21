@@ -121,18 +121,24 @@
     ),
   );
 
+  const selectedBus = $derived(
+    mapManager.selected?.type === 'bus'
+      ? busLocations?.data?.find((bus) => bus.id === mapManager.selected?.id)
+      : null,
+  );
+
   const selectedStop = $derived.by(() => {
     const route = mapManager.selectedRoute;
-    if (!route || !mapManager.selectedStopId) return null;
+    if (!route || mapManager.selected?.type !== 'stop') return null;
 
-    for (const { direction, stops } of stopsByDirection) {
-      if (!isDirectionSelected(direction.id)) continue;
+    const stopId = mapManager.selected.id;
+    const matches = stopsByDirection.flatMap(({ direction, stops }) => {
+      const stop = stops.find((candidate) => candidate.id === stopId);
+      return stop ? [{ route, direction, stop }] : [];
+    });
 
-      const stop = stops.find((candidate) => candidate.id === mapManager.selectedStopId);
-      if (stop) return { route, direction, stop };
-    }
-
-    return null;
+    // a stop belongs to several directions; the shown one supplies the estimates
+    return matches.find((match) => isDirectionSelected(match.direction.id)) ?? matches[0] ?? null;
   });
 </script>
 
@@ -159,8 +165,13 @@
 {/snippet}
 
 {#snippet busMarker(bus: Bus)}
-  <MapMarker longitude={bus.location.longitude} latitude={bus.location.latitude} zIndex={20}>
-    <BusPopup {bus} />
+  <MapMarker
+    longitude={bus.location.longitude}
+    latitude={bus.location.latitude}
+    zIndex={20}
+    onclick={() =>
+      (mapManager.selected = selectedBus?.id === bus.id ? null : { type: 'bus', id: bus.id })}
+  >
     <BusMarker {bus} isSelected={isDirectionSelected(bus.direction.id)} />
   </MapMarker>
 {/snippet}
@@ -176,22 +187,25 @@
   onclick={(id) => {
     const stopId = (id && stopsByCircleId.get(id)?.id) || null;
     if (stopId) markStopTapped();
-    mapManager.selectedStopId = stopId === mapManager.selectedStopId ? null : stopId;
+    mapManager.selected =
+      !stopId || stopId === selectedStop?.stop.id ? null : { type: 'stop', id: stopId };
   }}
 />
-
-{#if selectedStop}
-  <StopPopup
-    route={selectedStop.route}
-    direction={selectedStop.direction}
-    stop={selectedStop.stop}
-    onclose={() => (mapManager.selectedStopId = null)}
-  />
-{/if}
 
 {#each busLocations?.data ?? [] as bus (bus.id)}
   {@render busMarker(bus)}
 {/each}
+
+{#if selectedBus}
+  <BusPopup bus={selectedBus} />
+{:else if selectedStop}
+  <StopPopup
+    route={selectedStop.route}
+    direction={selectedStop.direction}
+    stop={selectedStop.stop}
+    onclose={() => (mapManager.selected = null)}
+  />
+{/if}
 
 {#if userLocation}
   <MapMarker longitude={userLocation.longitude} latitude={userLocation.latitude} zIndex={30}>

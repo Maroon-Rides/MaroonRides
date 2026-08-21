@@ -1,6 +1,6 @@
 <script lang="ts">
   import RouteBubble from '$lib/components/RouteBubble.svelte';
-  import MarkerPopup from '$lib/components/ui/map/MarkerPopup.svelte';
+  import MapPopup from '$lib/components/ui/map/MapPopup.svelte';
   import { Amenity, type Bus } from '$lib/data/types';
 
   type Props = {
@@ -10,7 +10,14 @@
   let { bus }: Props = $props();
 </script>
 
-<MarkerPopup class="flex flex-col gap-3 rounded-xl p-3">
+<MapPopup
+  longitude={bus.location.longitude}
+  latitude={bus.location.latitude}
+  anchor="bottom"
+  offset={22}
+  closeOnClick={false}
+  class="flex flex-col gap-3 rounded-xl p-3"
+>
   <div class="flex items-center justify-between gap-10">
     <div class="flex items-center gap-2 rounded-md bg-muted pe-2">
       <RouteBubble type={'calloutIcon'} route={bus.route} />
@@ -31,4 +38,4 @@
       {Math.round(bus.speed)} MPH
     </span>
   </div>
-</MarkerPopup>
+</MapPopup>

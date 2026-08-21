@@ -135,6 +135,9 @@
     if (!style || !map || !onclick) return;
 
     const handleClick = (e: MapLibreGL.MapMouseEvent) => {
+      // markers sit above the canvas in the DOM, so their taps are never circle taps
+      if (e.originalEvent.target !== map.getCanvas()) return;
+
       const { x, y } = e.point;
       const hits = map.queryRenderedFeatures(
         [

@@ -2,6 +2,8 @@ import type { Location, Route, Stop } from '$lib/data/types';
 import { findBoundingBox } from '$lib/utils/geo';
 import MapLibreGL, { type VectorSourceSpecification } from 'maplibre-gl';
 
+export type MapSelection = { type: 'bus'; id: string } | { type: 'stop'; id: string } | null;
+
 class MapManager {
   map: MapLibreGL.Map | null = $state(null);
 
@@ -10,7 +12,9 @@ class MapManager {
   drawnRoutes: Route[] = $state([]);
   selectedRoute: Route | null = $state(null);
   selectedDirectionId: string = $state('');
-  selectedStopId: string | null = $state(null);
+
+  /** The one map item with an open popup. */
+  selected: MapSelection = $state(null);
 
   attribution: string = $state('');
 
@@ -71,7 +75,7 @@ class MapManager {
     if (!this.map) return;
 
     this.selectedRoute = route;
-    this.selectedStopId = null;
+    this.selected = null;
     this.selectedDirectionId = '';
     if (route) {
       this.setDrawnRoutes([route]);
@@ -82,7 +86,7 @@ class MapManager {
     if (!this.map) return;
 
     this.isCentered = false;
-    this.selectedStopId = stop.id;
+    this.selected = { type: 'stop', id: stop.id };
 
     this.map.flyTo({
       center: [stop.location.longitude, stop.location.latitude],
