@@ -7,4 +7,5 @@ export { default as MarkerLabel } from './MarkerLabel.svelte';
 export { default as MapControls } from './MapControls.svelte';
 export { default as MapPopup } from './MapPopup.svelte';
 export { default as MapRoute } from './MapRoute.svelte';
+export { default as MapCircleLayer } from './MapCircleLayer.svelte';
 export { default as MapClusterLayer } from './MapClusterLayer.svelte';

@@ -1,8 +1,8 @@
 <script lang="ts">
   import RouteBubble from '$lib/components/RouteBubble.svelte';
-  import TimeBubble from '$lib/components/TimeBubble.svelte';
-  import MarkerPopup from '$lib/components/ui/map/MarkerPopup.svelte';
+  import MapPopup from '$lib/components/ui/map/MapPopup.svelte';
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
+  import TimeBubble from '$lib/components/TimeBubble.svelte';
   import { useStopAmenities, useStopEstimate } from '$lib/data/app';
   import { Amenity, type Direction, type Route, type Stop } from '$lib/data/types';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
@@ -12,10 +12,10 @@
     route: Route;
     stop: Stop;
     direction: Direction;
-    open?: boolean;
+    onclose?: () => void;
   };
 
-  let { stop, route, direction, open = false }: Props = $props();
+  let { stop, route, direction, onclose }: Props = $props();
 
   const tint = $derived(getRouteTint(route, themeManager.theme));
 
@@ -25,7 +25,15 @@
   );
 </script>
 
-<MarkerPopup class="flex flex-col gap-2 rounded-xl p-3" {open}>
+<MapPopup
+  longitude={stop.location.longitude}
+  latitude={stop.location.latitude}
+  anchor="bottom"
+  offset={14}
+  closeOnClick={false}
+  class="flex flex-col gap-2 rounded-xl p-3"
+  {onclose}
+>
   <div class="flex items-center justify-between gap-2">
     <div class="flex items-center gap-2 rounded-md pe-2">
       <RouteBubble type={'calloutIcon'} {route} />
@@ -33,7 +41,7 @@
     </div>
 
     <div class="flex items-center gap-2">
-      {#each amenities as amenity}
+      {#each amenities ?? [] as amenity}
         {@const AmenityIcon = Amenity.getIcon(amenity)}
         <AmenityIcon class="size-6 text-muted-foreground" />
       {/each}
@@ -47,8 +55,8 @@
       <p class="text-center text-xs text-muted-foreground">No upcoming departures</p>
     {/if}
 
-    {#each estimates as estimate, i}
+    {#each estimates ?? [] as estimate, i}
       <TimeBubble {estimate} isNext={i === 0} type={'callout'} />
     {/each}
   </div>
-</MarkerPopup>
+</MapPopup>
