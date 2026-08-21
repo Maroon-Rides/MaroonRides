@@ -82,9 +82,7 @@ class MapManager {
     if (!this.map) return;
 
     this.isCentered = false;
-    this.selectedStopId = null;
-
-    this.map.once('moveend', () => (this.selectedStopId = stop.id));
+    this.selectedStopId = stop.id;
 
     this.map.flyTo({
       center: [stop.location.longitude, stop.location.latitude],
