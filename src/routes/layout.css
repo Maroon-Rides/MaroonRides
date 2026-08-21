@@ -117,6 +117,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  .maplibregl-popup {
+    z-index: 40;
+  }
   .maplibregl-popup-content {
   }
   @apply rounded-none! bg-transparent! p-0! shadow-none! {

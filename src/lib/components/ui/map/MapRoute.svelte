@@ -24,6 +24,8 @@
     onmouseleave?: () => void;
     /** Whether the route is interactive - shows pointer cursor on hover (default: true) */
     interactive?: boolean;
+    /** Layer to insert this route beneath, keeping it under layers drawn later */
+    beforeId?: string;
   }
 
   let {
@@ -37,6 +39,7 @@
     onmouseleave,
     interactive = true,
     id,
+    beforeId,
   }: Props = $props();
 
   const mapCtx = getContext<MapContext>('map');
@@ -82,28 +85,36 @@
       ...(dashArray ? { 'line-dasharray': dashArray } : {}),
     }));
 
-    // Add layer with initial paint properties
-    map.addLayer({
-      id: layerId,
-      type: 'line',
-      source: sourceId,
-      layout: {
-        'line-join': 'round',
-        'line-cap': 'round',
-      },
-      paint,
-    });
+    const insertBefore = beforeId && map.getLayer(beforeId) ? beforeId : undefined;
 
-    map.addLayer({
-      id: hitLayerId,
-      type: 'line',
-      source: sourceId,
-      paint: {
-        'line-color': '#00ff00',
-        'line-width': 20,
-        'line-opacity': 0,
+    // Add layer with initial paint properties
+    map.addLayer(
+      {
+        id: layerId,
+        type: 'line',
+        source: sourceId,
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round',
+        },
+        paint,
       },
-    });
+      insertBefore,
+    );
+
+    map.addLayer(
+      {
+        id: hitLayerId,
+        type: 'line',
+        source: sourceId,
+        paint: {
+          'line-color': '#00ff00',
+          'line-width': 20,
+          'line-opacity': 0,
+        },
+      },
+      insertBefore,
+    );
 
     return () => {
       try {

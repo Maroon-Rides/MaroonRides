@@ -70,7 +70,7 @@
 </script>
 
 {#if loaded}
-  <div class={cn('absolute z-10 flex flex-col gap-1.5', positionClasses[position], className)}>
+  <div class={cn('absolute z-50 flex flex-col gap-1.5', positionClasses[position], className)}>
     <Button
       variant="outline"
       size="icon-xl"

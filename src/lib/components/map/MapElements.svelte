@@ -1,6 +1,10 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import type { MapCircle, MapCircleStyle } from '$lib/components/ui/map/MapCircleLayer.svelte';
+  import {
+    circleLayerId,
+    type MapCircle,
+    type MapCircleStyle,
+  } from '$lib/components/ui/map/MapCircleLayer.svelte';
   import { useRoutes, useVehicles } from '$lib/data/app';
   import { type Bus, type Location, type Route, type Stop } from '$lib/data/types';
   import { mapManager } from '$lib/managers/map.manager.svelte';
@@ -147,6 +151,7 @@
         requestRoute(route, index);
       }}
       interactive={isShown}
+      beforeId={circleLayerId(STOPS_ID)}
       {opacity}
       width={5}
     />
