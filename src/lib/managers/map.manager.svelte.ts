@@ -12,27 +12,38 @@ class MapManager {
   selectedDirectionId: string = $state('');
   selectedStopId: string | null = $state(null);
 
-  attribution: string = $derived(
-    (this.map?.getStyle().sources.protomaps as VectorSourceSpecification).attribution ?? '',
-  );
+  attribution: string = $state('');
 
   mapWidth: number = $state(0);
   mapHeight: number = $state(0);
 
+  #uncenter = () => (this.isCentered = false);
+
+  // getStyle() returns undefined while a style is loading, so keep listening until it resolves
+  #readAttribution = () => {
+    const source = this.map?.getStyle()?.sources.protomaps as VectorSourceSpecification | undefined;
+    if (!source?.attribution) return;
+
+    this.attribution = source.attribution;
+    this.map?.off('styledata', this.#readAttribution);
+  };
+
   registerMap(map: MapLibreGL.Map) {
     this.map = map;
 
-    this.map.on('rotate', () => (this.isCentered = false));
-    this.map.on('pitch', () => (this.isCentered = false));
-    this.map.on('dragstart', () => (this.isCentered = false));
+    map.on('rotate', this.#uncenter);
+    map.on('pitch', this.#uncenter);
+    map.on('dragstart', this.#uncenter);
+    map.on('styledata', this.#readAttribution);
 
-    return () => {};
+    this.#readAttribution();
   }
 
   unregisterMap() {
-    this.map?.off('rotate', () => (this.isCentered = false));
-    this.map?.off('pitch', () => (this.isCentered = false));
-    this.map?.off('dragstart', () => (this.isCentered = false));
+    this.map?.off('rotate', this.#uncenter);
+    this.map?.off('pitch', this.#uncenter);
+    this.map?.off('dragstart', this.#uncenter);
+    this.map?.off('styledata', this.#readAttribution);
 
     this.map = null;
   }

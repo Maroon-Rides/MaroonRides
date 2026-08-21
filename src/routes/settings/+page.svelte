@@ -9,7 +9,8 @@
   import { setMode, userPrefersMode } from 'mode-watcher';
   import { onMount } from 'svelte';
 
-  let theme = $state(userPrefersMode.current);
+  type Mode = 'system' | 'light' | 'dark';
+
   let defaultRouteGroup = $state('all');
 
   async function updateDefaultGroup(group: string) {
@@ -57,11 +58,14 @@
       <div>
         <h3 class="text-lg font-semibold">App Theme</h3>
         <p class="text-sm text-muted-foreground">Select your preferred theme for the app.</p>
-        <Tabs.Root bind:value={theme} class="mt-1">
+        <Tabs.Root
+          bind:value={() => userPrefersMode.current, (mode) => setMode(mode as Mode)}
+          class="mt-1"
+        >
           <Tabs.List>
-            <Tabs.Trigger value="system" onclick={() => setMode('system')}>System</Tabs.Trigger>
-            <Tabs.Trigger value="light" onclick={() => setMode('light')}>Light</Tabs.Trigger>
-            <Tabs.Trigger value="dark" onclick={() => setMode('dark')}>Dark</Tabs.Trigger>
+            <Tabs.Trigger value="system">System</Tabs.Trigger>
+            <Tabs.Trigger value="light">Light</Tabs.Trigger>
+            <Tabs.Trigger value="dark">Dark</Tabs.Trigger>
           </Tabs.List>
         </Tabs.Root>
       </div>

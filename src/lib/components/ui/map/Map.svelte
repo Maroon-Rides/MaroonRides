@@ -1,10 +1,9 @@
 <script lang="ts">
   import { themeManager } from '$lib/managers/theme.manager.svelte';
-  import { debounce } from 'lodash-es';
   import MapLibreGL from 'maplibre-gl';
   import 'maplibre-gl/dist/maplibre-gl.css';
   import { PMTiles, Protocol } from 'pmtiles';
-  import { onDestroy, onMount, setContext, untrack } from 'svelte';
+  import { onDestroy, onMount, setContext } from 'svelte';
   import Spinner from '../spinner/spinner.svelte';
 
   type MapStyleOption = string | MapLibreGL.StyleSpecification;
@@ -43,11 +42,8 @@
   let bounds: MapLibreGL.LngLatBounds | null = $state(null);
   let isMounted = $state(false);
   let isLoaded = $state(false);
-  let isStyleLoaded = $state(false);
-  let appliedStyle: MapStyleOption | null = null;
-  let cancelStyleLoad: (() => void) | null = null;
-
-  const STYLE_LOAD_DEBOUNCE_MS = 50;
+  let loadedStyle: MapStyleOption | null = $state(null);
+  let requestedStyle: MapStyleOption | null = null;
 
   const mapStyles = $derived({
     dark: styles?.dark ?? defaultStyles.dark,
@@ -56,18 +52,25 @@
 
   const currentStyle = $derived(themeManager.theme === 'light' ? mapStyles.light : mapStyles.dark);
 
-  const isReady = $derived(isMounted && isLoaded && isStyleLoaded);
+  const isReady = $derived(isMounted && isLoaded);
 
   export type MapContext = {
     getMap: () => MapLibreGL.Map | null;
     getBounds: () => MapLibreGL.LngLatBounds | null;
     isLoaded: () => boolean;
+    /**
+     * The style currently live on the map, or null while one is loading. Loading a style
+     * discards every source and layer, so anything that adds them belongs in an effect
+     * that reads this.
+     */
+    getStyle: () => MapStyleOption | null;
   };
 
   setContext<MapContext>('map', {
     getMap: () => map,
     getBounds: () => bounds,
     isLoaded: () => isReady,
+    getStyle: () => loadedStyle,
   });
 
   onMount(async () => {
@@ -87,11 +90,11 @@
 
     bounds = new MapLibreGL.LngLatBounds([h.minLon, h.minLat], [h.maxLon, h.maxLat]);
 
-    appliedStyle = currentStyle;
+    requestedStyle = currentStyle;
 
     const mapInstance = new MapLibreGL.Map({
       container: mapContainer,
-      style: appliedStyle,
+      style: requestedStyle,
       renderWorldCopies: false,
       // TODO move attribution elsewhere
       attributionControl: false,
@@ -105,24 +108,17 @@
       ...options,
     });
 
-    const styleDataHandler = debounce(() => {
-      isStyleLoaded = true;
+    mapInstance.on('load', () => {
+      isLoaded = true;
+      onload?.(mapInstance);
+    });
+
+    mapInstance.on('style.load', () => {
       if (projection) {
         mapInstance.setProjection(projection);
       }
-    }, STYLE_LOAD_DEBOUNCE_MS);
-
-    cancelStyleLoad = styleDataHandler.cancel;
-
-    const loadHandler = () => {
-      isLoaded = true;
-      if (map) {
-        onload?.(map);
-      }
-    };
-
-    mapInstance.on('load', loadHandler);
-    mapInstance.on('styledata', styleDataHandler);
+      loadedStyle = requestedStyle;
+    });
 
     map = mapInstance;
   });
@@ -130,26 +126,21 @@
   $effect(() => {
     const style = currentStyle;
 
-    if (!map || !isLoaded || style === appliedStyle) {
+    if (!map || !isLoaded || style === requestedStyle) {
       return;
     }
 
-    untrack(() => {
-      isStyleLoaded = false;
-      appliedStyle = style;
-      // Diff mode helps reuse existing layers for better performance
-      map!.setStyle(style, { diff: false }); // Changed to false - full style reload is more reliable for theme changes
-    });
+    requestedStyle = style;
+    loadedStyle = null;
+    map.setStyle(style, { diff: false });
   });
 
   onDestroy(() => {
-    cancelStyleLoad?.();
-    cancelStyleLoad = null;
     map?.remove();
     map = null;
     bounds = null;
     isLoaded = false;
-    isStyleLoaded = false;
+    loadedStyle = null;
   });
 </script>
 

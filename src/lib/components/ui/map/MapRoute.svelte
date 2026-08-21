@@ -46,12 +46,12 @@
   const hitLayerId = $derived(`route-hit-${id}`);
   const hasLine = $derived(coordinates.length >= 2);
 
-  // Add route when map is ready (only recreate when map/id changes, not paint properties or coordinates)
+  // Add route once a style is live (only recreate when map/id/style changes, not paint properties or coordinates)
   $effect(() => {
     const map = mapCtx.getMap();
-    const loaded = mapCtx.isLoaded();
+    const style = mapCtx.getStyle();
 
-    if (!loaded || !map || !hasLine) return;
+    if (!style || !map || !hasLine) return;
 
     const initialCoordinates = untrack(() => coordinates);
 

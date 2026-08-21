@@ -50,12 +50,12 @@
     pointColor,
   });
 
-  // Add source and layers when map is ready
+  // Add source and layers once a style is live, and re-add them after each style load
   $effect(() => {
     const map = mapCtx.getMap();
-    const loaded = mapCtx.isLoaded();
+    const style = mapCtx.getStyle();
 
-    if (!loaded || !map) return;
+    if (!style || !map) return;
 
     // Remove existing layers and source if they exist
     try {

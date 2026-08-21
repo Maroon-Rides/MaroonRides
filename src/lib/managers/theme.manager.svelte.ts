@@ -1,7 +1,7 @@
 import { mode } from 'mode-watcher';
 
 class ThemeManager {
-  theme: 'light' | 'dark' = $derived(mode.current ?? 'light');
+  readonly theme: 'light' | 'dark' = $derived(mode.current ?? 'light');
 }
 
 // Persist themeManager across Svelte HMRs

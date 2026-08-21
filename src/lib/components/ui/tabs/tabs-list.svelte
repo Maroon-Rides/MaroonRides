@@ -1,39 +1,47 @@
 <script lang="ts">
   import { cn } from '$lib/utils.js';
   import { Tabs as TabsPrimitive } from 'bits-ui';
-  import { throttle } from 'lodash-es';
-  import { onMount, tick } from 'svelte';
+  import { onMount } from 'svelte';
 
   let { ref = $bindable(null), class: className, ...restProps }: TabsPrimitive.ListProps = $props();
 
-  let indicatorStyle = $state('opacity: 0;');
+  let indicator: HTMLDivElement;
 
   function updateIndicator(animated = true) {
-    if (!ref) return;
-    const activeTab = ref.querySelector('[data-state="active"]') as HTMLElement;
-    if (activeTab) {
-      const { offsetLeft, offsetWidth } = activeTab;
-      indicatorStyle = `transform: translateX(${offsetLeft}px); width: ${offsetWidth}px; opacity: 1; ${animated ? 'transition: all 0.3s cubic-bezier(0.25, 1.25, 0.5, 1);' : ''}`;
+    const activeTab = ref?.querySelector<HTMLElement>('[data-state="active"]');
+    if (!activeTab?.offsetWidth) return;
+
+    if (!animated) indicator.style.transition = 'none';
+
+    indicator.style.transform = `translateX(${activeTab.offsetLeft}px)`;
+    indicator.style.width = `${activeTab.offsetWidth}px`;
+    indicator.style.opacity = '1';
+
+    if (!animated) {
+      // flush the layout so re-enabling the transition doesn't animate from the old position
+      void indicator.offsetWidth;
+      indicator.style.transition = '';
     }
   }
 
   onMount(() => {
-    const onResize = throttle(() => updateIndicator(false), 100);
-    window.addEventListener('resize', onResize);
+    if (!ref) return;
 
-    tick().then(() => updateIndicator());
-    const observer = new MutationObserver(() => updateIndicator());
-    if (ref) {
-      observer.observe(ref, {
-        attributes: true,
-        subtree: true,
-        attributeFilter: ['data-state'],
-      });
-    }
+    // geometry changed (rotation, breakpoint, sheet snap) — snap, and place it initially
+    const resizeObserver = new ResizeObserver(() => updateIndicator(false));
+    resizeObserver.observe(ref);
+
+    // a different tab became active — slide
+    const activeObserver = new MutationObserver(() => updateIndicator());
+    activeObserver.observe(ref, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ['data-state'],
+    });
+
     return () => {
-      observer.disconnect();
-      window.removeEventListener('resize', onResize);
-      onResize.cancel();
+      resizeObserver.disconnect();
+      activeObserver.disconnect();
     };
   });
 </script>
@@ -48,8 +56,8 @@
   {...restProps}
 >
   <div
-    class="absolute top-0.75 left-0 h-[calc(100%-6px)] rounded-full border border-transparent bg-background shadow-sm dark:border-input dark:bg-input"
-    style={indicatorStyle}
+    bind:this={indicator}
+    class="absolute top-0.75 left-0 h-[calc(100%-6px)] rounded-full border border-transparent bg-background opacity-0 shadow-sm transition-[transform,width] duration-300 ease-[cubic-bezier(0.25,1.25,0.5,1)] dark:border-input dark:bg-input"
   ></div>
   {@render restProps.children?.()}
 </TabsPrimitive.List>

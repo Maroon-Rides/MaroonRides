@@ -2,7 +2,6 @@
   import favicon from '$lib/assets/favicon.svg';
   import MapElements from '$lib/components/map/MapElements.svelte';
   import PlanMapElements from '$lib/components/map/PlanMapElements.svelte';
-  import ThemeWatcher from '$lib/components/ThemeWatcher.svelte';
   import Map from '$lib/components/ui/map/Map.svelte';
   import MapControls from '$lib/components/ui/map/MapControls.svelte';
   import { frontPageManager } from '$lib/managers/frontpage.manager.svelte';
@@ -10,6 +9,7 @@
   import { installInterceptor } from '$lib/utils/interceptor';
   import { migratePrefs } from '$lib/utils/prefs';
   import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+  import { ModeWatcher } from 'mode-watcher';
   import { onDestroy, onMount } from 'svelte';
   import './layout.css';
 
@@ -32,7 +32,7 @@
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 <svelte:window bind:innerHeight={mapManager.mapHeight} bind:innerWidth={mapManager.mapWidth} />
 
-<ThemeWatcher />
+<ModeWatcher disableTransitions={false} />
 
 <QueryClientProvider client={queryClient}>
   <div class="fixed inset-0 -z-10 h-screen w-screen">
