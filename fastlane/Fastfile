@@ -7,7 +7,7 @@ XCODE_PROJECT = 'ios/App/App.xcodeproj'
 CHANGELOG = ENV['CHANGELOG'] || "Howdy! This update includes some bug fixes and performance improvements. Please let us know if you have any feedback or questions through TestFlight! Thanks and Gig 'Em!"
 
 PACKAGE_JSON = File.expand_path('../package.json', FastlaneCore::FastlaneFolder.path)
-APP_VERSION = JSON.parse(File.read(PACKAGE_JSON))['version']
+APP_VERSION = JSON.parse(File.read(PACKAGE_JSON))['version'].split('-').first
 
 platform :ios do
   desc 'Push a new build to TestFlight'
