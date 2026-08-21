@@ -2,7 +2,7 @@
   import { beforeNavigate, goto } from '$app/navigation';
   import * as Card from '$lib/components/ui/card';
   import { cn, type WithElementRef } from '$lib/utils.js';
-  import { onMount, tick } from 'svelte';
+  import { onMount, setContext, tick } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { fly } from 'svelte/transition';
 
@@ -190,6 +190,16 @@
       updateLayoutCache();
     }, 320);
   };
+
+  export type BottomSheetContext = {
+    snapTo: (index: number) => void;
+    collapse: () => void;
+  };
+
+  setContext<BottomSheetContext>('bottom-sheet', {
+    snapTo,
+    collapse: () => snapTo(initialSnapIndex),
+  });
 
   // ---- Stop any running animation ----
   const stopAnimation = () => {

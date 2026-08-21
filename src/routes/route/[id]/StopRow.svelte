@@ -2,11 +2,13 @@
   import EstimateRow from './EstimateRow.svelte';
 
   import { goto } from '$app/navigation';
+  import type { BottomSheetContext } from '$lib/components/ui/bottom-sheet/sheet.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { useStopAmenities, useStopEstimate } from '$lib/data/app';
   import { Amenity, type Direction, type Route, type Stop } from '$lib/data/types';
   import { CalendarIcon } from '@lucide/svelte';
+  import { getContext } from 'svelte';
 
   type Props = {
     stop: Stop;
@@ -17,6 +19,8 @@
   };
 
   let { stop, route, direction, estimateDirection, estimateStop }: Props = $props();
+
+  const sheet = getContext<BottomSheetContext>('bottom-sheet');
 
   const effectiveDirection = $derived(estimateDirection ?? direction);
   const effectiveStop = $derived(estimateStop ?? stop);
@@ -61,7 +65,10 @@
       <button
         type="button"
         class="text-left text-2xl font-bold"
-        onclick={() => mapManager.zoomToStop(stop)}
+        onclick={() => {
+          mapManager.zoomToStop(stop);
+          sheet.collapse();
+        }}
       >
         {stop.name}
       </button>
