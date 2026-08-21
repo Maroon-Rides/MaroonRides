@@ -58,11 +58,13 @@ export function processRoutePlanMapComponents(
 
   let i = 0;
   const pathPoints = routePlan?.instructions.flatMap((instruction, index) => {
-    return instruction.pathPoints?.map((point) => ({
-      ...point,
-      stepIndex: index,
-      pathIndex: i++,
-    }));
+    return (
+      instruction.pathPoints?.map((point) => ({
+        ...point,
+        stepIndex: index,
+        pathIndex: i++,
+      })) ?? []
+    );
   });
 
   if (selectedPart === -1) {
@@ -121,6 +123,14 @@ export function processRoutePlanMapComponents(
         ],
       };
     }
+
+    // nothing to anchor a marker to (step has no path and neither does the one before it,
+    // e.g. a leading wait step), so draw none rather than markers with no coordinates
+    return {
+      highlighted: [],
+      faded: faded,
+      markers: [],
+    };
   }
 
   return {
