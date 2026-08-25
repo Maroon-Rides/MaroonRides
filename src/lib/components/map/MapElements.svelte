@@ -6,7 +6,8 @@
     type MapCircleStyle,
   } from '$lib/components/ui/map/MapCircleLayer.svelte';
   import { useRoutes, useVehicles } from '$lib/data/app';
-  import { type Bus, type Location, type Route, type Stop } from '$lib/data/types';
+  import { isTimepoint, useTimepointsAPI } from '$lib/data/timepoints';
+  import { type Bus, type Direction, type Location, type Route, type Stop } from '$lib/data/types';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
   import { getRouteTint } from '$lib/utils/tints';
@@ -25,6 +26,7 @@
   const STOPS_ID = 'stops';
 
   const routes = useRoutes();
+  const timepoints = useTimepointsAPI();
   const busLocations = $derived(useVehicles(() => ({ route: mapManager.selectedRoute })));
 
   let userLocation: Location | null = $state(null);
@@ -83,24 +85,43 @@
     })),
   );
 
+  function isStopTimepoint(stop: Stop) {
+    const routeCode = mapManager.selectedRoute?.routeCode;
+    return !!routeCode && isTimepoint(timepoints.data ?? {}, routeCode, stop.id);
+  }
+
+  // timepoints render as square DOM markers instead of circles, so they are excluded here
   const stopCircles = $derived(
     stopsByDirection.flatMap(({ direction, stops }) =>
-      stops.map(
-        (stop): MapCircle => ({
-          id: `${direction.id}-${stop.id}`,
-          longitude: stop.location.longitude,
-          latitude: stop.location.latitude,
-        }),
-      ),
+      stops
+        .filter((stop) => !isStopTimepoint(stop))
+        .map(
+          (stop): MapCircle => ({
+            id: `${direction.id}-${stop.id}`,
+            longitude: stop.location.longitude,
+            latitude: stop.location.latitude,
+          }),
+        ),
     ),
   );
 
-  const stopCircleStyles = $derived.by(() => {
+  const timepointStops = $derived(
+    stopsByDirection.flatMap(({ direction, stops }) =>
+      stops.filter(isStopTimepoint).map((stop) => ({ direction, stop })),
+    ),
+  );
+
+  const stopColors = $derived.by(() => {
     const route = mapManager.selectedRoute;
-    if (!route) return {};
+    if (!route) return null;
 
     const color = getRouteTint(route, themeManager.theme);
-    const strokeColor = getLighterColor(color);
+    return { color, strokeColor: getLighterColor(color) };
+  });
+
+  const stopCircleStyles = $derived.by(() => {
+    if (!stopColors) return {};
+    const { color, strokeColor } = stopColors;
 
     return Object.fromEntries(
       stopsByDirection.flatMap(({ direction, stops }) => {
@@ -112,6 +133,11 @@
       }),
     );
   });
+
+  function selectStop(stopId: string) {
+    markStopTapped();
+    mapManager.selected = stopId === selectedStop?.stop.id ? null : { type: 'stop', id: stopId };
+  }
 
   const stopsByCircleId = $derived(
     new Map<string, Stop>(
@@ -164,6 +190,26 @@
   {/each}
 {/snippet}
 
+{#snippet timepointMarker(direction: Direction, stop: Stop)}
+  <MapMarker
+    longitude={stop.location.longitude}
+    latitude={stop.location.latitude}
+    zIndex={10}
+    onclick={() => selectStop(stop.id)}
+  >
+    <MarkerContent class="flex size-7 items-center justify-center">
+      <div
+        class="size-3 rounded-[2px] border-2"
+        style="background-color: {stopColors?.color}; border-color: {stopColors?.strokeColor}; opacity: {isDirectionSelected(
+          direction.id,
+        )
+          ? 1
+          : 0.5}"
+      ></div>
+    </MarkerContent>
+  </MapMarker>
+{/snippet}
+
 {#snippet busMarker(bus: Bus)}
   <MapMarker
     longitude={bus.location.longitude}
@@ -186,11 +232,17 @@
   styles={stopCircleStyles}
   onclick={(id) => {
     const stopId = (id && stopsByCircleId.get(id)?.id) || null;
-    if (stopId) markStopTapped();
-    mapManager.selected =
-      !stopId || stopId === selectedStop?.stop.id ? null : { type: 'stop', id: stopId };
+    if (!stopId) {
+      mapManager.selected = null;
+      return;
+    }
+    selectStop(stopId);
   }}
 />
+
+{#each timepointStops as { direction, stop } (`${direction.id}-${stop.id}`)}
+  {@render timepointMarker(direction, stop)}
+{/each}
 
 {#each busLocations?.data ?? [] as bus (bus.id)}
   {@render busMarker(bus)}

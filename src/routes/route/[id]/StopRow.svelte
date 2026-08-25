@@ -3,6 +3,7 @@
 
   import { goto } from '$app/navigation';
   import type { BottomSheetContext } from '$lib/components/ui/bottom-sheet/sheet.svelte';
+  import TimepointAttribute from '$lib/components/TimepointAttribute.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { useStopAmenities, useStopEstimate } from '$lib/data/app';
@@ -33,7 +34,7 @@
     })),
   );
 
-  const { data: stopAmenities } = useStopAmenities(() => ({ route, direction, stop }));
+  const { data: stopAmenities } = $derived(useStopAmenities(() => ({ route, direction, stop })));
 
   let subtitle = $derived.by(() => {
     if (!estimates || estimates.length === 0) {
@@ -76,9 +77,13 @@
     </div>
 
     <div class="mt-1 flex items-center gap-2">
-      {#each stopAmenities as amenity}
-        {@const AmenityIcon = Amenity.getIcon(amenity)}
-        <AmenityIcon class="size-6 text-muted-foreground" />
+      {#each stopAmenities ?? [] as amenity}
+        {#if amenity === Amenity.TIME_POINT}
+          <TimepointAttribute />
+        {:else}
+          {@const AmenityIcon = Amenity.getIcon(amenity)}
+          <AmenityIcon class="size-6 text-muted-foreground" />
+        {/if}
       {/each}
     </div>
   </div>

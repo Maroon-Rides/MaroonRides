@@ -41,7 +41,7 @@
     </div>
 
     <div class="flex items-center gap-2">
-      {#each amenities ?? [] as amenity}
+      {#each (amenities ?? []).filter((amenity) => amenity !== Amenity.TIME_POINT) as amenity}
         {@const AmenityIcon = Amenity.getIcon(amenity)}
         <AmenityIcon class="size-6 text-muted-foreground" />
       {/each}

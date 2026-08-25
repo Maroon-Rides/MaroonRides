@@ -11,6 +11,7 @@ import {
   type StopSchedule,
   type TimeEstimate,
 } from '$lib/data/types';
+import { isTimepoint, useTimepointsAPI } from '$lib/data/timepoints';
 import { findBoundingBox } from '$lib/utils/geo';
 import { compact, keyBy } from 'lodash-es';
 import moment from 'moment';
@@ -260,6 +261,8 @@ export const useASStopAmenities = (
     return { routeKey: route.id, directionKey: direction.id, stopCode: stop.id };
   });
 
+  const apiTimepointsQuery = useTimepointsAPI();
+
   const query = createDependencyQuery<Amenity[]>(() => ({
     queryKey: [
       ASQueryKey.STOP_AMENITIES,
@@ -269,9 +272,16 @@ export const useASStopAmenities = (
     ],
     queryFn: async () => {
       const stopEstimates = apiStopEstimateQuery.data!;
-      return Amenity.fromAPI(stopEstimates.amenities);
+      const { route, stop } = params();
+
+      return [
+        ...Amenity.fromAPI(stopEstimates.amenities),
+        ...(isTimepoint(apiTimepointsQuery.data!, route.routeCode, stop.id)
+          ? [Amenity.TIME_POINT]
+          : []),
+      ];
     },
-    dependents: [apiStopEstimateQuery],
+    dependents: [apiStopEstimateQuery, apiTimepointsQuery],
   }));
 
   return query;

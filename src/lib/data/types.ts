@@ -9,6 +9,7 @@ import {
   HouseIcon,
   LocateFixed,
   MapPin,
+  OctagonPauseIcon,
 } from '@lucide/svelte';
 import moment from 'moment';
 
@@ -18,6 +19,7 @@ export enum Amenity {
   WHEELCHAIR_LIFT = 'Wheelchair Lift',
   BICYCLE_RACK = 'Bicycle Rack',
   SHELTER = 'Shelter',
+  TIME_POINT = 'Time Point',
 }
 
 export namespace Amenity {
@@ -41,6 +43,8 @@ export namespace Amenity {
         return BikeIcon;
       case Amenity.SHELTER:
         return HouseIcon;
+      case Amenity.TIME_POINT:
+        return OctagonPauseIcon;
     }
   }
 }
