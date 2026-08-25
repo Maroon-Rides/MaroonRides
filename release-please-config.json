@@ -4,7 +4,9 @@
       "release-type": "node",
       "skip-changelog": true,
       "include-component-in-tag": false,
-      "versioning": "prerelease"
+      "versioning": "prerelease",
+      "prerelease": true,
+      "prerelease-type": "beta"
     }
   }
 }
