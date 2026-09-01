@@ -13,14 +13,29 @@ on:
           - ios
           - android
 
-  release:
-    types: [published]
+  workflow_call:
+    inputs:
+      buildPlatform:
+        description: 'Platform to Build'
+        required: false
+        default: 'all'
+        type: string
+      tagName:
+        description: 'Release tag to label the build with'
+        required: false
+        default: ''
+        type: string
+      changelog:
+        description: 'Release notes sent to TestFlight'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   build_ios:
     runs-on: macos-latest
 
-    if: github.event_name == 'release' || inputs.buildPlatform == 'all' || inputs.buildPlatform == 'ios'
+    if: inputs.buildPlatform == 'all' || inputs.buildPlatform == 'ios'
 
     steps:
       - name: List Xcode Installs
@@ -63,12 +78,12 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_KEY_BASE64: ${{ secrets.ASC_KEY_BASE64 }}
           GIT_AUTHORIZATION: ${{ secrets.GIT_AUTHORIZATION }}
-          CHANGELOG: ${{ github.event.release.body }}
+          CHANGELOG: ${{ inputs.changelog }}
 
   build_android:
     runs-on: ubuntu-latest
 
-    if: github.event_name == 'release' || inputs.buildPlatform == 'all' || inputs.buildPlatform == 'android'
+    if: inputs.buildPlatform == 'all' || inputs.buildPlatform == 'android'
 
     steps:
       - name: Checkout Repository
@@ -122,5 +137,5 @@ jobs:
         run: fastlane android upload
         env:
           GOOGLE_PLAY_KEY: ${{ secrets.GOOGLE_PLAY_KEY }}
-          RELEASE_NAME: ${{ github.event.release.tag_name || steps.git_sha.outputs.sha_short }}
+          RELEASE_NAME: ${{ inputs.tagName || steps.git_sha.outputs.sha_short }}
           PACKAGE_NAME: 'com.maroonrides.maroonrides'
