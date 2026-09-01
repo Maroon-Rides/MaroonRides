@@ -50,14 +50,14 @@
   bind:ref
   data-slot="tabs-list"
   class={cn(
-    'relative inline-flex h-9 w-full items-center justify-center rounded-full bg-muted p-0.75 text-muted-foreground',
+    'relative inline-flex min-h-9 w-full items-center justify-center rounded-full bg-muted p-0.75 text-muted-foreground',
     className,
   )}
   {...restProps}
 >
   <div
     bind:this={indicator}
-    class="absolute top-0.75 left-0 h-[calc(100%-6px)] rounded-full border border-transparent bg-background opacity-0 shadow-sm transition-[transform,width] duration-300 ease-[cubic-bezier(0.25,1.25,0.5,1)] dark:border-input dark:bg-input"
+    class="absolute inset-y-0.75 left-0 rounded-full border border-transparent bg-background opacity-0 shadow-sm transition-[transform,width] duration-300 ease-[cubic-bezier(0.25,1.25,0.5,1)] dark:border-input dark:bg-input"
   ></div>
   {@render restProps.children?.()}
 </TabsPrimitive.List>

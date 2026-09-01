@@ -23,7 +23,10 @@
   );
 </script>
 
-<div class="flex items-center gap-1" style="--tint: {getRouteTint(route, themeManager.theme)}">
+<div
+  class="flex flex-wrap items-center gap-1"
+  style="--tint: {getRouteTint(route, themeManager.theme)}"
+>
   {#if isLoading}
     <Spinner class="size-4 self-center" />
   {/if}

@@ -37,7 +37,7 @@
   <div class="flex items-center justify-between gap-2">
     <div class="flex items-center gap-2 rounded-md pe-2">
       <RouteBubble type={'calloutIcon'} {route} />
-      <span class="wrap line-clamp-2 max-w-24 text-sm leading-4 font-bold">{stop.name}</span>
+      <span class="wrap line-clamp-2 max-w-[7em] text-sm leading-4 font-bold">{stop.name}</span>
     </div>
 
     <div class="flex items-center gap-2">

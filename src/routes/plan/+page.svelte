@@ -63,9 +63,9 @@
               onfocus={() => planManager.focus('start')}
             />
             <!-- dots -->
-            <ul class="pointer-events-none ml-[0.925rem] flex flex-col gap-[0.15rem]">
+            <ul class="pointer-events-none ml-[14.8px] flex flex-col gap-[2.4px]">
               {#each [0, 1, 2] as _}
-                <li class="size-[0.15rem] rounded-full bg-muted-foreground"></li>
+                <li class="size-[2.4px] rounded-full bg-muted-foreground"></li>
               {/each}
             </ul>
             <!-- destination -->
@@ -84,7 +84,7 @@
         </div>
 
         <!-- leave/arrive -->
-        <div class="flex items-center gap-2 pb-1">
+        <div class="flex flex-wrap items-center gap-2 pb-1">
           <Tabs.Root class="flex-1" bind:value={planManager.deadline}>
             <Tabs.List>
               <Tabs.Trigger value="leave">Leave by</Tabs.Trigger>

@@ -8,7 +8,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(contentSizeCategoryDidChange),
+            name: UIContentSizeCategory.didChangeNotification,
+            object: nil
+        )
         return true
+    }
+
+    @objc func contentSizeCategoryDidChange() {
+        guard let webView = (window?.rootViewController as? CAPBridgeViewController)?.webView else { return }
+        let bodyPointSize = UIFont.preferredFont(forTextStyle: .body).pointSize
+        webView.evaluateJavaScript(
+            "window.dispatchEvent(new CustomEvent('dynamictypechange', { detail: { bodyPointSize: \(bodyPointSize) } }))"
+        )
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

@@ -18,7 +18,7 @@
 <div
   class={cn(
     'absolute left-1/2 -translate-x-1/2 whitespace-nowrap',
-    'text-[10px] font-medium text-foreground',
+    'text-[0.625rem] font-medium text-foreground',
     positionClasses[position],
     className,
   )}

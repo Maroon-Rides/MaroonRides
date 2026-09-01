@@ -6,6 +6,7 @@
   import MapControls from '$lib/components/ui/map/MapControls.svelte';
   import { frontPageManager } from '$lib/managers/frontpage.manager.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
+  import { installDynamicType } from '$lib/utils/dynamic-type';
   import { installInterceptor } from '$lib/utils/interceptor';
   import { migratePrefs } from '$lib/utils/prefs';
   import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
@@ -27,6 +28,7 @@
   });
 
   installInterceptor();
+  installDynamicType();
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>

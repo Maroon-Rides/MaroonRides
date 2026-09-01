@@ -18,7 +18,7 @@
   const timetable = $derived(buildTimetable(schedule, timeEstimates.data ?? []));
 
   const rowStyle = tv({
-    base: 'flex items-center rounded-lg',
+    base: 'flex flex-wrap items-center rounded-lg',
     variants: {
       index: {
         even: 'bg-muted',
@@ -31,7 +31,7 @@
   });
 
   const cellStyle = tv({
-    base: 'flex w-[20%] items-center justify-center rounded-md py-2',
+    base: 'flex w-[20%] min-w-[4em] items-center justify-center rounded-md py-2',
     variants: {
       cancelled: {
         true: 'line-through',

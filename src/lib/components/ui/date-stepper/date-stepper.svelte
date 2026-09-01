@@ -28,7 +28,7 @@
   >
     <ArrowLeft />
   </Button>
-  <Button variant="outline" size="sm" class="mt-2 w-32 rounded-full">
+  <Button variant="outline" size="sm" class="mt-2 min-w-32 rounded-full">
     {selectedDate.format('ddd, MMM D')}
   </Button>
 

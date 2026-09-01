@@ -8,6 +8,10 @@ declare global {
     // interface PageState {}
     // interface Platform {}
   }
+
+  interface WindowEventMap {
+    dynamictypechange: CustomEvent<{ bodyPointSize: number }>;
+  }
 }
 
 export {};

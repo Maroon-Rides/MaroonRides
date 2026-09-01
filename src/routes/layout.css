@@ -3,8 +3,16 @@
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
+
+@theme {
+  --spacing: 4px;
+}
+
 :root {
-  --radius: 0.625rem;
+  --dynamic-type-scale: 1;
+  font-size: calc(1rem * var(--dynamic-type-scale));
+
+  --radius: 10px;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
