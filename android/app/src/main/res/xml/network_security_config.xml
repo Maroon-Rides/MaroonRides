@@ -4,7 +4,7 @@
         <domain includeSubdomains="false">aggiespirit.ts.tamu.edu</domain>
         <trust-anchors>
             <certificates src="system" />
-            <certificates src="@raw/incommon_rsa_ov_ssl_ca3" />
+            <certificates src="@raw/incommon_intermediate_ovg2c" />
         </trust-anchors>
     </domain-config>
 </network-security-config>
