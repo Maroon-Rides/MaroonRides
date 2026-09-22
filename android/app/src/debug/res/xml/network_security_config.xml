@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Allow cleartext traffic for dev server -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="false">aggiespirit.ts.tamu.edu</domain>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="@raw/incommon_intermediate_ovg2c" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>
