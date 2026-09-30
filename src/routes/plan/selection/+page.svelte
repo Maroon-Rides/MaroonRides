@@ -8,19 +8,18 @@
   import { planManager } from '$lib/managers/plan.manager.svelte';
   import StepRow from './StepRow.svelte';
 
-  //if somehow not loaded
   $effect(() => {
     if (!planManager.selectedPlan) onClose();
   });
 
-  // clear bus routes first
+  // Bus routes come back when the page closes.
   let mapRoutes = [...mapManager.drawnRoutes];
   $effect(() => {
     mapManager.setDrawnRoutes([], false);
     planManager.shownInstruction = -1;
   });
 
-  // strips the inline html the API returns, so the markup below is the only thing @html renders
+  // Strips the API's inline HTML, so @html renders only the markup added here.
   const domParser = new DOMParser();
   const format = (s: string) =>
     (
@@ -35,7 +34,6 @@
   const instructions = $derived(plan?.instructions ?? []);
   const formattedContent = $derived(instructions.map((instr) => format(instr.instruction)));
 
-  //restore routes
   function onClose() {
     mapManager.setDrawnRoutes(mapRoutes);
     goto('/plan');

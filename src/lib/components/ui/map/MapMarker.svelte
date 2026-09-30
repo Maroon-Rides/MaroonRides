@@ -59,7 +59,6 @@
   let isReady = $state(false);
   let isDragging = $state(false);
 
-  // Provide marker context for child components
   export type MarkerContext = {
     getMarker: () => MapLibreGL.Marker | null;
     getElement: () => HTMLDivElement | null;
@@ -78,14 +77,12 @@
     isDragging: () => isDragging,
   });
 
-  // Create marker when map is ready
   $effect(() => {
     const map = mapCtx.getMap();
     const mapLoaded = mapCtx.isLoaded();
 
     if (!map || !mapLoaded) return;
 
-    // Validate coordinates
     if (
       typeof longitude !== 'number' ||
       typeof latitude !== 'number' ||
@@ -95,12 +92,10 @@
       return;
     }
 
-    // Create container element programmatically
     const container = document.createElement('div');
     container.className = 'cursor-pointer';
     markerElement = container;
 
-    // Build marker options
     const markerOptions: MarkerOptions = {
       element: container,
       draggable,
@@ -112,14 +107,12 @@
     if (pitchAlignment !== undefined) markerOptions.pitchAlignment = pitchAlignment;
     if (rotationAlignment !== undefined) markerOptions.rotationAlignment = rotationAlignment;
 
-    // Create and add marker
     const markerInstance = new MapLibreGL.Marker(markerOptions)
       .setLngLat([longitude, latitude])
       .addTo(map);
 
     marker = markerInstance;
 
-    // Mouse event listeners on the container
     if (onclick) container.addEventListener('click', onclick);
     if (onmouseenter) container.addEventListener('mouseenter', onmouseenter);
     if (onmouseleave) {
@@ -128,7 +121,6 @@
       });
     }
 
-    // Drag event handlers
     const handleDragStart = () => {
       isDragging = true;
       const lngLat = markerInstance.getLngLat();
@@ -152,7 +144,6 @@
 
     isReady = true;
 
-    // Cleanup
     return () => {
       if (onclick) container.removeEventListener('click', onclick);
       if (onmouseenter) container.removeEventListener('mouseenter', onmouseenter);
@@ -171,7 +162,6 @@
     };
   });
 
-  // Update position when coordinates change
   $effect(() => {
     if (
       marker &&
@@ -188,7 +178,6 @@
     if (markerElement) markerElement.style.zIndex = zIndex === undefined ? '' : String(zIndex);
   });
 
-  // Update draggable when prop changes
   $effect(() => {
     marker?.setDraggable(draggable);
   });

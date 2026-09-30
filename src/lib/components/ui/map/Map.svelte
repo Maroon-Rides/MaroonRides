@@ -83,7 +83,7 @@
 
     const p = new PMTiles(PMTILE_URL);
 
-    // this is so we share one instance across the JS code and the map renderer
+    // The JS code and the map renderer share this one instance.
     protocol.add(p);
 
     const h = await p.getHeader();
@@ -103,7 +103,7 @@
       zoom: h.maxZoom - 2,
       maxZoom: h.maxZoom + 2,
       minZoom: h.minZoom,
-      // Cap pixel ratio at 2x for performance
+      // Rendering at full device resolution is too slow.
       pixelRatio: Math.min(window.devicePixelRatio, 1.5),
       ...options,
     });

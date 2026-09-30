@@ -40,7 +40,6 @@
     ...restProps
   }: Props = $props();
 
-  // ---- Reactive state ----
   let containerRef: HTMLDivElement | null = $state(null);
   let contentRef: HTMLDivElement | null = $state(null);
   let contentInnerRef: HTMLDivElement | null = $state(null);
@@ -50,24 +49,23 @@
   let viewportHeight = $state(typeof window !== 'undefined' ? window.innerHeight : 0);
   let safeAreaBottom = $state(0);
 
-  // Track initial layout to prevent transition on first render
+  // Skips the transition on first render.
   let initialLayoutSet = $state(false);
 
-  // Custom scroll offset (pixels scrolled into content, 0 = top)
+  // Pixels scrolled into the content. 0 is the top.
   let scrollOffset = $state(0);
 
-  // Cache for layout measurements to avoid thrashing
+  // Reading layout mid-gesture forces a reflow on every frame.
   let cachedMaxScroll = 0;
   let cachedContentHeight = 0;
   let cachedContainerHeight = 0;
 
-  // Controls visibility for exit animation
+  // Stays true until the exit animation finishes.
   let visible = $state(true);
 
-  // Track when actively snapping to prevent layout updates during transition
+  // Layout updates wait until the snap transition ends.
   let isSnapping = $state(false);
 
-  // ---- Gesture state (non-reactive) ----
   type GestureMode = 'none' | 'sheet-drag' | 'content-scroll';
   let gestureMode: GestureMode = 'none';
   let touchStartY = 0;
@@ -76,21 +74,16 @@
   let touchStartScrollOffset = 0;
   let fromHandle = false;
 
-  // Velocity tracking
   let velocitySamples: { y: number; t: number }[] = [];
-  const VELOCITY_WINDOW = 80; // ms — shorter window for more responsive feel
+  const VELOCITY_WINDOW = 80; // ms
 
-  // Inertial / bounce animation
   let animationFrameId: number | null = null;
 
-  // ---- Physics constants ----
-  const DECELERATION = 0.95; // per-frame multiplier (60fps) — high = long coast
-  const MIN_VELOCITY = 0.1; // px/frame threshold to stop
-  const RUBBER_BAND_FACTOR = 0.55; // how much overscroll moves (0-1)
-  const BOUNCE_SPRING = 0.06; // spring constant for bounce-back
-  const BOUNCE_DAMPING = 0.65; // damping for bounce-back
-
-  // ---- Helpers ----
+  const DECELERATION = 0.95; // per frame at 60fps. Closer to 1 coasts longer.
+  const MIN_VELOCITY = 0.1; // px per frame
+  const RUBBER_BAND_FACTOR = 0.55; // share of the drag that moves the content past its edge
+  const BOUNCE_SPRING = 0.06;
+  const BOUNCE_DAMPING = 0.65;
 
   const getHeightPx = (pct: number) => (viewportHeight * pct) / 100;
   const getSnapHeightPx = (i: number) => getHeightPx(snapPoints[i].height);
@@ -103,7 +96,7 @@
   /** Max scrollable distance (0 if content doesn't overflow) */
   const maxScrollOffset = () => {
     if (!contentRef || !contentInnerRef) return cachedMaxScroll;
-    // During dragging, use cached values to avoid layout thrashing
+    // Cached during a drag to avoid a reflow per frame.
     if (isDragging || gestureMode !== 'none') {
       return cachedMaxScroll;
     }
@@ -176,7 +169,7 @@
 
     await tick();
 
-    // Defer layout cache update to after transition
+    // Measured after the transition, since layout is still moving during it.
     setTimeout(() => {
       isSnapping = false;
       updateLayoutCache();
@@ -193,7 +186,6 @@
     collapse: () => snapTo(initialSnapIndex),
   });
 
-  // ---- Stop any running animation ----
   const stopAnimation = () => {
     if (animationFrameId !== null) {
       cancelAnimationFrame(animationFrameId);
@@ -201,22 +193,18 @@
     }
   };
 
-  // ---- Inertial scroll animation ----
   const startScrollInertia = (velocityPxMs: number) => {
     stopAnimation();
-    // Convert to px/frame at 60fps
+    // px/ms to px per frame at 60fps
     let v = velocityPxMs * (1000 / 60);
     if (Math.abs(v) < MIN_VELOCITY) return;
 
     const maxScroll = maxScrollOffset();
 
     const step = () => {
-      // Apply velocity
       scrollOffset += v;
 
-      // Boundary bounce
       if (scrollOffset < 0) {
-        // Past top — spring back
         v *= BOUNCE_DAMPING;
         scrollOffset += -scrollOffset * BOUNCE_SPRING * 3;
         if (Math.abs(scrollOffset) < 0.5 && Math.abs(v) < MIN_VELOCITY) {
@@ -225,7 +213,6 @@
           return;
         }
       } else if (scrollOffset > maxScroll) {
-        // Past bottom — spring back
         v *= BOUNCE_DAMPING;
         scrollOffset -= (scrollOffset - maxScroll) * BOUNCE_SPRING * 3;
         if (Math.abs(scrollOffset - maxScroll) < 0.5 && Math.abs(v) < MIN_VELOCITY) {
@@ -234,12 +221,10 @@
           return;
         }
       } else {
-        // Normal deceleration
         v *= DECELERATION;
       }
 
       if (Math.abs(v) < MIN_VELOCITY && scrollOffset >= 0 && scrollOffset <= maxScroll) {
-        // Clamp and stop
         scrollOffset = clamp(scrollOffset, 0, maxScroll);
         animationFrameId = null;
         return;
@@ -251,7 +236,6 @@
     animationFrameId = requestAnimationFrame(step);
   };
 
-  // ---- Bounce-back animation (when finger lifts while overscrolled) ----
   const startBounceBack = () => {
     stopAnimation();
     const maxScroll = maxScrollOffset();
@@ -284,11 +268,8 @@
     animationFrameId = requestAnimationFrame(step);
   };
 
-  // ---- Touch handlers ----
-
   const onTouchStart = (e: TouchEvent, isHandle: boolean) => {
     stopAnimation();
-    // Cache layout measurements at start of gesture
     updateLayoutCache();
 
     const y = e.touches[0].clientY;
@@ -323,12 +304,10 @@
     const totalDeltaY = touchStartY - y; // positive = finger moved up
 
     if (gestureMode === 'content-scroll') {
-      // Custom scroll: move scrollOffset
       let newOffset = touchStartScrollOffset + totalDeltaY;
 
       const maxScroll = maxScrollOffset();
 
-      // Rubber-band at boundaries
       if (newOffset < 0) {
         newOffset = newOffset * RUBBER_BAND_FACTOR;
       } else if (newOffset > maxScroll) {
@@ -336,8 +315,7 @@
         newOffset = maxScroll + excess * RUBBER_BAND_FACTOR;
       }
 
-      // If at top and pulling down (rubber-band is showing), and the pull is significant,
-      // transition to sheet-drag to collapse
+      // Pulling down far enough at the top hands the gesture to the sheet, which collapses it.
       if (scrollOffset <= 0 && totalDeltaY < -5 && touchStartScrollOffset === 0) {
         gestureMode = 'sheet-drag';
         isDragging = true;
@@ -351,7 +329,6 @@
       return;
     }
 
-    // Sheet-drag mode
     if (gestureMode === 'sheet-drag') {
       const dragDelta = touchStartY - y;
       let newHeight = touchStartHeight + dragDelta;
@@ -359,13 +336,12 @@
       const maxH = maxSnapHeightPx;
       const minH = minSnapHeightPx;
 
-      // If dragging up past max and content is scrollable, transition to content-scroll
+      // Dragging up past the top snap point scrolls the content instead.
       if (newHeight >= maxH && hasScrollableContent() && dragDelta > 0 && !fromHandle) {
         currentHeight = maxH;
         if (currentSnapIndex !== snapPoints.length - 1) {
           currentSnapIndex = snapPoints.length - 1;
         }
-        // Seamlessly transition: excess drag becomes scroll offset
         gestureMode = 'content-scroll';
         isDragging = false;
         touchStartY = y;
@@ -374,7 +350,6 @@
         return;
       }
 
-      // Rubber-band at boundaries
       if (newHeight < minH) {
         newHeight = minH - (minH - newHeight) * 0.3;
       } else if (newHeight > maxH) {
@@ -401,10 +376,8 @@
       const maxScroll = maxScrollOffset();
 
       if (scrollOffset < 0 || scrollOffset > maxScroll) {
-        // Overscrolled — bounce back
         startBounceBack();
       } else {
-        // Inertial coast
         startScrollInertia(velocity);
       }
     }
@@ -412,15 +385,12 @@
     gestureMode = 'none';
   };
 
-  // ---- Wheel handler (desktop) ----
-
   const handleWheel = (e: WheelEvent) => {
     e.preventDefault();
 
     if (isAtMaxSnap() && hasScrollableContent()) {
-      // Scroll content
       scrollOffset = clamp(scrollOffset + e.deltaY, 0, maxScrollOffset());
-      // If at top and scrolling up, collapse
+      // Scrolling up at the top collapses the sheet.
       if (scrollOffset <= 0 && e.deltaY < 0) {
         snapTo(currentSnapIndex - 1);
       }
@@ -438,12 +408,9 @@
     }
   };
 
-  // ---- Mouse handlers (desktop drag) ----
-
   const onHandleMouseDown = (e: MouseEvent) => {
     e.preventDefault();
     stopAnimation();
-    // Cache layout measurements at start of gesture
     updateLayoutCache();
     touchStartY = e.clientY;
     touchCurrentY = e.clientY;
@@ -484,7 +451,7 @@
     gestureMode = 'none';
   };
 
-  // ---- Touch listener setup (all NON-PASSIVE — we always preventDefault) ----
+  // Non-passive, since every handler calls preventDefault.
 
   let handleTouchBound: HTMLDivElement | null = null;
   let contentTouchBound: HTMLDivElement | null = null;
@@ -538,8 +505,6 @@
     onTouchEnd(e);
   }
 
-  // ---- Refs binding ----
-
   let handleRef: HTMLDivElement | null = $state(null);
 
   $effect(() => {
@@ -549,7 +514,7 @@
     bindContentListeners(contentRef);
   });
 
-  // Animate sheet closed before navigation
+  // The sheet animates closed before the page changes.
   let isClosing = false;
   beforeNavigate((navigation) => {
     if (!isClosing && visible) {
@@ -569,7 +534,6 @@
     updateViewportHeight();
     currentSnapIndex = initialSnapIndex;
     currentHeight = getSnapHeightPx(currentSnapIndex);
-    // Initialize layout cache
     requestAnimationFrame(() => {
       updateLayoutCache();
       requestAnimationFrame(() => {
@@ -577,11 +541,9 @@
       });
     });
 
-    // Set up ResizeObserver to update cache when content size changes
     let resizeObserver: ResizeObserver | null = null;
     if (contentInnerRef) {
       resizeObserver = new ResizeObserver(() => {
-        // Only update when not actively interacting
         if (!isDragging && !isSnapping && gestureMode === 'none') {
           updateLayoutCache();
         }
@@ -627,7 +589,6 @@
       bind:ref
       class="pointer-events-auto flex h-full flex-col overflow-hidden rounded-b-none pt-2 pb-0"
     >
-      <!-- Drag handle + header area -->
       <div
         bind:this={handleRef}
         class="shrink-0 cursor-grab active:cursor-grabbing"
@@ -643,7 +604,7 @@
         {@render header?.()}
       </div>
 
-      <!-- Content area — custom scroll via translateY, no native overflow scroll -->
+      <!-- Scrolls with translateY instead of native overflow -->
       <div
         bind:this={contentRef}
         class="relative flex-1 touch-none overflow-hidden"

@@ -1,7 +1,7 @@
 import { Capacitor, registerPlugin } from '@capacitor/core';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 
-// for android react native move
+// Reads preferences left behind by the Android React Native app.
 interface LegacyPrefsPlugin {
   getLegacyPrefs(): Promise<{ available: boolean; entries: Record<string, string> }>;
 }

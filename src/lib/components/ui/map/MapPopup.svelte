@@ -42,14 +42,12 @@
   let popup: MapLibreGL.Popup | null = null;
   let wrapperElement: HTMLDivElement | null = $state(null);
 
-  // Create popup when map is ready
   $effect(() => {
     const map = mapCtx.getMap();
     const loaded = mapCtx.isLoaded();
 
     if (!loaded || !map || !wrapperElement) return;
 
-    // Validate coordinates
     if (
       typeof longitude !== 'number' ||
       typeof latitude !== 'number' ||
@@ -59,17 +57,15 @@
       return;
     }
 
-    // Create popup container
     const container = document.createElement('div');
 
-    // Build popup options
     const popupOptions: PopupOptions = {
       offset,
       closeButton: false,
       className: 'maplibre-popup-transparent',
     };
 
-    // If marker is draggable, preserve popup state during movement
+    // Dragging the marker would otherwise close the popup.
     if (markerCtx.isDraggable?.()) {
       popupOptions.closeOnMove = false;
     }
@@ -79,7 +75,6 @@
     if (closeOnMove !== undefined) popupOptions.closeOnMove = closeOnMove;
     if (focusAfterOpen !== undefined) popupOptions.focusAfterOpen = focusAfterOpen;
 
-    // Create popup
     const popupInstance = new MapLibreGL.Popup(popupOptions)
       .setDOMContent(container)
       .setLngLat([longitude, latitude])
@@ -93,11 +88,9 @@
 
     popup = popupInstance;
 
-    // Handle close event
     const handleClose = () => onclose?.();
     popupInstance.on('close', handleClose);
 
-    // Move content to popup container
     while (wrapperElement.firstChild) {
       container.appendChild(wrapperElement.firstChild);
     }
@@ -105,7 +98,6 @@
     return () => {
       popupInstance.off('close', handleClose);
 
-      // Move content back
       while (container.firstChild) {
         wrapperElement?.appendChild(container.firstChild);
       }
@@ -117,7 +109,6 @@
     };
   });
 
-  // Update position when coordinates change
   $effect(() => {
     if (
       popup &&

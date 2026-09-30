@@ -46,7 +46,7 @@ export const PatternPathSchema = z.object({
 });
 export type IPatternPath = z.infer<typeof PatternPathSchema>;
 
-// Appending 'Map' to front of name since timtable has a different RouteSchema
+// The timetable API has its own RouteSchema.
 export const MapRouteSchema = z.object({
   key: z.string(),
   name: z.string(),
@@ -55,7 +55,7 @@ export const MapRouteSchema = z.object({
 });
 export type IMapRoute = z.infer<typeof MapRouteSchema>;
 
-// Appending 'Map' to front of name since timtable has a different ServiceInterruptionSchema
+// The timetable API has its own ServiceInterruptionSchema.
 export const MapServiceInterruptionSchema = z.object({
   key: z.string(),
   name: z.string(),

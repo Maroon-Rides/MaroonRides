@@ -10,7 +10,6 @@
   const components = $derived(
     processRoutePlanMapComponents(planManager.selectedPlan, planManager.shownInstruction),
   );
-  //decided not to add as method to theme manager
   const lineColor = $derived(themeManager.theme === 'light' ? '#007afe' : '#0a84ff');
   $effect(() => {
     const pts = components.highlighted;

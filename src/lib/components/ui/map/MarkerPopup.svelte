@@ -37,17 +37,14 @@
   let wrapperElement: HTMLDivElement | null = $state(null);
   let shouldStayOpen = $state(false);
 
-  // Create popup when marker is ready
   $effect(() => {
     const marker = markerCtx.getMarker();
     const ready = markerCtx.isReady();
 
     if (!ready || !marker || !wrapperElement) return;
 
-    // Create popup container
     const container = document.createElement('div');
 
-    // Build popup options
     const popupOptions: PopupOptions = {
       offset,
       closeButton: false,
@@ -59,12 +56,11 @@
     if (closeOnMove !== undefined) popupOptions.closeOnMove = closeOnMove;
     if (focusAfterOpen !== undefined) popupOptions.focusAfterOpen = focusAfterOpen;
 
-    // If marker is draggable, preserve popup state during movement
+    // Dragging the marker would otherwise close the popup.
     if (markerCtx.isDraggable?.()) {
       popupOptions.closeOnMove = false;
     }
 
-    // Create popup
     const popupInstance = new MapLibreGL.Popup(popupOptions).setDOMContent(container);
 
     if (maxWidth) {
@@ -73,11 +69,10 @@
       popupInstance.setMaxWidth('none');
     }
 
-    // Attach popup to marker
     marker.setPopup(popupInstance);
     popup = popupInstance;
 
-    // Prevent popup from closing during drag
+    // Remembers a popup that was open when the drag started, so it reopens when the drag ends.
     $effect(() => {
       const isDragging = markerCtx.isDragging?.();
       if (isDragging && popupInstance.isOpen()) {
@@ -85,11 +80,10 @@
       }
     });
 
-    // Reopen popup after drag if it was open
     $effect(() => {
       const isDragging = markerCtx.isDragging?.();
       if (!isDragging && shouldStayOpen && !popupInstance.isOpen()) {
-        // Small delay to ensure popup has finished closing
+        // MapLibre is still closing the popup at this point.
         setTimeout(() => {
           if (!popupInstance.isOpen()) {
             marker.togglePopup();
@@ -99,13 +93,11 @@
       }
     });
 
-    // Move content to popup container
     while (wrapperElement.firstChild) {
       container.appendChild(wrapperElement.firstChild);
     }
 
     return () => {
-      // Move content back
       while (container.firstChild) {
         wrapperElement?.appendChild(container.firstChild);
       }

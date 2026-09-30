@@ -1,7 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { handleNativeRequest } from './handlers/native-proxy';
 
-// original fetch reference for restoring later
 let originalFetch: typeof fetch;
 let active = false;
 

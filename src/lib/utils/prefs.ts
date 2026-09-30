@@ -6,7 +6,7 @@ export async function migratePrefs() {
   const currentVersion = Number((await Preferences.get({ key: 'version' })).value ?? 0);
 
   if (currentVersion < 1) {
-    // initial iOS/Android react native migration
+    // Carries preferences over from the React Native app.
     const legacyPrefs = await readLegacyPrefs();
 
     if (legacyPrefs) {
@@ -20,8 +20,7 @@ export async function migratePrefs() {
         value: legacyPrefs['default-group'] ?? '0',
       });
 
-      // Theme watcher handles its own saving of theme preference
-      // just migrate the old app preference over.
+      // setMode saves the theme itself.
       let mode = 'system';
       if (legacyPrefs['app-theme'] === '1') {
         mode = 'light';
@@ -37,7 +36,6 @@ export async function migratePrefs() {
   }
 
   if (currentVersion < 2) {
-    // Migrate default group to string enums
     const defaultGroup = await Preferences.get({ key: 'defaultGroup' }).then((res) => res.value);
 
     await Preferences.set({

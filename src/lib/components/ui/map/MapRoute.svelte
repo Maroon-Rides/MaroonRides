@@ -49,7 +49,7 @@
   const hitLayerId = $derived(`route-hit-${id}`);
   const hasLine = $derived(coordinates.length >= 2);
 
-  // Add route once a style is live (only recreate when map/id/style changes, not paint properties or coordinates)
+  // Rebuilds only when the map, id, or style changes. Paint and coordinates update in place below.
   $effect(() => {
     const map = mapCtx.getMap();
     const style = mapCtx.getStyle();
@@ -58,12 +58,10 @@
 
     const initialCoordinates = untrack(() => coordinates);
 
-    // Remove existing layer and source if they exist
     if (map.getLayer(layerId)) map.removeLayer(layerId);
     if (map.getLayer(hitLayerId)) map.removeLayer(hitLayerId);
     if (map.getSource(sourceId)) map.removeSource(sourceId);
 
-    // Add source
     map.addSource(sourceId, {
       type: 'geojson',
       data: {
@@ -76,7 +74,6 @@
       },
     });
 
-    // Build paint options using untrack to avoid tracking paint prop changes
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const paint: LayerSpecification['paint'] = untrack(() => ({
       'line-color': color,
@@ -87,7 +84,6 @@
 
     const insertBefore = beforeId && map.getLayer(beforeId) ? beforeId : undefined;
 
-    // Add layer with initial paint properties
     map.addLayer(
       {
         id: layerId,
@@ -127,7 +123,6 @@
     };
   });
 
-  // Update route data when coordinates change
   $effect(() => {
     const map = mapCtx.getMap();
     const loaded = mapCtx.isLoaded();
@@ -147,7 +142,6 @@
     }
   });
 
-  // Update paint properties when they change
   $effect(() => {
     const map = mapCtx.getMap();
     const loaded = mapCtx.isLoaded();
@@ -163,7 +157,6 @@
     }
   });
 
-  // Handle click and hover events
   $effect(() => {
     const map = mapCtx.getMap();
     const loaded = mapCtx.isLoaded();

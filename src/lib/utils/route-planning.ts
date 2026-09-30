@@ -1,5 +1,3 @@
-// // // Generate the path points for the selected route plan
-
 import type { PlanItem, RoutePlanMarkedPoint, RoutePlanPoint } from '$lib/data/types';
 import { findLast, last } from 'lodash-es';
 
@@ -76,11 +74,8 @@ export function processRoutePlanMapComponents(
     };
   }
 
-  // handle selecting a specific part of the route plan
-
   const highlighted = pathPoints.filter((point) => point.stepIndex === selectedPart);
 
-  // break the path into two parts, before and after the selected part
   let faded: RoutePlanPoint[][] = [[], []];
   pathPoints.forEach((point) => {
     if (point.stepIndex < selectedPart) {
@@ -90,7 +85,7 @@ export function processRoutePlanMapComponents(
     }
   });
 
-  // handle single point steps
+  // A step with no path of its own, like waiting at a stop, sits where the last step ended.
   if (highlighted.length === 0) {
     const lastPoint = findLast(pathPoints, (point) => point.stepIndex === selectedPart - 1);
 
@@ -124,8 +119,7 @@ export function processRoutePlanMapComponents(
       };
     }
 
-    // nothing to anchor a marker to (step has no path and neither does the one before it,
-    // e.g. a leading wait step), so draw none rather than markers with no coordinates
+    // A wait step at the start has no earlier point to put a marker on.
     return {
       highlighted: [],
       faded: faded,

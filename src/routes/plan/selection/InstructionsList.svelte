@@ -8,18 +8,16 @@
 
   let { instructions }: Props = $props();
 
-  // strips the inline html the API returns while keeping <b>, so the markup below is the only thing @html renders
+  // Strips the API's inline HTML but keeps <b>, so @html renders only the markup added here.
   const domParser = new DOMParser();
   const strip = (s: string) => {
-    s = s.replaceAll(/<b>(.*?)<\/b>/gs, '**$1**'); //protect bolds from the strip
-    s = domParser.parseFromString(s, 'text/html').body.textContent ?? ''; //strip
-    return s.replaceAll(/\*\*(.*?)\*\*/gs, '<b>$1</b>').trim(); //reinsert bold
+    s = s.replaceAll(/<b>(.*?)<\/b>/gs, '**$1**');
+    s = domParser.parseFromString(s, 'text/html').body.textContent ?? '';
+    return s.replaceAll(/\*\*(.*?)\*\*/gs, '<b>$1</b>').trim();
   };
 
-  // a step is "Turn <b>left</b> onto <b>Hensel St</b>" plus zero or more <div> disclosures, so
-  // split those off instead of leaving them inline. "Destination will be on the left" is the one
-  // the rider is actually looking for, so it keeps the emphasis the advisory ones
-  // ("Restricted usage road", "Pass by ...") don't get
+  // A step can end in <div> notes like "Pass by ..." or "Destination will be on the left".
+  // They get their own lines, and only the destination note is emphasized.
   const format = (s: string) => {
     const notes: { text: string; isDestination: boolean }[] = [];
     const text = strip(

@@ -51,8 +51,7 @@
     return directionId === mapManager.selectedDirectionId || mapManager.selectedDirectionId === '';
   }
 
-  // originally stopped calls from stacked routes, but using this system
-  // now to respect visual order when tapping a route
+  // Stacked routes all fire on one tap. The one drawn on top wins.
   let requestedRoutes: Array<{ route: Route; index: number }> = [];
   let flushScheduled = false;
   let stopWasTapped = false;
@@ -61,15 +60,15 @@
     requestedRoutes.push({ route, index });
     if (flushScheduled) return;
     flushScheduled = true;
-    //fires after the onclick()s dispatch
+    // Runs once every route's onclick for this tap has fired.
     queueMicrotask(finalizeRoute);
   }
 
   function finalizeRoute() {
     flushScheduled = false;
     const topmost = requestedRoutes.reduce((a, b) => (b.index > a.index ? b : a)).route;
-    requestedRoutes.length = 0; //cursed
-    // the stop layer draws over the lines, so a tap that landed on a stop is not a route tap
+    requestedRoutes.length = 0;
+    // Stops draw over the lines, so a tap on a stop is not a route tap.
     if (!stopWasTapped) goto(`/route/${topmost.id}`);
   }
 
@@ -90,7 +89,7 @@
     return !!routeCode && isTimepoint(timepoints.data ?? {}, routeCode, stop.id);
   }
 
-  // timepoints render as square DOM markers instead of circles, so they are excluded here
+  // Timepoints are square DOM markers, not circles.
   const stopCircles = $derived(
     stopsByDirection.flatMap(({ direction, stops }) =>
       stops
@@ -179,7 +178,8 @@
       color={getRouteTint(route, themeManager.theme)}
       id={`${route.id}-${direction.id}`}
       onclick={() => {
-        if (!isSelected) return; //opacity check instead of isShown for ghost directional routes
+        // Unselected directions still draw faded, so isShown would let them take taps.
+        if (!isSelected) return;
         requestRoute(route, index);
       }}
       interactive={isShown}

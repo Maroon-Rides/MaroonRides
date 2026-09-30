@@ -17,7 +17,6 @@
 
   usePlanState();
 
-  //to not bleed state outside of /plan
   async function onClose() {
     await goto('/');
     planManager.reset();

@@ -18,7 +18,7 @@
     indicator.style.opacity = '1';
 
     if (!animated) {
-      // flush the layout so re-enabling the transition doesn't animate from the old position
+      // Forces a layout, so turning the transition back on does not animate from the old position.
       void indicator.offsetWidth;
       indicator.style.transition = '';
     }
@@ -27,11 +27,11 @@
   onMount(() => {
     if (!ref) return;
 
-    // geometry changed (rotation, breakpoint, sheet snap) — snap, and place it initially
+    // Size changes, like rotation or a sheet snap, move the indicator without animating.
     const resizeObserver = new ResizeObserver(() => updateIndicator(false));
     resizeObserver.observe(ref);
 
-    // a different tab became active — slide
+    // A tab change slides it.
     const activeObserver = new MutationObserver(() => updateIndicator());
     activeObserver.observe(ref, {
       attributes: true,

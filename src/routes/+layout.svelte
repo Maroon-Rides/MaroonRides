@@ -23,7 +23,8 @@
   });
 
   onMount(async () => {
-    await migratePrefs(); //sync to reduce some ui flickering when states change
+    // Pages read prefs on load, so migrating first keeps them from flickering.
+    await migratePrefs();
     await frontPageManager.load();
   });
 
