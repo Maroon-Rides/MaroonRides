@@ -1,285 +1,139 @@
 import {
   GetBaseDataResponseSchema,
-  GetNextDepartTimesResponseSchema,
   GetPatternPathsResponseSchema,
-  GetStopEstimatesResponseSchema,
-  GetStopSchedulesResponseSchema,
-  GetVehiclesResponseSchema,
-  type IGetBaseDataResponse,
-  type IGetNextDepartTimesResponse,
-  type IGetPatternPathsResponse,
-  type IGetStopEstimatesResponse,
-  type IGetVehiclesResponse,
-  type IMapServiceInterruption,
+  GetTripPlanResponseSchema,
+  type IFoundStop,
+  type IPatternPoint,
+  type ITripPlanResponse,
 } from '$lib/data/typecheck/aggie_spirit';
-import { appLogger } from '$lib/utils/logger';
-// import '@bacons/text-decoder/install';
-import { createDependencyQuery, createLoggingQuery } from '$lib/utils/queries';
-import {
-  getBaseData,
-  getNextDepartureTimes,
-  getPatternPaths,
-  getStopEstimates,
-  getStopSchedules,
-  getVehicles,
-} from 'aggie-spirit-api';
+import { type SearchSuggestion } from '$lib/utils/route-planning';
+import { findBusStops, getBaseData, getPatternPaths, getTripPlan } from 'aggie-spirit-api';
+import { keyBy } from 'lodash-es';
 import moment from 'moment';
+
+// Only route planning still talks to Aggie Spirit, since the Maroon Rides API has no trip planner.
 
 export type Headers = { [key: string]: string };
 
-enum ASAPIQueryKey {
-  AUTH_CODE = 'ASAPIAuthCode',
-  AUTH_TOKEN = 'ASAPIAuthToken',
-  ROUTE_PLAN_AUTH_TOKEN = 'ASAPIRoutePlanAuthToken',
-  BASE_DATA = 'ASAPIBaseData',
-  PATTERN_PATHS = 'ASAPIPatternPaths',
-  SERVICE_INTERRUPTIONS = 'ASAPIServiceInterruptions',
-  STOP_ESTIMATE = 'ASAPIStopEstimate',
-  TIMETABLE_ESTIMATE = 'ASAPITimetableEstimate',
-  STOP_AMENITIES = 'ASAPIStopAmenities',
-  STOP_SCHEDULE = 'ASAPIStopSchedule',
-  VEHICLES = 'ASAPIVehicles',
+const AUTH_URL = 'https://auth.maroonrides.app';
+const AGGIE_SPIRIT_URL = 'https://aggiespirit.ts.tamu.edu';
+const AUTH_TOKEN_TTL = moment.duration(15, 'minutes');
+const STOP_LOCATIONS_TTL = moment.duration(30, 'minutes');
+const AUTH_CODE_TTL = moment.duration(1, 'day');
+
+/** Reuses one in-flight or recent result, and drops it on failure so the next call retries. */
+function cached<T>(ttl: moment.Duration, load: () => Promise<T>): () => Promise<T> {
+  let value: Promise<T> | null = null;
+  let loadedAt = 0;
+
+  return () => {
+    if (!value || moment.now() - loadedAt > ttl.asMilliseconds()) {
+      loadedAt = moment.now();
+      value = load().catch((error) => {
+        value = null;
+        throw error;
+      });
+    }
+    return value;
+  };
 }
 
-export const useAuthCodeAPI = () => {
-  const query = createLoggingQuery<string>(() => ({
-    label: ASAPIQueryKey.AUTH_CODE,
-    queryKey: [ASAPIQueryKey.AUTH_CODE],
-    queryFn: async () => {
-      const authCodeB64 = await (await fetch('https://auth.maroonrides.app')).text();
-      return atob(authCodeB64);
-    },
-    staleTime: Infinity,
-  }));
-
-  return query;
-};
-
-export const useAuthTokenAPI = () => {
-  const authCodeQuery = useAuthCodeAPI();
-
-  const query = createDependencyQuery<Headers>(() => ({
-    queryKey: [ASAPIQueryKey.AUTH_TOKEN],
-    queryFn: async () => {
-      var res = await fetch('https://aggiespirit.ts.tamu.edu/', { credentials: 'omit' });
-
-      var verificationToken = extractRequestVerificationToken(await res.text());
-      return {
-        Requestverificationtoken: verificationToken,
-        'X-Requested-With': 'XMLHttpRequest',
-      };
-    },
-    staleTime: moment.duration(15, 'minutes'),
-    refetchInterval: moment.duration(15, 'minutes'),
-    dependents: [authCodeQuery],
-  }));
-
-  return query;
-};
-
-export const useRoutePlanAuthTokenAPI = (params: () => { queryString: string }) => {
-  const authCodeQuery = useAuthCodeAPI();
-
-  const query = createDependencyQuery<Headers>(() => {
-    const { queryString } = params();
-    return {
-      queryKey: [ASAPIQueryKey.ROUTE_PLAN_AUTH_TOKEN],
-      queryFn: async () => {
-        var res = await fetch(`https://aggiespirit.ts.tamu.edu/TripPlanner/${queryString}`, {
-          credentials: 'omit',
-        });
-
-        var verificationToken = extractRequestVerificationToken(await res.text());
-
-        return {
-          Requestverificationtoken: verificationToken,
-          'X-Requested-With': 'XMLHttpRequest',
-        };
-      },
-      staleTime: moment.duration(15, 'minutes'),
-      refetchInterval: moment.duration(15, 'minutes'),
-      enabled: queryString !== '',
-      dependents: [authCodeQuery],
-    };
-  });
-
-  return query;
-};
-
-export const useBaseDataAPI = () => {
-  const authTokenQuery = useAuthTokenAPI();
-
-  const query = createDependencyQuery<IGetBaseDataResponse>(() => ({
-    queryKey: [ASAPIQueryKey.BASE_DATA],
-    queryFn: async () => {
-      const baseData = await getBaseData(authTokenQuery.data!);
-      GetBaseDataResponseSchema.parse(baseData);
-
-      return baseData;
-    },
-    staleTime: Infinity,
-    dependents: [authTokenQuery],
-  }));
-
-  return query;
-};
-
-export const usePatternPathsAPI = () => {
-  const authTokenQuery = useAuthTokenAPI();
-  const baseDataQuery = useBaseDataAPI();
-
-  const query = createDependencyQuery<IGetPatternPathsResponse>(() => ({
-    queryKey: [ASAPIQueryKey.PATTERN_PATHS],
-    queryFn: async () => {
-      const baseData = baseDataQuery.data as IGetBaseDataResponse;
-
-      const patternPaths = await getPatternPaths(
-        baseData.routes.map((route) => route.key),
-        authTokenQuery.data!,
-      );
-      GetPatternPathsResponseSchema.parse(patternPaths);
-
-      return patternPaths;
-    },
-    dependents: [authTokenQuery, baseDataQuery],
-    staleTime: moment.duration(30, 'minutes'),
-    refetchInterval: moment.duration(30, 'minutes'),
-  }));
-
-  return query;
-};
-
-export const useServiceInterruptionsAPI = () => {
-  const baseDataQuery = useBaseDataAPI();
-
-  return createDependencyQuery<IMapServiceInterruption[]>(() => ({
-    queryKey: [ASAPIQueryKey.SERVICE_INTERRUPTIONS],
-    queryFn: async () => {
-      const baseData = baseDataQuery.data as IGetBaseDataResponse;
-      return baseData.serviceInterruptions;
-    },
-    enabled: baseDataQuery.isSuccess,
-    staleTime: moment.duration(30, 'minutes'),
-    refetchInterval: moment.duration(30, 'minutes'),
-    dependents: [baseDataQuery],
-  }));
-};
-
-export const useStopEstimateAPI = (
-  params: () => { routeKey: string; directionKey: string; stopCode: string },
-) => {
-  const authTokenQuery = useAuthTokenAPI();
-
-  return createDependencyQuery<IGetNextDepartTimesResponse>(() => {
-    const { routeKey, directionKey, stopCode } = params();
-    return {
-      queryKey: [ASAPIQueryKey.STOP_ESTIMATE, routeKey, directionKey, stopCode],
-      queryFn: async () => {
-        const response = await getNextDepartureTimes(
-          routeKey,
-          [directionKey],
-          stopCode,
-          authTokenQuery.data!,
-        );
-        GetNextDepartTimesResponseSchema.parse(response);
-
-        return response as IGetNextDepartTimesResponse;
-      },
-      enabled: routeKey !== '' && directionKey !== '' && stopCode !== '',
-      dependents: [authTokenQuery],
-      staleTime: moment.duration(30, 'seconds'),
-      refetchInterval: moment.duration(30, 'seconds'),
-    };
-  });
-};
-
-export const useTimetableEstimateAPI = (params: () => { stopCode: string; date: Date }) => {
-  const authTokenQuery = useAuthTokenAPI();
-
-  return createDependencyQuery<IGetStopEstimatesResponse>(() => {
-    const { stopCode, date } = params();
-    return {
-      queryKey: [ASAPIQueryKey.TIMETABLE_ESTIMATE, stopCode, moment(date).format('YYYY-MM-DD')],
-      queryFn: async () => {
-        const response = await getStopEstimates(stopCode, date, authTokenQuery.data!);
-        GetStopEstimatesResponseSchema.parse(response);
-
-        return response;
-      },
-      enabled: authTokenQuery.isSuccess && stopCode !== '' && date !== null,
-      staleTime: 30000,
-      refetchInterval: 30000,
-      dependents: [authTokenQuery],
-    };
-  });
-};
-
-export const useStopScheduleAPI = (params: () => { stopCode: string; date: Date }) => {
-  const authTokenQuery = useAuthTokenAPI();
-
-  return createDependencyQuery<IGetStopEstimatesResponse>(() => {
-    const { stopCode, date } = params();
-    return {
-      queryKey: [ASAPIQueryKey.STOP_SCHEDULE, stopCode, moment(date).format('YYYY-MM-DD')],
-      queryFn: async () => {
-        const response = await getStopSchedules(stopCode, date, authTokenQuery.data!);
-        GetStopSchedulesResponseSchema.parse(response);
-
-        return response;
-      },
-      enabled: stopCode !== '' && date !== null,
-      dependents: [authTokenQuery],
-      staleTime: moment.duration(30, 'seconds'),
-      refetchInterval: moment.duration(30, 'seconds'),
-    };
-  });
-};
-
-export const useVehiclesAPI = (params: () => { routeKey: string }) => {
-  const authTokenQuery = useAuthTokenAPI();
-
-  return createDependencyQuery<IGetVehiclesResponse[0]>(() => {
-    const { routeKey } = params();
-    return {
-      queryKey: [ASAPIQueryKey.VEHICLES, routeKey],
-      queryFn: async () => {
-        let busesResponse = (await getVehicles(
-          [routeKey],
-          authTokenQuery.data!,
-        )) as IGetVehiclesResponse;
-
-        GetVehiclesResponseSchema.parse(busesResponse);
-
-        if (busesResponse.length === 0) {
-          appLogger.w(`No vehicles data returned for route: ${routeKey}`);
-          return null;
-        }
-
-        return busesResponse[0];
-      },
-      enabled: routeKey !== '',
-      dependents: [authTokenQuery],
-      staleTime: moment.duration(10, 'seconds'),
-      refetchInterval: moment.duration(10, 'seconds'),
-    };
-  });
-};
-
 function extractRequestVerificationToken(html: string): string {
-  //
-  // grab the encoded request verification token
-  //
-  const regex = new RegExp('"[a-zA-Z0-9]{288}MQ=="', 'g');
-
-  // check for a string
-  const matches = html.match(regex);
+  const matches = html.match(/"[a-zA-Z0-9]{288}MQ=="/g);
   if (matches === null) {
     throw new Error('Could not find verification token');
   }
 
-  // get a nice string
-  const encoded_token = matches[0].slice(1, -1);
+  return atob(matches[0].slice(1, -1));
+}
 
-  // b64 decode
-  return atob(encoded_token);
+const ensureAuthCode = cached(AUTH_CODE_TTL, () => fetch(AUTH_URL));
+
+async function fetchVerificationHeaders(path: string): Promise<Headers> {
+  await ensureAuthCode();
+  const res = await fetch(`${AGGIE_SPIRIT_URL}/${path}`, { credentials: 'omit' });
+
+  return {
+    Requestverificationtoken: extractRequestVerificationToken(await res.text()),
+    'X-Requested-With': 'XMLHttpRequest',
+  };
+}
+
+const getAuthHeaders = cached(AUTH_TOKEN_TTL, () => fetchVerificationHeaders(''));
+
+const getStopLocations = cached(STOP_LOCATIONS_TTL, async () => {
+  const headers = await getAuthHeaders();
+  const baseData = GetBaseDataResponseSchema.parse(await getBaseData(headers));
+  const patternPaths = GetPatternPathsResponseSchema.parse(
+    await getPatternPaths(
+      baseData.routes.map((route) => route.key),
+      headers,
+    ),
+  );
+
+  const stopPoints = patternPaths
+    .flatMap((route) => route.patternPaths)
+    .flatMap((path) => path.patternPoints)
+    .filter((point): point is IPatternPoint & { stop: NonNullable<IPatternPoint['stop']> } =>
+      Boolean(point.stop),
+    );
+
+  return keyBy(stopPoints, (point) => point.stop.stopCode);
+});
+
+export async function searchBusStops(query: string): Promise<SearchSuggestion[]> {
+  const headers = await getAuthHeaders();
+  const [stops, stopLocations] = await Promise.all([
+    findBusStops(query, {
+      Cookie: headers['Cookie']!,
+      'X-Requested-With': headers['X-Requested-With']!,
+    }),
+    getStopLocations(),
+  ]);
+
+  return stops.map((stop: IFoundStop) => {
+    const point = stopLocations[stop.stopCode];
+    return {
+      type: 'stop',
+      title: point?.stop.name ?? '',
+      subtitle: 'ID: ' + point?.stop.stopCode,
+      stopCode: point?.stop.stopCode,
+      lat: point?.latitude,
+      long: point?.longitude,
+    };
+  });
+}
+
+function tripPlannerPath(origin: SearchSuggestion, destination: SearchSuggestion, date: Date) {
+  const time = (date.getTime() / 1000).toFixed(0);
+
+  if (origin.title === 'My Location') {
+    return `TripPlanner/Results?o1=${origin.title}&ola=${origin.lat}&olo=${origin.long}&og=1&d1=${destination.title}&dsc=${destination.stopCode}&dt=${time}&ro=0`;
+  }
+  if (destination.title === 'My Location') {
+    return `TripPlanner/Results?o1=${origin.title}&osc=${origin.stopCode}&d1=${destination.title}&dla=${origin.lat}&dlo=${origin.long}&dg=true&dt=${time}&ro=0`;
+  }
+  return `TripPlanner/Results?o1=${origin.title}&osc=${origin.stopCode}&d1=${destination.title}&dsc=${destination.stopCode}&dt=${time}&ro=0`;
+}
+
+export async function planTrip(
+  origin: SearchSuggestion,
+  destination: SearchSuggestion,
+  date: Date,
+  deadline: 'leave' | 'arrive',
+): Promise<ITripPlanResponse> {
+  const headers = await fetchVerificationHeaders(tripPlannerPath(origin, destination, date));
+  const response = await getTripPlan(
+    headers,
+    origin,
+    destination,
+    0,
+    deadline === 'arrive' ? date : undefined,
+    deadline === 'leave' ? date : undefined,
+  );
+
+  GetTripPlanResponseSchema.parse(response);
+
+  // @ts-expect-error: Types are wrong in lib
+  return response as ITripPlanResponse;
 }

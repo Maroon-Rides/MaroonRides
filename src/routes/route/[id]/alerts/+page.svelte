@@ -5,18 +5,18 @@
   import * as Card from '$lib/components/ui/card';
   import Separator from '$lib/components/ui/separator/separator.svelte';
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
-  import { useAlerts, useRoutes } from '$lib/data/app';
+  import { useAlerts, useRoute } from '$lib/data/app';
   import { TriangleAlert } from '@lucide/svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
 
-  const routes = useRoutes();
-  const route = $derived(routes.data?.find((r) => r.id === data.routeId) ?? null);
-  const alerts = useAlerts(() => ({ route }));
+  const routeQuery = useRoute(() => ({ routeId: data.routeId }));
+  const route = $derived(routeQuery.data ?? null);
+  const alerts = useAlerts(() => ({ routeId: data.routeId }));
 
   function onClose() {
-    goto(`/route/${route?.id}`);
+    goto(`/route/${data.routeId}`);
   }
 
   const descriptionClasses =
