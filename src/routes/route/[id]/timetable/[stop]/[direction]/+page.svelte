@@ -6,7 +6,7 @@
   import * as BottomSheet from '$lib/components/ui/bottom-sheet';
   import DateStepper from '$lib/components/ui/date-stepper/date-stepper.svelte';
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
-  import { useRoutes, useStopSchedule } from '$lib/data/app';
+  import { useRoute, useTimetable } from '$lib/data/app';
   import moment from 'moment';
   import type { PageData } from './$types';
 
@@ -19,16 +19,16 @@
 
   let date = $state(moment());
 
-  const routes = useRoutes();
+  const routeQuery = useRoute(() => ({ routeId: data.routeId }));
 
-  const route = $derived(routes.data?.find((r) => r.id === data.routeId) ?? null);
+  const route = $derived(routeQuery.data ?? null);
   const direction = $derived(route?.directions.find((d) => d.id === data.directionId) ?? null);
   const stop = $derived(direction?.stops.find((s) => s.id === data.stopId) ?? null);
 
-  const timetable = useStopSchedule(() => ({ stop, date }));
+  const timetable = useTimetable(() => ({ stop, date }));
 
   function onClose() {
-    goto(`/route/${route?.id}`);
+    goto(`/route/${data.routeId}`);
   }
 </script>
 
@@ -45,32 +45,26 @@
     <div class="flex flex-col gap-4 px-4 py-2 pb-6">
       <DateStepper bind:selectedDate={date} minDate={moment()} class="self-center" />
 
-      {#if timetable.isLoading}
+      {#if timetable.isLoading || routeQuery.isLoading}
         <Spinner class="size-6 self-center" />
-      {:else if routes.isError}
-        <p>Error loading routes: {routes.error.message}</p>
-      {:else if timetable.data?.length === 0}
-        <p class="text-center text-sm text-muted-foreground">
-          No scheduled arrivals for this stop on this day.
-        </p>
+      {:else if routeQuery.isError}
+        <p>Error loading route: {routeQuery.error.message}</p>
+      {:else if route && direction}
+        <div class="mb-2 flex flex-col gap-3">
+          <RouteRow
+            {route}
+            subtitle={direction.name.trim()}
+            onclick={() => goto(`/route/${route.id}`)}
+          />
+          {#if (timetable.data?.length ?? 0) === 0}
+            <p class="text-center text-sm text-muted-foreground">
+              No scheduled arrivals for this stop on this day.
+            </p>
+          {:else}
+            <Timetable {route} departures={timetable.data ?? []} />
+          {/if}
+        </div>
       {/if}
-
-      {#each timetable.data as table}
-        {#if table.route.id == route?.id && table.direction.id == direction?.id}
-          <div class="mb-2 flex flex-col gap-3">
-            <RouteRow
-              route={table.route}
-              subtitle={direction.name.trim()}
-              onclick={() => goto(`/route/${table.route.id}`)}
-            />
-            {#if table.timetable.length === 0}
-              <p class="text-center text-sm text-muted-foreground">No timetable for selected day</p>
-            {:else}
-              <Timetable schedule={table} {date} />
-            {/if}
-          </div>
-        {/if}
-      {/each}
     </div>
   </BottomSheet.Root>
 {/key}

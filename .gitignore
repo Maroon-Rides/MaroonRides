@@ -25,3 +25,5 @@ vite.config.ts.timestamp-*
 *.pmtiles
 
 dev.config.ts
+# Copied from sql.js by `pnpm sqlite:wasm`
+static/assets/sql-wasm.wasm

@@ -8,30 +8,32 @@
   import Button from '$lib/components/ui/button/button.svelte';
   import * as Tabs from '$lib/components/ui/tabs';
   import Toggle from '$lib/components/ui/toggle/toggle.svelte';
-  import { useAlerts, useRoutes } from '$lib/data/app';
+  import { useAlerts, useRoute } from '$lib/data/app';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { toggleFavorite } from '$lib/utils/prefs';
   import { Preferences } from '@capacitor/preferences';
   import { Bell, BellRing, Star } from '@lucide/svelte';
-  import { onMount, untrack } from 'svelte';
+  import { untrack } from 'svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
 
-  const routes = useRoutes();
-  const route = $derived(routes.data?.find((r) => r.id === data.routeId) ?? null);
-  const alerts = useAlerts(() => ({ route }));
+  const routeQuery = useRoute(() => ({ routeId: data.routeId }));
+  const route = $derived(routeQuery.data ?? null);
+  const alerts = useAlerts(() => ({ routeId: data.routeId }));
   let isFavorite = $state(false);
   const selectedDirection = $derived(
     route?.directions.find((d) => d.id === mapManager.selectedDirectionId) ?? null,
   );
 
-  onMount(async () => {
-    const favoritedRoutes = JSON.parse(
-      (await Preferences.get({ key: 'favorites' })).value ?? '[]',
-    ) as string[];
+  // The route loads from the database after mount, so wait for its code.
+  $effect(() => {
+    const routeCode = route?.routeCode;
+    if (!routeCode) return;
 
-    isFavorite = favoritedRoutes.includes(route?.routeCode ?? '');
+    Preferences.get({ key: 'favorites' }).then(({ value }) => {
+      isFavorite = (JSON.parse(value ?? '[]') as string[]).includes(routeCode);
+    });
   });
 
   $effect(() => {
@@ -112,7 +114,6 @@
             {stop}
             direction={selectedDirection}
             {route}
-            estimateDirection={isLast ? altDirection : undefined}
             estimateStop={isLast ? altDirection?.stops[0] : undefined}
           />
           {#if i < (selectedDirection?.stops.length ?? 0) - 1}

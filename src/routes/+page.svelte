@@ -10,11 +10,16 @@
   import { useRoutes } from '$lib/data/app';
   import { frontPageManager } from '$lib/managers/frontpage.manager.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
+  import { syncManager } from '$lib/managers/sync.manager.svelte';
   import { Preferences } from '@capacitor/preferences';
   import { Cog, Route } from '@lucide/svelte';
   import { onMount } from 'svelte';
 
   let routes = useRoutes();
+  // On first launch the database stays empty until the first sync lands.
+  const isLoading = $derived(
+    routes.isLoading || (routes.data?.length === 0 && syncManager.isSyncing),
+  );
   const favRoutes = $derived(
     routes.data?.filter((route) => frontPageManager.favorites.includes(route.routeCode)) ?? [],
   );
@@ -67,7 +72,7 @@
 
     {#if frontPageManager.selectedTab === 'all'}
       <Card.Content class="flex flex-col gap-4 px-4 pt-4 pb-10">
-        {#if routes.isLoading}
+        {#if isLoading}
           <Spinner class="size-6 self-center" />
         {:else if routes.isError}
           <p>Error loading routes: {routes.error.message}</p>
@@ -79,11 +84,11 @@
       </Card.Content>
     {:else if frontPageManager.selectedTab === 'favorites'}
       <Card.Content class="flex flex-col gap-4 px-4 pt-4 pb-10">
-        {#if favRoutes.length === 0 && !routes.isLoading}
+        {#if favRoutes.length === 0 && !isLoading}
           <p class="text-center text-sm text-muted-foreground">There are no favorited routes.</p>
         {/if}
 
-        {#if routes.isLoading}
+        {#if isLoading}
           <Spinner class="size-6 self-center" />
         {/if}
 

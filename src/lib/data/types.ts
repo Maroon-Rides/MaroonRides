@@ -1,4 +1,3 @@
-import { type IAmenity } from '$lib/data/typecheck/aggie_spirit';
 import {
   AccessibilityIcon,
   AirVentIcon,
@@ -14,23 +13,15 @@ import {
 import moment from 'moment';
 
 export enum Amenity {
-  AIR_CONDITIONING = 'Air Conditioning',
-  WHEELCHAIR_ACCESSIBLE = 'Wheelchair Accessible',
-  WHEELCHAIR_LIFT = 'Wheelchair Lift',
-  BICYCLE_RACK = 'Bicycle Rack',
-  SHELTER = 'Shelter',
-  TIME_POINT = 'Time Point',
+  AIR_CONDITIONING = 'AIR_CONDITIONING',
+  WHEELCHAIR_ACCESSIBLE = 'WHEELCHAIR_ACCESSIBLE',
+  WHEELCHAIR_LIFT = 'WHEELCHAIR_LIFT',
+  BICYCLE_RACK = 'BICYCLE_RACK',
+  SHELTER = 'SHELTER',
+  TIME_POINT = 'TIME_POINT',
 }
 
 export namespace Amenity {
-  export function fromAPI(api: IAmenity[]): Amenity[] {
-    return api
-      .map((item) => {
-        return Object.values(Amenity).find((amenity) => amenity === item.name);
-      })
-      .filter((amenity): amenity is Amenity => amenity !== undefined);
-  }
-
   export function getIcon(amenity: Amenity) {
     switch (amenity) {
       case Amenity.AIR_CONDITIONING:
@@ -63,68 +54,75 @@ export interface FromDataSource {
   dataSource: DataSource;
 }
 
-export interface Stop extends FromDataSource {
-  name: string;
+export interface Stop {
   id: string;
+  name: string;
   location: Location;
+  amenities: Amenity[];
+  isTimepoint: boolean;
   isLastOnDirection: boolean;
 }
 
-export interface PathLocation extends Location {
-  isStop: boolean;
-}
-
-export interface Route extends FromDataSource {
-  name: string;
+export interface Route {
   id: string;
+  name: string;
   routeCode: string;
-  tintColor: string;
+  lightColor: string;
+  darkColor: string;
   directions: Direction[];
   bounds: Location[];
 }
 
-export interface Direction extends FromDataSource {
-  pathPoints: PathLocation[];
-  name: string;
+export interface Direction {
   id: string;
+  name: string;
+  pathPoints: Location[];
   stops: Stop[];
   isOnlyDirection: boolean;
 }
 
-export interface Bus extends FromDataSource {
+export interface Bus {
+  id: string;
+  name: string;
   location: Location;
   heading: number;
+  speed: number;
   amenities: Amenity[];
   capacity: number;
-  speed: number;
-  id: string;
   direction: Direction;
-  name: string;
   route: Route;
 }
 
-export interface TimeEstimate extends FromDataSource {
+export interface TimeEstimate {
   estimatedTime: moment.Moment | null;
   scheduledTime: moment.Moment;
-  tripPointId?: string;
   isRealTime: boolean;
-  isCancelled?: boolean;
 }
 
-export interface StopSchedule extends FromDataSource {
-  route: Route;
-  direction: Direction;
-  stop: Stop;
-  timetable: TimeEstimate[];
-  isEndOfRoute: boolean;
+export enum EstimateSource {
+  LOADING = 'loading',
+  LIVE = 'live',
+  SCHEDULE = 'schedule',
+  UNAVAILABLE = 'unavailable',
 }
 
-export interface Alert extends FromDataSource {
+export const ESTIMATES_UNAVAILABLE_MESSAGE = 'Stop estimates unavailable';
+
+export interface StopEstimates {
+  source: EstimateSource;
+  estimates: TimeEstimate[];
+}
+
+export interface TimetableDeparture {
+  scheduledTime: moment.Moment;
+  estimatedTime: moment.Moment | null;
+  isCancelled: boolean;
+}
+
+export interface Alert {
   id: string;
   title: string;
   description: string;
-  affectedRoutes: Route[];
-  originalRoute: Route;
 }
 
 // Route Planning
