@@ -23,23 +23,16 @@
     stop: Stop;
     route: Route;
     direction: Direction;
-    estimateDirection?: Direction;
     estimateStop?: Stop;
   };
 
-  let { stop, route, direction, estimateDirection, estimateStop }: Props = $props();
+  let { stop, route, direction, estimateStop }: Props = $props();
 
   const sheet = getContext<BottomSheetContext>('bottom-sheet');
 
-  const effectiveDirection = $derived(estimateDirection ?? direction);
   const effectiveStop = $derived(estimateStop ?? stop);
 
-  const stopEstimates = $derived(
-    useStopEstimate(() => ({
-      direction: effectiveDirection,
-      stop: effectiveStop,
-    })),
-  );
+  const stopEstimates = $derived(useStopEstimate(() => ({ stop: effectiveStop })));
 
   let subtitle = $derived.by(() => {
     const source = stopEstimates.data?.source ?? EstimateSource.LOADING;
@@ -109,7 +102,7 @@
   </div>
   <div class="mt-2 flex items-center justify-between">
     {#if route && direction}
-      <EstimateRow {route} direction={effectiveDirection} stop={effectiveStop} />
+      <EstimateRow {route} stop={effectiveStop} />
     {/if}
     <Button
       variant="outline"

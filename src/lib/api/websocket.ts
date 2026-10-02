@@ -32,7 +32,6 @@ export interface WebsocketVehicle {
 export interface WebsocketDeparture {
   id: string;
   stopId: string;
-  directionId: string;
   scheduledAt: string;
   estimatedAt: string | null;
   isCancelled: boolean;

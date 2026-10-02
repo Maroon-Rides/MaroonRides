@@ -2,19 +2,18 @@
   import TimeBubble from '$lib/components/TimeBubble.svelte';
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
   import { useStopEstimate } from '$lib/data/app';
-  import { EstimateSource, type Direction, type Route, type Stop } from '$lib/data/types';
+  import { EstimateSource, type Route, type Stop } from '$lib/data/types';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
   import { getRouteTint } from '$lib/utils/tints';
 
   type Props = {
     route: Route;
-    direction: Direction;
     stop: Stop;
   };
 
-  let { route, direction, stop }: Props = $props();
+  let { route, stop }: Props = $props();
 
-  const estimates = $derived(useStopEstimate(() => ({ direction, stop })));
+  const estimates = $derived(useStopEstimate(() => ({ stop })));
   const isLoading = $derived(estimates.data.source === EstimateSource.LOADING);
 </script>
 

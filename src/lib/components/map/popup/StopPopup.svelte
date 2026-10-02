@@ -8,7 +8,6 @@
     Amenity,
     ESTIMATES_UNAVAILABLE_MESSAGE,
     EstimateSource,
-    type Direction,
     type Route,
     type Stop,
   } from '$lib/data/types';
@@ -18,15 +17,14 @@
   type Props = {
     route: Route;
     stop: Stop;
-    direction: Direction;
     onclose?: () => void;
   };
 
-  let { stop, route, direction, onclose }: Props = $props();
+  let { stop, route, onclose }: Props = $props();
 
   const tint = $derived(getRouteTint(route, themeManager.theme));
 
-  const stopEstimates = $derived(useStopEstimate(() => ({ direction, stop })));
+  const stopEstimates = $derived(useStopEstimate(() => ({ stop })));
   const source = $derived(stopEstimates.data?.source ?? EstimateSource.LOADING);
   const estimates = $derived(stopEstimates.data?.estimates ?? []);
 </script>

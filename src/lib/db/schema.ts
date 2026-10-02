@@ -22,24 +22,19 @@ export const direction = sqliteTable(
   (t) => [index('direction_route_id_idx').on(t.routeId)],
 );
 
-export const stop = sqliteTable('stop', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  lat: real('lat').notNull(),
-  lon: real('lon').notNull(),
-  amenities: text('amenities', { mode: 'json' }).$type<string[]>().notNull(),
-});
-
-export const directionStop = sqliteTable(
-  'direction_stop',
+export const stop = sqliteTable(
+  'stop',
   {
     id: text('id').primaryKey(),
     directionId: text('direction_id').notNull(),
-    stopId: text('stop_id').notNull(),
+    name: text('name').notNull(),
+    lat: real('lat').notNull(),
+    lon: real('lon').notNull(),
+    amenities: text('amenities', { mode: 'json' }).$type<string[]>().notNull(),
     sequence: integer('sequence').notNull(),
     isTimepoint: integer('is_timepoint', { mode: 'boolean' }).notNull(),
   },
-  (t) => [index('direction_stop_direction_id_idx').on(t.directionId, t.sequence)],
+  (t) => [index('stop_direction_id_idx').on(t.directionId, t.sequence)],
 );
 
 export const alert = sqliteTable('alert', {
@@ -68,11 +63,10 @@ export const timetable = sqliteTable(
   {
     id: text('id').primaryKey(),
     stopId: text('stop_id').notNull(),
-    directionId: text('direction_id').notNull(),
     serviceDate: text('service_date').notNull(),
     departures: text('departures', { mode: 'json' }).$type<string[]>().notNull(),
   },
-  (t) => [index('timetable_slot_idx').on(t.stopId, t.directionId, t.serviceDate)],
+  (t) => [index('timetable_slot_idx').on(t.stopId, t.serviceDate)],
 );
 
 /** The newest ack per entity key, e.g. `RouteV1` or `TimetableV1:<routeId>`. */
@@ -87,13 +81,12 @@ export const routeRelations = relations(route, ({ many }) => ({
 
 export const directionRelations = relations(direction, ({ one, many }) => ({
   route: one(route, { fields: [direction.routeId], references: [route.id] }),
-  directionStops: many(directionStop),
+  stops: many(stop),
   alertDirections: many(alertDirection),
 }));
 
-export const directionStopRelations = relations(directionStop, ({ one }) => ({
-  direction: one(direction, { fields: [directionStop.directionId], references: [direction.id] }),
-  stop: one(stop, { fields: [directionStop.stopId], references: [stop.id] }),
+export const stopRelations = relations(stop, ({ one }) => ({
+  direction: one(direction, { fields: [stop.directionId], references: [direction.id] }),
 }));
 
 export const alertRelations = relations(alert, ({ many }) => ({
@@ -106,12 +99,4 @@ export const alertDirectionRelations = relations(alertDirection, ({ one }) => ({
 }));
 
 /** Tables filled by the sync stream. A reset wipes all of them along with their acks. */
-export const SYNCED_TABLES = [
-  route,
-  direction,
-  stop,
-  directionStop,
-  alert,
-  alertDirection,
-  timetable,
-] as const;
+export const SYNCED_TABLES = [route, direction, stop, alert, alertDirection, timetable] as const;

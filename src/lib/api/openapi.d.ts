@@ -107,24 +107,6 @@ export interface components {
        */
       type: 'DirectionDeleteV1';
     };
-    DirectionStopDeleteV1Line: {
-      ack: string;
-      data: components['schemas']['SyncDirectionStopDeleteV1'];
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'DirectionStopDeleteV1';
-    };
-    DirectionStopV1Line: {
-      ack: string;
-      data: components['schemas']['SyncDirectionStopV1'];
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'DirectionStopV1';
-    };
     DirectionV1Line: {
       ack: string;
       data: components['schemas']['SyncDirectionV1'];
@@ -249,22 +231,6 @@ export interface components {
       /** Format: uuid */
       directionId: string;
     };
-    /** @description SyncDirectionStopDeleteV1 schema */
-    SyncDirectionStopDeleteV1: {
-      /** Format: uuid */
-      directionStopId: string;
-    };
-    /** @description SyncDirectionStopV1 schema */
-    SyncDirectionStopV1: {
-      /** Format: uuid */
-      directionId: string;
-      /** Format: uuid */
-      id: string;
-      isTimepoint: boolean;
-      sequence: number;
-      /** Format: uuid */
-      stopId: string;
-    };
     /** @description SyncDirectionV1 schema */
     SyncDirectionV1: {
       destination: string;
@@ -287,8 +253,6 @@ export interface components {
       | 'DirectionDeleteV1'
       | 'StopV1'
       | 'StopDeleteV1'
-      | 'DirectionStopV1'
-      | 'DirectionStopDeleteV1'
       | 'AlertV1'
       | 'AlertDeleteV1'
       | 'AlertDirectionV1'
@@ -310,7 +274,6 @@ export interface components {
       | 'RoutesV1'
       | 'DirectionsV1'
       | 'StopsV1'
-      | 'DirectionStopsV1'
       | 'AlertsV1'
       | 'AlertDirectionsV1'
       | 'TimetablesV1';
@@ -349,12 +312,16 @@ export interface components {
     SyncStopV1: {
       amenities: string[] | null;
       /** Format: uuid */
+      directionId: string;
+      /** Format: uuid */
       id: string;
+      isTimepoint: boolean;
       /** Format: double */
       lat: number;
       /** Format: double */
       lon: number;
       name: string;
+      sequence: number;
     };
     SyncStreamLine:
       | components['schemas']['RouteV1Line']
@@ -363,8 +330,6 @@ export interface components {
       | components['schemas']['DirectionDeleteV1Line']
       | components['schemas']['StopV1Line']
       | components['schemas']['StopDeleteV1Line']
-      | components['schemas']['DirectionStopV1Line']
-      | components['schemas']['DirectionStopDeleteV1Line']
       | components['schemas']['AlertV1Line']
       | components['schemas']['AlertDeleteV1Line']
       | components['schemas']['AlertDirectionV1Line']
@@ -381,8 +346,6 @@ export interface components {
     /** @description SyncTimetableV1 schema */
     SyncTimetableV1: {
       departures: string[] | null;
-      /** Format: uuid */
-      directionId: string;
       /** Format: uuid */
       id: string;
       /** Format: date */

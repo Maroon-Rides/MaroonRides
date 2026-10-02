@@ -114,7 +114,6 @@
             {stop}
             direction={selectedDirection}
             {route}
-            estimateDirection={isLast ? altDirection : undefined}
             estimateStop={isLast ? altDirection?.stops[0] : undefined}
           />
           {#if i < (selectedDirection?.stops.length ?? 0) - 1}

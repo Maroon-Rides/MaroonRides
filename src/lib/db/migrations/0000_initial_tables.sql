@@ -25,15 +25,6 @@ CREATE TABLE `direction` (
 );
 --> statement-breakpoint
 CREATE INDEX `direction_route_id_idx` ON `direction` (`route_id`);--> statement-breakpoint
-CREATE TABLE `direction_stop` (
-	`id` text PRIMARY KEY NOT NULL,
-	`direction_id` text NOT NULL,
-	`stop_id` text NOT NULL,
-	`sequence` integer NOT NULL,
-	`is_timepoint` integer NOT NULL
-);
---> statement-breakpoint
-CREATE INDEX `direction_stop_direction_id_idx` ON `direction_stop` (`direction_id`,`sequence`);--> statement-breakpoint
 CREATE TABLE `route` (
 	`id` text PRIMARY KEY NOT NULL,
 	`short_name` text NOT NULL,
@@ -45,12 +36,16 @@ CREATE TABLE `route` (
 --> statement-breakpoint
 CREATE TABLE `stop` (
 	`id` text PRIMARY KEY NOT NULL,
+	`direction_id` text NOT NULL,
 	`name` text NOT NULL,
 	`lat` real NOT NULL,
 	`lon` real NOT NULL,
-	`amenities` text NOT NULL
+	`amenities` text NOT NULL,
+	`sequence` integer NOT NULL,
+	`is_timepoint` integer NOT NULL
 );
 --> statement-breakpoint
+CREATE INDEX `stop_direction_id_idx` ON `stop` (`direction_id`,`sequence`);--> statement-breakpoint
 CREATE TABLE `sync_ack` (
 	`key` text PRIMARY KEY NOT NULL,
 	`ack` text NOT NULL
@@ -59,9 +54,8 @@ CREATE TABLE `sync_ack` (
 CREATE TABLE `timetable` (
 	`id` text PRIMARY KEY NOT NULL,
 	`stop_id` text NOT NULL,
-	`direction_id` text NOT NULL,
 	`service_date` text NOT NULL,
 	`departures` text NOT NULL
 );
 --> statement-breakpoint
-CREATE INDEX `timetable_slot_idx` ON `timetable` (`stop_id`,`direction_id`,`service_date`);
+CREATE INDEX `timetable_slot_idx` ON `timetable` (`stop_id`,`service_date`);

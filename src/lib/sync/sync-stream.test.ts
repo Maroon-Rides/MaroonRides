@@ -57,7 +57,16 @@ describe('planSync', () => {
         {
           type: 'StopV1',
           ack: `StopV1|${ACK_ID}`,
-          data: { id: STOP_ID, name: 'MSC', lat: 30.6, lon: -96.3, amenities: null },
+          data: {
+            id: STOP_ID,
+            directionId: DIRECTION_ID,
+            name: 'MSC',
+            lat: 30.6,
+            lon: -96.3,
+            amenities: null,
+            sequence: 0,
+            isTimepoint: false,
+          },
         },
         { type: 'SyncCompleteV1', ack: `SyncCompleteV1|${ACK_ID}`, data: {} },
       ]),

@@ -25,7 +25,7 @@
   const direction = $derived(route?.directions.find((d) => d.id === data.directionId) ?? null);
   const stop = $derived(direction?.stops.find((s) => s.id === data.stopId) ?? null);
 
-  const timetable = useTimetable(() => ({ direction, stop, date }));
+  const timetable = useTimetable(() => ({ stop, date }));
 
   function onClose() {
     goto(`/route/${data.routeId}`);

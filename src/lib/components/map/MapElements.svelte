@@ -150,13 +150,10 @@
     if (!route || mapManager.selected?.type !== 'stop') return null;
 
     const stopId = mapManager.selected.id;
-    const matches = stopsByDirection.flatMap(({ direction, stops }) => {
-      const stop = stops.find((candidate) => candidate.id === stopId);
-      return stop ? [{ route, direction, stop }] : [];
-    });
-
-    // a stop belongs to several directions; the shown one supplies the estimates
-    return matches.find((match) => isDirectionSelected(match.direction.id)) ?? matches[0] ?? null;
+    const stop = stopsByDirection
+      .flatMap(({ stops }) => stops)
+      .find((candidate) => candidate.id === stopId);
+    return stop ? { route, stop } : null;
   });
 </script>
 
@@ -246,7 +243,6 @@
 {:else if selectedStop}
   <StopPopup
     route={selectedStop.route}
-    direction={selectedStop.direction}
     stop={selectedStop.stop}
     onclose={() => (mapManager.selected = null)}
   />

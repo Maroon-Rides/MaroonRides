@@ -30,8 +30,8 @@ function departsAt(departure: WebsocketDeparture) {
   return moment(departure.estimatedAt ?? departure.scheduledAt);
 }
 
-function slotKey(stopId: string, directionId: string, scheduledAt: moment.MomentInput) {
-  return `${stopId}|${directionId}|${moment(scheduledAt).valueOf()}`;
+function slotKey(stopId: string, scheduledAt: moment.MomentInput) {
+  return `${stopId}|${moment(scheduledAt).valueOf()}`;
 }
 
 /** Holds the subscribed route's vehicles and departures, straight from the websocket. */
@@ -49,7 +49,7 @@ class LiveDataManager {
   });
 
   readonly #departuresBySlot = $derived(
-    new Map(this.departures.map((d) => [slotKey(d.stopId, d.directionId, d.scheduledAt), d])),
+    new Map(this.departures.map((d) => [slotKey(d.stopId, d.scheduledAt), d])),
   );
 
   #routeId: string | null = null;
@@ -85,16 +85,10 @@ class LiveDataManager {
   }
 
   /** Upcoming departures at a stop, soonest first. */
-  estimatesFor(directionId: string, stopId: string): TimeEstimate[] {
+  estimatesFor(stopId: string): TimeEstimate[] {
     const earliest = moment().subtract(DEPARTED_GRACE);
     return this.departures
-      .filter(
-        (d) =>
-          d.directionId === directionId &&
-          d.stopId === stopId &&
-          !d.isCancelled &&
-          departsAt(d).isSameOrAfter(earliest),
-      )
+      .filter((d) => d.stopId === stopId && !d.isCancelled && departsAt(d).isSameOrAfter(earliest))
       .sort((a, b) => departsAt(a).diff(departsAt(b)))
       .map((d) => ({
         scheduledTime: moment(d.scheduledAt),
@@ -104,8 +98,8 @@ class LiveDataManager {
   }
 
   /** The live departure for one scheduled time at a stop, if the server sent one. */
-  departureAt(stopId: string, directionId: string, scheduledAt: moment.Moment) {
-    return this.#departuresBySlot.get(slotKey(stopId, directionId, scheduledAt));
+  departureAt(stopId: string, scheduledAt: moment.Moment) {
+    return this.#departuresBySlot.get(slotKey(stopId, scheduledAt));
   }
 
   // Retries after a drop stay disconnected, so the offline fallback does not flicker between attempts.

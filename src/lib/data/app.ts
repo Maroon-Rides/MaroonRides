@@ -11,7 +11,7 @@ import {
   type TimetableDeparture,
 } from '$lib/data/types';
 import { db } from '$lib/db/database';
-import { alert, alertDirection, direction, directionStop, route, timetable } from '$lib/db/schema';
+import { alert, alertDirection, direction, route, stop, timetable } from '$lib/db/schema';
 import { LiveDataStatus, liveDataManager } from '$lib/managers/live-data.manager.svelte';
 import { findBoundingBox } from '$lib/utils/geo';
 import { createDbQuery } from '$lib/utils/queries';
@@ -38,7 +38,7 @@ function routeTree(where?: SQL) {
       directions: {
         orderBy: asc(direction.sequence),
         with: {
-          directionStops: { orderBy: asc(directionStop.sequence), with: { stop: true } },
+          stops: { orderBy: asc(stop.sequence) },
         },
       },
     },
@@ -47,14 +47,14 @@ function routeTree(where?: SQL) {
 
 type RouteRow = Awaited<ReturnType<typeof routeTree>>[number];
 type DirectionRow = RouteRow['directions'][number];
-type DirectionStopRow = DirectionRow['directionStops'][number];
+type StopRow = DirectionRow['stops'][number];
 
-function toStop(row: DirectionStopRow, index: number, all: DirectionStopRow[]): Stop {
+function toStop(row: StopRow, index: number, all: StopRow[]): Stop {
   return {
-    id: row.stop.id,
-    name: row.stop.name,
-    location: { latitude: row.stop.lat, longitude: row.stop.lon },
-    amenities: row.stop.amenities as Amenity[],
+    id: row.id,
+    name: row.name,
+    location: { latitude: row.lat, longitude: row.lon },
+    amenities: row.amenities as Amenity[],
     isTimepoint: row.isTimepoint,
     isLastOnDirection: index === all.length - 1,
   };
@@ -65,7 +65,7 @@ function toDirection(row: DirectionRow, _: number, all: DirectionRow[]): Directi
     id: row.id,
     name: row.destination,
     pathPoints: decode(row.path).map(([latitude, longitude]) => ({ latitude, longitude })),
-    stops: row.directionStops.map(toStop),
+    stops: row.stops.map(toStop),
     isOnlyDirection: all.length === 1,
   };
 }
@@ -120,19 +120,12 @@ export const useAlerts = (params: () => { routeId: string | null }) =>
   });
 
 /** Every scheduled time at a stop on one day. */
-function scheduledTimes(direction: Direction, stop: Stop, serviceDate: string | SQL, where?: SQL) {
+function scheduledTimes(stop: Stop, serviceDate: string | SQL, where?: SQL) {
   return db
     .select({ scheduledAt: slotTime })
     .from(timetable)
     .innerJoin(sql`json_each(${timetable.departures}) slot`, sql`true`)
-    .where(
-      and(
-        eq(timetable.directionId, direction.id),
-        eq(timetable.stopId, stop.id),
-        eq(timetable.serviceDate, serviceDate),
-        where,
-      ),
-    )
+    .where(and(eq(timetable.stopId, stop.id), eq(timetable.serviceDate, serviceDate), where))
     .orderBy(sql`unixepoch(${slotTime})`);
 }
 
@@ -142,17 +135,16 @@ interface UpcomingTimes {
 }
 
 /** Today's scheduled times at a stop that may still be coming, including late ones. */
-const useUpcomingTimes = (params: () => { direction: Direction; stop: Stop }) =>
+const useUpcomingTimes = (params: () => { stop: Stop }) =>
   createDbQuery<UpcomingTimes>(() => {
-    const { direction, stop } = params();
+    const { stop } = params();
     const today = sql`date('now', 'localtime')`;
     return {
-      key: ['upcomingTimes', direction.id, stop.id],
+      key: ['upcomingTimes', stop.id],
       refetchInterval: SCHEDULE_REFRESH_INTERVAL,
       queryFn: async () => {
         const [rows, timetables] = await Promise.all([
           scheduledTimes(
-            direction,
             stop,
             today,
             gte(sql`unixepoch(${slotTime})`, sql`unixepoch('now', ${LATE_DEPARTURE_WINDOW})`),
@@ -160,13 +152,7 @@ const useUpcomingTimes = (params: () => { direction: Direction; stop: Stop }) =>
           db
             .select({ id: timetable.id })
             .from(timetable)
-            .where(
-              and(
-                eq(timetable.directionId, direction.id),
-                eq(timetable.stopId, stop.id),
-                eq(timetable.serviceDate, today),
-              ),
-            )
+            .where(and(eq(timetable.stopId, stop.id), eq(timetable.serviceDate, today)))
             .limit(1),
         ]);
 
@@ -179,15 +165,11 @@ const useUpcomingTimes = (params: () => { direction: Direction; stop: Stop }) =>
   });
 
 /** Marks each scheduled time with its live estimate, dropping cancelled and departed buses. */
-function withLiveEstimates(
-  times: moment.Moment[],
-  direction: Direction,
-  stop: Stop,
-): TimeEstimate[] {
+function withLiveEstimates(times: moment.Moment[], stop: Stop): TimeEstimate[] {
   const earliest = moment().subtract(DEPARTED_GRACE);
   return times
     .flatMap((scheduledTime) => {
-      const live = liveDataManager.departureAt(stop.id, direction.id, scheduledTime);
+      const live = liveDataManager.departureAt(stop.id, scheduledTime);
       if (live?.isCancelled) return [];
 
       const estimatedTime = live?.estimatedAt ? moment(live.estimatedAt) : null;
@@ -199,17 +181,17 @@ function withLiveEstimates(
 }
 
 /** A stop's next departures from its timetable, updated with live estimates once they arrive. */
-export function useStopEstimate(params: () => { direction: Direction; stop: Stop }) {
+export function useStopEstimate(params: () => { stop: Stop }) {
   const upcoming = useUpcomingTimes(params);
 
   return {
     get data(): StopEstimates {
-      const { direction, stop } = params();
+      const { stop } = params();
       const isLive = liveDataManager.status === LiveDataStatus.LIVE;
       if (!upcoming.data) return { source: EstimateSource.LOADING, estimates: [] };
 
       if (!upcoming.data.hasTimetable) {
-        const live = isLive ? liveDataManager.estimatesFor(direction.id, stop.id) : [];
+        const live = isLive ? liveDataManager.estimatesFor(stop.id) : [];
         return live.length > 0
           ? { source: EstimateSource.LIVE, estimates: live }
           : { source: EstimateSource.UNAVAILABLE, estimates: [] };
@@ -217,26 +199,22 @@ export function useStopEstimate(params: () => { direction: Direction; stop: Stop
 
       return {
         source: isLive ? EstimateSource.LIVE : EstimateSource.SCHEDULE,
-        estimates: withLiveEstimates(upcoming.data.times, direction, stop),
+        estimates: withLiveEstimates(upcoming.data.times, stop),
       };
     },
   };
 }
 
 /** A stop's timetable for one day, marked with live estimates and cancellations. */
-export function useTimetable(
-  params: () => { direction: Direction | null; stop: Stop | null; date: moment.Moment },
-) {
+export function useTimetable(params: () => { stop: Stop | null; date: moment.Moment }) {
   const times = createDbQuery<moment.Moment[]>(() => {
-    const { direction, stop, date } = params();
+    const { stop, date } = params();
     const serviceDate = date.format('YYYY-MM-DD');
     return {
-      key: ['timetable', direction?.id, stop?.id, serviceDate],
-      enabled: direction !== null && stop !== null,
+      key: ['timetable', stop?.id, serviceDate],
+      enabled: stop !== null,
       queryFn: async () =>
-        (await scheduledTimes(direction!, stop!, serviceDate)).map((row) =>
-          moment(row.scheduledAt),
-        ),
+        (await scheduledTimes(stop!, serviceDate)).map((row) => moment(row.scheduledAt)),
     };
   });
 
@@ -245,9 +223,9 @@ export function useTimetable(
       return times.isLoading;
     },
     get data(): TimetableDeparture[] | undefined {
-      const { direction, stop } = params();
+      const { stop } = params();
       return times.data?.map((scheduledTime) => {
-        const live = liveDataManager.departureAt(stop!.id, direction!.id, scheduledTime);
+        const live = liveDataManager.departureAt(stop!.id, scheduledTime);
         return {
           scheduledTime,
           estimatedTime: live?.estimatedAt ? moment(live.estimatedAt) : null,

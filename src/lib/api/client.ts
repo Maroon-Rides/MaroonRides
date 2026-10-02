@@ -6,7 +6,7 @@ const DEV_SERVER_API_URL = 'http://100.89.139.58:3000';
 const LINE_SEPARATOR = '\n';
 
 export const API_URL: string =
-  import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? DEV_SERVER_API_URL : PRODUCTION_API_URL);
+  import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? PRODUCTION_API_URL : PRODUCTION_API_URL);
 export const WEBSOCKET_URL = `${API_URL.replace(/^http/, 'ws')}/api/ws`;
 
 type Schemas = components['schemas'];
