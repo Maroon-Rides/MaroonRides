@@ -15,3 +15,27 @@ pmtiles extract \
   --bbox="$BBOX" \
   --minzoom=0 \
   --maxzoom=15
+
+ASSETS_BASE="https://protomaps.github.io/basemaps-assets"
+MAP_DIR="$SCRIPT_DIR/../static/map"
+
+SPRITE_THEMES=(light dark)
+SPRITE_FILES=(".json" ".png" "@2x.json" "@2x.png")
+
+for theme in "${SPRITE_THEMES[@]}"; do
+  mkdir -p "$MAP_DIR/sprites"
+  for file in "${SPRITE_FILES[@]}"; do
+    curl -fsSL "$ASSETS_BASE/sprites/v4/$theme$file" -o "$MAP_DIR/sprites/$theme$file"
+  done
+done
+
+FONTS=("Noto Sans Regular" "Noto Sans Medium" "Noto Sans Italic")
+# Basic Latin, Latin-1, Latin Extended A/B, IPA, combining diacritics, general punctuation, currency/letterlike symbols
+GLYPH_RANGES=(0-255 256-511 512-767 768-1023 8192-8447 8448-8703)
+
+for font in "${FONTS[@]}"; do
+  mkdir -p "$MAP_DIR/fonts/$font"
+  for range in "${GLYPH_RANGES[@]}"; do
+    curl -fsSL "$ASSETS_BASE/fonts/${font// /%20}/$range.pbf" -o "$MAP_DIR/fonts/$font/$range.pbf"
+  done
+done

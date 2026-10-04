@@ -3,26 +3,30 @@
   import MapPopup from '$lib/components/ui/map/MapPopup.svelte';
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
   import TimeBubble from '$lib/components/TimeBubble.svelte';
-  import { useStopAmenities, useStopEstimate } from '$lib/data/app';
-  import { Amenity, type Direction, type Route, type Stop } from '$lib/data/types';
+  import { useStopEstimate } from '$lib/data/app';
+  import {
+    Amenity,
+    ESTIMATES_UNAVAILABLE_MESSAGE,
+    EstimateSource,
+    type Route,
+    type Stop,
+  } from '$lib/data/types';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
   import { getRouteTint } from '$lib/utils/tints';
 
   type Props = {
     route: Route;
     stop: Stop;
-    direction: Direction;
     onclose?: () => void;
   };
 
-  let { stop, route, direction, onclose }: Props = $props();
+  let { stop, route, onclose }: Props = $props();
 
   const tint = $derived(getRouteTint(route, themeManager.theme));
 
-  const { data: amenities } = $derived(useStopAmenities(() => ({ route, direction, stop })));
-  const { data: estimates, isLoading } = $derived(
-    useStopEstimate(() => ({ route, direction, stop })),
-  );
+  const stopEstimates = $derived(useStopEstimate(() => ({ stop })));
+  const source = $derived(stopEstimates.data?.source ?? EstimateSource.LOADING);
+  const estimates = $derived(stopEstimates.data?.estimates ?? []);
 </script>
 
 <MapPopup
@@ -41,21 +45,25 @@
     </div>
 
     <div class="flex items-center gap-2">
-      {#each (amenities ?? []).filter((amenity) => amenity !== Amenity.TIME_POINT) as amenity}
-        {@const AmenityIcon = Amenity.getIcon(amenity)}
-        <AmenityIcon class="size-6 text-muted-foreground" />
+      {#each stop.amenities as amenity}
+        {#if amenity !== Amenity.TIME_POINT}
+          {@const AmenityIcon = Amenity.getIcon(amenity)}
+          <AmenityIcon class="size-6 text-muted-foreground" />
+        {/if}
       {/each}
     </div>
   </div>
 
   <div class="flex items-center justify-center gap-1" style="--tint: {tint}">
-    {#if isLoading}
+    {#if source === EstimateSource.LOADING}
       <Spinner class="size-4 self-center" />
-    {:else if estimates?.length === 0}
+    {:else if source === EstimateSource.UNAVAILABLE}
+      <p class="text-center text-xs text-muted-foreground">{ESTIMATES_UNAVAILABLE_MESSAGE}</p>
+    {:else if estimates.length === 0}
       <p class="text-center text-xs text-muted-foreground">No upcoming departures</p>
     {/if}
 
-    {#each estimates ?? [] as estimate, i}
+    {#each estimates as estimate, i}
       <TimeBubble {estimate} isNext={i === 0} type={'callout'} />
     {/each}
   </div>

@@ -6,8 +6,16 @@
   import TimepointAttribute from '$lib/components/TimepointAttribute.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
-  import { useStopAmenities, useStopEstimate } from '$lib/data/app';
-  import { Amenity, type Direction, type Route, type Stop } from '$lib/data/types';
+  import { useStopEstimate } from '$lib/data/app';
+  import {
+    Amenity,
+    ESTIMATES_UNAVAILABLE_MESSAGE,
+    EstimateSource,
+    type Direction,
+    type Route,
+    type Stop,
+  } from '$lib/data/types';
+  import { LiveDataStatus, liveDataManager } from '$lib/managers/live-data.manager.svelte';
   import { CalendarIcon } from '@lucide/svelte';
   import { getContext } from 'svelte';
 
@@ -15,30 +23,34 @@
     stop: Stop;
     route: Route;
     direction: Direction;
-    estimateDirection?: Direction;
     estimateStop?: Stop;
   };
 
-  let { stop, route, direction, estimateDirection, estimateStop }: Props = $props();
+  let { stop, route, direction, estimateStop }: Props = $props();
 
   const sheet = getContext<BottomSheetContext>('bottom-sheet');
 
-  const effectiveDirection = $derived(estimateDirection ?? direction);
   const effectiveStop = $derived(estimateStop ?? stop);
 
-  const { data: estimates, isLoading } = $derived(
-    useStopEstimate(() => ({
-      route: route,
-      direction: effectiveDirection,
-      stop: effectiveStop,
-    })),
-  );
-
-  const { data: stopAmenities } = $derived(useStopAmenities(() => ({ route, direction, stop })));
+  const stopEstimates = $derived(useStopEstimate(() => ({ stop: effectiveStop })));
 
   let subtitle = $derived.by(() => {
-    if (!estimates || estimates.length === 0) {
+    const source = stopEstimates.data?.source ?? EstimateSource.LOADING;
+    const estimates = stopEstimates.data?.estimates ?? [];
+
+    if (source === EstimateSource.LOADING) {
+      return 'Loading departures';
+    }
+    if (source === EstimateSource.UNAVAILABLE) {
+      return ESTIMATES_UNAVAILABLE_MESSAGE;
+    }
+    if (estimates.length === 0) {
       return 'No upcoming departures';
+    }
+    if (source === EstimateSource.SCHEDULE) {
+      return liveDataManager.status === LiveDataStatus.OFFLINE
+        ? 'Offline, showing scheduled times'
+        : 'Scheduled times';
     }
 
     const firstEstimate = estimates.find((estimate) => estimate.estimatedTime);
@@ -77,10 +89,11 @@
     </div>
 
     <div class="mt-1 flex items-center gap-2">
-      {#each stopAmenities ?? [] as amenity}
-        {#if amenity === Amenity.TIME_POINT}
-          <TimepointAttribute />
-        {:else}
+      {#if stop.isTimepoint}
+        <TimepointAttribute />
+      {/if}
+      {#each stop.amenities as amenity}
+        {#if amenity !== Amenity.TIME_POINT}
           {@const AmenityIcon = Amenity.getIcon(amenity)}
           <AmenityIcon class="size-6 text-muted-foreground" />
         {/if}
@@ -89,7 +102,7 @@
   </div>
   <div class="mt-2 flex items-center justify-between">
     {#if route && direction}
-      <EstimateRow {route} direction={effectiveDirection} stop={effectiveStop} />
+      <EstimateRow {route} stop={effectiveStop} />
     {/if}
     <Button
       variant="outline"

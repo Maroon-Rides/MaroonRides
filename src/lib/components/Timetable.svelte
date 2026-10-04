@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { useTimetableEstimate } from '$lib/data/app';
-  import type { StopSchedule } from '$lib/data/types';
+  import type { Route, TimetableDeparture } from '$lib/data/types';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
   import buildTimetable from '$lib/utils/timetable';
   import { getRouteTint } from '$lib/utils/tints';
@@ -8,14 +7,13 @@
   import { tv } from 'tailwind-variants';
 
   type Props = {
-    schedule: StopSchedule;
-    date: moment.Moment;
+    route: Route;
+    departures: TimetableDeparture[];
   };
 
-  let { schedule, date }: Props = $props();
+  let { route, departures }: Props = $props();
 
-  const timeEstimates = useTimetableEstimate(() => ({ stop: schedule.stop, date }));
-  const timetable = $derived(buildTimetable(schedule, timeEstimates.data ?? []));
+  const timetable = $derived(buildTimetable(departures));
 
   const rowStyle = tv({
     base: 'flex flex-wrap items-center rounded-lg',
@@ -46,7 +44,7 @@
   });
 </script>
 
-<div class="flex flex-col" style="--tint: {getRouteTint(schedule.route, themeManager.theme)}">
+<div class="flex flex-col" style="--tint: {getRouteTint(route, themeManager.theme)}">
   {#each timetable as row, i}
     <div
       class={rowStyle({

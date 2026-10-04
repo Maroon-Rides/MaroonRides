@@ -1,6 +1,8 @@
-import type { StopSchedule } from '$lib/data/types';
+import type { TimetableDeparture } from '$lib/data/types';
 import { chunk } from 'lodash-es';
 import moment from 'moment';
+
+const ITEMS_PER_ROW = 5;
 
 interface TableItem {
   time: string;
@@ -15,64 +17,26 @@ export interface TableItemRow {
   highlighted: boolean;
 }
 
-export default function buildTimetable(
-  fullSchedule: StopSchedule,
-  estimates: StopSchedule[] | undefined,
-) {
+export default function buildTimetable(departures: TimetableDeparture[]): TableItemRow[] {
   const now = moment();
-  const ITEMS_PER_ROW = 5;
+  const hasLiveData = departures.some((d) => d.estimatedTime !== null);
+  const departsAt = (d: TimetableDeparture) => d.estimatedTime ?? d.scheduledTime;
 
-  // Find the estimate data for this specific route and direction
-  const routeEstimate = estimates?.find(
-    (estimate) =>
-      estimate.direction.id === fullSchedule.direction.id &&
-      estimate.route.id === fullSchedule.route.id,
-  );
+  // Only point at the next bus when live data can confirm it.
+  const next = hasLiveData
+    ? departures.find((d) => !d.isCancelled && !departsAt(d).isBefore(now, 'minute'))
+    : undefined;
 
-  // Step 1: Process all times and compute departure times
-  const processedTimes = fullSchedule.timetable.map((scheduledItem) => {
-    // Find live estimate for this trip point
-    const liveEstimate = routeEstimate?.timetable.find(
-      (stopTime) => stopTime.tripPointId === scheduledItem.tripPointId,
-    );
-
-    // Determine actual departure time (live estimate or scheduled)
-    const departureTime =
-      liveEstimate && moment(liveEstimate.estimatedTime).isValid()
-        ? moment(liveEstimate.estimatedTime)
-        : scheduledItem.scheduledTime;
-
-    const hasLiveEstimate = Boolean(liveEstimate?.isRealTime);
-    const isCancelled = Boolean(liveEstimate?.isCancelled);
-    const isExpired = departureTime.isBefore(now, 'minute');
-
-    return {
-      time: departureTime.format('h:mm'),
-      departureTime,
-      live: hasLiveEstimate,
-      cancelled: isCancelled,
-      expired: isExpired,
-      highlighted: false, // Will be set in next step
-    };
-  });
-
-  // Step 2: Find the next (first non-expired, non-cancelled) time and highlight only that one
-  // Only highlight if we have live estimates available
-  const hasEstimates = routeEstimate && routeEstimate.timetable.length > 0;
-  const nextTimeIndex = hasEstimates
-    ? processedTimes.findIndex((item) => !item.expired && !item.cancelled)
-    : -1;
-
-  // Explicitly set highlighted status: only the next time should be true, all others false
-  processedTimes.forEach((item, index) => {
-    item.highlighted = index === nextTimeIndex && nextTimeIndex !== -1;
-  });
-
-  // Step 3: Chunk into rows and highlight the row containing the next time
-  const rows: TableItemRow[] = chunk(processedTimes, ITEMS_PER_ROW).map((rowItems) => ({
-    items: rowItems.map(({ departureTime, ...item }) => item), // Remove departureTime (only needed for processing)
-    highlighted: rowItems.some((item) => item.highlighted),
+  const items = departures.map((d) => ({
+    time: departsAt(d).format('h:mm'),
+    highlighted: d === next,
+    live: d.estimatedTime !== null,
+    cancelled: d.isCancelled,
+    expired: departsAt(d).isBefore(now, 'minute'),
   }));
 
-  return rows;
+  return chunk(items, ITEMS_PER_ROW).map((row) => ({
+    items: row,
+    highlighted: row.some((item) => item.highlighted),
+  }));
 }

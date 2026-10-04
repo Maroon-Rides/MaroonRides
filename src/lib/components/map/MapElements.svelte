@@ -6,7 +6,6 @@
     type MapCircleStyle,
   } from '$lib/components/ui/map/MapCircleLayer.svelte';
   import { useRoutes, useVehicles } from '$lib/data/app';
-  import { isTimepoint, useTimepointsAPI } from '$lib/data/timepoints';
   import { type Bus, type Direction, type Location, type Route, type Stop } from '$lib/data/types';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
@@ -26,7 +25,6 @@
   const STOPS_ID = 'stops';
 
   const routes = useRoutes();
-  const timepoints = useTimepointsAPI();
   const busLocations = $derived(useVehicles(() => ({ route: mapManager.selectedRoute })));
 
   let userLocation: Location | null = $state(null);
@@ -84,16 +82,11 @@
     })),
   );
 
-  function isStopTimepoint(stop: Stop) {
-    const routeCode = mapManager.selectedRoute?.routeCode;
-    return !!routeCode && isTimepoint(timepoints.data ?? {}, routeCode, stop.id);
-  }
-
   // Timepoints are square DOM markers, not circles.
   const stopCircles = $derived(
     stopsByDirection.flatMap(({ direction, stops }) =>
       stops
-        .filter((stop) => !isStopTimepoint(stop))
+        .filter((stop) => !stop.isTimepoint)
         .map(
           (stop): MapCircle => ({
             id: `${direction.id}-${stop.id}`,
@@ -106,7 +99,7 @@
 
   const timepointStops = $derived(
     stopsByDirection.flatMap(({ direction, stops }) =>
-      stops.filter(isStopTimepoint).map((stop) => ({ direction, stop })),
+      stops.filter((stop) => stop.isTimepoint).map((stop) => ({ direction, stop })),
     ),
   );
 
@@ -157,13 +150,10 @@
     if (!route || mapManager.selected?.type !== 'stop') return null;
 
     const stopId = mapManager.selected.id;
-    const matches = stopsByDirection.flatMap(({ direction, stops }) => {
-      const stop = stops.find((candidate) => candidate.id === stopId);
-      return stop ? [{ route, direction, stop }] : [];
-    });
-
-    // a stop belongs to several directions; the shown one supplies the estimates
-    return matches.find((match) => isDirectionSelected(match.direction.id)) ?? matches[0] ?? null;
+    const stop = stopsByDirection
+      .flatMap(({ stops }) => stops)
+      .find((candidate) => candidate.id === stopId);
+    return stop ? { route, stop } : null;
   });
 </script>
 
@@ -253,7 +243,6 @@
 {:else if selectedStop}
   <StopPopup
     route={selectedStop.route}
-    direction={selectedStop.direction}
     stop={selectedStop.stop}
     onclose={() => (mapManager.selected = null)}
   />

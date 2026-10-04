@@ -31,3 +31,7 @@ bun.lockb
 
 # Managed by release-please
 /.release-please-manifest.json
+
+
+# generated migration snapshots
+/src/lib/db/migrations/meta
