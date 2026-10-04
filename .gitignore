@@ -23,6 +23,8 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 *.pmtiles
+static/map/sprites/
+static/map/fonts/
 
 dev.config.ts
 # Copied from sql.js by `pnpm sqlite:wasm`
