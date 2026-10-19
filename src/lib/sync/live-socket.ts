@@ -4,10 +4,10 @@ import {
   type WebsocketServerMessage,
 } from '$lib/api/websocket';
 import { appLogger } from '$lib/utils/logger';
+import { RetryScheduler } from '$lib/utils/retry-scheduler';
 
 const INITIAL_RETRY_DELAY_MS = 1_000;
 const MAX_RETRY_DELAY_MS = 30_000;
-const RETRY_BACKOFF_FACTOR = 2;
 // The gateway drops a client that sends nothing for 60 seconds.
 const PING_INTERVAL_MS = 20_000;
 
@@ -25,8 +25,10 @@ export class LiveSocket {
   #socket: WebSocket | null = null;
   #wanted = false;
   #routeId: string | null = null;
-  #retryDelay = INITIAL_RETRY_DELAY_MS;
-  #retryTimer: ReturnType<typeof setTimeout> | undefined;
+  readonly #retry = new RetryScheduler(() => this.#open(), {
+    initialDelayMs: INITIAL_RETRY_DELAY_MS,
+    maxDelayMs: MAX_RETRY_DELAY_MS,
+  });
   #pingTimer: ReturnType<typeof setInterval> | undefined;
 
   constructor(url: string, handlers: LiveSocketHandlers) {
@@ -41,7 +43,7 @@ export class LiveSocket {
 
   disconnect() {
     this.#wanted = false;
-    clearTimeout(this.#retryTimer);
+    this.#retry.cancel();
     this.#socket?.close();
   }
 
@@ -51,12 +53,12 @@ export class LiveSocket {
   }
 
   #open() {
-    clearTimeout(this.#retryTimer);
+    this.#retry.cancel();
     const socket = new WebSocket(this.#url);
     this.#socket = socket;
 
     socket.onopen = () => {
-      this.#retryDelay = INITIAL_RETRY_DELAY_MS;
+      this.#retry.reset();
       this.#pingTimer = setInterval(
         () => this.#send({ type: WebsocketMessageType.PING }),
         PING_INTERVAL_MS,
@@ -81,12 +83,8 @@ export class LiveSocket {
   }
 
   #scheduleReconnect() {
-    // Jitter keeps every phone from reconnecting at once after a gateway restart.
-    const delay = this.#retryDelay / 2 + Math.random() * (this.#retryDelay / 2);
-    this.#retryDelay = Math.min(this.#retryDelay * RETRY_BACKOFF_FACTOR, MAX_RETRY_DELAY_MS);
-
+    const delay = this.#retry.schedule();
     appLogger.i(`Live socket closed, reconnecting in ${Math.round(delay)} ms`);
-    this.#retryTimer = setTimeout(() => this.#open(), delay);
   }
 
   #sendSubscription() {
