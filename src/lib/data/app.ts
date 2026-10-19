@@ -12,7 +12,9 @@ import {
 } from '$lib/data/types';
 import { db } from '$lib/db/database';
 import { alert, alertDirection, direction, route, stop, timetable } from '$lib/db/schema';
+import { resolveStopEstimates } from '$lib/data/stop_estimates';
 import { LiveDataStatus, liveDataManager } from '$lib/managers/live-data.manager.svelte';
+import { syncManager } from '$lib/managers/sync.manager.svelte';
 import { findBoundingBox } from '$lib/utils/geo';
 import { createDbQuery } from '$lib/utils/queries';
 import { decode } from '@googlemaps/polyline-codec';
@@ -131,6 +133,7 @@ function scheduledTimes(stop: Stop, serviceDate: string | SQL, where?: SQL) {
 
 interface UpcomingTimes {
   hasTimetable: boolean;
+  hasTimetablesFromToday: boolean;
   times: moment.Moment[];
 }
 
@@ -143,7 +146,7 @@ const useUpcomingTimes = (params: () => { stop: Stop }) =>
       key: ['upcomingTimes', stop.id],
       refetchInterval: SCHEDULE_REFRESH_INTERVAL,
       queryFn: async () => {
-        const [rows, timetables] = await Promise.all([
+        const [rows, timetables, timetablesFromToday] = await Promise.all([
           scheduledTimes(
             stop,
             today,
@@ -154,10 +157,16 @@ const useUpcomingTimes = (params: () => { stop: Stop }) =>
             .from(timetable)
             .where(and(eq(timetable.stopId, stop.id), eq(timetable.serviceDate, today)))
             .limit(1),
+          db
+            .select({ id: timetable.id })
+            .from(timetable)
+            .where(gte(timetable.serviceDate, today))
+            .limit(1),
         ]);
 
         return {
           hasTimetable: timetables.length > 0,
+          hasTimetablesFromToday: timetablesFromToday.length > 0,
           times: rows.map((row) => moment(row.scheduledAt)),
         };
       },
@@ -190,17 +199,15 @@ export function useStopEstimate(params: () => { stop: Stop }) {
       const isLive = liveDataManager.status === LiveDataStatus.LIVE;
       if (!upcoming.data) return { source: EstimateSource.LOADING, estimates: [] };
 
-      if (!upcoming.data.hasTimetable) {
-        const live = isLive ? liveDataManager.estimatesFor(stop.id) : [];
-        return live.length > 0
-          ? { source: EstimateSource.LIVE, estimates: live }
-          : { source: EstimateSource.UNAVAILABLE, estimates: [] };
-      }
-
-      return {
-        source: isLive ? EstimateSource.LIVE : EstimateSource.SCHEDULE,
-        estimates: withLiveEstimates(upcoming.data.times, stop),
-      };
+      // The server skips days a stop has no service, so a missing timetable is only
+      // trustworthy if some later day was synced or we synced today.
+      return resolveStopEstimates({
+        hasTimetable: upcoming.data.hasTimetable,
+        timetablesCurrent: upcoming.data.hasTimetablesFromToday || syncManager.hasSyncedToday,
+        isLive,
+        scheduled: withLiveEstimates(upcoming.data.times, stop),
+        live: isLive ? liveDataManager.estimatesFor(stop.id) : [],
+      });
     },
   };
 }
