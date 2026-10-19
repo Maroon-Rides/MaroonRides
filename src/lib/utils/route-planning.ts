@@ -1,26 +1,36 @@
-import type { PlanItem, RoutePlanMarkedPoint, RoutePlanPoint } from '$lib/data/types';
-import { findLast, last } from 'lodash-es';
-
-export interface SearchSuggestion {
-  title: string;
-  subtitle: string;
-  lat?: number;
-  long?: number;
-  stopCode?: string;
-  placeId?: string;
-  type: 'stop' | 'map' | 'my-location';
-}
-
-export const MyLocationSuggestion: SearchSuggestion = {
-  title: 'My Location',
-  subtitle: '',
-  type: 'my-location',
-};
+import type { TripItinerary, TripLeg } from '$lib/api/client';
+import {
+  PlaceType,
+  type PlaceSuggestion,
+  type RoutePlanMarkedPoint,
+  type RoutePlanPoint,
+} from '$lib/data/types';
+import { decode } from '@googlemaps/polyline-codec';
+import { findLast, groupBy, last, sortBy, uniq } from 'lodash-es';
+import { DateTime } from 'luxon';
 
 export interface RoutePlanMapComponents {
   highlighted: RoutePlanPoint[];
   faded: RoutePlanPoint[][];
   markers: RoutePlanMarkedPoint[];
+}
+
+export function formatClock(iso: string): string {
+  return DateTime.fromISO(iso).toLocaleString(DateTime.TIME_SIMPLE);
+}
+
+export function describeLeg(leg: TripLeg): string {
+  switch (leg.type) {
+    case 'walk':
+      return `Walk to ${leg.to.name}`;
+    case 'wait':
+      return `Wait at ${leg.to.name}`;
+    case 'ride': {
+      const ride = leg.ride!;
+      const stops = `${ride.stopCount} ${ride.stopCount === 1 ? 'stop' : 'stops'}`;
+      return `Board ${ride.routeShortName} ${ride.headsign}, get off at ${leg.to.name} (${stops})`;
+    }
+  }
 }
 
 function createMarkers(
@@ -43,7 +53,7 @@ function createMarkers(
 }
 
 export function processRoutePlanMapComponents(
-  routePlan: PlanItem | null,
+  routePlan: TripItinerary | null,
   selectedPart: number,
 ): RoutePlanMapComponents {
   if (!routePlan) {
@@ -54,16 +64,15 @@ export function processRoutePlanMapComponents(
     };
   }
 
-  let i = 0;
-  const pathPoints = routePlan?.instructions.flatMap((instruction, index) => {
-    return (
-      instruction.pathPoints?.map((point) => ({
-        ...point,
-        stepIndex: index,
-        pathIndex: i++,
-      })) ?? []
-    );
-  });
+  const pathPoints = (routePlan.legs ?? [])
+    .flatMap((leg, stepIndex) =>
+      (leg.path ? decode(leg.path) : []).map(([latitude, longitude]) => ({
+        latitude,
+        longitude,
+        stepIndex,
+      })),
+    )
+    .map((point, pathIndex) => ({ ...point, pathIndex }));
 
   if (selectedPart === -1) {
     return {
@@ -85,7 +94,7 @@ export function processRoutePlanMapComponents(
     }
   });
 
-  // A step with no path of its own, like waiting at a stop, sits where the last step ended.
+  // A step with no path of its own, like the arrival, sits where the last step ended.
   if (highlighted.length === 0) {
     const lastPoint = findLast(pathPoints, (point) => point.stepIndex === selectedPart - 1);
 
@@ -119,7 +128,7 @@ export function processRoutePlanMapComponents(
       };
     }
 
-    // A wait step at the start has no earlier point to put a marker on.
+    // A step at the start has no earlier point to put a marker on.
     return {
       highlighted: [],
       faded: faded,
@@ -132,4 +141,28 @@ export function processRoutePlanMapComponents(
     faded: faded,
     markers: createMarkers(highlighted[0]!, last(highlighted)!, true),
   };
+}
+
+const STOP_SEARCH_LIMIT = 20;
+
+export type StopMatch = { id: string; name: string; lat: number; lon: number; routeCode: string };
+
+// A stop is stored once per direction it serves, so matches with the same name collapse into one place.
+export function toStopSuggestions(matches: StopMatch[], query: string): PlaceSuggestion[] {
+  const needle = query.trim().toLowerCase();
+  const places = Object.values(groupBy(matches, (m) => m.name)).map(
+    (group): PlaceSuggestion => ({
+      id: group[0]!.id,
+      name: group[0]!.name,
+      description: `Routes ${uniq(group.map((m) => m.routeCode))
+        .sort()
+        .join(', ')}`,
+      location: { latitude: group[0]!.lat, longitude: group[0]!.lon },
+      type: PlaceType.STOP,
+    }),
+  );
+  return sortBy(places, [(p) => !p.name.toLowerCase().startsWith(needle), (p) => p.name]).slice(
+    0,
+    STOP_SEARCH_LIMIT,
+  );
 }

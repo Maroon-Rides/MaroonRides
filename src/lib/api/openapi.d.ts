@@ -34,6 +34,30 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/trip-plan': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Plan a trip between two coordinates
+     * @description #### Controller:
+     *
+     *     `github.com/MaroonRides/api/apps/gateway/controllers.(*TripPlanController).plan`
+     *
+     *     ---
+     */
+    post: operations['planTrip'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/version/supported': {
     parameters: {
       query?: never;
@@ -371,6 +395,94 @@ export interface components {
        */
       type: 'TimetableV1';
     };
+    TripBounds: {
+      /** Format: double */
+      neLat: number;
+      /** Format: double */
+      neLon: number;
+      /** Format: double */
+      swLat: number;
+      /** Format: double */
+      swLon: number;
+    };
+    TripEndpoint: {
+      /** Format: double */
+      lat: number;
+      /** Format: double */
+      lon: number;
+      name: string;
+    };
+    TripItinerary: {
+      /** Format: date-time */
+      arriveAt: string;
+      bounds: components['schemas']['TripBounds'];
+      /** Format: date-time */
+      departAt: string;
+      legs: components['schemas']['TripLeg'][] | null;
+      /** Format: double */
+      walkingDistanceMeters: number;
+      walkingSeconds: number;
+      warnings: string[] | null;
+    };
+    TripLeg: {
+      /** Format: date-time */
+      endAt: string;
+      from: components['schemas']['TripPlace'];
+      path: string;
+      ride?: components['schemas']['TripRide'];
+      /** Format: date-time */
+      startAt: string;
+      to: components['schemas']['TripPlace'];
+      type: components['schemas']['TripLegType'];
+      walk?: components['schemas']['TripWalk'];
+    };
+    /** @enum {string} */
+    TripLegType: 'walk' | 'ride' | 'wait';
+    TripPlace: {
+      /** Format: double */
+      lat: number;
+      /** Format: double */
+      lon: number;
+      name: string;
+      stopCode: string | null;
+      /** Format: uuid */
+      stopId: string | null;
+    };
+    /** @description TripPlanRequest schema */
+    TripPlanRequest: {
+      destination: components['schemas']['TripEndpoint'];
+      origin: components['schemas']['TripEndpoint'];
+      preference?: components['schemas']['TripPreference'];
+      /** Format: date-time */
+      time?: string;
+      timeKind?: components['schemas']['TripTimeKind'];
+    };
+    /** @description TripPlanResponse schema */
+    TripPlanResponse: {
+      itineraries: components['schemas']['TripItinerary'][] | null;
+    };
+    /** @enum {string} */
+    TripPreference: 'best' | 'fewerTransfers' | 'lessWalking';
+    TripRide: {
+      /** Format: uuid */
+      directionId: string | null;
+      headsign: string;
+      /** Format: uuid */
+      routeId: string | null;
+      routeShortName: string;
+      stopCount: number;
+    };
+    /** @enum {string} */
+    TripTimeKind: 'departAt' | 'arriveBy';
+    TripWalk: {
+      /** Format: double */
+      distanceMeters: number;
+      steps: components['schemas']['TripWalkStep'][] | null;
+    };
+    TripWalkStep: {
+      instruction: string;
+      path: string;
+    };
     /** @description unknown-interface schema */
     'unknown-interface': unknown;
   };
@@ -425,6 +537,62 @@ export interface operations {
         content: {
           'application/json': components['schemas']['HTTPError'];
           'application/xml': components['schemas']['HTTPError'];
+        };
+      };
+    };
+  };
+  planTrip: {
+    parameters: {
+      query?: never;
+      header?: {
+        Accept?: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Request body for dtos.TripPlanRequest */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['TripPlanRequest'];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TripPlanResponse'];
+        };
+      };
+      /** @description Bad Request _(validation or deserialization error)_ */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPError'];
+          'application/xml': components['schemas']['HTTPError'];
+        };
+      };
+      /** @description Internal Server Error _(panics)_ */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPError'];
+          'application/xml': components['schemas']['HTTPError'];
+        };
+      };
+      /** @description The upstream trip planner failed */
+      502: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPError'];
         };
       };
     };

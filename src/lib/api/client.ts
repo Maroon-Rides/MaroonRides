@@ -14,6 +14,12 @@ export type SyncRequest = Schemas['SyncRequest'];
 export type SyncRequestType = Schemas['SyncRequestType'];
 export type SyncEntityType = Schemas['SyncEntityType'];
 export type SyncStreamLine = Schemas['SyncStreamLine'];
+export type TripPlanRequest = Schemas['TripPlanRequest'];
+export type TripItinerary = Schemas['TripItinerary'];
+export type TripLeg = Schemas['TripLeg'];
+export type TripWalkStep = Schemas['TripWalkStep'];
+export type TripLegType = Schemas['TripLegType'];
+export type TripTimeKind = Schemas['TripTimeKind'];
 
 const client = createClient<paths>({ baseUrl: API_URL });
 
@@ -31,4 +37,10 @@ export async function syncStream(body: SyncRequest): Promise<SyncStreamLine[]> {
     .split(LINE_SEPARATOR)
     .filter(Boolean)
     .map((line) => JSON.parse(line) as SyncStreamLine);
+}
+
+export async function planTrip(body: TripPlanRequest): Promise<TripItinerary[]> {
+  const { data, error } = await client.POST('/api/trip-plan', { body });
+  if (error) throw new Error(`trip plan failed: ${error.detail}`);
+  return data.itineraries ?? [];
 }

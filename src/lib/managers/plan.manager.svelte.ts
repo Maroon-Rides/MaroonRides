@@ -1,11 +1,6 @@
-import { useSearchSuggestions, useTripPlan } from '$lib/data/route_planning';
-import {
-  MovementType,
-  MyLocation,
-  PlaceType,
-  type PlaceSuggestion,
-  type PlanItem,
-} from '$lib/data/types';
+import type { TripItinerary } from '$lib/api/client';
+import { useStopSearch, useTripPlan } from '$lib/data/route_planning';
+import { Deadline, MyLocation, PlaceType, type PlaceSuggestion } from '$lib/data/types';
 import { Geolocation } from '@capacitor/geolocation';
 import type { CreateQueryResult } from '@tanstack/svelte-query';
 import { debounce, sortBy } from 'lodash-es';
@@ -39,13 +34,13 @@ class PlanManager {
 
   activeInput = $state<EndpointKey | null>(null);
   planTime = $state<DateTime>(DateTime.now());
-  deadline = $state<'leave' | 'arrive'>('leave');
-  selectedPlan = $state<PlanItem | null>(null);
+  deadline = $state<Deadline>(Deadline.LEAVE_BY);
+  selectedPlan = $state<TripItinerary | null>(null);
   shownInstruction = $state(-1);
   locationDenied = $state(false);
 
   suggestionsQuery = $state<CreateQueryResult<PlaceSuggestion[], Error> | null>(null);
-  tripPlanQuery = $state<CreateQueryResult<PlanItem[], Error> | null>(null);
+  tripPlanQuery = $state<CreateQueryResult<TripItinerary[], Error> | null>(null);
 
   searchQuery = $state('');
   updateSearchQuery = debounce((term: string) => (this.searchQuery = term), SEARCH_DEBOUNCE_MS);
@@ -56,6 +51,9 @@ class PlanManager {
   activeSearchTerm = $derived(this.activeEndpoint?.searchTerm ?? '');
   showMyLocation = $derived(!!this.activeEndpoint && !this.activeEndpoint.searchTerm);
   needsMyLocation = $derived(this.start.needsMyLocation || this.end.needsMyLocation);
+  awaitingLocation = $derived(
+    !this.activeInput && !!this.start.location && !!this.end.location && this.needsMyLocation,
+  );
   locationError = $derived(
     (this.start.isMyLocation || this.end.isMyLocation) && this.locationDenied,
   );
@@ -63,7 +61,7 @@ class PlanManager {
   searchPending = $derived(this.searchQuery !== this.activeSearchTerm);
 
   suggestions = $derived(this.activeSearchTerm.trim() ? (this.suggestionsQuery?.data ?? []) : []);
-  plans = $derived(sortBy(this.tripPlanQuery?.data ?? [], 'endTime'));
+  plans = $derived(sortBy(this.tripPlanQuery?.data ?? [], 'arriveAt'));
 
   error = $derived.by(() => {
     if (this.activeInput) {
@@ -79,12 +77,17 @@ class PlanManager {
       return 'Start and End locations cannot be the same';
     if (this.locationError) return 'Location Unavailable. Enable Location permissions in Settings.';
     if (this.tripPlanQuery?.isError) return 'Failed to load routes';
-    if (this.tripPlanQuery?.isLoading || this.plans.length) return null;
+    if (this.awaitingLocation || this.tripPlanQuery?.isLoading || this.plans.length) return null;
     return 'No routes found';
   });
   loading = $derived(
     !this.error &&
-      !!(this.tripPlanQuery?.isLoading || this.suggestionsQuery?.isLoading || this.searchPending),
+      !!(
+        this.awaitingLocation ||
+        this.tripPlanQuery?.isLoading ||
+        this.suggestionsQuery?.isLoading ||
+        this.searchPending
+      ),
   );
 
   constructor() {
@@ -103,8 +106,8 @@ class PlanManager {
     [this.start, this.end] = [this.end, this.start];
     this.activeInput = null;
   }
-  hasBus(plan: PlanItem) {
-    return plan.instructions.some((i) => i.movementType === MovementType.BUS);
+  hasBus(plan: TripItinerary) {
+    return (plan.legs ?? []).some((leg) => leg.type === 'ride');
   }
 
   async resolveMyLocation() {
@@ -134,7 +137,7 @@ class PlanManager {
     this.end.select(null);
     this.activeInput = null;
     this.planTime = DateTime.now();
-    this.deadline = 'leave';
+    this.deadline = Deadline.LEAVE_BY;
     this.selectedPlan = null;
     this.shownInstruction = -1;
     this.locationDenied = false;
@@ -144,7 +147,7 @@ class PlanManager {
 }
 
 export function usePlanState() {
-  planManager.suggestionsQuery = useSearchSuggestions(() => ({
+  planManager.suggestionsQuery = useStopSearch(() => ({
     query: planManager.searchQuery,
   }));
   planManager.tripPlanQuery = useTripPlan(() => ({

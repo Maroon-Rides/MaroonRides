@@ -11,7 +11,9 @@
   import { MyLocation, PlanOption } from '$lib/data/types';
   import { planManager, usePlanState } from '$lib/managers/plan.manager.svelte';
   import { ArrowUpDown, Circle, CircleAlert, MapPin } from '@lucide/svelte';
-  import { Duration } from 'luxon';
+  import type { TripItinerary } from '$lib/api/client';
+  import { formatClock } from '$lib/utils/route-planning';
+  import { DateTime, Duration } from 'luxon';
   import LocationInput from './LocationInput.svelte';
   import SelectionRow from './SelectionRow.svelte';
 
@@ -25,6 +27,10 @@
   function onSwap() {
     planManager.swapLocations();
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+  }
+
+  function tripSeconds(plan: TripItinerary): number {
+    return DateTime.fromISO(plan.arriveAt).diff(DateTime.fromISO(plan.departAt)).as('seconds');
   }
 
   function relTime(seconds: number): string {
@@ -129,7 +135,7 @@
                 <SelectionRow
                   icon={PlanOption.BUS}
                   title={suggestion.name}
-                  subtitle={`ID: ${suggestion.id}`}
+                  subtitle={suggestion.description}
                   sideArrow={false}
                   onclick={() => planManager.selectSuggestion(suggestion)}
                 />
@@ -143,8 +149,8 @@
               {/if}
               <SelectionRow
                 icon={planManager.hasBus(plan) ? PlanOption.BUS : PlanOption.WALKING}
-                title={relTime(plan.endTime - plan.startTime)}
-                subtitle={`Arrive at ${plan.endTimeText}`}
+                title={relTime(tripSeconds(plan))}
+                subtitle={`Arrive at ${formatClock(plan.arriveAt)}`}
                 sideArrow={true}
                 onclick={() => {
                   planManager.selectedPlan = plan;

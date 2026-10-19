@@ -1,103 +1,79 @@
-import { planTrip, searchBusStops } from '$lib/data/api/aggie_spirit';
-import {
-  DataSource,
-  MovementType,
-  MY_LOCATION_ID,
-  type PlaceSuggestion,
-  type PlanInstruction,
-  type PlanItem,
-} from '$lib/data/types';
-import { createLoggingQuery } from '$lib/utils/queries';
-import { type SearchSuggestion } from '$lib/utils/route-planning';
-import { decode } from '@googlemaps/polyline-codec';
+import { planTrip, type TripItinerary, type TripTimeKind } from '$lib/api/client';
+import { Deadline, type PlaceSuggestion } from '$lib/data/types';
+import { db } from '$lib/db/database';
+import { direction, route, stop } from '$lib/db/schema';
+import { createDbQuery, createLoggingQuery } from '$lib/utils/queries';
+import { toStopSuggestions } from '$lib/utils/route-planning';
+import { and, asc, eq, sql } from 'drizzle-orm';
 import moment from 'moment';
 
 export enum QueryKey {
-  SEARCH_SUGGESTIONS = 'MRSearchSuggestions',
+  STOP_SEARCH = 'stopSearch',
   TRIP_PLAN = 'MRTripPlan',
 }
 
 const TRIP_PLAN_STALE_TIME = moment.duration(1, 'minute');
 
-function toSearchSuggestion(place: PlaceSuggestion): SearchSuggestion {
-  return {
-    title: place.name,
-    subtitle: place.description,
-    stopCode: place.id !== MY_LOCATION_ID ? place.id : undefined,
-    lat: place.location?.latitude,
-    long: place.location?.longitude,
-    type: place.type as 'stop' | 'my-location' | 'map',
-  };
-}
+const TIME_KINDS: Record<Deadline, TripTimeKind> = {
+  [Deadline.LEAVE_BY]: 'departAt',
+  [Deadline.ARRIVE_BY]: 'arriveBy',
+};
 
-export const useSearchSuggestions = (params: () => { query: string }) =>
-  createLoggingQuery<PlaceSuggestion[]>(() => {
-    const { query } = params();
+export const useStopSearch = (params: () => { query: string }) =>
+  createDbQuery<PlaceSuggestion[]>(() => {
+    const query = params().query.trim();
     return {
-      queryKey: [QueryKey.SEARCH_SUGGESTIONS, query],
-      queryFn: async () =>
-        (await searchBusStops(query)).map(
-          (suggestion) =>
-            ({
-              dataSource: DataSource.AGGIE_SPIRIT,
-              id: suggestion.stopCode ?? MY_LOCATION_ID,
-              name: suggestion.title,
-              description: suggestion.subtitle,
-              location: suggestion.stopCode
-                ? { latitude: suggestion.lat!, longitude: suggestion.long! }
-                : null,
-              type: suggestion.type,
-            }) as PlaceSuggestion,
-        ),
+      key: [QueryKey.STOP_SEARCH, query],
       enabled: query.length > 0,
-      staleTime: Infinity,
+      queryFn: async () =>
+        toStopSuggestions(
+          await db
+            .select({
+              id: stop.id,
+              name: stop.name,
+              lat: stop.lat,
+              lon: stop.lon,
+              routeCode: route.shortName,
+            })
+            .from(stop)
+            .innerJoin(direction, eq(direction.id, stop.directionId))
+            .innerJoin(route, eq(route.id, direction.routeId))
+            .where(
+              and(
+                eq(route.active, true),
+                sql`instr(lower(${stop.name}), ${query.toLowerCase()}) > 0`,
+              ),
+            )
+            .orderBy(asc(stop.name)),
+          query,
+        ),
     };
   });
+
+function toEndpoint(place: PlaceSuggestion) {
+  return { name: place.name, lat: place.location!.latitude, lon: place.location!.longitude };
+}
 
 export const useTripPlan = (
   params: () => {
     origin: PlaceSuggestion | null;
     destination: PlaceSuggestion | null;
     date: Date;
-    deadline: 'leave' | 'arrive';
+    deadline: Deadline;
   },
 ) =>
-  createLoggingQuery<PlanItem[]>(() => {
+  createLoggingQuery<TripItinerary[]>(() => {
     const { origin, destination, date, deadline } = params();
     return {
-      queryKey: [QueryKey.TRIP_PLAN, origin?.id, destination?.id, date.toISOString(), deadline],
-      queryFn: async () => {
-        const plan = await planTrip(
-          toSearchSuggestion(origin!),
-          toSearchSuggestion(destination!),
-          date,
-          deadline,
-        );
-
-        return plan.options.map(
-          (option): PlanItem => ({
-            dataSource: DataSource.AGGIE_SPIRIT,
-            startTime: option.startTime,
-            endTime: option.endTime,
-            endTimeText: option.endTimeText,
-            instructions: option.instructions.map(
-              (instruction): PlanInstruction => ({
-                movementType: instruction.className as MovementType,
-                time: instruction.startTime,
-                instruction: instruction.instruction ?? '',
-                pathPoints: (instruction.polyline ? decode(instruction.polyline) : []).map(
-                  ([latitude, longitude]) => ({ latitude, longitude }),
-                ),
-                detailedWalkingInstructions: instruction.walkingInstructions.map((step) => ({
-                  stepNumber: step.index,
-                  instruction: step.instruction,
-                })),
-              }),
-            ),
-          }),
-        );
-      },
-      enabled: origin !== null && destination !== null,
+      queryKey: [QueryKey.TRIP_PLAN, origin, destination, date.toISOString(), deadline],
+      queryFn: () =>
+        planTrip({
+          origin: toEndpoint(origin!),
+          destination: toEndpoint(destination!),
+          time: date.toISOString(),
+          timeKind: TIME_KINDS[deadline],
+        }),
+      enabled: !!origin?.location && !!destination?.location,
       staleTime: TRIP_PLAN_STALE_TIME,
     };
   });

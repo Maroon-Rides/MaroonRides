@@ -6,6 +6,7 @@
   import { PlanOption } from '$lib/data/types';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { planManager } from '$lib/managers/plan.manager.svelte';
+  import { describeLeg, formatClock } from '$lib/utils/route-planning';
   import StepRow from './StepRow.svelte';
 
   $effect(() => {
@@ -19,20 +20,26 @@
     planManager.shownInstruction = -1;
   });
 
-  // Strips the API's inline HTML, so @html renders only the markup added here.
-  const domParser = new DOMParser();
-  const format = (s: string) =>
-    (
-      domParser.parseFromString(s.replaceAll(/\(ID: \d+\)/g, '!br!'), 'text/html').body
-        .textContent ?? ''
-    )
-      .replaceAll(/!br!/g, '<br>')
-      .replaceAll(/(My Location)/g, '$1<br>')
-      .replace(/(<br>)*$/, '');
-
   const plan = $derived(planManager.selectedPlan);
-  const instructions = $derived(plan?.instructions ?? []);
-  const formattedContent = $derived(instructions.map((instr) => format(instr.instruction)));
+  // The arrival closes the timeline as its own step, after every leg.
+  const steps = $derived(
+    plan
+      ? [
+          ...(plan.legs ?? []).map((leg) => ({
+            icon: PlanOption.fromLegType(leg.type),
+            time: formatClock(leg.startAt),
+            content: describeLeg(leg),
+            instructions: leg.walk?.steps ?? [],
+          })),
+          {
+            icon: PlanOption.END,
+            time: formatClock(plan.arriveAt),
+            content: `Arrive at ${plan.legs?.at(-1)?.to.name ?? ''}`,
+            instructions: [],
+          },
+        ]
+      : [],
+  );
 
   function onClose() {
     mapManager.setDrawnRoutes(mapRoutes);
@@ -49,7 +56,10 @@
     ]}
   >
     {#snippet header()}
-      <BottomSheet.Header title="Trip Plan" subtitle={`Arrive at ${plan?.endTimeText ?? ''}`}>
+      <BottomSheet.Header
+        title="Trip Plan"
+        subtitle={plan ? `Arrive at ${formatClock(plan.arriveAt)}` : ''}
+      >
         {#snippet actions()}
           <BottomSheet.CloseButton onclick={onClose} />
         {/snippet}
@@ -65,14 +75,14 @@
         }
         class="px-4 pt-3"
       >
-        {#each instructions as step, i}
+        {#each steps as step, i}
           <StepRow
             value={String(i)}
-            icon={PlanOption.fromMovementType(step.movementType)}
+            icon={step.icon}
             time={step.time}
-            content={formattedContent[i]}
-            instructions={step.detailedWalkingInstructions}
-            isLast={i === instructions.length - 1}
+            content={step.content}
+            instructions={step.instructions}
+            isLast={i === steps.length - 1}
             isFirst={i === 0}
           />
         {/each}

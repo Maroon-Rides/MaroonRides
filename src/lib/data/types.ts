@@ -10,6 +10,7 @@ import {
   MapPin,
   OctagonPauseIcon,
 } from '@lucide/svelte';
+import type { TripLegType } from '$lib/api/client';
 import moment from 'moment';
 
 export enum Amenity {
@@ -40,19 +41,10 @@ export namespace Amenity {
   }
 }
 
-export enum DataSource {
-  AGGIE_SPIRIT,
-  BRAZOS_TRANSIT,
-}
-
 export type Location = {
   latitude: number;
   longitude: number;
 };
-
-export interface FromDataSource {
-  dataSource: DataSource;
-}
 
 export interface Stop {
   id: string;
@@ -145,15 +137,13 @@ export enum PlanOption {
   MY_LOCATION = MY_LOCATION_ID,
 }
 export namespace PlanOption {
-  export function fromMovementType(mType: MovementType): PlanOption {
-    switch (mType) {
-      case MovementType.BUS:
+  export function fromLegType(type: TripLegType): PlanOption {
+    switch (type) {
+      case 'ride':
         return PlanOption.BUS;
-      case MovementType.WALKING:
+      case 'walk':
         return PlanOption.WALKING;
-      case MovementType.END:
-        return PlanOption.END;
-      case MovementType.WAITING:
+      case 'wait':
         return PlanOption.WAITING;
     }
   }
@@ -172,7 +162,7 @@ export namespace PlanOption {
     }
   }
 }
-export interface PlaceSuggestion extends FromDataSource {
+export interface PlaceSuggestion {
   id: string;
   name: string;
   description: string;
@@ -187,33 +177,6 @@ export const MyLocation = {
   location: undefined,
   type: PlaceType.MY_LOCATION,
 } as PlaceSuggestion;
-
-export enum MovementType {
-  BUS = 'bus',
-  WALKING = 'walking',
-  END = 'end',
-  WAITING = 'waiting',
-}
-
-export interface WalkingInstruction {
-  stepNumber: number;
-  instruction: string;
-}
-
-export interface PlanInstruction {
-  movementType: MovementType;
-  time: string;
-  instruction: string;
-  detailedWalkingInstructions: WalkingInstruction[];
-  pathPoints: Location[];
-}
-
-export interface PlanItem extends FromDataSource {
-  startTime: number;
-  endTime: number;
-  endTimeText: string;
-  instructions: PlanInstruction[];
-}
 
 export interface RoutePlanPoint extends Location {
   stepIndex: number;

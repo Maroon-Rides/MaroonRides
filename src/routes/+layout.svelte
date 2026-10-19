@@ -10,7 +10,6 @@
   import { liveDataManager } from '$lib/managers/live-data.manager.svelte';
   import { syncManager, VersionStatus } from '$lib/managers/sync.manager.svelte';
   import { installDynamicType } from '$lib/utils/dynamic-type';
-  import { installInterceptor } from '$lib/utils/interceptor';
   import { migratePrefs } from '$lib/utils/prefs';
   import { queryClient } from '$lib/utils/queries';
   import { QueryClientProvider } from '@tanstack/svelte-query';
@@ -35,7 +34,6 @@
     await syncManager.start();
   });
 
-  installInterceptor();
   installDynamicType();
 </script>
 
