@@ -13,7 +13,7 @@ const PING_INTERVAL_MS = 20_000;
 
 interface LiveSocketHandlers {
   onOpen(): void;
-  onClose(): void;
+  onClose(reconnecting: boolean): void;
   onMessage(message: WebsocketServerMessage): void;
 }
 
@@ -75,7 +75,7 @@ export class LiveSocket {
       if (this.#socket !== socket) return;
       clearInterval(this.#pingTimer);
       this.#socket = null;
-      this.#handlers.onClose();
+      this.#handlers.onClose(this.#wanted);
       if (this.#wanted) this.#scheduleReconnect();
     };
   }

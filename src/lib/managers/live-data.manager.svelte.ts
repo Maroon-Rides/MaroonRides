@@ -7,6 +7,7 @@ import {
 } from '$lib/api/websocket';
 import type { TimeEstimate } from '$lib/data/types';
 import { LiveSocket } from '$lib/sync/live-socket';
+import { OfflineTracker } from '$lib/sync/offline-tracker.svelte';
 import { appLogger } from '$lib/utils/logger';
 import { App } from '@capacitor/app';
 import moment from 'moment';
@@ -56,23 +57,35 @@ class LiveDataManager {
   #hasOpened = false;
   #onReconnected = () => {};
 
+  readonly #offline = new OfflineTracker();
+
   readonly #socket = new LiveSocket(WEBSOCKET_URL, {
     onOpen: () => {
       this.#socketState = SocketState.CONNECTED;
+      this.#offline.connected();
       if (this.#hasOpened) this.#onReconnected();
       this.#hasOpened = true;
     },
-    onClose: () => {
+    onClose: (reconnecting) => {
       this.#socketState = SocketState.DISCONNECTED;
+      if (reconnecting) this.#offline.connecting();
       this.#clear();
     },
     onMessage: (message) => this.#onMessage(message),
   });
 
+  /** Whether the live socket has been unreachable for long enough to tell the rider. */
+  get isOffline() {
+    return this.#offline.isOffline;
+  }
+
   /** Opens the socket and keeps it open while the app is in the foreground. */
   connect(onReconnected: () => void) {
     this.#onReconnected = onReconnected;
-    App.addListener('pause', () => this.#socket.disconnect());
+    App.addListener('pause', () => {
+      this.#offline.paused();
+      this.#socket.disconnect();
+    });
     App.addListener('resume', () => this.#connectSocket());
     this.#connectSocket();
   }
@@ -104,7 +117,10 @@ class LiveDataManager {
 
   // Retries after a drop stay disconnected, so the offline fallback does not flicker between attempts.
   #connectSocket() {
-    if (this.#socketState !== SocketState.CONNECTED) this.#socketState = SocketState.CONNECTING;
+    if (this.#socketState !== SocketState.CONNECTED) {
+      this.#socketState = SocketState.CONNECTING;
+      this.#offline.connecting();
+    }
     this.#socket.connect();
   }
 

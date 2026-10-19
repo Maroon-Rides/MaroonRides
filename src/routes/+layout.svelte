@@ -2,6 +2,7 @@
   import favicon from '$lib/assets/favicon.svg';
   import MapElements from '$lib/components/map/MapElements.svelte';
   import PlanMapElements from '$lib/components/map/PlanMapElements.svelte';
+  import OfflinePill from '$lib/components/OfflinePill.svelte';
   import UpdateRequired from '$lib/components/UpdateRequired.svelte';
   import Map from '$lib/components/ui/map/Map.svelte';
   import MapControls from '$lib/components/ui/map/MapControls.svelte';
@@ -62,6 +63,8 @@
     {@render children()}
   </div>
 </QueryClientProvider>
+
+<OfflinePill />
 
 {#if syncManager.versionStatus === VersionStatus.UNSUPPORTED}
   <UpdateRequired />
