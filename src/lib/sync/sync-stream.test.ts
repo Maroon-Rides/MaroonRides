@@ -1,7 +1,7 @@
 import type { SyncStreamLine } from '$lib/api/client';
 import initSqlJs, { type Database } from 'sql.js';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { planSync, type SyncPlan } from './sync-stream';
+import { isResetStream, planFullSync, planSync, type Statement } from './sync-stream';
 
 const MIGRATION_BREAKPOINT = '--> statement-breakpoint';
 const migrationFiles = import.meta.glob<string>('../db/migrations/*.sql', {
@@ -17,8 +17,8 @@ const ACK_ID = '01990000-0000-7000-8000-0000000000aa';
 
 let sqlite: Database;
 
-function apply(plan: SyncPlan) {
-  for (const statement of plan.statements) {
+function apply(statements: Statement[]) {
+  for (const statement of statements) {
     const { sql, params } = statement.toSQL();
     sqlite.run(sql, params as never);
   }
@@ -103,13 +103,32 @@ describe('planSync', () => {
     expect(rows('SELECT id FROM direction')).toEqual([[DIRECTION_ID]]);
   });
 
-  it('wipes synced tables and acks on reset', () => {
-    apply(planSync([routeLine('Bonfire', ACK_ID)]));
-    const plan = planSync([{ type: 'SyncResetV1', ack: `SyncResetV1|${ACK_ID}`, data: {} }]);
-    apply(plan);
+  it('drops rows and acks missing from a full sync', () => {
+    const fullAck = '01990000-0000-7000-8000-0000000000bb';
+    apply(
+      planSync([
+        routeLine('Bonfire', ACK_ID),
+        {
+          type: 'DirectionV1',
+          ack: `DirectionV1|${ACK_ID}`,
+          data: { id: DIRECTION_ID, routeId: ROUTE_ID, destination: 'MSC', sequence: 0, path: '' },
+        },
+      ]),
+    );
+    apply(planFullSync([routeLine('Bonfire Express', fullAck)]));
 
-    expect(plan.reset).toBe(true);
-    expect(rows('SELECT id FROM route')).toEqual([]);
-    expect(rows('SELECT key FROM sync_ack')).toEqual([]);
+    expect(rows('SELECT long_name FROM route')).toEqual([['Bonfire Express']]);
+    expect(rows('SELECT id FROM direction')).toEqual([]);
+    expect(rows('SELECT ack FROM sync_ack')).toEqual([[`RouteV1|${fullAck}`]]);
+  });
+});
+
+describe('isResetStream', () => {
+  it('is true only when the stream opens with a reset', () => {
+    const reset: SyncStreamLine = { type: 'SyncResetV1', ack: `SyncResetV1|${ACK_ID}`, data: {} };
+
+    expect(isResetStream([reset])).toBe(true);
+    expect(isResetStream([routeLine('Bonfire', ACK_ID), reset])).toBe(false);
+    expect(isResetStream([])).toBe(false);
   });
 });

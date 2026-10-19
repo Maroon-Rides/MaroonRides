@@ -97,21 +97,13 @@ const HANDLERS: { [T in SyncEntityType]: EntityHandler<LineData<T>> } = {
   SyncCompleteV1: controlLine,
 };
 
-export interface SyncPlan {
-  reset: boolean;
-  statements: Statement[];
-}
-
-export function resetPlan(): SyncPlan {
-  const tables = [...SYNCED_TABLES, syncAck];
-  return { reset: true, statements: tables.map((table) => db.delete(table)) };
+export function isResetStream(lines: SyncStreamLine[]): boolean {
+  return lines[0]?.type === RESET;
 }
 
 // The server orders lines so parents come before children and deletes before upserts,
 // so runs of one entity type are applied in the order they arrived.
-export function planSync(lines: SyncStreamLine[]): SyncPlan {
-  if (lines[0]?.type === RESET) return resetPlan();
-
+export function planSync(lines: SyncStreamLine[]): Statement[] {
   const runs: { type: SyncEntityType; rows: unknown[] }[] = [];
   const acks = new Map<string, string>();
 
@@ -135,5 +127,11 @@ export function planSync(lines: SyncStreamLine[]): SyncPlan {
     );
   }
 
-  return { reset: false, statements };
+  return statements;
+}
+
+/** Swaps every synced row and ack for a full sync's lines. Apply it in one transaction. */
+export function planFullSync(lines: SyncStreamLine[]): Statement[] {
+  const wipe = [...SYNCED_TABLES, syncAck].map((table) => db.delete(table));
+  return [...wipe, ...planSync(lines)];
 }

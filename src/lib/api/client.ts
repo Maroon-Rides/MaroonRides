@@ -1,3 +1,4 @@
+import { appLogger } from '$lib/utils/logger';
 import createClient from 'openapi-fetch';
 import type { components, paths } from './openapi';
 
@@ -27,6 +28,22 @@ export async function getSupportedVersion(): Promise<string> {
   const { data, error } = await client.GET('/api/version/supported');
   if (error) throw new Error(`version check failed: ${error.detail}`);
   return data.version;
+}
+
+export enum SyncMode {
+  INCREMENTAL = 'incremental',
+  FULL = 'full',
+}
+
+export interface SyncFailureReport {
+  mode: SyncMode;
+  appVersion: string;
+  error: string;
+}
+
+// TODO: send to the gateway once it has an endpoint for sync failures.
+export async function reportSyncFailure(report: SyncFailureReport): Promise<void> {
+  appLogger.w(`Sync failure report: ${JSON.stringify(report)}`);
 }
 
 export async function syncStream(body: SyncRequest): Promise<SyncStreamLine[]> {
