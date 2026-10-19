@@ -1,10 +1,17 @@
 import type { TripItinerary } from '$lib/api/client';
 import { useStopSearch, useTripPlan } from '$lib/data/route_planning';
-import { Deadline, MyLocation, PlaceType, type PlaceSuggestion } from '$lib/data/types';
+import {
+  Deadline,
+  MyLocation,
+  PlaceType,
+  type Location,
+  type PlaceSuggestion,
+} from '$lib/data/types';
 import { Geolocation } from '@capacitor/geolocation';
 import type { CreateQueryResult } from '@tanstack/svelte-query';
-import { debounce, sortBy } from 'lodash-es';
+import { sortBy } from 'lodash-es';
 import { DateTime } from 'luxon';
+import { Debounced, resource, type ResourceReturn } from 'runed';
 
 type EndpointKey = 'start' | 'end';
 
@@ -15,7 +22,6 @@ class PlanEndpoint {
   searchTerm = $state('');
 
   isMyLocation = $derived(this.location?.type === PlaceType.MY_LOCATION);
-  needsMyLocation = $derived(this.isMyLocation && !this.location?.location);
 
   select(place: PlaceSuggestion | null) {
     this.location = place;
@@ -28,6 +34,13 @@ class PlanEndpoint {
   }
 }
 
+// A position read for a choice the user has since changed is dropped instead of applied.
+async function currentPosition(signal: AbortSignal): Promise<Location> {
+  const { coords } = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+  if (signal.aborted) throw new DOMException('Position no longer needed', 'AbortError');
+  return { latitude: coords.latitude, longitude: coords.longitude };
+}
+
 class PlanManager {
   start = $state(new PlanEndpoint());
   end = $state(new PlanEndpoint());
@@ -37,28 +50,26 @@ class PlanManager {
   deadline = $state<Deadline>(Deadline.LEAVE_BY);
   selectedPlan = $state<TripItinerary | null>(null);
   shownInstruction = $state(-1);
-  locationDenied = $state(false);
 
   suggestionsQuery = $state<CreateQueryResult<PlaceSuggestion[], Error> | null>(null);
   tripPlanQuery = $state<CreateQueryResult<TripItinerary[], Error> | null>(null);
-
-  searchQuery = $state('');
-  updateSearchQuery = debounce((term: string) => (this.searchQuery = term), SEARCH_DEBOUNCE_MS);
-
-  #locationSeq = 0;
+  searchQuery = $state<Debounced<string> | null>(null);
+  myLocation = $state<ResourceReturn<Location | undefined> | null>(null);
 
   activeEndpoint = $derived(this.activeInput ? this[this.activeInput] : null);
   activeSearchTerm = $derived(this.activeEndpoint?.searchTerm ?? '');
   showMyLocation = $derived(!!this.activeEndpoint && !this.activeEndpoint.searchTerm);
-  needsMyLocation = $derived(this.start.needsMyLocation || this.end.needsMyLocation);
+
+  wantsMyLocation = $derived(this.start.isMyLocation || this.end.isMyLocation);
+  needsMyLocation = $derived(this.wantsMyLocation && !this.myLocation?.current);
+  locationError = $derived(this.wantsMyLocation && !!this.myLocation?.error);
   awaitingLocation = $derived(
     !this.activeInput && !!this.start.location && !!this.end.location && this.needsMyLocation,
   );
-  locationError = $derived(
-    (this.start.isMyLocation || this.end.isMyLocation) && this.locationDenied,
-  );
+  origin = $derived(this.#withMyLocation(this.start.location));
+  destination = $derived(this.#withMyLocation(this.end.location));
 
-  searchPending = $derived(this.searchQuery !== this.activeSearchTerm);
+  searchPending = $derived(!!this.searchQuery?.pending);
 
   suggestions = $derived(this.activeSearchTerm.trim() ? (this.suggestionsQuery?.data ?? []) : []);
   plans = $derived(sortBy(this.tripPlanQuery?.data ?? [], 'arriveAt'));
@@ -94,6 +105,11 @@ class PlanManager {
     this.reset();
   }
 
+  #withMyLocation(place: PlaceSuggestion | null): PlaceSuggestion | null {
+    if (place?.type !== PlaceType.MY_LOCATION) return place;
+    return { ...place, location: this.myLocation?.current };
+  }
+
   focus(which: EndpointKey) {
     this[which].focus();
     this.activeInput = which;
@@ -110,29 +126,8 @@ class PlanManager {
     return (plan.legs ?? []).some((leg) => leg.type === 'ride');
   }
 
-  async resolveMyLocation() {
-    if (!this.needsMyLocation) return;
-    const seq = ++this.#locationSeq;
-    this.locationDenied = false;
-    try {
-      const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
-      if (seq !== this.#locationSeq) return;
-
-      const resolved: PlaceSuggestion = {
-        ...MyLocation,
-        location: { latitude: pos.coords.latitude, longitude: pos.coords.longitude },
-      };
-      for (const endpoint of [this.start, this.end])
-        if (endpoint.needsMyLocation) endpoint.location = resolved;
-    } catch {
-      if (seq !== this.#locationSeq) return;
-      this.locationDenied = true;
-    }
-  }
-
   reset() {
-    this.updateSearchQuery.cancel();
-    this.searchQuery = '';
+    this.searchQuery?.setImmediately('');
     this.start.select({ ...MyLocation });
     this.end.select(null);
     this.activeInput = null;
@@ -140,30 +135,26 @@ class PlanManager {
     this.deadline = Deadline.LEAVE_BY;
     this.selectedPlan = null;
     this.shownInstruction = -1;
-    this.locationDenied = false;
     this.suggestionsQuery = null;
     this.tripPlanQuery = null;
   }
 }
 
 export function usePlanState() {
+  planManager.searchQuery = new Debounced(() => planManager.activeSearchTerm, SEARCH_DEBOUNCE_MS);
+  planManager.myLocation = resource(
+    () => planManager.wantsMyLocation,
+    (wanted, _, { signal }) => (wanted ? currentPosition(signal) : Promise.resolve(undefined)),
+  );
   planManager.suggestionsQuery = useStopSearch(() => ({
-    query: planManager.searchQuery,
+    query: planManager.searchQuery?.current ?? '',
   }));
   planManager.tripPlanQuery = useTripPlan(() => ({
-    origin: planManager.start.location,
-    destination: planManager.end.location,
+    origin: planManager.origin,
+    destination: planManager.destination,
     date: planManager.planTime.toJSDate(),
     deadline: planManager.deadline,
   }));
-
-  $effect(() => {
-    planManager.updateSearchQuery(planManager.activeSearchTerm);
-  });
-
-  $effect(() => {
-    if (planManager.needsMyLocation) planManager.resolveMyLocation();
-  });
 }
 
 let planManager: PlanManager;
