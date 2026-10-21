@@ -9,9 +9,8 @@
   import * as Tabs from '$lib/components/ui/tabs';
   import Toggle from '$lib/components/ui/toggle/toggle.svelte';
   import { useAlerts, useRoute } from '$lib/data/app';
+  import { frontPageManager } from '$lib/managers/frontpage.manager.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
-  import { toggleFavorite } from '$lib/utils/prefs';
-  import { Preferences } from '@capacitor/preferences';
   import { Bell, BellRing, Star } from '@lucide/svelte';
   import { untrack } from 'svelte';
   import type { PageData } from './$types';
@@ -21,20 +20,10 @@
   const routeQuery = useRoute(() => ({ routeId: data.routeId }));
   const route = $derived(routeQuery.data ?? null);
   const alerts = useAlerts(() => ({ routeId: data.routeId }));
-  let isFavorite = $state(false);
+  const isFavorite = $derived(!!route && frontPageManager.isFavorite(route.routeCode));
   const selectedDirection = $derived(
     route?.directions.find((d) => d.id === mapManager.selectedDirectionId) ?? null,
   );
-
-  // The route loads from the database after mount, so wait for its code.
-  $effect(() => {
-    const routeCode = route?.routeCode;
-    if (!routeCode) return;
-
-    Preferences.get({ key: 'favorites' }).then(({ value }) => {
-      isFavorite = (JSON.parse(value ?? '[]') as string[]).includes(routeCode);
-    });
-  });
 
   $effect(() => {
     mapManager.setSelectedRoute(route);
@@ -69,8 +58,8 @@
             variant="outline"
             size="md"
             class="rounded-full data-[state=on]:bg-transparent dark:bg-muted data-[state=on]:*:[svg]:fill-yellow-500 data-[state=on]:*:[svg]:stroke-yellow-500"
-            onclick={() => toggleFavorite(route?.routeCode ?? '')}
-            bind:pressed={isFavorite}
+            disabled={!route}
+            bind:pressed={() => isFavorite, () => frontPageManager.toggleFavorite(route!.routeCode)}
           >
             <Star class="size-4" />
             Favorite
@@ -81,7 +70,7 @@
             class="rounded-full"
             onclick={() => goto(`/route/${route?.id}/alerts`)}
           >
-            {#if alerts.data?.length ?? 0 > 0}
+            {#if (alerts.data?.length ?? 0) > 0}
               <BellRing class="size-4" />
             {:else}
               <Bell class="size-4" />
