@@ -3,7 +3,7 @@ import { Deadline, type PlaceSuggestion } from '$lib/data/types';
 import { db } from '$lib/db/database';
 import { direction, route, stop } from '$lib/db/schema';
 import { createDbQuery, createLoggingQuery } from '$lib/utils/queries';
-import { toStopSuggestions } from '$lib/utils/route-planning';
+import { toStopSuggestions } from '$lib/utils/stop-search';
 import { and, asc, eq, sql } from 'drizzle-orm';
 import { Duration } from 'luxon';
 

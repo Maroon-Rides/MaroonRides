@@ -1,13 +1,9 @@
-import type { TripItinerary, TripLeg } from '$lib/api/client';
-import {
-  PlaceType,
-  type PlaceSuggestion,
-  type RoutePlanMarkedPoint,
-  type RoutePlanPoint,
-} from '$lib/data/types';
+import type { TripItinerary, TripLeg, TripWalkStep } from '$lib/api/client';
+import { PlanOption, type RoutePlanMarkedPoint, type RoutePlanPoint } from '$lib/data/types';
+import { formatClock } from '$lib/utils/time';
 import { decode } from '@googlemaps/polyline-codec';
-import { findLast, groupBy, last, sortBy, uniq } from 'lodash-es';
-import { DateTime } from 'luxon';
+import { findLast, last } from 'lodash-es';
+import { DateTime, Duration } from 'luxon';
 
 export interface RoutePlanMapComponents {
   highlighted: RoutePlanPoint[];
@@ -15,8 +11,15 @@ export interface RoutePlanMapComponents {
   markers: RoutePlanMarkedPoint[];
 }
 
-export function formatClock(iso: string): string {
-  return DateTime.fromISO(iso).toLocaleString(DateTime.TIME_SIMPLE);
+export interface TimelineStep {
+  icon: PlanOption;
+  time: string;
+  content: string;
+  instructions: TripWalkStep[];
+}
+
+export function hasBusLeg(plan: TripItinerary): boolean {
+  return (plan.legs ?? []).some((leg) => PlanOption.fromLegType(leg.type) === PlanOption.BUS);
 }
 
 export function describeLeg(leg: TripLeg): string {
@@ -26,43 +29,58 @@ export function describeLeg(leg: TripLeg): string {
     case 'wait':
       return `Wait at ${leg.to.name}`;
     case 'ride': {
-      const ride = leg.ride!;
+      const { ride } = leg;
+      if (!ride) return `Ride to ${leg.to.name}`;
       const stops = `${ride.stopCount} ${ride.stopCount === 1 ? 'stop' : 'stops'}`;
       return `Board ${ride.routeShortName} ${ride.headsign}, get off at ${leg.to.name} (${stops})`;
     }
   }
 }
 
-function createMarkers(
-  start: RoutePlanPoint,
-  end: RoutePlanPoint,
-  startIsOrigin = false,
-): RoutePlanMarkedPoint[] {
+export function formatTripDuration(plan: TripItinerary): string {
+  const { hours, minutes } = DateTime.fromISO(plan.arriveAt)
+    .diff(DateTime.fromISO(plan.departAt), ['hours', 'minutes'])
+    .toObject();
+  return Duration.fromObject({
+    ...(hours && { hours }),
+    minutes: Math.floor(minutes ?? 0),
+  }).toHuman();
+}
+
+export function arrivalLabel(plan: TripItinerary): string {
+  return `Arrive at ${formatClock(plan.arriveAt)}`;
+}
+
+export function toTimelineSteps(plan: TripItinerary): TimelineStep[] {
+  const legs = plan.legs ?? [];
   return [
+    ...legs.map((leg) => ({
+      icon: PlanOption.fromLegType(leg.type),
+      time: formatClock(leg.startAt),
+      content: describeLeg(leg),
+      instructions: leg.walk?.steps ?? [],
+    })),
     {
-      ...start,
-      icon: 'point',
-      isOrigin: startIsOrigin,
+      icon: PlanOption.END,
+      time: formatClock(plan.arriveAt),
+      content: `Arrive at ${legs.at(-1)?.to.name ?? ''}`,
+      instructions: [],
     },
-    {
-      ...end,
-      icon: 'point',
-      isOrigin: false,
-    },
+  ];
+}
+
+function createMarkers(start: RoutePlanPoint, end: RoutePlanPoint): RoutePlanMarkedPoint[] {
+  return [
+    { ...start, icon: 'point', isOrigin: true },
+    { ...end, icon: 'point', isOrigin: false },
   ];
 }
 
 export function processRoutePlanMapComponents(
   routePlan: TripItinerary | null,
-  selectedPart: number,
+  selectedStep: number | null,
 ): RoutePlanMapComponents {
-  if (!routePlan) {
-    return {
-      highlighted: [],
-      faded: [],
-      markers: [],
-    };
-  }
+  if (!routePlan) return { highlighted: [], faded: [], markers: [] };
 
   const pathPoints = (routePlan.legs ?? [])
     .flatMap((leg, stepIndex) =>
@@ -74,95 +92,38 @@ export function processRoutePlanMapComponents(
     )
     .map((point, pathIndex) => ({ ...point, pathIndex }));
 
-  if (selectedPart === -1) {
+  if (selectedStep === null) {
     return {
       highlighted: pathPoints,
       faded: [],
-      markers:
-        pathPoints.length === 0 ? [] : createMarkers(pathPoints[0]!, last(pathPoints)!, true),
+      markers: pathPoints.length === 0 ? [] : createMarkers(pathPoints[0]!, last(pathPoints)!),
     };
   }
 
-  const highlighted = pathPoints.filter((point) => point.stepIndex === selectedPart);
+  const highlighted = pathPoints.filter((point) => point.stepIndex === selectedStep);
+  const faded = [
+    pathPoints.filter((point) => point.stepIndex < selectedStep),
+    pathPoints.filter((point) => point.stepIndex > selectedStep),
+  ];
 
-  let faded: RoutePlanPoint[][] = [[], []];
-  pathPoints.forEach((point) => {
-    if (point.stepIndex < selectedPart) {
-      faded[0]!.push(point);
-    } else if (point.stepIndex > selectedPart) {
-      faded[1]!.push(point);
-    }
-  });
+  if (highlighted.length > 0) {
+    return { highlighted, faded, markers: createMarkers(highlighted[0]!, last(highlighted)!) };
+  }
 
   // A step with no path of its own, like the arrival, sits where the last step ended.
-  if (highlighted.length === 0) {
-    const lastPoint = findLast(pathPoints, (point) => point.stepIndex === selectedPart - 1);
-
-    if (lastPoint) {
-      if (lastPoint.pathIndex === pathPoints.length - 1) {
-        return {
-          highlighted: [],
-          faded: faded,
-          markers: [
-            {
-              latitude: lastPoint.latitude,
-              longitude: lastPoint.longitude,
-              icon: 'point',
-              isOrigin: false,
-            },
-          ],
-        };
-      }
-
-      return {
-        highlighted: [],
-        faded: faded,
-        markers: [
-          {
-            latitude: lastPoint.latitude,
-            longitude: lastPoint.longitude,
-            icon: 'wait',
-            isOrigin: false,
-          },
-        ],
-      };
-    }
-
-    // A step at the start has no earlier point to put a marker on.
-    return {
-      highlighted: [],
-      faded: faded,
-      markers: [],
-    };
-  }
+  const lastPoint = findLast(pathPoints, (point) => point.stepIndex === selectedStep - 1);
+  if (!lastPoint) return { highlighted: [], faded, markers: [] };
 
   return {
-    highlighted: highlighted,
-    faded: faded,
-    markers: createMarkers(highlighted[0]!, last(highlighted)!, true),
+    highlighted: [],
+    faded,
+    markers: [
+      {
+        latitude: lastPoint.latitude,
+        longitude: lastPoint.longitude,
+        icon: lastPoint.pathIndex === pathPoints.length - 1 ? 'point' : 'wait',
+        isOrigin: false,
+      },
+    ],
   };
-}
-
-const STOP_SEARCH_LIMIT = 20;
-
-export type StopMatch = { id: string; name: string; lat: number; lon: number; routeCode: string };
-
-// A stop is stored once per direction it serves, so matches with the same name collapse into one place.
-export function toStopSuggestions(matches: StopMatch[], query: string): PlaceSuggestion[] {
-  const needle = query.trim().toLowerCase();
-  const places = Object.values(groupBy(matches, (m) => m.name)).map(
-    (group): PlaceSuggestion => ({
-      id: group[0]!.id,
-      name: group[0]!.name,
-      description: `Routes ${uniq(group.map((m) => m.routeCode))
-        .sort()
-        .join(', ')}`,
-      location: { latitude: group[0]!.lat, longitude: group[0]!.lon },
-      type: PlaceType.STOP,
-    }),
-  );
-  return sortBy(places, [(p) => !p.name.toLowerCase().startsWith(needle), (p) => p.name]).slice(
-    0,
-    STOP_SEARCH_LIMIT,
-  );
 }

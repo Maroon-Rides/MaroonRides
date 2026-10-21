@@ -1,7 +1,13 @@
 import type { TripItinerary, TripLeg } from '$lib/api/client';
 import { encode } from '@googlemaps/polyline-codec';
 import { describe, expect, it } from 'vitest';
-import { describeLeg, processRoutePlanMapComponents, toStopSuggestions } from './route-planning';
+import {
+  describeLeg,
+  formatTripDuration,
+  hasBusLeg,
+  processRoutePlanMapComponents,
+  toTimelineSteps,
+} from './route-planning';
 
 const MSC = { name: 'MSC', lat: 30.6123, lon: -96.3415, stopCode: '2700', stopId: null };
 const ROSS = {
@@ -73,7 +79,7 @@ describe('describeLeg', () => {
 
 describe('processRoutePlanMapComponents', () => {
   it('highlights the whole trip from origin to destination', () => {
-    const { highlighted, markers } = processRoutePlanMapComponents(itinerary, -1);
+    const { highlighted, markers } = processRoutePlanMapComponents(itinerary, null);
 
     expect(highlighted).toHaveLength(4);
     expect(markers[0]).toMatchObject({ latitude: ORIGIN.lat, isOrigin: true });
@@ -101,31 +107,30 @@ describe('processRoutePlanMapComponents', () => {
   });
 });
 
-describe('toStopSuggestions', () => {
-  const match = (id: string, name: string, routeCode: string) => ({
-    id,
-    name,
-    lat: 1,
-    lon: 2,
-    routeCode,
+describe('hasBusLeg', () => {
+  it('is true only for a trip that rides a bus', () => {
+    expect(hasBusLeg(itinerary)).toBe(true);
+    expect(hasBusLeg({ ...itinerary, legs: [itinerary.legs![0]!] })).toBe(false);
+  });
+});
+
+describe('formatTripDuration', () => {
+  it('leaves out hours for a short trip', () => {
+    expect(formatTripDuration(itinerary)).toBe('10 minutes');
   });
 
-  it('collapses a stop served by several directions into one place listing its routes', () => {
-    const [msc, ...rest] = toStopSuggestions(
-      [match('a', 'MSC', '27'), match('b', 'MSC', '01'), match('c', 'MSC', '27')],
-      'msc',
+  it('includes hours for a long trip', () => {
+    expect(formatTripDuration({ ...itinerary, arriveAt: '2026-10-19T16:25:30Z' })).toBe(
+      '1 hour, 25 minutes',
     );
-
-    expect(rest).toHaveLength(0);
-    expect(msc).toMatchObject({ id: 'a', name: 'MSC', description: 'Routes 01, 27' });
   });
+});
 
-  it('ranks names starting with the query first', () => {
-    const names = toStopSuggestions(
-      [match('a', 'Asbury @ MSC', '01'), match('b', 'MSC', '27')],
-      'msc',
-    ).map((p) => p.name);
+describe('toTimelineSteps', () => {
+  it('ends the timeline with the arrival after every leg', () => {
+    const steps = toTimelineSteps(itinerary);
 
-    expect(names).toEqual(['MSC', 'Asbury @ MSC']);
+    expect(steps).toHaveLength(itinerary.legs!.length + 1);
+    expect(steps.at(-1)).toMatchObject({ content: 'Arrive at Ross and Bizzell', instructions: [] });
   });
 });

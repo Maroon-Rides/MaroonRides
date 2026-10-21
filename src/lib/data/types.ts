@@ -135,15 +135,14 @@ export enum PlanOption {
   MY_LOCATION = MY_LOCATION_ID,
 }
 export namespace PlanOption {
+  const LEG_OPTIONS: Record<TripLegType, PlanOption> = {
+    ride: PlanOption.BUS,
+    walk: PlanOption.WALKING,
+    wait: PlanOption.WAITING,
+  };
+
   export function fromLegType(type: TripLegType): PlanOption {
-    switch (type) {
-      case 'ride':
-        return PlanOption.BUS;
-      case 'walk':
-        return PlanOption.WALKING;
-      case 'wait':
-        return PlanOption.WAITING;
-    }
+    return LEG_OPTIONS[type];
   }
   export function getIcon(planOption: PlanOption) {
     switch (planOption) {
