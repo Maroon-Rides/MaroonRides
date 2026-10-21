@@ -70,7 +70,6 @@ function remove<T extends TableWithId, D>(table: T, toId: (data: D) => string): 
 
 const controlLine: EntityHandler<unknown> = () => [];
 
-// Go encodes an empty slice as null, the local columns are not nullable.
 const HANDLERS: { [T in SyncEntityType]: EntityHandler<LineData<T>> } = {
   RouteV1: upsert(route, (data: LineData<'RouteV1'>) => data),
   RouteDeleteV1: remove(route, (data: LineData<'RouteDeleteV1'>) => data.routeId),

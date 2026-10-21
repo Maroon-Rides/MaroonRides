@@ -50,7 +50,7 @@ beforeEach(async () => {
 });
 
 describe('planSync', () => {
-  it('stores rows as the server sends them', () => {
+  it('stores rows as the server sends them, with null lists as empty', () => {
     apply(
       planSync([
         routeLine('Bonfire', ACK_ID),

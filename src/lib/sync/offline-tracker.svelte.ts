@@ -8,7 +8,6 @@ const GRACE_MS: Partial<Record<ConnectionState, number>> = {
   [ConnectionState.RECONNECTING]: RECONNECT_GRACE_MS,
 };
 
-/** Flags the app offline once the live socket has gone too long without connecting. */
 export class OfflineTracker {
   isOffline = $state(false);
 

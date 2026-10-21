@@ -5,7 +5,6 @@ interface RetrySchedulerOptions {
   maxDelayMs: number;
 }
 
-/** Re-runs a task after each failure, doubling the wait up to a cap. */
 export class RetryScheduler {
   readonly #task: () => void;
   readonly #initialDelayMs: number;
