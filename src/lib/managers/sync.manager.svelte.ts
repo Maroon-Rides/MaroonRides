@@ -1,6 +1,7 @@
-import { getSupportedVersion, reportSyncFailure, syncStream, SyncMode } from '$lib/api/client';
+import { getSupportedVersion, syncStream } from '$lib/api/client';
 import { db } from '$lib/db/database';
 import { syncAck, timetable } from '$lib/db/schema';
+import { TODAY_SQL } from '$lib/db/sql';
 import {
   isResetStream,
   planFullSync,
@@ -9,11 +10,11 @@ import {
   SYNC_REQUEST_TYPES,
   type Statement,
 } from '$lib/sync/sync-stream';
-import { APP_VERSION, isAppVersionSupported } from '$lib/utils/app-version';
+import { isAppVersionSupported } from '$lib/utils/app-version';
 import { appLogger, describeError } from '$lib/utils/logger';
 import { refreshDbQueries } from '$lib/utils/queries';
 import { RetryScheduler } from '$lib/utils/retry-scheduler';
-import { lt, sql } from 'drizzle-orm';
+import { lt } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 
 const INITIAL_RETRY_DELAY_MS = 5_000;
@@ -35,18 +36,14 @@ function fetchLines(acks: string[]) {
   return syncStream({ protocol: SYNC_PROTOCOL_V1, types: SYNC_REQUEST_TYPES, acks });
 }
 
-function reportFailure(mode: SyncMode, error: unknown) {
-  return reportSyncFailure({ mode, appVersion: APP_VERSION, error: describeError(error) });
-}
-
 /** Owns every write to the local database, which is the sync stream and its cleanup. */
 class SyncManager {
-  versionStatus = $state(VersionStatus.UNKNOWN);
-  isSyncing = $state(false);
-
+  #versionStatus = $state(VersionStatus.UNKNOWN);
+  #isSyncing = $state(false);
   #lastSyncedAt = $state<DateTime | null>(null);
-  #started = false;
-  #syncQueued = false;
+
+  #startup: Promise<void> | null = null;
+  #pendingSync: Promise<void> | null = null;
   readonly #retry = new RetryScheduler(() => this.sync(), {
     initialDelayMs: INITIAL_RETRY_DELAY_MS,
     maxDelayMs: MAX_RETRY_DELAY_MS,
@@ -54,29 +51,29 @@ class SyncManager {
   // Writes run one at a time, since web SQLite has no locking of its own.
   #queue: Promise<void> = Promise.resolve();
 
+  get versionStatus() {
+    return this.#versionStatus;
+  }
+
+  get isSyncing() {
+    return this.#isSyncing;
+  }
+
   get hasSyncedToday(): boolean {
     return this.#lastSyncedAt?.hasSame(DateTime.now(), 'day') ?? false;
   }
 
-  async start() {
-    if (this.#started) return;
-    this.#started = true;
-
-    this.#enqueue(() =>
-      db.delete(timetable).where(lt(timetable.serviceDate, sql`date('now', 'localtime')`)),
-    );
-    await this.#checkVersion().catch((error) =>
-      appLogger.w(`Version check failed: ${describeError(error)}`),
-    );
+  /** Clears past timetables and checks whether the server still supports this app version. */
+  start(): Promise<void> {
+    this.#startup ??= this.#startUp();
+    return this.#startup;
   }
 
+  /** Runs a sync after any already in progress. Calls made while one is waiting share it. */
   sync(): Promise<void> {
-    if (this.#syncQueued) return this.#queue;
-    this.#syncQueued = true;
-
-    return this.#enqueue(async () => {
-      this.#syncQueued = false;
-      this.isSyncing = true;
+    this.#pendingSync ??= this.#enqueue(async () => {
+      this.#pendingSync = null;
+      this.#isSyncing = true;
       try {
         if (await this.#checkVersion()) {
           await this.#runSync();
@@ -85,15 +82,21 @@ class SyncManager {
         this.#retry.reset();
       } catch (error) {
         const delay = this.#retry.schedule();
-        appLogger.w(`Sync failed, retrying in ${Math.round(delay)} ms`);
-        throw error;
+        appLogger.w(`Sync failed, retrying in ${Math.round(delay)} ms: ${describeError(error)}`);
       } finally {
-        this.isSyncing = false;
+        this.#isSyncing = false;
       }
     });
+    return this.#pendingSync;
   }
 
-  // Every task may have changed data on screen, so each one refreshes the database queries.
+  async #startUp() {
+    this.#enqueue(() => db.delete(timetable).where(lt(timetable.serviceDate, TODAY_SQL)));
+    await this.#checkVersion().catch((error) =>
+      appLogger.w(`Version check failed: ${describeError(error)}`),
+    );
+  }
+
   #enqueue(task: () => PromiseLike<unknown>): Promise<void> {
     this.#queue = this.#queue
       .then(task)
@@ -103,13 +106,13 @@ class SyncManager {
   }
 
   async #checkVersion(): Promise<boolean> {
-    if (this.versionStatus === VersionStatus.UNKNOWN) {
+    if (this.#versionStatus === VersionStatus.UNKNOWN) {
       const minimumVersion = await getSupportedVersion();
-      this.versionStatus = isAppVersionSupported(minimumVersion)
+      this.#versionStatus = isAppVersionSupported(minimumVersion)
         ? VersionStatus.SUPPORTED
         : VersionStatus.UNSUPPORTED;
     }
-    return this.versionStatus === VersionStatus.SUPPORTED;
+    return this.#versionStatus === VersionStatus.SUPPORTED;
   }
 
   async #runSync() {
@@ -121,20 +124,15 @@ class SyncManager {
       await applyAll(planSync(lines));
       appLogger.i(`Applied ${lines.length} sync lines`);
     } catch (error) {
-      await reportFailure(SyncMode.INCREMENTAL, error);
+      appLogger.w(`Incremental sync failed, running a full sync: ${describeError(error)}`);
       await this.#fullSync();
     }
   }
 
   async #fullSync() {
     const lines = await fetchLines([]);
-    try {
-      await applyAll(planFullSync(lines));
-      appLogger.i(`Replaced local data with ${lines.length} sync lines`);
-    } catch (error) {
-      await reportFailure(SyncMode.FULL, error);
-      throw error;
-    }
+    await applyAll(planFullSync(lines));
+    appLogger.i(`Replaced local data with ${lines.length} sync lines`);
   }
 }
 

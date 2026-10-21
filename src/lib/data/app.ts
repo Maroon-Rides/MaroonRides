@@ -12,6 +12,7 @@ import {
 } from '$lib/data/types';
 import { db } from '$lib/db/database';
 import { alert, alertDirection, direction, route, stop, timetable } from '$lib/db/schema';
+import { TODAY_SQL } from '$lib/db/sql';
 import { resolveStopEstimates } from '$lib/data/stop_estimates';
 import { liveDataManager } from '$lib/managers/live-data.manager.svelte';
 import { syncManager } from '$lib/managers/sync.manager.svelte';
@@ -141,7 +142,6 @@ interface UpcomingTimes {
 const useUpcomingTimes = (params: () => { stop: Stop }) =>
   createDbQuery<UpcomingTimes>(() => {
     const { stop } = params();
-    const today = sql`date('now', 'localtime')`;
     return {
       key: ['upcomingTimes', stop.id],
       refetchInterval: SCHEDULE_REFRESH_INTERVAL,
@@ -149,18 +149,18 @@ const useUpcomingTimes = (params: () => { stop: Stop }) =>
         const [rows, timetables, timetablesFromToday] = await Promise.all([
           scheduledTimes(
             stop,
-            today,
+            TODAY_SQL,
             gte(sql`unixepoch(${slotTime})`, sql`unixepoch('now', ${LATE_DEPARTURE_WINDOW})`),
           ).limit(UPCOMING_TIME_LIMIT),
           db
             .select({ id: timetable.id })
             .from(timetable)
-            .where(and(eq(timetable.stopId, stop.id), eq(timetable.serviceDate, today)))
+            .where(and(eq(timetable.stopId, stop.id), eq(timetable.serviceDate, TODAY_SQL)))
             .limit(1),
           db
             .select({ id: timetable.id })
             .from(timetable)
-            .where(gte(timetable.serviceDate, today))
+            .where(gte(timetable.serviceDate, TODAY_SQL))
             .limit(1),
         ]);
 
