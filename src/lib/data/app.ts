@@ -13,7 +13,7 @@ import {
 import { db } from '$lib/db/database';
 import { alert, alertDirection, direction, route, stop, timetable } from '$lib/db/schema';
 import { TODAY_SQL } from '$lib/db/sql';
-import { resolveStopEstimates } from '$lib/data/stop_estimates';
+import { resolveStopEstimates, toTimeEstimate, upcomingEstimates } from '$lib/data/stop_estimates';
 import { liveDataManager } from '$lib/managers/live-data.manager.svelte';
 import { syncManager } from '$lib/managers/sync.manager.svelte';
 import { findBoundingBox } from '$lib/utils/geo';
@@ -28,8 +28,6 @@ const STOP_ESTIMATE_LIMIT = 3;
 // A late bus is still coming after its scheduled time, so recent times stay in play for live estimates.
 const LATE_DEPARTURE_WINDOW = '-30 minutes';
 const UPCOMING_TIME_LIMIT = 10;
-// A bus that left a minute ago is often still at the stop.
-const DEPARTED_GRACE = Duration.fromObject({ minutes: 1 });
 
 const slotTime = sql<string>`slot.value`;
 
@@ -175,18 +173,11 @@ const useUpcomingTimes = (params: () => { stop: Stop }) =>
 
 /** Marks each scheduled time with its live estimate, dropping cancelled and departed buses. */
 function withLiveEstimates(times: DateTime[], stop: Stop): TimeEstimate[] {
-  const earliest = DateTime.now().minus(DEPARTED_GRACE);
-  return times
-    .flatMap((scheduledTime) => {
-      const live = liveDataManager.departureAt(stop.id, scheduledTime);
-      if (live?.isCancelled) return [];
-
-      const estimatedTime = live?.estimatedAt ? DateTime.fromISO(live.estimatedAt) : null;
-      if ((estimatedTime ?? scheduledTime) < earliest) return [];
-      return [{ scheduledTime, estimatedTime, isRealTime: estimatedTime !== null }];
-    })
-    .sort((a, b) => +(a.estimatedTime ?? a.scheduledTime) - +(b.estimatedTime ?? b.scheduledTime))
-    .slice(0, STOP_ESTIMATE_LIMIT);
+  const estimates = times.flatMap((scheduledTime) => {
+    const live = liveDataManager.departureAt(stop.id, scheduledTime);
+    return live?.isCancelled ? [] : [toTimeEstimate(scheduledTime, live?.estimatedAt)];
+  });
+  return upcomingEstimates(estimates).slice(0, STOP_ESTIMATE_LIMIT);
 }
 
 /** A stop's next departures from its timetable, updated with live estimates once they arrive. */

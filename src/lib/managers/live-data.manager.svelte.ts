@@ -5,19 +5,13 @@ import {
   type WebsocketServerMessage,
   type WebsocketVehicle,
 } from '$lib/api/websocket';
+import { toTimeEstimate, upcomingEstimates } from '$lib/data/stop_estimates';
 import type { TimeEstimate } from '$lib/data/types';
 import { ConnectionState, LiveSocket } from '$lib/sync/live-socket';
 import { OfflineTracker } from '$lib/sync/offline-tracker.svelte';
 import { appLogger } from '$lib/utils/logger';
 import { App } from '@capacitor/app';
-import { DateTime, Duration } from 'luxon';
-
-// A bus that left a minute ago is often still at the stop.
-const DEPARTED_GRACE = Duration.fromObject({ minutes: 1 });
-
-function departsAt(departure: WebsocketDeparture) {
-  return DateTime.fromISO(departure.estimatedAt ?? departure.scheduledAt);
-}
+import { DateTime } from 'luxon';
 
 function slotKey(stopId: string, scheduledAt: DateTime) {
   return `${stopId}|${scheduledAt.toMillis()}`;
@@ -72,15 +66,11 @@ class LiveDataManager {
 
   /** Upcoming departures at a stop, soonest first. */
   estimatesFor(stopId: string): TimeEstimate[] {
-    const earliest = DateTime.now().minus(DEPARTED_GRACE);
-    return (this.#departures ?? [])
-      .filter((d) => d.stopId === stopId && !d.isCancelled && departsAt(d) >= earliest)
-      .sort((a, b) => departsAt(a).toMillis() - departsAt(b).toMillis())
-      .map((d) => ({
-        scheduledTime: DateTime.fromISO(d.scheduledAt),
-        estimatedTime: d.estimatedAt ? DateTime.fromISO(d.estimatedAt) : null,
-        isRealTime: d.estimatedAt !== null,
-      }));
+    return upcomingEstimates(
+      (this.#departures ?? [])
+        .filter((d) => d.stopId === stopId && !d.isCancelled)
+        .map((d) => toTimeEstimate(DateTime.fromISO(d.scheduledAt), d.estimatedAt)),
+    );
   }
 
   /** The live departure for one scheduled time at a stop, if the server sent one. */
