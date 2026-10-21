@@ -1,7 +1,6 @@
 import { getSupportedVersion, reportSyncFailure, syncStream, SyncMode } from '$lib/api/client';
 import { db } from '$lib/db/database';
 import { syncAck, timetable } from '$lib/db/schema';
-import { liveDataManager } from '$lib/managers/live-data.manager.svelte';
 import {
   isResetStream,
   planFullSync,
@@ -69,10 +68,6 @@ class SyncManager {
     await this.#checkVersion().catch((error) =>
       appLogger.w(`Version check failed: ${describeError(error)}`),
     );
-    if (this.versionStatus === VersionStatus.UNSUPPORTED) return;
-
-    liveDataManager.connect(() => this.sync());
-    await this.sync();
   }
 
   sync(): Promise<void> {

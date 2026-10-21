@@ -21,8 +21,11 @@
 
   let { children } = $props();
 
-  // Every page under /route/[id] shows live data for that route.
-  $effect(() => liveDataManager.subscribe(page.params.id ?? null));
+  const ROUTE_PAGES = '/route/[id]';
+
+  $effect(() =>
+    liveDataManager.subscribe(page.route.id?.startsWith(ROUTE_PAGES) ? page.params.id! : null),
+  );
 
   onDestroy(() => {
     mapManager.unregisterMap();
@@ -33,6 +36,10 @@
     await migratePrefs();
     await frontPageManager.load();
     await syncManager.start();
+    if (syncManager.versionStatus === VersionStatus.UNSUPPORTED) return;
+
+    liveDataManager.connect(() => syncManager.sync());
+    await syncManager.sync();
   });
 
   installDynamicType();

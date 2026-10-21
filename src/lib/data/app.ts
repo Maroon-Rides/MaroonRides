@@ -13,7 +13,7 @@ import {
 import { db } from '$lib/db/database';
 import { alert, alertDirection, direction, route, stop, timetable } from '$lib/db/schema';
 import { resolveStopEstimates } from '$lib/data/stop_estimates';
-import { LiveDataStatus, liveDataManager } from '$lib/managers/live-data.manager.svelte';
+import { liveDataManager } from '$lib/managers/live-data.manager.svelte';
 import { syncManager } from '$lib/managers/sync.manager.svelte';
 import { findBoundingBox } from '$lib/utils/geo';
 import { createDbQuery } from '$lib/utils/queries';
@@ -196,7 +196,7 @@ export function useStopEstimate(params: () => { stop: Stop }) {
   return {
     get data(): StopEstimates {
       const { stop } = params();
-      const isLive = liveDataManager.status === LiveDataStatus.LIVE;
+      const isLive = liveDataManager.isLive;
       if (!upcoming.data) return { source: EstimateSource.LOADING, estimates: [] };
 
       // The server skips days a stop has no service, so a missing timetable is only

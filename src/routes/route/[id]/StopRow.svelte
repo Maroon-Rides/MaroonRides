@@ -15,7 +15,7 @@
     type Route,
     type Stop,
   } from '$lib/data/types';
-  import { LiveDataStatus, liveDataManager } from '$lib/managers/live-data.manager.svelte';
+  import { liveDataManager } from '$lib/managers/live-data.manager.svelte';
   import { CalendarIcon } from '@lucide/svelte';
   import { getContext } from 'svelte';
 
@@ -48,9 +48,7 @@
       return 'No upcoming departures';
     }
     if (source === EstimateSource.SCHEDULE) {
-      return liveDataManager.status === LiveDataStatus.OFFLINE
-        ? 'Offline, showing scheduled times'
-        : 'Scheduled times';
+      return liveDataManager.isOffline ? 'Offline, showing scheduled times' : 'Scheduled times';
     }
 
     const firstEstimate = estimates.find((estimate) => estimate.estimatedTime);

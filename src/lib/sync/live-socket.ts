@@ -11,9 +11,16 @@ const MAX_RETRY_DELAY_MS = 30_000;
 // The gateway drops a client that sends nothing for 60 seconds.
 const PING_INTERVAL_MS = 20_000;
 
+export enum ConnectionState {
+  IDLE = 'idle',
+  CONNECTING = 'connecting',
+  CONNECTED = 'connected',
+  RECONNECTING = 'reconnecting',
+  PAUSED = 'paused',
+}
+
 interface LiveSocketHandlers {
-  onOpen(): void;
-  onClose(reconnecting: boolean): void;
+  onStateChange(state: ConnectionState): void;
   onMessage(message: WebsocketServerMessage): void;
 }
 
@@ -22,8 +29,8 @@ export class LiveSocket {
   readonly #url: string;
   readonly #handlers: LiveSocketHandlers;
 
+  #state = ConnectionState.IDLE;
   #socket: WebSocket | null = null;
-  #wanted = false;
   #routeId: string | null = null;
   readonly #retry = new RetryScheduler(() => this.#open(), {
     initialDelayMs: INITIAL_RETRY_DELAY_MS,
@@ -36,20 +43,36 @@ export class LiveSocket {
     this.#handlers = handlers;
   }
 
+  get #wantsOpen() {
+    return this.#state !== ConnectionState.IDLE && this.#state !== ConnectionState.PAUSED;
+  }
+
   connect() {
-    this.#wanted = true;
-    if (!this.#socket) this.#open();
+    if (this.#wantsOpen) return;
+    this.#setState(
+      this.#state === ConnectionState.IDLE
+        ? ConnectionState.CONNECTING
+        : ConnectionState.RECONNECTING,
+    );
+    this.#open();
   }
 
   disconnect() {
-    this.#wanted = false;
+    if (!this.#wantsOpen) return;
     this.#retry.cancel();
-    this.#socket?.close();
+    this.#closeSocket();
+    this.#setState(ConnectionState.PAUSED);
   }
 
   subscribe(routeId: string | null) {
     this.#routeId = routeId;
     this.#sendSubscription();
+  }
+
+  #setState(state: ConnectionState) {
+    if (state === this.#state) return;
+    this.#state = state;
+    this.#handlers.onStateChange(state);
   }
 
   #open() {
@@ -64,7 +87,7 @@ export class LiveSocket {
         PING_INTERVAL_MS,
       );
       this.#sendSubscription();
-      this.#handlers.onOpen();
+      this.#setState(ConnectionState.CONNECTED);
     };
 
     socket.onmessage = (event) => {
@@ -75,16 +98,18 @@ export class LiveSocket {
 
     socket.onclose = () => {
       if (this.#socket !== socket) return;
-      clearInterval(this.#pingTimer);
-      this.#socket = null;
-      this.#handlers.onClose(this.#wanted);
-      if (this.#wanted) this.#scheduleReconnect();
+      this.#closeSocket();
+      if (this.#state === ConnectionState.CONNECTED) this.#setState(ConnectionState.RECONNECTING);
+      const delay = this.#retry.schedule();
+      appLogger.i(`Live socket closed, reconnecting in ${Math.round(delay)} ms`);
     };
   }
 
-  #scheduleReconnect() {
-    const delay = this.#retry.schedule();
-    appLogger.i(`Live socket closed, reconnecting in ${Math.round(delay)} ms`);
+  #closeSocket() {
+    clearInterval(this.#pingTimer);
+    const socket = this.#socket;
+    this.#socket = null;
+    socket?.close();
   }
 
   #sendSubscription() {
