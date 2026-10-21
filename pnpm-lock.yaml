@@ -65,9 +65,6 @@ importers:
       mode-watcher:
         specifier: ^1.1.0
         version: 1.1.0(svelte@5.50.0)
-      moment:
-        specifier: ^2.30.1
-        version: 2.30.1
       openapi-fetch:
         specifier: ^0.17.0
         version: 0.17.0
@@ -1946,9 +1943,6 @@ packages:
     resolution: {integrity: sha512-mUT9RRGPDYenk59qJauN1rhsIMKBmWA3xMF+uRwE8MW/tjhaDSCCARqkSuDTq8vr4/2KcAxIGVjACxTjdk5C3g==}
     peerDependencies:
       svelte: ^5.27.0
-
-  moment@2.30.1:
-    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
 
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -3933,8 +3927,6 @@ snapshots:
       runed: 0.25.0(svelte@5.50.0)
       svelte: 5.50.0
       svelte-toolbelt: 0.7.1(svelte@5.50.0)
-
-  moment@2.30.1: {}
 
   mri@1.2.0: {}
 

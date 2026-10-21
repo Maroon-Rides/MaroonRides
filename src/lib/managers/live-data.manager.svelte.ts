@@ -10,7 +10,7 @@ import { LiveSocket } from '$lib/sync/live-socket';
 import { OfflineTracker } from '$lib/sync/offline-tracker.svelte';
 import { appLogger } from '$lib/utils/logger';
 import { App } from '@capacitor/app';
-import moment from 'moment';
+import { DateTime, Duration } from 'luxon';
 
 export enum LiveDataStatus {
   LOADING = 'loading',
@@ -25,14 +25,14 @@ enum SocketState {
 }
 
 // A bus that left a minute ago is often still at the stop.
-const DEPARTED_GRACE = moment.duration(1, 'minute');
+const DEPARTED_GRACE = Duration.fromObject({ minutes: 1 });
 
 function departsAt(departure: WebsocketDeparture) {
-  return moment(departure.estimatedAt ?? departure.scheduledAt);
+  return DateTime.fromISO(departure.estimatedAt ?? departure.scheduledAt);
 }
 
-function slotKey(stopId: string, scheduledAt: moment.MomentInput) {
-  return `${stopId}|${moment(scheduledAt).valueOf()}`;
+function slotKey(stopId: string, scheduledAt: DateTime) {
+  return `${stopId}|${scheduledAt.toMillis()}`;
 }
 
 /** Holds the subscribed route's vehicles and departures, straight from the websocket. */
@@ -50,7 +50,7 @@ class LiveDataManager {
   });
 
   readonly #departuresBySlot = $derived(
-    new Map(this.departures.map((d) => [slotKey(d.stopId, d.scheduledAt), d])),
+    new Map(this.departures.map((d) => [slotKey(d.stopId, DateTime.fromISO(d.scheduledAt)), d])),
   );
 
   #routeId: string | null = null;
@@ -99,19 +99,19 @@ class LiveDataManager {
 
   /** Upcoming departures at a stop, soonest first. */
   estimatesFor(stopId: string): TimeEstimate[] {
-    const earliest = moment().subtract(DEPARTED_GRACE);
+    const earliest = DateTime.now().minus(DEPARTED_GRACE);
     return this.departures
-      .filter((d) => d.stopId === stopId && !d.isCancelled && departsAt(d).isSameOrAfter(earliest))
-      .sort((a, b) => departsAt(a).diff(departsAt(b)))
+      .filter((d) => d.stopId === stopId && !d.isCancelled && departsAt(d) >= earliest)
+      .sort((a, b) => departsAt(a).toMillis() - departsAt(b).toMillis())
       .map((d) => ({
-        scheduledTime: moment(d.scheduledAt),
-        estimatedTime: d.estimatedAt ? moment(d.estimatedAt) : null,
+        scheduledTime: DateTime.fromISO(d.scheduledAt),
+        estimatedTime: d.estimatedAt ? DateTime.fromISO(d.estimatedAt) : null,
         isRealTime: d.estimatedAt !== null,
       }));
   }
 
   /** The live departure for one scheduled time at a stop, if the server sent one. */
-  departureAt(stopId: string, scheduledAt: moment.Moment) {
+  departureAt(stopId: string, scheduledAt: DateTime) {
     return this.#departuresBySlot.get(slotKey(stopId, scheduledAt));
   }
 

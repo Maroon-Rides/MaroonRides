@@ -19,16 +19,16 @@ import { findBoundingBox } from '$lib/utils/geo';
 import { createDbQuery } from '$lib/utils/queries';
 import { decode } from '@googlemaps/polyline-codec';
 import { and, asc, eq, gte, isNull, or, sql, type SQL } from 'drizzle-orm';
-import moment from 'moment';
+import { DateTime, Duration } from 'luxon';
 
 // Upcoming times are relative to "now", so they refresh even when nothing is synced.
-const SCHEDULE_REFRESH_INTERVAL = moment.duration(30, 'seconds');
+const SCHEDULE_REFRESH_INTERVAL = Duration.fromObject({ seconds: 30 });
 const STOP_ESTIMATE_LIMIT = 3;
 // A late bus is still coming after its scheduled time, so recent times stay in play for live estimates.
 const LATE_DEPARTURE_WINDOW = '-30 minutes';
 const UPCOMING_TIME_LIMIT = 10;
 // A bus that left a minute ago is often still at the stop.
-const DEPARTED_GRACE = moment.duration(1, 'minute');
+const DEPARTED_GRACE = Duration.fromObject({ minutes: 1 });
 
 const slotTime = sql<string>`slot.value`;
 
@@ -134,7 +134,7 @@ function scheduledTimes(stop: Stop, serviceDate: string | SQL, where?: SQL) {
 interface UpcomingTimes {
   hasTimetable: boolean;
   hasTimetablesFromToday: boolean;
-  times: moment.Moment[];
+  times: DateTime[];
 }
 
 /** Today's scheduled times at a stop that may still be coming, including late ones. */
@@ -167,25 +167,25 @@ const useUpcomingTimes = (params: () => { stop: Stop }) =>
         return {
           hasTimetable: timetables.length > 0,
           hasTimetablesFromToday: timetablesFromToday.length > 0,
-          times: rows.map((row) => moment(row.scheduledAt)),
+          times: rows.map((row) => DateTime.fromISO(row.scheduledAt)),
         };
       },
     };
   });
 
 /** Marks each scheduled time with its live estimate, dropping cancelled and departed buses. */
-function withLiveEstimates(times: moment.Moment[], stop: Stop): TimeEstimate[] {
-  const earliest = moment().subtract(DEPARTED_GRACE);
+function withLiveEstimates(times: DateTime[], stop: Stop): TimeEstimate[] {
+  const earliest = DateTime.now().minus(DEPARTED_GRACE);
   return times
     .flatMap((scheduledTime) => {
       const live = liveDataManager.departureAt(stop.id, scheduledTime);
       if (live?.isCancelled) return [];
 
-      const estimatedTime = live?.estimatedAt ? moment(live.estimatedAt) : null;
-      if ((estimatedTime ?? scheduledTime).isBefore(earliest)) return [];
+      const estimatedTime = live?.estimatedAt ? DateTime.fromISO(live.estimatedAt) : null;
+      if ((estimatedTime ?? scheduledTime) < earliest) return [];
       return [{ scheduledTime, estimatedTime, isRealTime: estimatedTime !== null }];
     })
-    .sort((a, b) => (a.estimatedTime ?? a.scheduledTime).diff(b.estimatedTime ?? b.scheduledTime))
+    .sort((a, b) => +(a.estimatedTime ?? a.scheduledTime) - +(b.estimatedTime ?? b.scheduledTime))
     .slice(0, STOP_ESTIMATE_LIMIT);
 }
 
@@ -213,15 +213,15 @@ export function useStopEstimate(params: () => { stop: Stop }) {
 }
 
 /** A stop's timetable for one day, marked with live estimates and cancellations. */
-export function useTimetable(params: () => { stop: Stop | null; date: moment.Moment }) {
-  const times = createDbQuery<moment.Moment[]>(() => {
+export function useTimetable(params: () => { stop: Stop | null; date: DateTime }) {
+  const times = createDbQuery<DateTime[]>(() => {
     const { stop, date } = params();
-    const serviceDate = date.format('YYYY-MM-DD');
+    const serviceDate = date.toISODate()!;
     return {
       key: ['timetable', stop?.id, serviceDate],
       enabled: stop !== null,
       queryFn: async () =>
-        (await scheduledTimes(stop!, serviceDate)).map((row) => moment(row.scheduledAt)),
+        (await scheduledTimes(stop!, serviceDate)).map((row) => DateTime.fromISO(row.scheduledAt)),
     };
   });
 
@@ -235,7 +235,7 @@ export function useTimetable(params: () => { stop: Stop | null; date: moment.Mom
         const live = liveDataManager.departureAt(stop!.id, scheduledTime);
         return {
           scheduledTime,
-          estimatedTime: live?.estimatedAt ? moment(live.estimatedAt) : null,
+          estimatedTime: live?.estimatedAt ? DateTime.fromISO(live.estimatedAt) : null,
           isCancelled: live?.isCancelled ?? false,
         };
       });

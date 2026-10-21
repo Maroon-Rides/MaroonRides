@@ -2,7 +2,6 @@
   import type { TimeEstimate } from '$lib/data/types';
   import { cn } from '$lib/utils';
   import { Rss } from '@lucide/svelte';
-  import moment from 'moment';
   import { tv } from 'tailwind-variants';
 
   type Props = {
@@ -15,7 +14,7 @@
   let { estimate, isNext, class: className, type = 'default' }: Props = $props();
 
   const date = $derived(estimate.estimatedTime ?? estimate.scheduledTime);
-  const relative = $derived(date.diff(moment(), 'minutes'));
+  const relative = $derived(Math.trunc(date.diffNow('minutes').minutes));
 
   const styles = tv({
     base: 'flex flex-col items-center px-2 py-0.5 dark:text-white',

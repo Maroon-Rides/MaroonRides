@@ -67,7 +67,6 @@
     "luxon": "^3.7.2",
     "maplibre-gl": "^5.17.0",
     "mode-watcher": "^1.1.0",
-    "moment": "^2.30.1",
     "openapi-fetch": "^0.17.0",
     "pmtiles": "^4.4.0",
     "runed": "^0.37.1",

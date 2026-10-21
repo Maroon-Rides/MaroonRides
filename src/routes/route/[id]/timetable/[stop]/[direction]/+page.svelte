@@ -7,7 +7,7 @@
   import DateStepper from '$lib/components/ui/date-stepper/date-stepper.svelte';
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
   import { useRoute, useTimetable } from '$lib/data/app';
-  import moment from 'moment';
+  import { DateTime } from 'luxon';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -17,7 +17,7 @@
     { height: 80, id: 'l' },
   ];
 
-  let date = $state(moment());
+  let date = $state(DateTime.now());
 
   const routeQuery = useRoute(() => ({ routeId: data.routeId }));
 
@@ -43,7 +43,7 @@
     {/snippet}
 
     <div class="flex flex-col gap-4 px-4 py-2 pb-6">
-      <DateStepper bind:selectedDate={date} minDate={moment()} class="self-center" />
+      <DateStepper bind:selectedDate={date} minDate={DateTime.now()} class="self-center" />
 
       {#if timetable.isLoading || routeQuery.isLoading}
         <Spinner class="size-6 self-center" />

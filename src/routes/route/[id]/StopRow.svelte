@@ -59,7 +59,7 @@
     }
 
     const deviationMinutes = Math.round(
-      firstEstimate.estimatedTime.diff(firstEstimate.scheduledTime, 'minutes'),
+      firstEstimate.estimatedTime.diff(firstEstimate.scheduledTime, 'minutes').minutes,
     );
 
     if (deviationMinutes === 0) {

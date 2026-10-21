@@ -1,20 +1,27 @@
 <script lang="ts">
   import * as ButtonGroup from '$lib/components/ui/button-group/index.js';
   import { ArrowLeft, ArrowRight } from '@lucide/svelte';
-  import moment from 'moment';
+  import { DateTime } from 'luxon';
   import Button from '../button/button.svelte';
 
+  const DATE_FORMAT = 'ccc, LLL d';
+
   type Props = {
-    selectedDate: moment.Moment;
-    minDate?: moment.Moment;
-    maxDate?: moment.Moment;
+    selectedDate: DateTime;
+    minDate?: DateTime;
+    maxDate?: DateTime;
     class?: string;
   };
 
-  let { selectedDate = $bindable(moment()), minDate, maxDate, class: className }: Props = $props();
+  let {
+    selectedDate = $bindable(DateTime.now()),
+    minDate,
+    maxDate,
+    class: className,
+  }: Props = $props();
 
   function offsetDate(days: number) {
-    selectedDate = selectedDate.clone().add(days, 'day');
+    selectedDate = selectedDate.plus({ days });
   }
 </script>
 
@@ -24,12 +31,12 @@
     size="sm"
     class="mt-2 rounded-full"
     onclick={() => offsetDate(-1)}
-    disabled={minDate ? selectedDate.isSameOrBefore(minDate ?? moment(), 'day') : false}
+    disabled={minDate ? selectedDate.startOf('day') <= minDate.startOf('day') : false}
   >
     <ArrowLeft />
   </Button>
   <Button variant="outline" size="sm" class="mt-2 min-w-32 rounded-full">
-    {selectedDate.format('ddd, MMM D')}
+    {selectedDate.toFormat(DATE_FORMAT)}
   </Button>
 
   <Button
@@ -37,7 +44,7 @@
     size="sm"
     class="mt-2 rounded-full "
     onclick={() => offsetDate(1)}
-    disabled={maxDate ? selectedDate.isSameOrAfter(maxDate ?? moment(), 'day') : false}
+    disabled={maxDate ? selectedDate.startOf('day') >= maxDate.startOf('day') : false}
   >
     <ArrowRight />
   </Button>

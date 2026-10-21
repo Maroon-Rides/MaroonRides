@@ -5,14 +5,14 @@ import { direction, route, stop } from '$lib/db/schema';
 import { createDbQuery, createLoggingQuery } from '$lib/utils/queries';
 import { toStopSuggestions } from '$lib/utils/route-planning';
 import { and, asc, eq, sql } from 'drizzle-orm';
-import moment from 'moment';
+import { Duration } from 'luxon';
 
 export enum QueryKey {
   STOP_SEARCH = 'stopSearch',
   TRIP_PLAN = 'MRTripPlan',
 }
 
-const TRIP_PLAN_STALE_TIME = moment.duration(1, 'minute');
+const TRIP_PLAN_STALE_TIME = Duration.fromObject({ minutes: 1 });
 
 const TIME_KINDS: Record<Deadline, TripTimeKind> = {
   [Deadline.LEAVE_BY]: 'departAt',

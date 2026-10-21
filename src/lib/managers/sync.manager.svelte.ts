@@ -15,7 +15,7 @@ import { appLogger, describeError } from '$lib/utils/logger';
 import { refreshDbQueries } from '$lib/utils/queries';
 import { RetryScheduler } from '$lib/utils/retry-scheduler';
 import { lt, sql } from 'drizzle-orm';
-import moment from 'moment';
+import { DateTime } from 'luxon';
 
 const INITIAL_RETRY_DELAY_MS = 5_000;
 const MAX_RETRY_DELAY_MS = 5 * 60_000;
@@ -45,7 +45,7 @@ class SyncManager {
   versionStatus = $state(VersionStatus.UNKNOWN);
   isSyncing = $state(false);
 
-  #lastSyncedAt = $state<moment.Moment | null>(null);
+  #lastSyncedAt = $state<DateTime | null>(null);
   #started = false;
   #syncQueued = false;
   readonly #retry = new RetryScheduler(() => this.sync(), {
@@ -56,7 +56,7 @@ class SyncManager {
   #queue: Promise<void> = Promise.resolve();
 
   get hasSyncedToday(): boolean {
-    return this.#lastSyncedAt?.isSame(moment(), 'day') ?? false;
+    return this.#lastSyncedAt?.hasSame(DateTime.now(), 'day') ?? false;
   }
 
   async start() {
@@ -85,7 +85,7 @@ class SyncManager {
       try {
         if (await this.#checkVersion()) {
           await this.#runSync();
-          this.#lastSyncedAt = moment();
+          this.#lastSyncedAt = DateTime.now();
         }
         this.#retry.reset();
       } catch (error) {

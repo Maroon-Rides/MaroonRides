@@ -11,7 +11,7 @@ import {
   OctagonPauseIcon,
 } from '@lucide/svelte';
 import type { TripLegType } from '$lib/api/client';
-import moment from 'moment';
+import type { DateTime } from 'luxon';
 
 export enum Amenity {
   AIR_CONDITIONING = 'AIR_CONDITIONING',
@@ -86,8 +86,8 @@ export interface Bus {
 }
 
 export interface TimeEstimate {
-  estimatedTime: moment.Moment | null;
-  scheduledTime: moment.Moment;
+  estimatedTime: DateTime | null;
+  scheduledTime: DateTime;
   isRealTime: boolean;
 }
 
@@ -106,8 +106,8 @@ export interface StopEstimates {
 }
 
 export interface TimetableDeparture {
-  scheduledTime: moment.Moment;
-  estimatedTime: moment.Moment | null;
+  scheduledTime: DateTime;
+  estimatedTime: DateTime | null;
   isCancelled: boolean;
 }
 

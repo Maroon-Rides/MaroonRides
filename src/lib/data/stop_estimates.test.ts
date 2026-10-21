@@ -1,10 +1,10 @@
 import { EstimateSource, type TimeEstimate } from '$lib/data/types';
-import moment from 'moment';
+import { DateTime } from 'luxon';
 import { describe, expect, it } from 'vitest';
 import { resolveStopEstimates, type StopEstimateInputs } from './stop_estimates';
 
 const estimate: TimeEstimate = {
-  scheduledTime: moment('2026-10-10T12:00:00'),
+  scheduledTime: DateTime.fromISO('2026-10-10T12:00:00'),
   estimatedTime: null,
   isRealTime: false,
 };

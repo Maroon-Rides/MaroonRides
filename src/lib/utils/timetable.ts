@@ -1,8 +1,9 @@
 import type { TimetableDeparture } from '$lib/data/types';
 import { chunk } from 'lodash-es';
-import moment from 'moment';
+import { DateTime } from 'luxon';
 
 const ITEMS_PER_ROW = 5;
+const DEPARTURE_TIME_FORMAT = 'h:mm';
 
 interface TableItem {
   time: string;
@@ -17,23 +18,26 @@ export interface TableItemRow {
   highlighted: boolean;
 }
 
-export default function buildTimetable(departures: TimetableDeparture[]): TableItemRow[] {
-  const now = moment();
+export default function buildTimetable(
+  departures: TimetableDeparture[],
+  now: DateTime = DateTime.now(),
+): TableItemRow[] {
+  const currentMinute = now.startOf('minute');
   const hasLiveData = departures.some((d) => d.estimatedTime !== null);
-  const departsAt = (d: TimetableDeparture) => d.estimatedTime ?? d.scheduledTime;
 
-  // Only point at the next bus when live data can confirm it.
-  const next = hasLiveData
-    ? departures.find((d) => !d.isCancelled && !departsAt(d).isBefore(now, 'minute'))
-    : undefined;
+  const items = departures.map((d) => {
+    const departsAt = d.estimatedTime ?? d.scheduledTime;
+    return {
+      time: departsAt.toFormat(DEPARTURE_TIME_FORMAT),
+      highlighted: false,
+      live: d.estimatedTime !== null,
+      cancelled: d.isCancelled,
+      expired: departsAt < currentMinute,
+    };
+  });
 
-  const items = departures.map((d) => ({
-    time: departsAt(d).format('h:mm'),
-    highlighted: d === next,
-    live: d.estimatedTime !== null,
-    cancelled: d.isCancelled,
-    expired: departsAt(d).isBefore(now, 'minute'),
-  }));
+  const next = hasLiveData ? items.find((item) => !item.cancelled && !item.expired) : undefined;
+  if (next) next.highlighted = true;
 
   return chunk(items, ITEMS_PER_ROW).map((row) => ({
     items: row,

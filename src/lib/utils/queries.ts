@@ -1,19 +1,19 @@
 import { describeError, queryLogger } from '$lib/utils/logger';
 import { createQuery, QueryClient, type NetworkMode } from '@tanstack/svelte-query';
-import moment from 'moment';
+import { Duration } from 'luxon';
 
 interface LoggingQueryParams<T> {
   queryFn: () => Promise<T>;
   queryKey: unknown[];
   label?: string;
-  staleTime?: moment.Duration | number;
-  refetchInterval?: moment.Duration | number;
+  staleTime?: Duration | number;
+  refetchInterval?: Duration | number;
   enabled?: boolean;
   networkMode?: NetworkMode;
 }
 
-function parseTime(time?: moment.Duration | number) {
-  return moment.isDuration(time) ? time.asMilliseconds() : time;
+function parseTime(time?: Duration | number) {
+  return Duration.isDuration(time) ? time.toMillis() : time;
 }
 
 export function createLoggingQuery<T>(params: () => LoggingQueryParams<T>) {
@@ -25,10 +25,10 @@ export function createLoggingQuery<T>(params: () => LoggingQueryParams<T>) {
       queryKey: p.queryKey,
       queryFn: async () => {
         try {
-          const start = moment.now();
+          const start = Date.now();
           const data = await p.queryFn();
 
-          queryLogger.d(`Query ${label} succeeded in ${moment.now() - start} ms`);
+          queryLogger.d(`Query ${label} succeeded in ${Date.now() - start} ms`);
           return data;
         } catch (e) {
           queryLogger.e(`Query ${label} failed: ${describeError(e)}`);
@@ -51,7 +51,7 @@ interface DbQueryParams<T> {
   key: unknown[];
   queryFn: () => Promise<T>;
   enabled?: boolean;
-  refetchInterval?: moment.Duration | number;
+  refetchInterval?: Duration | number;
 }
 
 /** A query on the local database. It re-runs when the sync manager changes the data. */
