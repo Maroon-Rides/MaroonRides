@@ -1,5 +1,6 @@
 import {
   WebsocketMessageType,
+  websocketServerMessageSchema,
   type WebsocketClientMessage,
   type WebsocketServerMessage,
 } from '$lib/api/websocket';
@@ -91,7 +92,9 @@ export class LiveSocket {
     };
 
     socket.onmessage = (event) => {
-      this.#handlers.onMessage(JSON.parse(event.data) as WebsocketServerMessage);
+      const message = websocketServerMessageSchema.safeParse(JSON.parse(event.data));
+      if (message.success) this.#handlers.onMessage(message.data);
+      else appLogger.w(`Ignoring live socket message: ${message.error.message}`);
     };
 
     socket.onerror = () => socket.close();

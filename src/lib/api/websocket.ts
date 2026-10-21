@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 // The gateway does not publish these in openapi.json, they mirror apps/gateway/dtos/websocket.go.
 
 export enum WebsocketMessageType {
@@ -15,34 +17,43 @@ export type WebsocketClientMessage =
   | { type: WebsocketMessageType.UNSUBSCRIBE }
   | { type: WebsocketMessageType.PING };
 
-export interface WebsocketVehicle {
-  id: string;
-  directionId: string;
-  name: string;
-  lat: number;
-  lon: number;
-  heading: number;
-  speed: number;
-  passengers: number;
-  capacity: number;
-  amenities: string[] | null;
-  seenAt: string;
-}
+const websocketVehicleSchema = z.object({
+  id: z.string(),
+  directionId: z.string(),
+  name: z.string(),
+  lat: z.number(),
+  lon: z.number(),
+  heading: z.number(),
+  speed: z.number(),
+  passengers: z.number(),
+  capacity: z.number(),
+  amenities: z.array(z.string()).nullable(),
+  seenAt: z.string(),
+});
 
-export interface WebsocketDeparture {
-  id: string;
-  stopId: string;
-  scheduledAt: string;
-  estimatedAt: string | null;
-  isCancelled: boolean;
-}
+const websocketDepartureSchema = z.object({
+  id: z.string(),
+  stopId: z.string(),
+  scheduledAt: z.string(),
+  estimatedAt: z.string().nullable(),
+  isCancelled: z.boolean(),
+});
 
-export type WebsocketServerMessage =
-  | { type: WebsocketMessageType.PONG }
-  | { type: WebsocketMessageType.ERROR; message: string }
-  | { type: WebsocketMessageType.VEHICLES; routeId: string; vehicles: WebsocketVehicle[] | null }
-  | {
-      type: WebsocketMessageType.DEPARTURES;
-      routeId: string;
-      departures: WebsocketDeparture[] | null;
-    };
+export const websocketServerMessageSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal(WebsocketMessageType.PONG) }),
+  z.object({ type: z.literal(WebsocketMessageType.ERROR), message: z.string() }),
+  z.object({
+    type: z.literal(WebsocketMessageType.VEHICLES),
+    routeId: z.string(),
+    vehicles: z.array(websocketVehicleSchema).nullable(),
+  }),
+  z.object({
+    type: z.literal(WebsocketMessageType.DEPARTURES),
+    routeId: z.string(),
+    departures: z.array(websocketDepartureSchema).nullable(),
+  }),
+]);
+
+export type WebsocketVehicle = z.infer<typeof websocketVehicleSchema>;
+export type WebsocketDeparture = z.infer<typeof websocketDepartureSchema>;
+export type WebsocketServerMessage = z.infer<typeof websocketServerMessageSchema>;

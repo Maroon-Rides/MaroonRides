@@ -1,5 +1,6 @@
 import createClient from 'openapi-fetch';
 import type { components, paths } from './openapi';
+import { syncStreamLineSchema } from './sync-lines';
 
 const PRODUCTION_API_URL = 'https://api.maroonrides.app';
 const LINE_SEPARATOR = '\n';
@@ -34,7 +35,7 @@ export async function syncStream(body: SyncRequest): Promise<SyncStreamLine[]> {
   return data
     .split(LINE_SEPARATOR)
     .filter(Boolean)
-    .map((line) => JSON.parse(line) as SyncStreamLine);
+    .map((line) => syncStreamLineSchema.parse(JSON.parse(line)) satisfies SyncStreamLine);
 }
 
 export async function planTrip(body: TripPlanRequest): Promise<TripItinerary[]> {
