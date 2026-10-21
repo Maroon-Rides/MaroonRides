@@ -3,7 +3,6 @@
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
   import { EstimateSource, type Route, type StopEstimates } from '$lib/data/types';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
-  import { getRouteTint } from '$lib/utils/tints';
 
   type Props = {
     route: Route;
@@ -13,10 +12,7 @@
   let { route, estimates }: Props = $props();
 </script>
 
-<div
-  class="flex flex-wrap items-center gap-1"
-  style="--tint: {getRouteTint(route, themeManager.theme)}"
->
+<div class="flex flex-wrap items-center gap-1" style="--tint: {themeManager.tintFor(route)}">
   {#if estimates.source === EstimateSource.LOADING}
     <Spinner class="size-4 self-center" />
   {/if}

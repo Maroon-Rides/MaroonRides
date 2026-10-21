@@ -9,7 +9,6 @@
   import { type Bus, type Direction, type Location, type Route, type Stop } from '$lib/data/types';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
-  import { getRouteTint } from '$lib/utils/tints';
   import { getLighterColor } from '$lib/utils/utils';
   import { Geolocation } from '@capacitor/geolocation';
   import { uniqBy } from 'lodash-es';
@@ -107,7 +106,7 @@
     const route = mapManager.selectedRoute;
     if (!route) return null;
 
-    const color = getRouteTint(route, themeManager.theme);
+    const color = themeManager.tintFor(route);
     return { color, strokeColor: getLighterColor(color) };
   });
 
@@ -165,7 +164,7 @@
 
     <MapRoute
       coordinates={direction.pathPoints.map((point) => [point.longitude, point.latitude])}
-      color={getRouteTint(route, themeManager.theme)}
+      color={themeManager.tintFor(route)}
       id={`${route.id}-${direction.id}`}
       onclick={() => {
         // Unselected directions still draw faded, so isShown would let them take taps.

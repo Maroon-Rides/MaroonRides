@@ -7,6 +7,7 @@
   import DateStepper from '$lib/components/ui/date-stepper/date-stepper.svelte';
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
   import { useRoute, useTimetable } from '$lib/data/app';
+  import { themeManager } from '$lib/managers/theme.manager.svelte';
   import { DateTime } from 'luxon';
   import type { PageData } from './$types';
 
@@ -61,7 +62,7 @@
               No scheduled arrivals for this stop on this day.
             </p>
           {:else}
-            <Timetable {route} departures={timetable.data ?? []} />
+            <Timetable tint={themeManager.tintFor(route)} departures={timetable.data ?? []} />
           {/if}
         </div>
       {/if}

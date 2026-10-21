@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { themeManager } from '$lib/managers/theme.manager.svelte';
+  import { themeManager, type Theme } from '$lib/managers/theme.manager.svelte';
   import MapLibreGL from 'maplibre-gl';
   import 'maplibre-gl/dist/maplibre-gl.css';
   import { PMTiles, Protocol } from 'pmtiles';
@@ -14,7 +14,7 @@
       light?: MapStyleOption;
       dark?: MapStyleOption;
     };
-    theme?: 'light' | 'dark';
+    theme?: Theme;
     /** Map projection type. Use `{ type: "globe" }` for 3D globe view. */
     projection?: MapLibreGL.ProjectionSpecification;
     center?: [number, number];

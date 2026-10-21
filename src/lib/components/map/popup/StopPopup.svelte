@@ -8,7 +8,6 @@
   import { Amenity, EstimateSource, type Route, type Stop } from '$lib/data/types';
   import { liveDataManager } from '$lib/managers/live-data.manager.svelte';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
-  import { getRouteTint } from '$lib/utils/tints';
 
   type Props = {
     route: Route;
@@ -18,7 +17,7 @@
 
   let { stop, route, onclose }: Props = $props();
 
-  const tint = $derived(getRouteTint(route, themeManager.theme));
+  const tint = $derived(themeManager.tintFor(route));
 
   const stopEstimates = useStopEstimate(() => ({ stop }));
   const estimates = $derived(stopEstimates.data.estimates);

@@ -2,7 +2,6 @@
   import MarkerContent from '$lib/components/ui/map/MarkerContent.svelte';
   import type { Bus } from '$lib/data/types';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
-  import { getRouteTint } from '$lib/utils/tints';
   import { getLighterColor } from '$lib/utils/utils';
   import { BusFrontIcon } from '@lucide/svelte';
 
@@ -13,7 +12,7 @@
 
   let { bus, isSelected }: Props = $props();
 
-  const tint = $derived(getRouteTint(bus.route, themeManager.theme));
+  const tint = $derived(themeManager.tintFor(bus.route));
   const borderTint = $derived(getLighterColor(tint));
 </script>
 
