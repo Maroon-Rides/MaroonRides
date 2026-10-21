@@ -37,6 +37,7 @@ function createSocket() {
 }
 
 const latest = () => FakeWebSocket.opened.at(-1)!;
+const PONG_WAIT_MS = 5_000;
 
 beforeEach(() => {
   FakeWebSocket.opened = [];
@@ -92,5 +93,28 @@ describe('LiveSocket', () => {
     socket.connect();
 
     expect(FakeWebSocket.opened).toHaveLength(1);
+  });
+});
+
+describe('LiveSocket heartbeat', () => {
+  it('treats a socket that stops answering pings as lost', async () => {
+    const { socket, states } = createSocket();
+    socket.connect();
+    latest().open();
+    socket.ping();
+    await vi.advanceTimersByTimeAsync(PONG_WAIT_MS);
+
+    expect(states.at(-1)).toBe(ConnectionState.RECONNECTING);
+  });
+
+  it('stays connected while the gateway answers', async () => {
+    const { socket, states } = createSocket();
+    socket.connect();
+    latest().open();
+    socket.ping();
+    latest().onmessage?.({ data: JSON.stringify({ type: 'pong' }) });
+    await vi.advanceTimersByTimeAsync(PONG_WAIT_MS);
+
+    expect(states.at(-1)).toBe(ConnectionState.CONNECTED);
   });
 });

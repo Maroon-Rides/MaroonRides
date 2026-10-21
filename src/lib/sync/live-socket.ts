@@ -11,6 +11,8 @@ const INITIAL_RETRY_DELAY_MS = 1_000;
 const MAX_RETRY_DELAY_MS = 30_000;
 // The gateway drops a client that sends nothing for 60 seconds.
 const PING_INTERVAL_MS = 20_000;
+// An open socket stays open when the network drops, so a missed reply is the only sign it is gone.
+const PONG_TIMEOUT_MS = 5_000;
 
 export enum ConnectionState {
   IDLE = 'idle',
@@ -38,6 +40,7 @@ export class LiveSocket {
     maxDelayMs: MAX_RETRY_DELAY_MS,
   });
   #pingTimer: ReturnType<typeof setInterval> | undefined;
+  #pongTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor(url: string, handlers: LiveSocketHandlers) {
     this.#url = url;
@@ -70,6 +73,14 @@ export class LiveSocket {
     this.#sendSubscription();
   }
 
+  /** Drops the socket if the gateway does not answer in time. */
+  ping() {
+    if (this.#socket?.readyState !== WebSocket.OPEN) return;
+    this.#send({ type: WebsocketMessageType.PING });
+    clearTimeout(this.#pongTimer);
+    this.#pongTimer = setTimeout(() => this.#onSocketLost(), PONG_TIMEOUT_MS);
+  }
+
   #setState(state: ConnectionState) {
     if (state === this.#state) return;
     this.#state = state;
@@ -83,15 +94,13 @@ export class LiveSocket {
 
     socket.onopen = () => {
       this.#retry.reset();
-      this.#pingTimer = setInterval(
-        () => this.#send({ type: WebsocketMessageType.PING }),
-        PING_INTERVAL_MS,
-      );
+      this.#pingTimer = setInterval(() => this.ping(), PING_INTERVAL_MS);
       this.#sendSubscription();
       this.#setState(ConnectionState.CONNECTED);
     };
 
     socket.onmessage = (event) => {
+      clearTimeout(this.#pongTimer);
       const message = websocketServerMessageSchema.safeParse(JSON.parse(event.data));
       if (message.success) this.#handlers.onMessage(message.data);
       else appLogger.w(`Ignoring live socket message: ${message.error.message}`);
@@ -100,16 +109,20 @@ export class LiveSocket {
     socket.onerror = () => socket.close();
 
     socket.onclose = () => {
-      if (this.#socket !== socket) return;
-      this.#closeSocket();
-      if (this.#state === ConnectionState.CONNECTED) this.#setState(ConnectionState.RECONNECTING);
-      const delay = this.#retry.schedule();
-      appLogger.i(`Live socket closed, reconnecting in ${Math.round(delay)} ms`);
+      if (this.#socket === socket) this.#onSocketLost();
     };
+  }
+
+  #onSocketLost() {
+    this.#closeSocket();
+    if (this.#state === ConnectionState.CONNECTED) this.#setState(ConnectionState.RECONNECTING);
+    const delay = this.#retry.schedule();
+    appLogger.i(`Live socket lost, reconnecting in ${Math.round(delay)} ms`);
   }
 
   #closeSocket() {
     clearInterval(this.#pingTimer);
+    clearTimeout(this.#pongTimer);
     const socket = this.#socket;
     this.#socket = null;
     socket?.close();

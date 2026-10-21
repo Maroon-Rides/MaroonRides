@@ -54,6 +54,7 @@ class LiveDataManager {
     this.#onReconnected = onReconnected;
     App.addListener('pause', () => this.#socket.disconnect());
     App.addListener('resume', () => this.#socket.connect());
+    window.addEventListener('offline', () => this.#socket.ping());
     this.#socket.connect();
   }
 
