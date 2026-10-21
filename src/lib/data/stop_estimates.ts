@@ -51,3 +51,34 @@ export function resolveStopEstimates({
   if (timetablesCurrent) return { source, estimates: [] };
   return { source: EstimateSource.UNAVAILABLE, estimates: [] };
 }
+
+export enum EstimateMessage {
+  LOADING = 'Loading departures',
+  UNAVAILABLE = 'Stop estimates unavailable',
+  NO_DEPARTURES = 'No upcoming departures',
+  SCHEDULED = 'Scheduled times',
+  OFFLINE_SCHEDULED = 'Offline, showing scheduled times',
+  ON_TIME = 'On time',
+}
+
+function deviationMessage(estimates: TimeEstimate[]): string {
+  const first = estimates.find((estimate) => estimate.estimatedTime);
+  if (!first?.estimatedTime) return EstimateMessage.ON_TIME;
+
+  const minutes = Math.round(first.estimatedTime.diff(first.scheduledTime, 'minutes').minutes);
+  if (minutes > 0) return `${minutes} min late`;
+  if (minutes < 0) return `${-minutes} min early`;
+  return EstimateMessage.ON_TIME;
+}
+
+export function estimateStatusMessage(
+  { source, estimates }: StopEstimates,
+  isOffline: boolean,
+): string {
+  if (source === EstimateSource.LOADING) return EstimateMessage.LOADING;
+  if (source === EstimateSource.UNAVAILABLE) return EstimateMessage.UNAVAILABLE;
+  if (estimates.length === 0) return EstimateMessage.NO_DEPARTURES;
+  if (source === EstimateSource.SCHEDULE)
+    return isOffline ? EstimateMessage.OFFLINE_SCHEDULED : EstimateMessage.SCHEDULED;
+  return deviationMessage(estimates);
+}

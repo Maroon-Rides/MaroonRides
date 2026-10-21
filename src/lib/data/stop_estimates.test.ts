@@ -2,6 +2,8 @@ import { EstimateSource, type TimeEstimate } from '$lib/data/types';
 import { DateTime } from 'luxon';
 import { describe, expect, it } from 'vitest';
 import {
+  estimateStatusMessage,
+  EstimateMessage,
   resolveStopEstimates,
   toTimeEstimate,
   upcomingEstimates,
@@ -69,5 +71,33 @@ describe('upcomingEstimates', () => {
     const late = at('12:01', '12:10');
     const onTime = at('12:05');
     expect(upcomingEstimates([late, onTime], now)).toEqual([onTime, late]);
+  });
+});
+
+describe('estimateStatusMessage', () => {
+  const live = (estimatedAt: string | null) => ({
+    source: EstimateSource.LIVE,
+    estimates: [toTimeEstimate(DateTime.fromISO('2026-10-10T12:00:00'), estimatedAt)],
+  });
+
+  it('explains an empty list', () => {
+    expect(
+      estimateStatusMessage({ source: EstimateSource.UNAVAILABLE, estimates: [] }, false),
+    ).toBe(EstimateMessage.UNAVAILABLE);
+    expect(estimateStatusMessage({ source: EstimateSource.LIVE, estimates: [] }, false)).toBe(
+      EstimateMessage.NO_DEPARTURES,
+    );
+  });
+
+  it('says when scheduled times are shown because the app is offline', () => {
+    const scheduled = { source: EstimateSource.SCHEDULE, estimates: [estimate] };
+    expect(estimateStatusMessage(scheduled, true)).toBe(EstimateMessage.OFFLINE_SCHEDULED);
+    expect(estimateStatusMessage(scheduled, false)).toBe(EstimateMessage.SCHEDULED);
+  });
+
+  it('reports how far the next live bus is off schedule', () => {
+    expect(estimateStatusMessage(live('2026-10-10T12:03:00'), false)).toBe('3 min late');
+    expect(estimateStatusMessage(live('2026-10-10T11:58:00'), false)).toBe('2 min early');
+    expect(estimateStatusMessage(live(null), false)).toBe(EstimateMessage.ON_TIME);
   });
 });

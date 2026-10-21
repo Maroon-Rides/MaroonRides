@@ -7,14 +7,8 @@
   import Button from '$lib/components/ui/button/button.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { useStopEstimate } from '$lib/data/app';
-  import {
-    Amenity,
-    ESTIMATES_UNAVAILABLE_MESSAGE,
-    EstimateSource,
-    type Direction,
-    type Route,
-    type Stop,
-  } from '$lib/data/types';
+  import { estimateStatusMessage } from '$lib/data/stop_estimates';
+  import { Amenity, type Direction, type Route, type Stop } from '$lib/data/types';
   import { liveDataManager } from '$lib/managers/live-data.manager.svelte';
   import { CalendarIcon } from '@lucide/svelte';
   import { getContext } from 'svelte';
@@ -32,42 +26,8 @@
 
   const effectiveStop = $derived(estimateStop ?? stop);
 
-  const stopEstimates = $derived(useStopEstimate(() => ({ stop: effectiveStop })));
-
-  let subtitle = $derived.by(() => {
-    const source = stopEstimates.data?.source ?? EstimateSource.LOADING;
-    const estimates = stopEstimates.data?.estimates ?? [];
-
-    if (source === EstimateSource.LOADING) {
-      return 'Loading departures';
-    }
-    if (source === EstimateSource.UNAVAILABLE) {
-      return ESTIMATES_UNAVAILABLE_MESSAGE;
-    }
-    if (estimates.length === 0) {
-      return 'No upcoming departures';
-    }
-    if (source === EstimateSource.SCHEDULE) {
-      return liveDataManager.isOffline ? 'Offline, showing scheduled times' : 'Scheduled times';
-    }
-
-    const firstEstimate = estimates.find((estimate) => estimate.estimatedTime);
-    if (!firstEstimate?.estimatedTime) {
-      return 'On time';
-    }
-
-    const deviationMinutes = Math.round(
-      firstEstimate.estimatedTime.diff(firstEstimate.scheduledTime, 'minutes').minutes,
-    );
-
-    if (deviationMinutes === 0) {
-      return 'On time';
-    } else if (deviationMinutes > 0) {
-      return `${deviationMinutes} min late`;
-    } else {
-      return `${Math.abs(deviationMinutes)} min early`;
-    }
-  });
+  const stopEstimates = useStopEstimate(() => ({ stop: effectiveStop }));
+  const subtitle = $derived(estimateStatusMessage(stopEstimates.data, liveDataManager.isOffline));
 </script>
 
 <div class="px-4 py-2">
@@ -100,7 +60,7 @@
   </div>
   <div class="mt-2 flex items-center justify-between">
     {#if route && direction}
-      <EstimateRow {route} stop={effectiveStop} />
+      <EstimateRow {route} estimates={stopEstimates.data} />
     {/if}
     <Button
       variant="outline"

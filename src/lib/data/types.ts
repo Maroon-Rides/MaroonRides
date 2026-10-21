@@ -98,8 +98,6 @@ export enum EstimateSource {
   UNAVAILABLE = 'unavailable',
 }
 
-export const ESTIMATES_UNAVAILABLE_MESSAGE = 'Stop estimates unavailable';
-
 export interface StopEstimates {
   source: EstimateSource;
   estimates: TimeEstimate[];

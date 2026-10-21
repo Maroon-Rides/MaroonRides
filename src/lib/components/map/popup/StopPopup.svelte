@@ -4,13 +4,9 @@
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
   import TimeBubble from '$lib/components/TimeBubble.svelte';
   import { useStopEstimate } from '$lib/data/app';
-  import {
-    Amenity,
-    ESTIMATES_UNAVAILABLE_MESSAGE,
-    EstimateSource,
-    type Route,
-    type Stop,
-  } from '$lib/data/types';
+  import { estimateStatusMessage } from '$lib/data/stop_estimates';
+  import { Amenity, EstimateSource, type Route, type Stop } from '$lib/data/types';
+  import { liveDataManager } from '$lib/managers/live-data.manager.svelte';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
   import { getRouteTint } from '$lib/utils/tints';
 
@@ -24,9 +20,8 @@
 
   const tint = $derived(getRouteTint(route, themeManager.theme));
 
-  const stopEstimates = $derived(useStopEstimate(() => ({ stop })));
-  const source = $derived(stopEstimates.data?.source ?? EstimateSource.LOADING);
-  const estimates = $derived(stopEstimates.data?.estimates ?? []);
+  const stopEstimates = useStopEstimate(() => ({ stop }));
+  const estimates = $derived(stopEstimates.data.estimates);
 </script>
 
 <MapPopup
@@ -55,12 +50,12 @@
   </div>
 
   <div class="flex items-center justify-center gap-1" style="--tint: {tint}">
-    {#if source === EstimateSource.LOADING}
+    {#if stopEstimates.data.source === EstimateSource.LOADING}
       <Spinner class="size-4 self-center" />
-    {:else if source === EstimateSource.UNAVAILABLE}
-      <p class="text-center text-xs text-muted-foreground">{ESTIMATES_UNAVAILABLE_MESSAGE}</p>
     {:else if estimates.length === 0}
-      <p class="text-center text-xs text-muted-foreground">No upcoming departures</p>
+      <p class="text-center text-xs text-muted-foreground">
+        {estimateStatusMessage(stopEstimates.data, liveDataManager.isOffline)}
+      </p>
     {/if}
 
     {#each estimates as estimate, i}
