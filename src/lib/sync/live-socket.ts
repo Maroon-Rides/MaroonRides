@@ -8,7 +8,7 @@ import { appLogger } from '$lib/utils/logger';
 import { RetryScheduler } from '$lib/utils/retry-scheduler';
 
 const INITIAL_RETRY_DELAY_MS = 1_000;
-const MAX_RETRY_DELAY_MS = 30_000;
+const MAX_RETRY_DELAY_MS = 10_000;
 // The gateway drops a client that sends nothing for 60 seconds.
 const PING_INTERVAL_MS = 20_000;
 // An open socket stays open when the network drops, so a missed reply is the only sign it is gone.
