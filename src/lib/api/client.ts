@@ -1,5 +1,6 @@
 import createClient from 'openapi-fetch';
 import type { components, paths } from './openapi';
+import { SyncLineError, SyncStatusError } from '$lib/sync/sync-errors';
 import { syncStreamLineSchema } from './sync-lines';
 
 const PRODUCTION_API_URL = 'https://api.maroonrides.app';
@@ -13,6 +14,7 @@ export type SyncRequest = Schemas['SyncRequest'];
 export type SyncRequestType = Schemas['SyncRequestType'];
 export type SyncEntityType = Schemas['SyncEntityType'];
 export type SyncStreamLine = Schemas['SyncStreamLine'];
+export type ReportEvent = Schemas['ReportEvent'];
 export type TripPlanRequest = Schemas['TripPlanRequest'];
 export type TripItinerary = Schemas['TripItinerary'];
 export type TripLeg = Schemas['TripLeg'];
@@ -29,13 +31,25 @@ export async function getSupportedVersion(): Promise<string> {
 }
 
 export async function syncStream(body: SyncRequest): Promise<SyncStreamLine[]> {
-  const { data, error } = await client.POST('/api/sync/stream', { body, parseAs: 'text' });
-  if (error) throw new Error(`sync stream failed: ${error.detail}`);
+  const { data, error, response } = await client.POST('/api/sync/stream', {
+    body,
+    parseAs: 'text',
+  });
+  if (error) throw new SyncStatusError(response.status, error.detail);
 
-  return data
-    .split(LINE_SEPARATOR)
-    .filter(Boolean)
-    .map((line) => syncStreamLineSchema.parse(JSON.parse(line)) satisfies SyncStreamLine);
+  try {
+    return data
+      .split(LINE_SEPARATOR)
+      .filter(Boolean)
+      .map((line) => syncStreamLineSchema.parse(JSON.parse(line)) satisfies SyncStreamLine);
+  } catch (cause) {
+    throw new SyncLineError(`unreadable sync line: ${cause}`, { cause });
+  }
+}
+
+export async function report(events: ReportEvent[]): Promise<void> {
+  const { error, response } = await client.POST('/api/reports', { body: { events } });
+  if (error) throw new Error(`report failed with ${response.status}: ${error.detail}`);
 }
 
 export async function planTrip(body: TripPlanRequest): Promise<TripItinerary[]> {

@@ -4,6 +4,36 @@
  */
 
 export interface paths {
+  '/api/reports': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Report client events
+     * @description #### Controller:
+     *
+     *     `github.com/MaroonRides/api/apps/gateway/controllers.(*ReportController).report`
+     *
+     *     #### Middlewares:
+     *
+     *     - `github.com/MaroonRides/api/apps/gateway/controllers.limitBody`
+     *
+     *     ---
+     *
+     *     Records each event. An event with an unknown type or a bad payload is dropped without failing the rest.
+     */
+    post: operations['report'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/sync/stream': {
     parameters: {
       query?: never;
@@ -166,6 +196,20 @@ export interface components {
       /** @description URL of the error type. Can be used to lookup the error in a documentation */
       type?: string;
     };
+    ReportEvent:
+      | components['schemas']['SyncFailedHTTPStatusV1Event']
+      | components['schemas']['SyncFailedInvalidLineV1Event']
+      | components['schemas']['SyncFailedApplyV1Event'];
+    /**
+     * ReportEventType
+     * @description ReportEventType schema
+     * @enum {string}
+     */
+    ReportEventType: 'SyncFailedHTTPStatusV1' | 'SyncFailedInvalidLineV1' | 'SyncFailedApplyV1';
+    /** @description ReportRequest schema */
+    ReportRequest: {
+      events: components['schemas']['ReportEvent'][] | null;
+    };
     RouteDeleteV1Line: {
       ack: string;
       data: components['schemas']['SyncRouteDeleteV1'];
@@ -285,6 +329,49 @@ export interface components {
       | 'TimetableDeleteV1'
       | 'SyncResetV1'
       | 'SyncCompleteV1';
+    /** @description SyncFailedApplyV1 schema */
+    SyncFailedApplyV1: {
+      acks: string[] | null;
+      message?: string;
+      protocol: components['schemas']['SyncProtocolVersion'];
+    };
+    SyncFailedApplyV1Event: {
+      payload: components['schemas']['SyncFailedApplyV1'];
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'SyncFailedApplyV1';
+    };
+    /** @description SyncFailedHTTPStatusV1 schema */
+    SyncFailedHTTPStatusV1: {
+      acks: string[] | null;
+      message?: string;
+      protocol: components['schemas']['SyncProtocolVersion'];
+      status: number;
+    };
+    SyncFailedHTTPStatusV1Event: {
+      payload: components['schemas']['SyncFailedHTTPStatusV1'];
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'SyncFailedHTTPStatusV1';
+    };
+    /** @description SyncFailedInvalidLineV1 schema */
+    SyncFailedInvalidLineV1: {
+      acks: string[] | null;
+      message?: string;
+      protocol: components['schemas']['SyncProtocolVersion'];
+    };
+    SyncFailedInvalidLineV1Event: {
+      payload: components['schemas']['SyncFailedInvalidLineV1'];
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'SyncFailedInvalidLineV1';
+    };
     /** @enum {integer} */
     SyncProtocolVersion: 1;
     /** @description SyncRequest schema */
@@ -494,6 +581,53 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+  report: {
+    parameters: {
+      query?: never;
+      header?: {
+        Accept?: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Request body for dtos.ReportRequest */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReportRequest'];
+      };
+    };
+    responses: {
+      /** @description No Content */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['unknown-interface'];
+        };
+      };
+      /** @description Bad Request _(validation or deserialization error)_ */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPError'];
+          'application/xml': components['schemas']['HTTPError'];
+        };
+      };
+      /** @description Internal Server Error _(panics)_ */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPError'];
+          'application/xml': components['schemas']['HTTPError'];
+        };
+      };
+    };
+  };
   syncStream: {
     parameters: {
       query?: never;

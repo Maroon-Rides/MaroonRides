@@ -2,6 +2,8 @@ import { getSupportedVersion, syncStream } from '$lib/api/client';
 import { db } from '$lib/db/database';
 import { syncAck, timetable } from '$lib/db/schema';
 import { TODAY_SQL } from '$lib/db/sql';
+import { SyncApplyError } from '$lib/sync/sync-errors';
+import { SyncFailureReporter } from '$lib/sync/sync-reporter';
 import {
   isResetStream,
   planFullSync,
@@ -26,10 +28,14 @@ export enum VersionStatus {
   UNSUPPORTED = 'unsupported',
 }
 
-function applyAll(statements: Statement[]) {
-  return db.transaction(async () => {
-    for (const statement of statements) await statement;
-  });
+async function applyAll(statements: Statement[]) {
+  try {
+    await db.transaction(async () => {
+      for (const statement of statements) await statement;
+    });
+  } catch (cause) {
+    throw new SyncApplyError(`sync apply failed: ${describeError(cause)}`, { cause });
+  }
 }
 
 function fetchLines(acks: string[]) {
@@ -48,6 +54,7 @@ class SyncManager {
     initialDelayMs: INITIAL_RETRY_DELAY_MS,
     maxDelayMs: MAX_RETRY_DELAY_MS,
   });
+  readonly #reporter = new SyncFailureReporter();
   // Writes run one at a time, since web SQLite has no locking of its own.
   #queue: Promise<void> = Promise.resolve();
 
@@ -116,12 +123,12 @@ class SyncManager {
   }
 
   async #runSync() {
-    const acks = await db.select({ ack: syncAck.ack }).from(syncAck);
-    const lines = await fetchLines(acks.map(({ ack }) => ack));
+    const acks = (await db.select({ ack: syncAck.ack }).from(syncAck)).map(({ ack }) => ack);
+    const lines = await this.#reporter.watch(acks, fetchLines(acks));
     if (isResetStream(lines)) return this.#fullSync();
 
     try {
-      await applyAll(planSync(lines));
+      await this.#reporter.watch(acks, applyAll(planSync(lines)));
       appLogger.i(`Applied ${lines.length} sync lines`);
     } catch (error) {
       appLogger.w(`Incremental sync failed, running a full sync: ${describeError(error)}`);
@@ -130,8 +137,8 @@ class SyncManager {
   }
 
   async #fullSync() {
-    const lines = await fetchLines([]);
-    await applyAll(planFullSync(lines));
+    const lines = await this.#reporter.watch([], fetchLines([]));
+    await this.#reporter.watch([], applyAll(planFullSync(lines)));
     appLogger.i(`Replaced local data with ${lines.length} sync lines`);
   }
 }

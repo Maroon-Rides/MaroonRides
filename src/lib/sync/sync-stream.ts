@@ -1,4 +1,4 @@
-import type { SyncEntityType, SyncRequestType, SyncStreamLine } from '$lib/api/client';
+import type { SyncEntityType, SyncRequest, SyncRequestType, SyncStreamLine } from '$lib/api/client';
 import { db } from '$lib/db/database';
 import {
   alert,
@@ -14,7 +14,7 @@ import { getTableColumns, inArray, sql } from 'drizzle-orm';
 import type { SQLiteColumn, SQLiteTable, SQLiteUpdateSetSource } from 'drizzle-orm/sqlite-core';
 import { chunk } from 'lodash-es';
 
-export const SYNC_PROTOCOL_V1 = 1;
+export const SYNC_PROTOCOL_V1: SyncRequest['protocol'] = 1;
 
 export const SYNC_REQUEST_TYPES: SyncRequestType[] = [
   'RoutesV1',
