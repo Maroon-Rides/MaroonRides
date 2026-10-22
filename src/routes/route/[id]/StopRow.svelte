@@ -9,7 +9,6 @@
   import { useStopEstimate } from '$lib/data/app';
   import { estimateStatusMessage } from '$lib/data/stop_estimates';
   import { Amenity, type Direction, type Route, type Stop } from '$lib/data/types';
-  import { liveDataManager } from '$lib/managers/live-data.manager.svelte';
   import { CalendarIcon } from '@lucide/svelte';
   import { getContext } from 'svelte';
 
@@ -27,7 +26,7 @@
   const effectiveStop = $derived(estimateStop ?? stop);
 
   const stopEstimates = useStopEstimate(() => ({ stop: effectiveStop }));
-  const subtitle = $derived(estimateStatusMessage(stopEstimates.data, liveDataManager.isOffline));
+  const subtitle = $derived(estimateStatusMessage(stopEstimates.data));
 </script>
 
 <div class="px-4 py-2">

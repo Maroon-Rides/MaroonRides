@@ -57,7 +57,7 @@ export enum EstimateMessage {
   UNAVAILABLE = 'Stop estimates unavailable',
   NO_DEPARTURES = 'No upcoming departures',
   SCHEDULED = 'Scheduled times',
-  OFFLINE_SCHEDULED = 'Offline, showing scheduled times',
+  OFFLINE = 'Offline, live estimates unavailable',
   ON_TIME = 'On time',
 }
 
@@ -71,14 +71,10 @@ function deviationMessage(estimates: TimeEstimate[]): string {
   return EstimateMessage.ON_TIME;
 }
 
-export function estimateStatusMessage(
-  { source, estimates }: StopEstimates,
-  isOffline: boolean,
-): string {
+export function estimateStatusMessage({ source, estimates }: StopEstimates): string {
   if (source === EstimateSource.LOADING) return EstimateMessage.LOADING;
   if (source === EstimateSource.UNAVAILABLE) return EstimateMessage.UNAVAILABLE;
   if (estimates.length === 0) return EstimateMessage.NO_DEPARTURES;
-  if (source === EstimateSource.SCHEDULE)
-    return isOffline ? EstimateMessage.OFFLINE_SCHEDULED : EstimateMessage.SCHEDULED;
+  if (source === EstimateSource.SCHEDULE) return EstimateMessage.SCHEDULED;
   return deviationMessage(estimates);
 }

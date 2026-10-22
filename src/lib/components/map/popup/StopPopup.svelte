@@ -6,7 +6,6 @@
   import { useStopEstimate } from '$lib/data/app';
   import { estimateStatusMessage } from '$lib/data/stop_estimates';
   import { Amenity, EstimateSource, type Route, type Stop } from '$lib/data/types';
-  import { liveDataManager } from '$lib/managers/live-data.manager.svelte';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
 
   type Props = {
@@ -53,7 +52,7 @@
       <Spinner class="size-4 self-center" />
     {:else if estimates.length === 0}
       <p class="text-center text-xs text-muted-foreground">
-        {estimateStatusMessage(stopEstimates.data, liveDataManager.isOffline)}
+        {estimateStatusMessage(stopEstimates.data)}
       </p>
     {/if}
 

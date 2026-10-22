@@ -10,8 +10,10 @@
   import Toggle from '$lib/components/ui/toggle/toggle.svelte';
   import { useAlerts, useRoute } from '$lib/data/app';
   import { frontPageManager } from '$lib/managers/frontpage.manager.svelte';
+  import { EstimateMessage } from '$lib/data/stop_estimates';
+  import { liveDataManager } from '$lib/managers/live-data.manager.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
-  import { Bell, BellRing, Star } from '@lucide/svelte';
+  import { Bell, BellRing, CloudOff, Star } from '@lucide/svelte';
   import { untrack } from 'svelte';
   import type { PageData } from './$types';
 
@@ -92,6 +94,13 @@
     {/snippet}
     {#if selectedDirection && route}
       <div class="pb-4">
+        {#if liveDataManager.isOffline}
+          <div class="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground">
+            <CloudOff class="size-4" />
+            {EstimateMessage.OFFLINE}
+          </div>
+          <hr class="ml-4" />
+        {/if}
         {#each selectedDirection?.stops ?? [] as stop, i (`${stop.id}-${selectedDirection?.id}-${i}`)}
           {@const isLast = i === (selectedDirection?.stops.length ?? 0) - 1}
           {@const altDirection = isLast

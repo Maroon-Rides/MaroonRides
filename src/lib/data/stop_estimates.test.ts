@@ -81,23 +81,22 @@ describe('estimateStatusMessage', () => {
   });
 
   it('explains an empty list', () => {
-    expect(
-      estimateStatusMessage({ source: EstimateSource.UNAVAILABLE, estimates: [] }, false),
-    ).toBe(EstimateMessage.UNAVAILABLE);
-    expect(estimateStatusMessage({ source: EstimateSource.LIVE, estimates: [] }, false)).toBe(
+    expect(estimateStatusMessage({ source: EstimateSource.UNAVAILABLE, estimates: [] })).toBe(
+      EstimateMessage.UNAVAILABLE,
+    );
+    expect(estimateStatusMessage({ source: EstimateSource.LIVE, estimates: [] })).toBe(
       EstimateMessage.NO_DEPARTURES,
     );
   });
 
-  it('says when scheduled times are shown because the app is offline', () => {
+  it('says when scheduled times are shown', () => {
     const scheduled = { source: EstimateSource.SCHEDULE, estimates: [estimate] };
-    expect(estimateStatusMessage(scheduled, true)).toBe(EstimateMessage.OFFLINE_SCHEDULED);
-    expect(estimateStatusMessage(scheduled, false)).toBe(EstimateMessage.SCHEDULED);
+    expect(estimateStatusMessage(scheduled)).toBe(EstimateMessage.SCHEDULED);
   });
 
   it('reports how far the next live bus is off schedule', () => {
-    expect(estimateStatusMessage(live('2026-10-10T12:03:00'), false)).toBe('3 min late');
-    expect(estimateStatusMessage(live('2026-10-10T11:58:00'), false)).toBe('2 min early');
-    expect(estimateStatusMessage(live(null), false)).toBe(EstimateMessage.ON_TIME);
+    expect(estimateStatusMessage(live('2026-10-10T12:03:00'))).toBe('3 min late');
+    expect(estimateStatusMessage(live('2026-10-10T11:58:00'))).toBe('2 min early');
+    expect(estimateStatusMessage(live(null))).toBe(EstimateMessage.ON_TIME);
   });
 });
