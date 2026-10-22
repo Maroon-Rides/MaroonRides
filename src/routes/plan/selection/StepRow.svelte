@@ -1,7 +1,8 @@
 <script lang="ts">
   import * as Accordion from '$lib/components/ui/accordion';
   import { Badge } from '$lib/components/ui/badge';
-  import { PlanOption, type WalkingInstruction } from '$lib/data/types';
+  import type { TripWalkStep } from '$lib/api/client';
+  import { PlanOption } from '$lib/data/types';
   import { cn } from '$lib/utils';
   import InstructionsList from './InstructionsList.svelte';
 
@@ -10,7 +11,7 @@
     icon: PlanOption;
     time: string;
     content: string;
-    instructions: WalkingInstruction[];
+    instructions: TripWalkStep[];
     isFirst?: boolean;
     isLast?: boolean;
   };
@@ -56,7 +57,7 @@
         !instructions.length && '**:data-[slot=accordion-trigger-icon]:hidden!',
       )}
     >
-      <span>{@html content}</span>
+      <span>{content}</span>
     </Accordion.Trigger>
     {#if instructions.length}
       <Accordion.Content>

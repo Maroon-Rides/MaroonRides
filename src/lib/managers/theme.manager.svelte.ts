@@ -1,7 +1,14 @@
+import type { Route } from '$lib/data/types';
 import { mode } from 'mode-watcher';
 
+export type Theme = 'light' | 'dark';
+
 class ThemeManager {
-  readonly theme: 'light' | 'dark' = $derived(mode.current ?? 'light');
+  readonly theme: Theme = $derived(mode.current ?? 'light');
+
+  tintFor(route: Route): string {
+    return this.theme === 'light' ? route.lightColor : route.darkColor;
+  }
 }
 
 // Persist themeManager across Svelte HMRs

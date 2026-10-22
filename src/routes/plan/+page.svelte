@@ -9,13 +9,13 @@
   import { Spinner } from '$lib/components/ui/spinner';
   import * as Tabs from '$lib/components/ui/tabs';
   import { MyLocation, PlanOption } from '$lib/data/types';
-  import { planManager, usePlanState } from '$lib/managers/plan.manager.svelte';
+  import { planManager } from '$lib/managers/plan.manager.svelte';
   import { ArrowUpDown, Circle, CircleAlert, MapPin } from '@lucide/svelte';
-  import { Duration } from 'luxon';
+  import { arrivalLabel, formatTripDuration, hasBusLeg } from '$lib/utils/route-planning';
   import LocationInput from './LocationInput.svelte';
   import SelectionRow from './SelectionRow.svelte';
 
-  usePlanState();
+  planManager.attachQueries();
 
   async function onClose() {
     await goto('/');
@@ -25,16 +25,6 @@
   function onSwap() {
     planManager.swapLocations();
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-  }
-
-  function relTime(seconds: number): string {
-    const { hours, minutes } = Duration.fromMillis(seconds * 1e3)
-      .shiftTo('hours', 'minutes')
-      .toObject();
-    return Duration.fromObject({
-      minutes: Math.floor(minutes ?? 0),
-      ...(hours && { hours }),
-    }).toHuman();
   }
 </script>
 
@@ -58,7 +48,7 @@
               bind:value={planManager.start.searchTerm}
               location={planManager.start.location?.type}
               component={Circle}
-              oninput={() => (planManager.start.location = null)}
+              oninput={() => planManager.start.clear()}
               onfocus={() => planManager.focus('start')}
             />
             <!-- dots -->
@@ -72,7 +62,7 @@
               bind:value={planManager.end.searchTerm}
               location={planManager.end.location?.type}
               component={MapPin}
-              oninput={() => (planManager.end.location = null)}
+              oninput={() => planManager.end.clear()}
               onfocus={() => planManager.focus('end')}
             />
           </div>
@@ -129,7 +119,7 @@
                 <SelectionRow
                   icon={PlanOption.BUS}
                   title={suggestion.name}
-                  subtitle={`ID: ${suggestion.id}`}
+                  subtitle={suggestion.description}
                   sideArrow={false}
                   onclick={() => planManager.selectSuggestion(suggestion)}
                 />
@@ -142,9 +132,9 @@
                 <Item.Separator class="my-0" />
               {/if}
               <SelectionRow
-                icon={planManager.hasBus(plan) ? PlanOption.BUS : PlanOption.WALKING}
-                title={relTime(plan.endTime - plan.startTime)}
-                subtitle={`Arrive at ${plan.endTimeText}`}
+                icon={hasBusLeg(plan) ? PlanOption.BUS : PlanOption.WALKING}
+                title={formatTripDuration(plan)}
+                subtitle={arrivalLabel(plan)}
                 sideArrow={true}
                 onclick={() => {
                   planManager.selectedPlan = plan;

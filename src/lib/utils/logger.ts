@@ -40,3 +40,8 @@ class Logger {
 const logLevel = LogLevel.INFO;
 export const queryLogger = new Logger('QUERY', logLevel);
 export const appLogger = new Logger('APP', logLevel);
+
+// drizzle wraps driver errors, so the SQLite message is only on the cause.
+export function describeError(error: unknown): string {
+  return error instanceof Error && error.cause ? `${error} (cause: ${error.cause})` : `${error}`;
+}

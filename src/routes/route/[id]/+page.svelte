@@ -8,31 +8,24 @@
   import Button from '$lib/components/ui/button/button.svelte';
   import * as Tabs from '$lib/components/ui/tabs';
   import Toggle from '$lib/components/ui/toggle/toggle.svelte';
-  import { useAlerts, useRoutes } from '$lib/data/app';
+  import { useAlerts, useRoute } from '$lib/data/app';
+  import { frontPageManager } from '$lib/managers/frontpage.manager.svelte';
+  import { EstimateMessage } from '$lib/data/stop_estimates';
+  import { liveDataManager } from '$lib/managers/live-data.manager.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
-  import { toggleFavorite } from '$lib/utils/prefs';
-  import { Preferences } from '@capacitor/preferences';
-  import { Bell, BellRing, Star } from '@lucide/svelte';
-  import { onMount, untrack } from 'svelte';
+  import { Bell, BellRing, CloudOff, Star } from '@lucide/svelte';
+  import { untrack } from 'svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
 
-  const routes = useRoutes();
-  const route = $derived(routes.data?.find((r) => r.id === data.routeId) ?? null);
-  const alerts = useAlerts(() => ({ route }));
-  let isFavorite = $state(false);
+  const routeQuery = useRoute(() => ({ routeId: data.routeId }));
+  const route = $derived(routeQuery.data ?? null);
+  const alerts = useAlerts(() => ({ routeId: data.routeId }));
+  const isFavorite = $derived(!!route && frontPageManager.isFavorite(route.routeCode));
   const selectedDirection = $derived(
     route?.directions.find((d) => d.id === mapManager.selectedDirectionId) ?? null,
   );
-
-  onMount(async () => {
-    const favoritedRoutes = JSON.parse(
-      (await Preferences.get({ key: 'favorites' })).value ?? '[]',
-    ) as string[];
-
-    isFavorite = favoritedRoutes.includes(route?.routeCode ?? '');
-  });
 
   $effect(() => {
     mapManager.setSelectedRoute(route);
@@ -67,8 +60,8 @@
             variant="outline"
             size="md"
             class="rounded-full data-[state=on]:bg-transparent dark:bg-muted data-[state=on]:*:[svg]:fill-yellow-500 data-[state=on]:*:[svg]:stroke-yellow-500"
-            onclick={() => toggleFavorite(route?.routeCode ?? '')}
-            bind:pressed={isFavorite}
+            disabled={!route}
+            bind:pressed={() => isFavorite, () => frontPageManager.toggleFavorite(route!.routeCode)}
           >
             <Star class="size-4" />
             Favorite
@@ -79,7 +72,7 @@
             class="rounded-full"
             onclick={() => goto(`/route/${route?.id}/alerts`)}
           >
-            {#if alerts.data?.length ?? 0 > 0}
+            {#if (alerts.data?.length ?? 0) > 0}
               <BellRing class="size-4" />
             {:else}
               <Bell class="size-4" />
@@ -101,6 +94,13 @@
     {/snippet}
     {#if selectedDirection && route}
       <div class="pb-4">
+        {#if liveDataManager.isOffline}
+          <div class="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground">
+            <CloudOff class="size-4" />
+            {EstimateMessage.OFFLINE}
+          </div>
+          <hr class="ml-4" />
+        {/if}
         {#each selectedDirection?.stops ?? [] as stop, i (`${stop.id}-${selectedDirection?.id}-${i}`)}
           {@const isLast = i === (selectedDirection?.stops.length ?? 0) - 1}
           {@const altDirection = isLast
@@ -112,7 +112,6 @@
             {stop}
             direction={selectedDirection}
             {route}
-            estimateDirection={isLast ? altDirection : undefined}
             estimateStop={isLast ? altDirection?.stops[0] : undefined}
           />
           {#if i < (selectedDirection?.stops.length ?? 0) - 1}

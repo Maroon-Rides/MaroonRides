@@ -6,7 +6,8 @@
   import TimepointAttribute from '$lib/components/TimepointAttribute.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
-  import { useStopAmenities, useStopEstimate } from '$lib/data/app';
+  import { useStopEstimate } from '$lib/data/app';
+  import { estimateStatusMessage } from '$lib/data/stop_estimates';
   import { Amenity, type Direction, type Route, type Stop } from '$lib/data/types';
   import { CalendarIcon } from '@lucide/svelte';
   import { getContext } from 'svelte';
@@ -15,49 +16,17 @@
     stop: Stop;
     route: Route;
     direction: Direction;
-    estimateDirection?: Direction;
     estimateStop?: Stop;
   };
 
-  let { stop, route, direction, estimateDirection, estimateStop }: Props = $props();
+  let { stop, route, direction, estimateStop }: Props = $props();
 
   const sheet = getContext<BottomSheetContext>('bottom-sheet');
 
-  const effectiveDirection = $derived(estimateDirection ?? direction);
   const effectiveStop = $derived(estimateStop ?? stop);
 
-  const { data: estimates, isLoading } = $derived(
-    useStopEstimate(() => ({
-      route: route,
-      direction: effectiveDirection,
-      stop: effectiveStop,
-    })),
-  );
-
-  const { data: stopAmenities } = $derived(useStopAmenities(() => ({ route, direction, stop })));
-
-  let subtitle = $derived.by(() => {
-    if (!estimates || estimates.length === 0) {
-      return 'No upcoming departures';
-    }
-
-    const firstEstimate = estimates.find((estimate) => estimate.estimatedTime);
-    if (!firstEstimate?.estimatedTime) {
-      return 'On time';
-    }
-
-    const deviationMinutes = Math.round(
-      firstEstimate.estimatedTime.diff(firstEstimate.scheduledTime, 'minutes'),
-    );
-
-    if (deviationMinutes === 0) {
-      return 'On time';
-    } else if (deviationMinutes > 0) {
-      return `${deviationMinutes} min late`;
-    } else {
-      return `${Math.abs(deviationMinutes)} min early`;
-    }
-  });
+  const stopEstimates = useStopEstimate(() => ({ stop: effectiveStop }));
+  const subtitle = $derived(estimateStatusMessage(stopEstimates.data));
 </script>
 
 <div class="px-4 py-2">
@@ -77,10 +46,11 @@
     </div>
 
     <div class="mt-1 flex items-center gap-2">
-      {#each stopAmenities ?? [] as amenity}
-        {#if amenity === Amenity.TIME_POINT}
-          <TimepointAttribute />
-        {:else}
+      {#if stop.isTimepoint}
+        <TimepointAttribute />
+      {/if}
+      {#each stop.amenities as amenity}
+        {#if amenity !== Amenity.TIME_POINT}
           {@const AmenityIcon = Amenity.getIcon(amenity)}
           <AmenityIcon class="size-6 text-muted-foreground" />
         {/if}
@@ -89,7 +59,7 @@
   </div>
   <div class="mt-2 flex items-center justify-between">
     {#if route && direction}
-      <EstimateRow {route} direction={effectiveDirection} stop={effectiveStop} />
+      <EstimateRow {route} estimates={stopEstimates.data} />
     {/if}
     <Button
       variant="outline"

@@ -1,15 +1,16 @@
-import { useSearchSuggestions, useTripPlan } from '$lib/data/route_planning';
+import type { TripItinerary } from '$lib/api/client';
+import { useStopSearch, useTripPlan } from '$lib/data/route_planning';
 import {
-  MovementType,
+  Deadline,
   MyLocation,
   PlaceType,
+  type Location,
   type PlaceSuggestion,
-  type PlanItem,
 } from '$lib/data/types';
 import { Geolocation } from '@capacitor/geolocation';
-import type { CreateQueryResult } from '@tanstack/svelte-query';
-import { debounce, sortBy } from 'lodash-es';
+import { sortBy } from 'lodash-es';
 import { DateTime } from 'luxon';
+import { Debounced, resource } from 'runed';
 
 type EndpointKey = 'start' | 'end';
 
@@ -20,7 +21,6 @@ class PlanEndpoint {
   searchTerm = $state('');
 
   isMyLocation = $derived(this.location?.type === PlaceType.MY_LOCATION);
-  needsMyLocation = $derived(this.isMyLocation && !this.location?.location);
 
   select(place: PlaceSuggestion | null) {
     this.location = place;
@@ -31,6 +31,40 @@ class PlanEndpoint {
     if (this.isMyLocation) this.searchTerm = '';
     this.location = null;
   }
+
+  clear() {
+    this.location = null;
+  }
+}
+
+// A position read for a choice the user has since changed is dropped instead of applied.
+async function currentPosition(signal: AbortSignal): Promise<Location> {
+  const { coords } = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+  if (signal.aborted) throw new DOMException('Position no longer needed', 'AbortError');
+  return { latitude: coords.latitude, longitude: coords.longitude };
+}
+
+/** The searches and lookups behind the plan page. They live as long as the page that made them. */
+class PlanQueries {
+  readonly debouncedSearchTerm: Debounced<string>;
+  readonly myLocation;
+  readonly suggestions;
+  readonly tripPlan;
+
+  constructor(plan: PlanManager) {
+    this.debouncedSearchTerm = new Debounced(() => plan.activeSearchTerm, SEARCH_DEBOUNCE_MS);
+    this.myLocation = resource(
+      () => plan.wantsMyLocation,
+      (wanted, _, { signal }) => (wanted ? currentPosition(signal) : Promise.resolve(undefined)),
+    );
+    this.suggestions = useStopSearch(() => ({ query: this.debouncedSearchTerm.current }));
+    this.tripPlan = useTripPlan(() => ({
+      origin: plan.origin,
+      destination: plan.destination,
+      date: plan.planTime.toJSDate(),
+      deadline: plan.deadline,
+    }));
+  }
 }
 
 class PlanManager {
@@ -39,38 +73,43 @@ class PlanManager {
 
   activeInput = $state<EndpointKey | null>(null);
   planTime = $state<DateTime>(DateTime.now());
-  deadline = $state<'leave' | 'arrive'>('leave');
-  selectedPlan = $state<PlanItem | null>(null);
-  shownInstruction = $state(-1);
-  locationDenied = $state(false);
+  deadline = $state<Deadline>(Deadline.LEAVE_BY);
+  selectedPlan = $state<TripItinerary | null>(null);
+  shownInstruction = $state<number | null>(null);
 
-  suggestionsQuery = $state<CreateQueryResult<PlaceSuggestion[], Error> | null>(null);
-  tripPlanQuery = $state<CreateQueryResult<PlanItem[], Error> | null>(null);
-
-  searchQuery = $state('');
-  updateSearchQuery = debounce((term: string) => (this.searchQuery = term), SEARCH_DEBOUNCE_MS);
-
-  #locationSeq = 0;
+  #queries = $state<PlanQueries | null>(null);
 
   activeEndpoint = $derived(this.activeInput ? this[this.activeInput] : null);
   activeSearchTerm = $derived(this.activeEndpoint?.searchTerm ?? '');
   showMyLocation = $derived(!!this.activeEndpoint && !this.activeEndpoint.searchTerm);
-  needsMyLocation = $derived(this.start.needsMyLocation || this.end.needsMyLocation);
-  locationError = $derived(
-    (this.start.isMyLocation || this.end.isMyLocation) && this.locationDenied,
+
+  wantsMyLocation = $derived(this.start.isMyLocation || this.end.isMyLocation);
+  locationError = $derived(this.wantsMyLocation && !!this.#queries?.myLocation.error);
+  awaitingLocation = $derived(
+    !this.activeInput &&
+      !!this.start.location &&
+      !!this.end.location &&
+      this.wantsMyLocation &&
+      !this.#queries?.myLocation.current,
   );
+  origin = $derived(this.#withMyLocation(this.start.location));
+  destination = $derived(this.#withMyLocation(this.end.location));
 
-  searchPending = $derived(this.searchQuery !== this.activeSearchTerm);
+  searchPending = $derived(!!this.#queries?.debouncedSearchTerm.pending);
 
-  suggestions = $derived(this.activeSearchTerm.trim() ? (this.suggestionsQuery?.data ?? []) : []);
-  plans = $derived(sortBy(this.tripPlanQuery?.data ?? [], 'endTime'));
+  suggestions = $derived(
+    this.activeSearchTerm.trim() ? (this.#queries?.suggestions.data ?? []) : [],
+  );
+  plans = $derived(sortBy(this.#queries?.tripPlan.data ?? [], 'arriveAt'));
 
   error = $derived.by(() => {
+    const suggestions = this.#queries?.suggestions;
+    const tripPlan = this.#queries?.tripPlan;
+
     if (this.activeInput) {
       if (this.showMyLocation) return null;
-      if (this.suggestionsQuery?.isError) return 'Failed to load locations';
-      if (this.searchPending || this.suggestionsQuery?.isLoading || this.suggestions.length)
-        return null;
+      if (suggestions?.isError) return 'Failed to load locations';
+      if (this.searchPending || suggestions?.isLoading || this.suggestions.length) return null;
       return 'No locations found';
     }
 
@@ -78,17 +117,32 @@ class PlanManager {
     if (this.start.location.name === this.end.location.name)
       return 'Start and End locations cannot be the same';
     if (this.locationError) return 'Location Unavailable. Enable Location permissions in Settings.';
-    if (this.tripPlanQuery?.isError) return 'Failed to load routes';
-    if (this.tripPlanQuery?.isLoading || this.plans.length) return null;
+    if (tripPlan?.isError) return 'Failed to load routes';
+    if (this.awaitingLocation || tripPlan?.isLoading || this.plans.length) return null;
     return 'No routes found';
   });
   loading = $derived(
     !this.error &&
-      !!(this.tripPlanQuery?.isLoading || this.suggestionsQuery?.isLoading || this.searchPending),
+      !!(
+        this.awaitingLocation ||
+        this.#queries?.tripPlan.isLoading ||
+        this.#queries?.suggestions.isLoading ||
+        this.searchPending
+      ),
   );
 
   constructor() {
     this.reset();
+  }
+
+  #withMyLocation(place: PlaceSuggestion | null): PlaceSuggestion | null {
+    if (place?.type !== PlaceType.MY_LOCATION) return place;
+    return { ...place, location: this.#queries?.myLocation.current };
+  }
+
+  /** Starts the plan page's searches. Call it while the page mounts. */
+  attachQueries() {
+    this.#queries = new PlanQueries(this);
   }
 
   focus(which: EndpointKey) {
@@ -103,64 +157,16 @@ class PlanManager {
     [this.start, this.end] = [this.end, this.start];
     this.activeInput = null;
   }
-  hasBus(plan: PlanItem) {
-    return plan.instructions.some((i) => i.movementType === MovementType.BUS);
-  }
-
-  async resolveMyLocation() {
-    if (!this.needsMyLocation) return;
-    const seq = ++this.#locationSeq;
-    this.locationDenied = false;
-    try {
-      const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
-      if (seq !== this.#locationSeq) return;
-
-      const resolved: PlaceSuggestion = {
-        ...MyLocation,
-        location: { latitude: pos.coords.latitude, longitude: pos.coords.longitude },
-      };
-      for (const endpoint of [this.start, this.end])
-        if (endpoint.needsMyLocation) endpoint.location = resolved;
-    } catch {
-      if (seq !== this.#locationSeq) return;
-      this.locationDenied = true;
-    }
-  }
 
   reset() {
-    this.updateSearchQuery.cancel();
-    this.searchQuery = '';
     this.start.select({ ...MyLocation });
     this.end.select(null);
     this.activeInput = null;
     this.planTime = DateTime.now();
-    this.deadline = 'leave';
+    this.deadline = Deadline.LEAVE_BY;
     this.selectedPlan = null;
-    this.shownInstruction = -1;
-    this.locationDenied = false;
-    this.suggestionsQuery = null;
-    this.tripPlanQuery = null;
+    this.shownInstruction = null;
   }
-}
-
-export function usePlanState() {
-  planManager.suggestionsQuery = useSearchSuggestions(() => ({
-    query: planManager.searchQuery,
-  }));
-  planManager.tripPlanQuery = useTripPlan(() => ({
-    origin: planManager.start.location,
-    destination: planManager.end.location,
-    date: planManager.planTime.toJSDate(),
-    deadline: planManager.deadline,
-  }));
-
-  $effect(() => {
-    planManager.updateSearchQuery(planManager.activeSearchTerm);
-  });
-
-  $effect(() => {
-    if (planManager.needsMyLocation) planManager.resolveMyLocation();
-  });
 }
 
 let planManager: PlanManager;

@@ -1,37 +1,23 @@
 <script lang="ts">
   import TimeBubble from '$lib/components/TimeBubble.svelte';
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
-  import { useStopEstimate } from '$lib/data/app';
-  import type { Direction, Route, Stop } from '$lib/data/types';
+  import { EstimateSource, type Route, type StopEstimates } from '$lib/data/types';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
-  import { getRouteTint } from '$lib/utils/tints';
 
   type Props = {
     route: Route;
-    direction: Direction;
-    stop: Stop;
+    estimates: StopEstimates;
   };
 
-  let { route, direction, stop }: Props = $props();
-
-  const { data: estimates, isLoading } = $derived(
-    useStopEstimate(() => ({
-      route: route,
-      direction: direction,
-      stop,
-    })),
-  );
+  let { route, estimates }: Props = $props();
 </script>
 
-<div
-  class="flex flex-wrap items-center gap-1"
-  style="--tint: {getRouteTint(route, themeManager.theme)}"
->
-  {#if isLoading}
+<div class="flex flex-wrap items-center gap-1" style="--tint: {themeManager.tintFor(route)}">
+  {#if estimates.source === EstimateSource.LOADING}
     <Spinner class="size-4 self-center" />
   {/if}
 
-  {#each estimates as estimate, i}
+  {#each estimates.estimates as estimate, i}
     <TimeBubble {estimate} isNext={i === 0} />
   {/each}
 </div>

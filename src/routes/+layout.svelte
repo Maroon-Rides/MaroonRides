@@ -2,21 +2,30 @@
   import favicon from '$lib/assets/favicon.svg';
   import MapElements from '$lib/components/map/MapElements.svelte';
   import PlanMapElements from '$lib/components/map/PlanMapElements.svelte';
+  import OfflinePill from '$lib/components/OfflinePill.svelte';
+  import UpdateRequired from '$lib/components/UpdateRequired.svelte';
   import Map from '$lib/components/ui/map/Map.svelte';
   import MapControls from '$lib/components/ui/map/MapControls.svelte';
   import { frontPageManager } from '$lib/managers/frontpage.manager.svelte';
   import { mapManager } from '$lib/managers/map.manager.svelte';
+  import { liveDataManager } from '$lib/managers/live-data.manager.svelte';
+  import { syncManager, VersionStatus } from '$lib/managers/sync.manager.svelte';
   import { installDynamicType } from '$lib/utils/dynamic-type';
-  import { installInterceptor } from '$lib/utils/interceptor';
   import { migratePrefs } from '$lib/utils/prefs';
-  import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+  import { queryClient } from '$lib/utils/queries';
+  import { QueryClientProvider } from '@tanstack/svelte-query';
+  import { page } from '$app/state';
   import { ModeWatcher } from 'mode-watcher';
   import { onDestroy, onMount } from 'svelte';
   import './layout.css';
 
   let { children } = $props();
 
-  const queryClient = new QueryClient();
+  const ROUTE_PAGES = '/route/[id]';
+
+  $effect(() =>
+    liveDataManager.subscribe(page.route.id?.startsWith(ROUTE_PAGES) ? page.params.id! : null),
+  );
 
   onDestroy(() => {
     mapManager.unregisterMap();
@@ -26,9 +35,13 @@
     // Pages read prefs on load, so migrating first keeps them from flickering.
     await migratePrefs();
     await frontPageManager.load();
+    await syncManager.start();
+    if (syncManager.versionStatus === VersionStatus.UNSUPPORTED) return;
+
+    liveDataManager.connect(() => syncManager.sync());
+    await syncManager.sync();
   });
 
-  installInterceptor();
   installDynamicType();
 </script>
 
@@ -57,3 +70,9 @@
     {@render children()}
   </div>
 </QueryClientProvider>
+
+<OfflinePill />
+
+{#if syncManager.versionStatus === VersionStatus.UNSUPPORTED}
+  <UpdateRequired />
+{/if}

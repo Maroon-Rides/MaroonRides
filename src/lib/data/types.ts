@@ -1,4 +1,3 @@
-import { type IAmenity } from '$lib/data/typecheck/aggie_spirit';
 import {
   AccessibilityIcon,
   AirVentIcon,
@@ -11,26 +10,19 @@ import {
   MapPin,
   OctagonPauseIcon,
 } from '@lucide/svelte';
-import moment from 'moment';
+import type { TripLegType } from '$lib/api/client';
+import type { DateTime } from 'luxon';
 
 export enum Amenity {
-  AIR_CONDITIONING = 'Air Conditioning',
-  WHEELCHAIR_ACCESSIBLE = 'Wheelchair Accessible',
-  WHEELCHAIR_LIFT = 'Wheelchair Lift',
-  BICYCLE_RACK = 'Bicycle Rack',
-  SHELTER = 'Shelter',
-  TIME_POINT = 'Time Point',
+  AIR_CONDITIONING = 'AIR_CONDITIONING',
+  WHEELCHAIR_ACCESSIBLE = 'WHEELCHAIR_ACCESSIBLE',
+  WHEELCHAIR_LIFT = 'WHEELCHAIR_LIFT',
+  BICYCLE_RACK = 'BICYCLE_RACK',
+  SHELTER = 'SHELTER',
+  TIME_POINT = 'TIME_POINT',
 }
 
 export namespace Amenity {
-  export function fromAPI(api: IAmenity[]): Amenity[] {
-    return api
-      .map((item) => {
-        return Object.values(Amenity).find((amenity) => amenity === item.name);
-      })
-      .filter((amenity): amenity is Amenity => amenity !== undefined);
-  }
-
   export function getIcon(amenity: Amenity) {
     switch (amenity) {
       case Amenity.AIR_CONDITIONING:
@@ -49,82 +41,78 @@ export namespace Amenity {
   }
 }
 
-export enum DataSource {
-  AGGIE_SPIRIT,
-  BRAZOS_TRANSIT,
-}
-
 export type Location = {
   latitude: number;
   longitude: number;
 };
 
-export interface FromDataSource {
-  dataSource: DataSource;
-}
-
-export interface Stop extends FromDataSource {
-  name: string;
+export interface Stop {
   id: string;
+  name: string;
   location: Location;
+  amenities: Amenity[];
+  isTimepoint: boolean;
   isLastOnDirection: boolean;
 }
 
-export interface PathLocation extends Location {
-  isStop: boolean;
-}
-
-export interface Route extends FromDataSource {
-  name: string;
+export interface Route {
   id: string;
+  name: string;
   routeCode: string;
-  tintColor: string;
+  lightColor: string;
+  darkColor: string;
   directions: Direction[];
   bounds: Location[];
 }
 
-export interface Direction extends FromDataSource {
-  pathPoints: PathLocation[];
-  name: string;
+export interface Direction {
   id: string;
+  name: string;
+  pathPoints: Location[];
   stops: Stop[];
   isOnlyDirection: boolean;
 }
 
-export interface Bus extends FromDataSource {
+export interface Bus {
+  id: string;
+  name: string;
   location: Location;
   heading: number;
+  speed: number;
   amenities: Amenity[];
   capacity: number;
-  speed: number;
-  id: string;
   direction: Direction;
-  name: string;
   route: Route;
 }
 
-export interface TimeEstimate extends FromDataSource {
-  estimatedTime: moment.Moment | null;
-  scheduledTime: moment.Moment;
-  tripPointId?: string;
+export interface TimeEstimate {
+  estimatedTime: DateTime | null;
+  scheduledTime: DateTime;
   isRealTime: boolean;
-  isCancelled?: boolean;
 }
 
-export interface StopSchedule extends FromDataSource {
-  route: Route;
-  direction: Direction;
-  stop: Stop;
-  timetable: TimeEstimate[];
-  isEndOfRoute: boolean;
+export enum EstimateSource {
+  LOADING = 'loading',
+  LIVE = 'live',
+  SCHEDULE = 'schedule',
+  UNAVAILABLE = 'unavailable',
 }
 
-export interface Alert extends FromDataSource {
+export interface StopEstimates {
+  source: EstimateSource;
+  estimates: TimeEstimate[];
+}
+
+export interface TimetableDeparture {
+  scheduledTime: DateTime;
+  estimatedTime: DateTime | null;
+  isCancelled: boolean;
+}
+
+export interface Alert {
   id: string;
   title: string;
   description: string;
-  affectedRoutes: Route[];
-  originalRoute: Route;
 }
 
 // Route Planning
@@ -147,17 +135,14 @@ export enum PlanOption {
   MY_LOCATION = MY_LOCATION_ID,
 }
 export namespace PlanOption {
-  export function fromMovementType(mType: MovementType): PlanOption {
-    switch (mType) {
-      case MovementType.BUS:
-        return PlanOption.BUS;
-      case MovementType.WALKING:
-        return PlanOption.WALKING;
-      case MovementType.END:
-        return PlanOption.END;
-      case MovementType.WAITING:
-        return PlanOption.WAITING;
-    }
+  const LEG_OPTIONS: Record<TripLegType, PlanOption> = {
+    ride: PlanOption.BUS,
+    walk: PlanOption.WALKING,
+    wait: PlanOption.WAITING,
+  };
+
+  export function fromLegType(type: TripLegType): PlanOption {
+    return LEG_OPTIONS[type];
   }
   export function getIcon(planOption: PlanOption) {
     switch (planOption) {
@@ -174,7 +159,7 @@ export namespace PlanOption {
     }
   }
 }
-export interface PlaceSuggestion extends FromDataSource {
+export interface PlaceSuggestion {
   id: string;
   name: string;
   description: string;
@@ -189,33 +174,6 @@ export const MyLocation = {
   location: undefined,
   type: PlaceType.MY_LOCATION,
 } as PlaceSuggestion;
-
-export enum MovementType {
-  BUS = 'bus',
-  WALKING = 'walking',
-  END = 'end',
-  WAITING = 'waiting',
-}
-
-export interface WalkingInstruction {
-  stepNumber: number;
-  instruction: string;
-}
-
-export interface PlanInstruction {
-  movementType: MovementType;
-  time: string;
-  instruction: string;
-  detailedWalkingInstructions: WalkingInstruction[];
-  pathPoints: Location[];
-}
-
-export interface PlanItem extends FromDataSource {
-  startTime: number;
-  endTime: number;
-  endTimeText: string;
-  instructions: PlanInstruction[];
-}
 
 export interface RoutePlanPoint extends Location {
   stepIndex: number;

@@ -3,9 +3,9 @@
   import { page } from '$app/state';
   import * as Accordion from '$lib/components/ui/accordion';
   import * as BottomSheet from '$lib/components/ui/bottom-sheet';
-  import { PlanOption } from '$lib/data/types';
   import { mapManager } from '$lib/managers/map.manager.svelte';
   import { planManager } from '$lib/managers/plan.manager.svelte';
+  import { arrivalLabel, toTimelineSteps } from '$lib/utils/route-planning';
   import StepRow from './StepRow.svelte';
 
   $effect(() => {
@@ -16,23 +16,11 @@
   let mapRoutes = [...mapManager.drawnRoutes];
   $effect(() => {
     mapManager.setDrawnRoutes([], false);
-    planManager.shownInstruction = -1;
+    planManager.shownInstruction = null;
   });
 
-  // Strips the API's inline HTML, so @html renders only the markup added here.
-  const domParser = new DOMParser();
-  const format = (s: string) =>
-    (
-      domParser.parseFromString(s.replaceAll(/\(ID: \d+\)/g, '!br!'), 'text/html').body
-        .textContent ?? ''
-    )
-      .replaceAll(/!br!/g, '<br>')
-      .replaceAll(/(My Location)/g, '$1<br>')
-      .replace(/(<br>)*$/, '');
-
   const plan = $derived(planManager.selectedPlan);
-  const instructions = $derived(plan?.instructions ?? []);
-  const formattedContent = $derived(instructions.map((instr) => format(instr.instruction)));
+  const steps = $derived(plan ? toTimelineSteps(plan) : []);
 
   function onClose() {
     mapManager.setDrawnRoutes(mapRoutes);
@@ -49,7 +37,7 @@
     ]}
   >
     {#snippet header()}
-      <BottomSheet.Header title="Trip Plan" subtitle={`Arrive at ${plan?.endTimeText ?? ''}`}>
+      <BottomSheet.Header title="Trip Plan" subtitle={plan ? arrivalLabel(plan) : ''}>
         {#snippet actions()}
           <BottomSheet.CloseButton onclick={onClose} />
         {/snippet}
@@ -60,19 +48,19 @@
       <Accordion.Root
         type="single"
         bind:value={
-          () => (planManager.shownInstruction === -1 ? '' : String(planManager.shownInstruction)),
-          (value) => (planManager.shownInstruction = value === '' ? -1 : Number(value))
+          () => String(planManager.shownInstruction ?? ''),
+          (value) => (planManager.shownInstruction = value === '' ? null : Number(value))
         }
         class="px-4 pt-3"
       >
-        {#each instructions as step, i}
+        {#each steps as step, i}
           <StepRow
             value={String(i)}
-            icon={PlanOption.fromMovementType(step.movementType)}
+            icon={step.icon}
             time={step.time}
-            content={formattedContent[i]}
-            instructions={step.detailedWalkingInstructions}
-            isLast={i === instructions.length - 1}
+            content={step.content}
+            instructions={step.instructions}
+            isLast={i === steps.length - 1}
             isFirst={i === 0}
           />
         {/each}

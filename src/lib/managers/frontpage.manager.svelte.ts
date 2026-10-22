@@ -1,3 +1,4 @@
+import { toggleFavorite } from '$lib/utils/prefs';
 import { Preferences } from '@capacitor/preferences';
 
 class FrontPageManager {
@@ -18,6 +19,15 @@ class FrontPageManager {
   }
   async loadFavorites() {
     this.favorites = JSON.parse((await Preferences.get({ key: 'favorites' })).value ?? '[]');
+  }
+
+  isFavorite(routeCode: string) {
+    return this.favorites.includes(routeCode);
+  }
+
+  async toggleFavorite(routeCode: string) {
+    await toggleFavorite(routeCode);
+    await this.loadFavorites();
   }
 }
 

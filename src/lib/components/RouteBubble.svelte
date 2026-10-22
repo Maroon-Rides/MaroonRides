@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { Route } from '$lib/data/types';
   import { themeManager } from '$lib/managers/theme.manager.svelte';
-  import { getRouteTint } from '$lib/utils/tints';
   import { fit, parent_style } from '@leveluptuts/svelte-fit';
   import { tv, type VariantProps } from 'tailwind-variants';
 
@@ -12,7 +11,7 @@
 
   let { route, type }: Props = $props();
 
-  let tintColor = $derived(getRouteTint(route, themeManager.theme));
+  let tintColor = $derived(themeManager.tintFor(route));
 
   const style = tv({
     base: 'flex shrink-0 items-center justify-center rounded-md',

@@ -1,21 +1,17 @@
 <script lang="ts">
-  import { useTimetableEstimate } from '$lib/data/app';
-  import type { StopSchedule } from '$lib/data/types';
-  import { themeManager } from '$lib/managers/theme.manager.svelte';
+  import type { TimetableDeparture } from '$lib/data/types';
   import buildTimetable from '$lib/utils/timetable';
-  import { getRouteTint } from '$lib/utils/tints';
   import { Rss } from '@lucide/svelte';
   import { tv } from 'tailwind-variants';
 
   type Props = {
-    schedule: StopSchedule;
-    date: moment.Moment;
+    tint: string;
+    departures: TimetableDeparture[];
   };
 
-  let { schedule, date }: Props = $props();
+  let { tint, departures }: Props = $props();
 
-  const timeEstimates = useTimetableEstimate(() => ({ stop: schedule.stop, date }));
-  const timetable = $derived(buildTimetable(schedule, timeEstimates.data ?? []));
+  const timetable = $derived(buildTimetable(departures));
 
   const rowStyle = tv({
     base: 'flex flex-wrap items-center rounded-lg',
@@ -46,7 +42,7 @@
   });
 </script>
 
-<div class="flex flex-col" style="--tint: {getRouteTint(schedule.route, themeManager.theme)}">
+<div class="flex flex-col" style="--tint: {tint}">
   {#each timetable as row, i}
     <div
       class={rowStyle({
