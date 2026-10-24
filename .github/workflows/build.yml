@@ -79,6 +79,8 @@ jobs:
           ASC_KEY_BASE64: ${{ secrets.ASC_KEY_BASE64 }}
           GIT_AUTHORIZATION: ${{ secrets.GIT_AUTHORIZATION }}
           CHANGELOG: ${{ inputs.changelog }}
+          # Pre-release tags carry a suffix like -beta.1, and manual builds have no tag.
+          IS_STORE_RELEASE: ${{ inputs.tagName != '' && !contains(inputs.tagName, '-') }}
 
   build_android:
     runs-on: ubuntu-latest

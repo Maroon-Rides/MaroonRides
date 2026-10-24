@@ -52,6 +52,22 @@ platform :ios do
       notify_external_testers: true,
       changelog: CHANGELOG,
     )
+
+    next unless ENV['IS_STORE_RELEASE'] == 'true'
+
+    # Prepares the version for review without submitting it.
+    upload_to_app_store(
+      app_identifier: IOS_APP_IDENTIFIER,
+      app_version: APP_VERSION,
+      build_number: build_number.to_s,
+      release_notes: { 'default' => CHANGELOG },
+      automatic_release: true,
+      submit_for_review: false,
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      run_precheck_before_submit: false,
+      force: true,
+    )
   end
 end
 
