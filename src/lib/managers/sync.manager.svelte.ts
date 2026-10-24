@@ -1,4 +1,5 @@
 import { getSupportedVersion, syncStream } from '$lib/api/client';
+import { App } from '@capacitor/app';
 import { db } from '$lib/db/database';
 import { syncAck, timetable } from '$lib/db/schema';
 import { TODAY_SQL } from '$lib/db/sql';
@@ -98,6 +99,9 @@ class SyncManager {
   }
 
   async #startUp() {
+    // iOS can take the database file away while suspended, so syncs only run in the foreground.
+    App.addListener('pause', () => this.#retry.cancel());
+    App.addListener('resume', () => this.sync());
     this.#enqueue(() => db.delete(timetable).where(lt(timetable.serviceDate, TODAY_SQL)));
     await this.#checkVersion().catch((error) =>
       appLogger.w(`Version check failed: ${describeError(error)}`),
@@ -131,6 +135,7 @@ class SyncManager {
       await this.#reporter.watch(acks, applyAll(planSync(lines)));
       appLogger.i(`Applied ${lines.length} sync lines`);
     } catch (error) {
+      if (error instanceof SyncApplyError && error.isDatabaseUnavailable) throw error;
       appLogger.w(`Incremental sync failed, running a full sync: ${describeError(error)}`);
       await this.#fullSync();
     }

@@ -33,6 +33,31 @@ describe('syncFailureEvent', () => {
   ])('reports %s', (type, error) => {
     expect(syncFailureEvent(error, [])?.type).toBe(type);
   });
+
+  it('reports the SQLite error instead of the query that hit it', () => {
+    const sqliteError = new Error('rc: 14 message: unable to open database file');
+    const query = `Failed query: delete from "timetable"\nparams: ${'id,'.repeat(100)}`;
+    const queryError = new Error(query, { cause: sqliteError });
+    const error = new SyncApplyError('sync apply failed', { cause: queryError });
+
+    expect(syncFailureEvent(error, ACKS)?.payload.message).toBe(`${sqliteError}`);
+  });
+});
+
+describe('SyncApplyError', () => {
+  it.each([
+    [
+      'iOS',
+      'Run: Failed in runSQL :  Error: prepareSQL finalize failed rc: 14 message: unable to open database file',
+      true,
+    ],
+    ['Android', 'unable to open database file (code 14 SQLITE_CANTOPEN)', true],
+    ['a constraint', 'UNIQUE constraint failed: route.id', false],
+  ])('knows when the database was unavailable on %s', (_, message, unavailable) => {
+    const error = new SyncApplyError('sync apply failed', { cause: new Error(message) });
+
+    expect(error.isDatabaseUnavailable).toBe(unavailable);
+  });
 });
 
 describe('SyncFailureReporter', () => {
