@@ -45,3 +45,8 @@ export const appLogger = new Logger('APP', logLevel);
 export function describeError(error: unknown): string {
   return error instanceof Error && error.cause ? `${error} (cause: ${error.cause})` : `${error}`;
 }
+
+export function rootCause(error: unknown): unknown {
+  while (error instanceof Error && error.cause) error = error.cause;
+  return error;
+}

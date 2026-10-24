@@ -1,5 +1,5 @@
 import { report, type ReportEvent } from '$lib/api/client';
-import { appLogger, describeError } from '$lib/utils/logger';
+import { appLogger, describeError, rootCause } from '$lib/utils/logger';
 import { SyncApplyError, SyncLineError, SyncStatusError } from './sync-errors';
 import { SYNC_PROTOCOL_V1 } from './sync-stream';
 
@@ -8,7 +8,8 @@ const FIRST_SERVER_ERROR_STATUS = 500;
 
 /** Returns null for failures not worth reporting, like being offline or the gateway being down. */
 export function syncFailureEvent(error: unknown, acks: string[]): ReportEvent | null {
-  const payload = { protocol: SYNC_PROTOCOL_V1, acks, message: describeError(error) };
+  // The gateway truncates the message, and the failed query's params would push the cause out.
+  const payload = { protocol: SYNC_PROTOCOL_V1, acks, message: `${rootCause(error)}` };
 
   if (error instanceof SyncStatusError && error.status < FIRST_SERVER_ERROR_STATUS) {
     return { type: 'SyncFailedHTTPStatusV1', payload: { ...payload, status: error.status } };
