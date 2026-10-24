@@ -139,3 +139,5 @@ jobs:
           GOOGLE_PLAY_KEY: ${{ secrets.GOOGLE_PLAY_KEY }}
           RELEASE_NAME: ${{ inputs.tagName || steps.git_sha.outputs.sha_short }}
           PACKAGE_NAME: 'com.maroonrides.maroonrides'
+          # Pre-release tags carry a suffix like -beta.1, and manual builds have no tag.
+          PLAY_TRACK: ${{ inputs.tagName != '' && !contains(inputs.tagName, '-') && 'production' || 'internal' }}

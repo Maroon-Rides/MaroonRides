@@ -9,6 +9,10 @@ CHANGELOG = ENV['CHANGELOG'] || "Howdy! This update includes some bug fixes and 
 PACKAGE_JSON = File.expand_path('../package.json', FastlaneCore::FastlaneFolder.path)
 APP_VERSION = JSON.parse(File.read(PACKAGE_JSON))['version'].split('-').first
 
+PLAY_TRACK_INTERNAL = 'internal'
+PLAY_TRACK_PRODUCTION = 'production'
+PLAY_TRACK = ENV['PLAY_TRACK'] || PLAY_TRACK_INTERNAL
+
 platform :ios do
   desc 'Push a new build to TestFlight'
   lane :build do
@@ -54,11 +58,14 @@ end
 platform :android do
   desc 'Build a release App Bundle'
   lane :build do
-    latest_version_code = google_play_track_version_codes(
-      track: 'internal',
-      json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY']),
-      package_name: ENV['PACKAGE_NAME'],
-    ).max || 1
+    # Releases skip internal, so its codes alone would fall behind production's.
+    latest_version_code = [PLAY_TRACK_INTERNAL, PLAY_TRACK_PRODUCTION].flat_map do |track|
+      google_play_track_version_codes(
+        track: track,
+        json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY']),
+        package_name: ENV['PACKAGE_NAME'],
+      )
+    end.max || 1
 
     version_code = latest_version_code + 1
     UI.message("Building #{APP_VERSION} (#{version_code})")
@@ -81,12 +88,12 @@ platform :android do
   desc 'Push a new build to the Google Play Store'
   lane :upload do
     upload_to_play_store(
-      track: 'internal',
+      track: PLAY_TRACK,
       version_name: ENV['RELEASE_NAME'],
       aab: './android/app/build/outputs/bundle/release/app-release.aab',
       json_key_data: Base64.decode64(ENV['GOOGLE_PLAY_KEY']),
       package_name: ENV['PACKAGE_NAME'],
-      release_status: 'draft',
+      release_status: PLAY_TRACK == PLAY_TRACK_PRODUCTION ? 'completed' : 'draft',
     )
   end
 end
