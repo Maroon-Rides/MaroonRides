@@ -237,15 +237,14 @@
   {@render busMarker(bus)}
 {/each}
 
-{#if selectedBus}
-  <BusPopup bus={selectedBus} />
-{:else if selectedStop}
-  <StopPopup
-    route={selectedStop.route}
-    stop={selectedStop.stop}
-    onclose={() => (mapManager.selected = null)}
-  />
-{/if}
+<!-- The popups can update once more after the selection clears, so they read an item that never goes null. -->
+{#each selectedBus ? [selectedBus] : [] as bus (bus.id)}
+  <BusPopup {bus} />
+{:else}
+  {#each selectedStop ? [selectedStop] : [] as { route, stop } (stop.id)}
+    <StopPopup {route} {stop} onclose={() => (mapManager.selected = null)} />
+  {/each}
+{/each}
 
 {#if userLocation}
   <MapMarker longitude={userLocation.longitude} latitude={userLocation.latitude} zIndex={30}>
