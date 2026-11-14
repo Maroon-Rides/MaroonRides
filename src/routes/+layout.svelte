@@ -1,5 +1,5 @@
 <script lang="ts">
-  import favicon from '$lib/assets/favicon.svg';
+  import favicon from '$lib/assets/logo.png';
   import MapElements from '$lib/components/map/MapElements.svelte';
   import PlanMapElements from '$lib/components/map/PlanMapElements.svelte';
   import OfflinePill from '$lib/components/OfflinePill.svelte';
