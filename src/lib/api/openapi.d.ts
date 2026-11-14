@@ -219,6 +219,15 @@ export interface components {
        */
       type: 'RouteDeleteV1';
     };
+    RouteDeleteV2Line: {
+      ack: string;
+      data: components['schemas']['SyncRouteDeleteV1'];
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'RouteDeleteV2';
+    };
     RouteV1Line: {
       ack: string;
       data: components['schemas']['SyncRouteV1'];
@@ -227,6 +236,15 @@ export interface components {
        * @enum {string}
        */
       type: 'RouteV1';
+    };
+    RouteV2Line: {
+      ack: string;
+      data: components['schemas']['SyncRouteV2'];
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'RouteV2';
     };
     StopDeleteV1Line: {
       ack: string;
@@ -316,7 +334,9 @@ export interface components {
      */
     SyncEntityType:
       | 'RouteV1'
+      | 'RouteV2'
       | 'RouteDeleteV1'
+      | 'RouteDeleteV2'
       | 'DirectionV1'
       | 'DirectionDeleteV1'
       | 'StopV1'
@@ -383,6 +403,7 @@ export interface components {
     /** @enum {string} */
     SyncRequestType:
       | 'RoutesV1'
+      | 'RoutesV2'
       | 'DirectionsV1'
       | 'StopsV1'
       | 'AlertsV1'
@@ -414,6 +435,17 @@ export interface components {
       longName: string;
       shortName: string;
     };
+    /** @description SyncRouteV2 schema */
+    SyncRouteV2: {
+      active: boolean;
+      darkColor: string;
+      /** Format: uuid */
+      id: string;
+      isLoop: boolean;
+      lightColor: string;
+      longName: string;
+      shortName: string;
+    };
     /** @description SyncStopDeleteV1 schema */
     SyncStopDeleteV1: {
       /** Format: uuid */
@@ -436,7 +468,9 @@ export interface components {
     };
     SyncStreamLine:
       | components['schemas']['RouteV1Line']
+      | components['schemas']['RouteV2Line']
       | components['schemas']['RouteDeleteV1Line']
+      | components['schemas']['RouteDeleteV2Line']
       | components['schemas']['DirectionV1Line']
       | components['schemas']['DirectionDeleteV1Line']
       | components['schemas']['StopV1Line']

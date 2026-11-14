@@ -63,6 +63,7 @@ export interface Route {
   darkColor: string;
   directions: Direction[];
   bounds: Location[];
+  isLoop: boolean;
 }
 
 export interface Direction {

@@ -81,6 +81,7 @@ function toRoute(row: RouteRow): Route {
     darkColor: row.darkColor,
     directions,
     bounds: findBoundingBox(directions.flatMap((d) => d.pathPoints)),
+    isLoop: row.isLoop,
   };
 }
 

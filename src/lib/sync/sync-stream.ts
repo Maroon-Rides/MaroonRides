@@ -17,7 +17,7 @@ import { chunk } from 'lodash-es';
 export const SYNC_PROTOCOL_V1: SyncRequest['protocol'] = 1;
 
 export const SYNC_REQUEST_TYPES: SyncRequestType[] = [
-  'RoutesV1',
+  'RoutesV2',
   'DirectionsV1',
   'StopsV1',
   'AlertsV1',
@@ -73,6 +73,8 @@ const controlLine: EntityHandler<unknown> = () => [];
 const HANDLERS: { [T in SyncEntityType]: EntityHandler<LineData<T>> } = {
   RouteV1: upsert(route, (data: LineData<'RouteV1'>) => data),
   RouteDeleteV1: remove(route, (data: LineData<'RouteDeleteV1'>) => data.routeId),
+  RouteV2: upsert(route, (data: LineData<'RouteV2'>) => data),
+  RouteDeleteV2: remove(route, (data: LineData<'RouteDeleteV2'>) => data.routeId),
   DirectionV1: upsert(direction, (data: LineData<'DirectionV1'>) => data),
   DirectionDeleteV1: remove(direction, (data: LineData<'DirectionDeleteV1'>) => data.directionId),
   StopV1: upsert(stop, (data: LineData<'StopV1'>) => ({
