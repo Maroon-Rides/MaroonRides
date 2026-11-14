@@ -8,7 +8,8 @@
 </script>
 
 <header
-  class="fixed inset-x-0 top-0 z-20 flex h-14 items-center justify-between border-b bg-background px-4 dark:bg-card"
+  data-web-header
+  class="fixed inset-x-0 top-0 z-20 flex h-(--web-header-height) items-center justify-between border-b bg-background px-4 dark:bg-card"
 >
   <div class="flex items-center gap-2">
     <img src={logo} alt="" class="size-8 rounded-lg" />
