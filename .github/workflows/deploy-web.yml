@@ -1,0 +1,62 @@
+name: Deploy Web
+
+on:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # Fork PRs don't get repository secrets.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+
+    environment:
+      name: ${{ github.event_name == 'pull_request' && 'web-preview' || 'web-production' }}
+      url: ${{ steps.deploy.outputs.deployment-url }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install mise and dependencies
+        uses: jdx/mise-action@v3
+        with:
+          install_args: node pnpm github:protomaps/go-pmtiles
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Cache Basemap
+        id: basemap
+        uses: actions/cache@v4
+        with:
+          path: |
+            static/map/cstat.pmtiles
+            static/map/sprites
+            static/map/fonts
+          key: basemap-${{ hashFiles('pmtiles/cstat.sh') }}
+
+      - name: Build Basemap
+        if: steps.basemap.outputs.cache-hit != 'true'
+        run: pnpm pmtiles
+
+      - name: Build Web Assets
+        run: pnpm build
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy build --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT }} --branch=${{ github.head_ref || 'main' }}
