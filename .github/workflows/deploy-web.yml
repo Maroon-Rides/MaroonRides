@@ -64,13 +64,17 @@ jobs:
         env:
           VITE_PMTILES_URL: ${{ vars.MAP_TILES_URL }}/${{ steps.tiles.outputs.key }}
 
+      # R2's REST object API rejects bucket-scoped tokens, so this uses the S3 API instead of wrangler.
       - name: Upload Basemap to R2
-        uses: cloudflare/wrangler-action@v3
-        with:
-          wranglerVersion: ${{ env.WRANGLER_VERSION }}
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-          command: r2 object put ${{ vars.MAP_TILES_BUCKET }}/${{ steps.tiles.outputs.key }} --file=static/map/cstat.pmtiles --remote --content-type=application/vnd.pmtiles --cache-control=public,max-age=31536000,immutable
+        run: >-
+          aws s3 cp static/map/cstat.pmtiles "s3://${{ vars.MAP_TILES_BUCKET }}/${{ steps.tiles.outputs.key }}"
+          --endpoint-url "https://${{ vars.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com"
+          --content-type application/vnd.pmtiles
+          --cache-control "public, max-age=31536000, immutable"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
 
       # The web build reads the basemap from R2.
       - name: Remove Bundled Basemap
