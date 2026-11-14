@@ -13,6 +13,10 @@ permissions:
   contents: read
   deployments: write
 
+env:
+  # Must match mise.toml, otherwise wrangler-action runs `pnpm add wrangler`, which pnpm blocks.
+  WRANGLER_VERSION: 4.156.0
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -50,15 +54,33 @@ jobs:
         if: steps.basemap.outputs.cache-hit != 'true'
         run: pnpm pmtiles
 
+      # Content-addressed, so previews never overwrite the basemap production reads.
+      - name: Name Basemap Object
+        id: tiles
+        run: echo "key=cstat-$(sha256sum static/map/cstat.pmtiles | cut -c1-16).pmtiles" >> "$GITHUB_OUTPUT"
+
       - name: Build Web Assets
         run: pnpm build
+        env:
+          VITE_PMTILES_URL: ${{ vars.MAP_TILES_URL }}/${{ steps.tiles.outputs.key }}
+
+      - name: Upload Basemap to R2
+        uses: cloudflare/wrangler-action@v3
+        with:
+          wranglerVersion: ${{ env.WRANGLER_VERSION }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: r2 object put ${{ vars.MAP_TILES_BUCKET }}/${{ steps.tiles.outputs.key }} --file=static/map/cstat.pmtiles --remote --content-type=application/vnd.pmtiles --cache-control=public,max-age=31536000,immutable
+
+      # The web build reads the basemap from R2.
+      - name: Remove Bundled Basemap
+        run: rm build/map/cstat.pmtiles
 
       - name: Deploy to Cloudflare Pages
         id: deploy
         uses: cloudflare/wrangler-action@v3
         with:
-          # Must match mise.toml, otherwise the action runs `pnpm add wrangler`, which pnpm blocks.
-          wranglerVersion: 4.156.0
+          wranglerVersion: ${{ env.WRANGLER_VERSION }}
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy build --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT }} --branch=${{ github.head_ref || 'main' }}
