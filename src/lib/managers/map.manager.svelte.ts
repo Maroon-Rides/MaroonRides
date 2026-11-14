@@ -1,5 +1,6 @@
 import type { Location, Route, Stop } from '$lib/data/types';
 import { findBoundingBox } from '$lib/utils/geo';
+import { SIDE_SHEET_OCCUPIED_PX, sideSheetLayout } from '$lib/utils/layout';
 import MapLibreGL, { type VectorSourceSpecification } from 'maplibre-gl';
 
 export type MapSelection = { type: 'bus'; id: string } | { type: 'stop'; id: string } | null;
@@ -92,8 +93,28 @@ class MapManager {
       center: [stop.location.longitude, stop.location.latitude],
       zoom: 17,
       duration: 750,
-      offset: [0, -this.mapHeight * 0.225],
+      offset: sideSheetLayout.current
+        ? [SIDE_SHEET_OCCUPIED_PX / 2, 0]
+        : [0, -this.mapHeight * 0.225],
     });
+  }
+
+  #sheetPadding(): MapLibreGL.PaddingOptions {
+    if (sideSheetLayout.current) {
+      return {
+        top: this.mapHeight * 0.1,
+        bottom: this.mapHeight * 0.1,
+        left: SIDE_SHEET_OCCUPIED_PX + 40,
+        right: 40,
+      };
+    }
+
+    return {
+      top: this.mapHeight * 0.1,
+      bottom: this.mapHeight * 0.45 + 8,
+      left: 40,
+      right: 40,
+    };
   }
 
   zoomToFitPoints(points: Location[]) {
@@ -108,12 +129,7 @@ class MapManager {
         [max.longitude, max.latitude],
       ],
       {
-        padding: {
-          top: this.mapHeight * 0.1,
-          bottom: this.mapHeight * 0.45 + 8,
-          left: 40,
-          right: 40,
-        },
+        padding: this.#sheetPadding(),
         duration: 1000,
         maxZoom: 16,
       },

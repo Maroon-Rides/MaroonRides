@@ -2,6 +2,7 @@
   import { beforeNavigate, goto } from '$app/navigation';
   import * as Card from '$lib/components/ui/card';
   import { cn, type WithElementRef } from '$lib/utils.js';
+  import { SIDE_SHEET_GUTTER_PX, SIDE_SHEET_WIDTH_PX, sideSheetLayout } from '$lib/utils/layout';
   import { clamp, last, minBy, range, throttle } from 'lodash-es';
   import { onMount, setContext, tick } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
@@ -632,7 +633,15 @@
 {#if visible}
   <div
     bind:this={containerRef}
-    class={cn('pointer-events-none fixed inset-x-0 bottom-0 z-50 flex flex-col', className)}
+    class={cn(
+      'pointer-events-none fixed bottom-0 z-50 flex flex-col',
+      !sideSheetLayout.current && 'inset-x-0',
+      className,
+    )}
+    style:left={sideSheetLayout.current
+      ? `calc(env(safe-area-inset-left) + ${SIDE_SHEET_GUTTER_PX}px)`
+      : undefined}
+    style:width={sideSheetLayout.current ? `${SIDE_SHEET_WIDTH_PX}px` : undefined}
     in:fly={{ y: 200, duration: enableTransitions ? animationDuration : 0, opacity: 1 }}
     out:fly|global={{ y: currentHeight + safeAreaBottom, duration: animationDuration, opacity: 1 }}
     {...restProps}
