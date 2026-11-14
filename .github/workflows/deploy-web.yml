@@ -12,6 +12,7 @@ concurrency:
 permissions:
   contents: read
   deployments: write
+  pull-requests: write
 
 env:
   # Must match mise.toml, otherwise wrangler-action runs `pnpm add wrangler`, which pnpm blocks.
@@ -88,3 +89,24 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy build --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT }} --branch=${{ github.event.pull_request.number && format('pr{0}', github.event.pull_request.number) || 'main' }}
+
+      # Edits the bot's previous comment so the PR keeps one preview link.
+      - name: Comment Preview URL
+        if: github.event_name == 'pull_request'
+        run: |
+          gh pr comment "$PR_NUMBER" --edit-last --create-if-none --body "$(cat <<BODY
+          ### Web preview
+
+          | | |
+          | --- | --- |
+          | Preview | $PREVIEW_URL |
+          | This deploy | $DEPLOYMENT_URL |
+          | Commit | $COMMIT |
+          BODY
+          )"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PREVIEW_URL: https://pr${{ github.event.pull_request.number }}.${{ vars.CLOUDFLARE_PAGES_PROJECT }}.pages.dev
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+          COMMIT: ${{ github.event.pull_request.head.sha }}
