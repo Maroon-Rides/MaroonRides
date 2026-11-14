@@ -19,6 +19,19 @@ export const syncStreamLineSchema = z.discriminatedUnion('type', [
   ),
   line('RouteDeleteV1', z.object({ routeId: z.string() })),
   line(
+    'RouteV2',
+    z.object({
+      id: z.string(),
+      shortName: z.string(),
+      longName: z.string(),
+      lightColor: z.string(),
+      darkColor: z.string(),
+      active: z.boolean(),
+      isLoop: z.boolean(),
+    }),
+  ),
+  line('RouteDeleteV2', z.object({ routeId: z.string() })),
+  line(
     'DirectionV1',
     z.object({
       id: z.string(),
