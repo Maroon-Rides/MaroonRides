@@ -145,6 +145,9 @@ class SyncManager {
 
   async #runSync() {
     const acks = (await db.select({ ack: syncAck.ack }).from(syncAck)).map(({ ack }) => ack);
+    // Without acks the server sends no tombstones, so any rows already stored can't be trusted.
+    if (acks.length === 0) return this.#fullSync();
+
     const lines = await this.#reporter.watch(acks, fetchLines(acks));
     if (isResetStream(lines)) return this.#fullSync();
 

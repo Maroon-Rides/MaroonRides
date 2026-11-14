@@ -8,6 +8,7 @@ export const route = sqliteTable('route', {
   lightColor: text('light_color').notNull(),
   darkColor: text('dark_color').notNull(),
   active: integer('active', { mode: 'boolean' }).notNull(),
+  isLoop: integer('is_loop', { mode: 'boolean' }).notNull().default(true),
 });
 
 export const direction = sqliteTable(

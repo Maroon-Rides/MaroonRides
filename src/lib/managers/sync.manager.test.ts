@@ -3,6 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   listeners: new Map<string, () => void>(),
   syncStream: vi.fn(),
+  acks: [] as string[],
+  planSync: vi.fn(() => []),
+  planFullSync: vi.fn(() => []),
 }));
 
 vi.mock('@capacitor/app', () => ({
@@ -21,11 +24,14 @@ vi.mock('$lib/sync/sync-stream', () => ({
   SYNC_PROTOCOL_V1: 1,
   SYNC_REQUEST_TYPES: [],
   isResetStream: () => false,
-  planSync: () => [],
-  planFullSync: () => [],
+  planSync: mocks.planSync,
+  planFullSync: mocks.planFullSync,
 }));
 vi.mock('$lib/db/database', () => {
-  const query = { where: () => Promise.resolve(), from: () => Promise.resolve([]) };
+  const query = {
+    where: () => Promise.resolve(),
+    from: () => Promise.resolve(mocks.acks.map((ack) => ({ ack }))),
+  };
   return {
     db: {
       delete: () => query,
@@ -61,6 +67,9 @@ beforeEach(() => {
   vi.spyOn(Math, 'random').mockReturnValue(1);
   mocks.listeners.clear();
   mocks.syncStream.mockReset().mockResolvedValue([]);
+  mocks.acks = [];
+  mocks.planSync.mockClear();
+  mocks.planFullSync.mockClear();
 });
 
 afterEach(() => {
@@ -69,6 +78,28 @@ afterEach(() => {
 });
 
 describe('SyncManager', () => {
+  it('replaces local data when it holds no acks', async () => {
+    const syncManager = await startedSyncManager();
+    mocks.planFullSync.mockClear();
+    await syncManager.sync();
+
+    expect(mocks.syncStream).toHaveBeenLastCalledWith(expect.objectContaining({ acks: [] }));
+    expect(mocks.planFullSync).toHaveBeenCalledOnce();
+    expect(mocks.planSync).not.toHaveBeenCalled();
+  });
+
+  it('applies changes on top of local data when it holds acks', async () => {
+    mocks.acks = ['RouteV2|01990000-0000-7000-8000-0000000000aa'];
+    const syncManager = await startedSyncManager();
+    await syncManager.sync();
+
+    expect(mocks.syncStream).toHaveBeenLastCalledWith(
+      expect.objectContaining({ acks: mocks.acks }),
+    );
+    expect(mocks.planSync).toHaveBeenCalled();
+    expect(mocks.planFullSync).not.toHaveBeenCalled();
+  });
+
   it('retries a failed sync in the foreground', async () => {
     const syncManager = await startedSyncManager();
     mocks.syncStream.mockRejectedValueOnce(new Error('offline'));

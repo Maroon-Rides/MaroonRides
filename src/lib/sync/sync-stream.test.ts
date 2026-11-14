@@ -28,9 +28,9 @@ function rows(sql: string) {
   return sqlite.exec(sql)[0]?.values ?? [];
 }
 
-const routeLine = (longName: string, ack: string): SyncStreamLine => ({
-  type: 'RouteV1',
-  ack: `RouteV1|${ack}`,
+const routeLine = (longName: string, ack: string, isLoop = true): SyncStreamLine => ({
+  type: 'RouteV2',
+  ack: `RouteV2|${ack}`,
   data: {
     id: ROUTE_ID,
     shortName: '01',
@@ -38,18 +38,46 @@ const routeLine = (longName: string, ack: string): SyncStreamLine => ({
     lightColor: '#500000',
     darkColor: '#ff5555',
     active: true,
+    isLoop,
   },
 });
+
+function migrate(files: string[]) {
+  for (const file of files) {
+    migrationFiles[file].split(MIGRATION_BREAKPOINT).forEach((statement) => sqlite.run(statement));
+  }
+}
 
 beforeEach(async () => {
   const SQL = await initSqlJs();
   sqlite = new SQL.Database();
-  for (const file of Object.keys(migrationFiles).sort()) {
-    migrationFiles[file].split(MIGRATION_BREAKPOINT).forEach((statement) => sqlite.run(statement));
-  }
+});
+
+describe('route loop migration', () => {
+  it('keeps stored routes as loops and drops every ack so the next sync replaces them', () => {
+    const [initial, routeIsLoop] = Object.keys(migrationFiles).sort();
+    migrate([initial]);
+    sqlite.run(
+      `INSERT INTO route VALUES ('${ROUTE_ID}', '01', 'Bonfire', '#500000', '#ff5555', 1)`,
+    );
+    sqlite.run(`INSERT INTO sync_ack VALUES ('RouteV1', 'RouteV1|${ACK_ID}')`);
+
+    migrate([routeIsLoop]);
+
+    expect(rows('SELECT id, is_loop FROM route')).toEqual([[ROUTE_ID, 1]]);
+    expect(rows('SELECT key FROM sync_ack')).toEqual([]);
+  });
 });
 
 describe('planSync', () => {
+  beforeEach(() => migrate(Object.keys(migrationFiles).sort()));
+
+  it('stores whether a route loops', () => {
+    apply(planSync([routeLine('Gameday Bonfire', ACK_ID, false)]));
+
+    expect(rows('SELECT is_loop FROM route')).toEqual([[0]]);
+  });
+
   it('stores rows as the server sends them, with null lists as empty', () => {
     apply(
       planSync([
@@ -83,7 +111,7 @@ describe('planSync', () => {
     apply(planSync([routeLine('Bonfire', ACK_ID), routeLine('Bonfire Express', newerAck)]));
 
     expect(rows('SELECT long_name FROM route')).toEqual([['Bonfire Express']]);
-    expect(rows('SELECT key, ack FROM sync_ack')).toEqual([['RouteV1', `RouteV1|${newerAck}`]]);
+    expect(rows('SELECT key, ack FROM sync_ack')).toEqual([['RouteV2', `RouteV2|${newerAck}`]]);
   });
 
   it('applies each run of lines in the order it arrived', () => {
@@ -95,7 +123,7 @@ describe('planSync', () => {
           ack: `DirectionV1|${ACK_ID}`,
           data: { id: DIRECTION_ID, routeId: ROUTE_ID, destination: 'MSC', sequence: 0, path: '' },
         },
-        { type: 'RouteDeleteV1', ack: `RouteDeleteV1|${ACK_ID}`, data: { routeId: ROUTE_ID } },
+        { type: 'RouteDeleteV2', ack: `RouteDeleteV2|${ACK_ID}`, data: { routeId: ROUTE_ID } },
       ]),
     );
 
@@ -119,7 +147,7 @@ describe('planSync', () => {
 
     expect(rows('SELECT long_name FROM route')).toEqual([['Bonfire Express']]);
     expect(rows('SELECT id FROM direction')).toEqual([]);
-    expect(rows('SELECT ack FROM sync_ack')).toEqual([[`RouteV1|${fullAck}`]]);
+    expect(rows('SELECT ack FROM sync_ack')).toEqual([[`RouteV2|${fullAck}`]]);
   });
 });
 
