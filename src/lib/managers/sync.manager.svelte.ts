@@ -51,6 +51,7 @@ class SyncManager {
 
   #startup: Promise<void> | null = null;
   #pendingSync: Promise<void> | null = null;
+  #isPaused = false;
   readonly #retry = new RetryScheduler(() => this.sync(), {
     initialDelayMs: INITIAL_RETRY_DELAY_MS,
     maxDelayMs: MAX_RETRY_DELAY_MS,
@@ -79,6 +80,7 @@ class SyncManager {
 
   /** Runs a sync after any already in progress. Calls made while one is waiting share it. */
   sync(): Promise<void> {
+    this.#retry.cancel();
     this.#pendingSync ??= this.#enqueue(async () => {
       this.#pendingSync = null;
       this.#isSyncing = true;
@@ -89,8 +91,7 @@ class SyncManager {
         }
         this.#retry.reset();
       } catch (error) {
-        const delay = this.#retry.schedule();
-        appLogger.w(`Sync failed, retrying in ${Math.round(delay)} ms: ${describeError(error)}`);
+        this.#onSyncFailed(error);
       } finally {
         this.#isSyncing = false;
       }
@@ -100,12 +101,28 @@ class SyncManager {
 
   async #startUp() {
     // iOS can take the database file away while suspended, so syncs only run in the foreground.
-    App.addListener('pause', () => this.#retry.cancel());
-    App.addListener('resume', () => this.sync());
+    App.addListener('pause', () => {
+      this.#isPaused = true;
+      this.#retry.cancel();
+    });
+    App.addListener('resume', () => {
+      this.#isPaused = false;
+      this.sync();
+    });
     this.#enqueue(() => db.delete(timetable).where(lt(timetable.serviceDate, TODAY_SQL)));
     await this.#checkVersion().catch((error) =>
       appLogger.w(`Version check failed: ${describeError(error)}`),
     );
+  }
+
+  #onSyncFailed(error: unknown) {
+    // Resuming syncs again, so a retry would only run alongside it.
+    if (this.#isPaused) {
+      appLogger.w(`Sync failed in the background: ${describeError(error)}`);
+      return;
+    }
+    const delay = this.#retry.schedule();
+    appLogger.w(`Sync failed, retrying in ${Math.round(delay)} ms: ${describeError(error)}`);
   }
 
   #enqueue(task: () => PromiseLike<unknown>): Promise<void> {

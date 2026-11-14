@@ -41,6 +41,7 @@ class LiveDataManager {
   readonly #socket = new LiveSocket(WEBSOCKET_URL, {
     onStateChange: (state) => this.#onConnectionChange(state),
     onMessage: (message) => this.#onMessage(message),
+    onRecovered: () => this.#onReconnected(),
   });
 
   /** Whether the live socket has been unreachable for long enough to tell the rider. */
@@ -80,12 +81,10 @@ class LiveDataManager {
   }
 
   #onConnectionChange(state: ConnectionState) {
-    const wasReconnecting = this.#connection === ConnectionState.RECONNECTING;
     this.#connection = state;
     this.#offline.update(state);
 
     if (state !== ConnectionState.CONNECTED) this.#clear();
-    else if (wasReconnecting) this.#onReconnected();
   }
 
   #clear() {

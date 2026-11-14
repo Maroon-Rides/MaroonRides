@@ -25,6 +25,8 @@ export enum ConnectionState {
 interface LiveSocketHandlers {
   onStateChange(state: ConnectionState): void;
   onMessage(message: WebsocketServerMessage): void;
+  /** The socket is back after dropping. Not called when it reopens after a pause. */
+  onRecovered(): void;
 }
 
 /** One websocket to the gateway that reconnects on its own and keeps the chosen route subscribed. */
@@ -35,6 +37,7 @@ export class LiveSocket {
   #state = ConnectionState.IDLE;
   #socket: WebSocket | null = null;
   #routeId: string | null = null;
+  #dropped = false;
   readonly #retry = new RetryScheduler(() => this.#open(), {
     initialDelayMs: INITIAL_RETRY_DELAY_MS,
     maxDelayMs: MAX_RETRY_DELAY_MS,
@@ -65,6 +68,7 @@ export class LiveSocket {
     if (!this.#wantsOpen) return;
     this.#retry.cancel();
     this.#closeSocket();
+    this.#dropped = false;
     this.#setState(ConnectionState.PAUSED);
   }
 
@@ -97,6 +101,10 @@ export class LiveSocket {
       this.#pingTimer = setInterval(() => this.ping(), PING_INTERVAL_MS);
       this.#sendSubscription();
       this.#setState(ConnectionState.CONNECTED);
+      if (this.#dropped) {
+        this.#dropped = false;
+        this.#handlers.onRecovered();
+      }
     };
 
     socket.onmessage = (event) => {
@@ -115,7 +123,10 @@ export class LiveSocket {
 
   #onSocketLost() {
     this.#closeSocket();
-    if (this.#state === ConnectionState.CONNECTED) this.#setState(ConnectionState.RECONNECTING);
+    if (this.#state === ConnectionState.CONNECTED) {
+      this.#dropped = true;
+      this.#setState(ConnectionState.RECONNECTING);
+    }
     const delay = this.#retry.schedule();
     appLogger.i(`Live socket lost, reconnecting in ${Math.round(delay)} ms`);
   }
