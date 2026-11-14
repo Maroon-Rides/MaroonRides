@@ -1,0 +1,112 @@
+name: Deploy Web
+
+on:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  deployments: write
+  pull-requests: write
+
+env:
+  # Must match mise.toml, otherwise wrangler-action runs `pnpm add wrangler`, which pnpm blocks.
+  WRANGLER_VERSION: 4.156.0
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # Fork PRs don't get repository secrets.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+
+    environment:
+      name: ${{ github.event_name == 'pull_request' && 'web-preview' || 'web-production' }}
+      url: ${{ steps.deploy.outputs.deployment-url }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install mise and dependencies
+        uses: jdx/mise-action@v3
+        with:
+          install_args: node pnpm github:protomaps/go-pmtiles npm:wrangler
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Cache Basemap
+        id: basemap
+        uses: actions/cache@v4
+        with:
+          path: |
+            static/map/cstat.pmtiles
+            static/map/sprites
+            static/map/fonts
+          key: basemap-${{ hashFiles('pmtiles/cstat.sh') }}
+
+      - name: Build Basemap
+        if: steps.basemap.outputs.cache-hit != 'true'
+        run: pnpm pmtiles
+
+      # Content-addressed, so previews never overwrite the basemap production reads.
+      - name: Name Basemap Object
+        id: tiles
+        run: echo "key=cstat-$(sha256sum static/map/cstat.pmtiles | cut -c1-16).pmtiles" >> "$GITHUB_OUTPUT"
+
+      - name: Build Web Assets
+        run: pnpm build
+        env:
+          VITE_PMTILES_URL: ${{ vars.MAP_TILES_URL }}/${{ steps.tiles.outputs.key }}
+
+      # R2's REST object API rejects bucket-scoped tokens, so this uses the S3 API instead of wrangler.
+      - name: Upload Basemap to R2
+        run: >-
+          aws s3 cp static/map/cstat.pmtiles "s3://${{ vars.MAP_TILES_BUCKET }}/${{ steps.tiles.outputs.key }}"
+          --endpoint-url "https://${{ vars.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com"
+          --content-type application/vnd.pmtiles
+          --cache-control "public, max-age=31536000, immutable"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+
+      # The web build reads the basemap from R2.
+      - name: Remove Bundled Basemap
+        run: rm build/map/cstat.pmtiles
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          wranglerVersion: ${{ env.WRANGLER_VERSION }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy build --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT }} --branch=${{ github.event.pull_request.number && format('pr{0}', github.event.pull_request.number) || 'main' }}
+
+      # Edits the bot's previous comment so the PR keeps one preview link.
+      - name: Comment Preview URL
+        if: github.event_name == 'pull_request'
+        run: |
+          gh pr comment "$PR_NUMBER" --edit-last --create-if-none --body "$(cat <<BODY
+          ### Web preview
+
+          | | |
+          | --- | --- |
+          | Preview | $PREVIEW_URL |
+          | This deploy | $DEPLOYMENT_URL |
+          | Commit | $COMMIT |
+          BODY
+          )"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PREVIEW_URL: https://pr${{ github.event.pull_request.number }}.${{ vars.CLOUDFLARE_PAGES_PROJECT }}.pages.dev
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+          COMMIT: ${{ github.event.pull_request.head.sha }}

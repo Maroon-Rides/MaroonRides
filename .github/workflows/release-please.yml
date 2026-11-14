@@ -31,3 +31,13 @@ jobs:
       buildPlatform: all
       tagName: ${{ needs.release-please.outputs.tag_name }}
       changelog: ${{ needs.release-please.outputs.body }}
+
+  deploy-web:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    uses: ./.github/workflows/deploy-web.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      deployments: write
+      pull-requests: write

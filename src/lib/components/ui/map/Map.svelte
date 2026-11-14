@@ -5,6 +5,7 @@
   import { PMTiles, Protocol } from 'pmtiles';
   import { onDestroy, onMount, setContext } from 'svelte';
   import Spinner from '../spinner/spinner.svelte';
+  import { PMTILES_URL, resolveMapStyle } from './map-style';
 
   type MapStyleOption = string | MapLibreGL.StyleSpecification;
 
@@ -54,6 +55,8 @@
 
   const isReady = $derived(isMounted && isLoaded);
 
+  const transformStyle = resolveMapStyle(window.location.href, PMTILES_URL);
+
   export type MapContext = {
     getMap: () => MapLibreGL.Map | null;
     getBounds: () => MapLibreGL.LngLatBounds | null;
@@ -79,9 +82,7 @@
     const protocol = new Protocol();
     MapLibreGL.addProtocol('pmtiles', protocol.tile);
 
-    const PMTILE_URL = '/map/cstat.pmtiles';
-
-    const p = new PMTiles(PMTILE_URL);
+    const p = new PMTiles(PMTILES_URL);
 
     // The JS code and the map renderer share this one instance.
     protocol.add(p);
@@ -94,7 +95,6 @@
 
     const mapInstance = new MapLibreGL.Map({
       container: mapContainer,
-      style: requestedStyle,
       renderWorldCopies: false,
       // TODO move attribution elsewhere
       attributionControl: false,
@@ -120,6 +120,7 @@
       loadedStyle = requestedStyle;
     });
 
+    mapInstance.setStyle(requestedStyle, { transformStyle });
     map = mapInstance;
   });
 
@@ -132,7 +133,7 @@
 
     requestedStyle = style;
     loadedStyle = null;
-    map.setStyle(style, { diff: false });
+    map.setStyle(style, { diff: false, transformStyle });
   });
 
   onDestroy(() => {
