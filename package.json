@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "prepare": "svelte-kit sync && pnpm sqlite:wasm || echo ''",
-    "sqlite:wasm": "cp node_modules/sql.js/dist/sql-wasm.wasm static/assets/sql-wasm.wasm",
+    "sqlite:wasm": "mkdir -p static/assets && cp node_modules/sql.js/dist/sql-wasm.wasm static/assets/sql-wasm.wasm",
     "api:generate": "openapi-typescript ../api/openapi.json -o src/lib/api/openapi.d.ts",
     "db:generate": "drizzle-kit generate",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
