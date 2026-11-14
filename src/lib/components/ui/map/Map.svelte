@@ -5,6 +5,8 @@
   import { PMTiles, Protocol } from 'pmtiles';
   import { onDestroy, onMount, setContext } from 'svelte';
   import Spinner from '../spinner/spinner.svelte';
+  import { WholeFileSource } from './whole-file-source';
+  import { Capacitor } from '@capacitor/core';
 
   type MapStyleOption = string | MapLibreGL.StyleSpecification;
 
@@ -81,7 +83,10 @@
 
     const PMTILE_URL = '/map/cstat.pmtiles';
 
-    const p = new PMTiles(PMTILE_URL);
+    // Cloudflare Pages ignores Range headers, so web loads the whole file.
+    const p = new PMTiles(
+      Capacitor.getPlatform() === 'web' ? new WholeFileSource(PMTILE_URL) : PMTILE_URL,
+    );
 
     // The JS code and the map renderer share this one instance.
     protocol.add(p);
