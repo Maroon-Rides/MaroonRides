@@ -29,11 +29,13 @@ class FakeWebSocket {
 
 function createSocket() {
   const states: ConnectionState[] = [];
+  const onRecovered = vi.fn();
   const socket = new LiveSocket('ws://test', {
     onStateChange: (state) => states.push(state),
     onMessage: () => {},
+    onRecovered,
   });
-  return { socket, states };
+  return { socket, states, onRecovered };
 }
 
 const latest = () => FakeWebSocket.opened.at(-1)!;
@@ -85,6 +87,49 @@ describe('LiveSocket', () => {
 
     expect(FakeWebSocket.opened).toHaveLength(2);
     expect(states.at(-1)).toBe(ConnectionState.RECONNECTING);
+  });
+
+  it('reports recovery once a dropped connection comes back', async () => {
+    const { socket, onRecovered } = createSocket();
+    socket.connect();
+    latest().open();
+    latest().close();
+    await vi.advanceTimersToNextTimerAsync();
+    latest().open();
+
+    expect(onRecovered).toHaveBeenCalledOnce();
+  });
+
+  it('does not report recovery when resumed from a pause', () => {
+    const { socket, onRecovered } = createSocket();
+    socket.connect();
+    latest().open();
+    socket.disconnect();
+    socket.connect();
+    latest().open();
+
+    expect(onRecovered).not.toHaveBeenCalled();
+  });
+
+  it('does not report recovery when paused while reconnecting', async () => {
+    const { socket, onRecovered } = createSocket();
+    socket.connect();
+    latest().open();
+    latest().close();
+    await Promise.resolve();
+    socket.disconnect();
+    socket.connect();
+    latest().open();
+
+    expect(onRecovered).not.toHaveBeenCalled();
+  });
+
+  it('does not report recovery on the first connection', () => {
+    const { socket, onRecovered } = createSocket();
+    socket.connect();
+    latest().open();
+
+    expect(onRecovered).not.toHaveBeenCalled();
   });
 
   it('ignores a second connect while already connecting', () => {
