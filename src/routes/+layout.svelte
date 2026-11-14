@@ -4,6 +4,7 @@
   import PlanMapElements from '$lib/components/map/PlanMapElements.svelte';
   import OfflinePill from '$lib/components/OfflinePill.svelte';
   import UpdateRequired from '$lib/components/UpdateRequired.svelte';
+  import WebHeader from '$lib/components/WebHeader.svelte';
   import Map from '$lib/components/ui/map/Map.svelte';
   import MapControls from '$lib/components/ui/map/MapControls.svelte';
   import { frontPageManager } from '$lib/managers/frontpage.manager.svelte';
@@ -13,6 +14,7 @@
   import { installDynamicType } from '$lib/utils/dynamic-type';
   import { migratePrefs } from '$lib/utils/prefs';
   import { queryClient } from '$lib/utils/queries';
+  import { Capacitor } from '@capacitor/core';
   import { QueryClientProvider } from '@tanstack/svelte-query';
   import { page } from '$app/state';
   import { ModeWatcher } from 'mode-watcher';
@@ -70,6 +72,10 @@
     {@render children()}
   </div>
 </QueryClientProvider>
+
+{#if !Capacitor.isNativePlatform()}
+  <WebHeader />
+{/if}
 
 <OfflinePill />
 
