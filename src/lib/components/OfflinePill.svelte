@@ -6,7 +6,7 @@
 
 <div
   class={cn(
-    'pointer-events-none fixed inset-x-0 top-0 z-20 flex justify-center pt-[env(safe-area-inset-top)] transition-[translate,opacity] duration-300 ease-out',
+    'pointer-events-none fixed inset-x-0 top-0 z-20 flex justify-center pt-[calc(env(safe-area-inset-top)+var(--web-header-height))] transition-[translate,opacity] duration-300 ease-out',
     !liveDataManager.isOffline && '-translate-y-full opacity-0',
   )}
   aria-hidden={!liveDataManager.isOffline}

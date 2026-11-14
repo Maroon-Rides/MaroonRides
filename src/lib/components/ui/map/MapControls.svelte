@@ -25,8 +25,8 @@
   const loaded = $derived(mapCtx.isLoaded());
 
   const positionClasses = {
-    'top-left': 'top-[calc(env(safe-area-inset-top)+8px)] left-2',
-    'top-right': 'top-[calc(env(safe-area-inset-top)+8px)] right-2',
+    'top-left': 'top-[calc(env(safe-area-inset-top)+var(--web-header-height)+8px)] left-2',
+    'top-right': 'top-[calc(env(safe-area-inset-top)+var(--web-header-height)+8px)] right-2',
     'bottom-left': 'bottom-2 left-2',
     'bottom-right': 'bottom-10 right-2',
   };

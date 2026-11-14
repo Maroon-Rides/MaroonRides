@@ -8,7 +8,12 @@
   --spacing: 4px;
 }
 
+:root:has([data-web-header]) {
+  --web-header-height: 56px;
+}
+
 :root {
+  --web-header-height: 0px;
   --dynamic-type-scale: 1;
   font-size: calc(1rem * var(--dynamic-type-scale));
 
