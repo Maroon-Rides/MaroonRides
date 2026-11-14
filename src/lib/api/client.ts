@@ -2,6 +2,8 @@ import createClient from 'openapi-fetch';
 import type { components, paths } from './openapi';
 import { SyncLineError, SyncStatusError } from '$lib/sync/sync-errors';
 import { syncStreamLineSchema } from './sync-lines';
+import { APP_VERSION } from '$lib/utils/app-version';
+import { Capacitor } from '@capacitor/core';
 
 const PRODUCTION_API_URL = 'https://api.maroonrides.app';
 const LINE_SEPARATOR = '\n';
@@ -22,7 +24,14 @@ export type TripWalkStep = Schemas['TripWalkStep'];
 export type TripLegType = Schemas['TripLegType'];
 export type TripTimeKind = Schemas['TripTimeKind'];
 
-const client = createClient<paths>({ baseUrl: API_URL });
+// Browsers can't set the User-Agent, so the platform and version also go in headers.
+const client = createClient<paths>({
+  baseUrl: API_URL,
+  headers: {
+    'X-App-Platform': Capacitor.getPlatform(),
+    'X-App-Version': APP_VERSION,
+  },
+});
 
 export async function getSupportedVersion(): Promise<string> {
   const { data, error } = await client.GET('/api/version/supported');
